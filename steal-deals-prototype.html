@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Steal Deals — Talabat Prototype v2</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --orange: #FF5A1F; --orange-light: #FFF0EA; --orange-mid: #FF8552;
+  --deep: #1A0A00; --ink: #2D1A0E; --muted: #8A7060;
+  --border: #EDE0D8; --surface: #FDFAF8; --white: #FFFFFF;
+  --green: #00A86B; --green-light: #E8F8F2;
+  --red: #E53935; --gold: #F4A225; --gold-light: #FEF6E8;
+}
+body {
+  font-family: 'Sora', sans-serif;
+  background: #EDE5DF;
+  display: flex; align-items: flex-start; justify-content: center;
+  min-height: 100vh; padding: 40px 20px; gap: 36px; flex-wrap: wrap;
+}
+
+/* ── PHONE ── */
+.phone-wrap { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.screen-label { font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500; color: #8A7060; letter-spacing: 0.08em; text-transform: uppercase; }
+.phone {
+  width: 375px; background: var(--white); border-radius: 44px;
+  box-shadow: 0 32px 80px rgba(26,10,0,0.22), 0 2px 8px rgba(26,10,0,0.08);
+  overflow: hidden; position: relative; border: 1.5px solid rgba(26,10,0,0.08);
+}
+.notch { width: 120px; height: 28px; background: var(--deep); border-radius: 0 0 18px 18px; margin: 0 auto; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.notch-cam { width: 10px; height: 10px; background: #2a1810; border-radius: 50%; border: 1.5px solid #3a2820; }
+.notch-sensor { width: 5px; height: 5px; background: #2a1810; border-radius: 50%; }
+.status-bar { background: var(--white); padding: 8px 24px 4px; display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-weight: 600; color: var(--deep); }
+.status-icons { display: flex; gap: 4px; align-items: center; }
+.battery { width: 22px; height: 11px; border: 1.5px solid var(--deep); border-radius: 2px; position: relative; padding: 1.5px; }
+.battery-fill { background: var(--deep); height: 100%; width: 80%; border-radius: 1px; }
+.battery::after { content: ''; position: absolute; right: -4px; top: 3px; width: 2px; height: 5px; background: var(--deep); border-radius: 1px; }
+.screen-content { overflow-y: auto; max-height: 720px; scrollbar-width: none; }
+.screen-content::-webkit-scrollbar { display: none; }
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* ── SHARED HEADER ── */
+.app-header { padding: 12px 20px 10px; background: var(--white); position: sticky; top: 0; z-index: 10; border-bottom: 1px solid var(--border); }
+.header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.talabat-logo { font-weight: 700; font-size: 20px; color: var(--orange); letter-spacing: -0.5px; }
+.header-icons { display: flex; gap: 10px; align-items: center; }
+.icon-btn { width: 36px; height: 36px; border-radius: 50%; background: var(--orange-light); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 16px; }
+.delivery-row { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--muted); }
+.delivery-row strong { color: var(--ink); }
+.back-btn { width: 36px; height: 36px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px; color: var(--ink); flex-shrink: 0; }
+
+/* ── SCREEN 1: HOME ── */
+.search-bar { margin: 12px 20px 14px; background: var(--surface); border: 1.5px solid var(--border); border-radius: 14px; padding: 10px 16px; display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--muted); }
+.home-section { padding: 0 20px 14px; }
+.home-section-title { font-size: 14px; font-weight: 700; color: var(--ink); margin-bottom: 10px; }
+.category-row { display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; padding-bottom: 4px; }
+.category-row::-webkit-scrollbar { display: none; }
+.cat-chip { flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer; }
+.cat-icon { width: 54px; height: 54px; border-radius: 16px; background: var(--surface); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 26px; }
+.cat-label { font-size: 10px; font-weight: 500; color: var(--ink); text-align: center; }
+
+/* STEAL DEALS BANNER — lean, doesn't dominate */
+.steal-banner {
+  margin: 4px 20px 14px;
+  background: linear-gradient(120deg, #FF5A1F 0%, #FF3D00 100%);
+  border-radius: 18px; padding: 16px 18px;
+  position: relative; overflow: hidden; cursor: pointer;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.steal-banner::before { content: ''; position: absolute; top: -18px; right: -18px; width: 90px; height: 90px; background: rgba(255,255,255,0.08); border-radius: 50%; }
+.banner-left {}
+.banner-live { display: inline-flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.2); border-radius: 20px; padding: 2px 9px; font-size: 9px; font-weight: 600; color: white; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.06em; }
+.pulse-dot { width: 5px; height: 5px; background: #fff; border-radius: 50%; animation: pulse 1.4s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.7)} }
+.banner-title { font-size: 18px; font-weight: 700; color: white; line-height: 1.15; }
+.banner-sub { font-size: 11px; color: rgba(255,255,255,0.8); margin-top: 2px; }
+.banner-right { display: flex; align-items: center; gap: 8px; }
+.banner-emoji { font-size: 38px; animation: float 3s ease-in-out infinite; }
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
+.banner-arrow { background: white; color: var(--orange); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; flex-shrink: 0; }
+
+.promo-card { margin: 0 20px 14px; border-radius: 16px; overflow: hidden; border: 1px solid var(--border); }
+.promo-img { width: 100%; height: 90px; background: linear-gradient(120deg, #1A0A00 0%, #3D1A00 100%); display: flex; align-items: center; justify-content: center; gap: 10px; }
+.promo-img-text { color: white; font-size: 13px; font-weight: 600; }
+.promo-sub-row { display: flex; gap: 8px; padding: 10px; }
+.promo-tag { flex: 1; background: var(--surface); border-radius: 10px; padding: 8px; font-size: 11px; color: var(--muted); text-align: center; }
+.promo-tag strong { display: block; font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 2px; }
+
+.nav-bar { padding: 10px 20px 20px; display: flex; justify-content: space-around; border-top: 1px solid var(--border); background: white; position: sticky; bottom: 0; }
+.nav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 9px; font-weight: 500; color: var(--muted); cursor: pointer; }
+.nav-item.active { color: var(--orange); }
+.nav-icon { font-size: 20px; }
+
+/* ── SCREEN 2: CART ── */
+.deals-page-header { padding: 14px 20px; display: flex; align-items: center; gap: 12px; background: var(--white); border-bottom: 1px solid var(--border); }
+.page-title { font-size: 16px; font-weight: 700; color: var(--ink); flex: 1; }
+.live-badge { background: var(--orange-light); color: var(--orange); font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
+.timer-pill { display: flex; align-items: center; gap: 5px; background: var(--deep); border-radius: 20px; padding: 5px 12px; margin: 10px 20px 0; width: fit-content; }
+.timer-pill-label { font-size: 10px; color: rgba(255,255,255,0.55); }
+.timer-pill-val { font-family: 'DM Mono', monospace; font-size: 13px; color: var(--orange); font-weight: 500; }
+.filters-scroll { padding: 10px 20px 8px; display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
+.filters-scroll::-webkit-scrollbar { display: none; }
+.filter-chip { flex-shrink: 0; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; border: 1.5px solid var(--border); color: var(--muted); background: white; cursor: pointer; white-space: nowrap; transition: all .15s; }
+.filter-chip.active { background: var(--orange); color: white; border-color: var(--orange); }
+.deals-grid { padding: 0 20px 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.dgc { background: var(--white); border-radius: 14px; border: 1.5px solid var(--border); overflow: hidden; cursor: pointer; position: relative; }
+.dgc.featured { border-color: var(--orange); box-shadow: 0 0 0 1px var(--orange); }
+.dgc-img { width: 100%; height: 88px; background: var(--surface); display: flex; align-items: center; justify-content: center; font-size: 38px; position: relative; }
+.badge-pct { position: absolute; top: 6px; right: 6px; background: var(--red); color: white; font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 20px; }
+.badge-timer { position: absolute; bottom: 5px; left: 5px; background: rgba(26,10,0,.72); color: white; font-size: 8px; padding: 2px 7px; border-radius: 20px; }
+.badge-pro { position: absolute; top: 6px; left: 6px; background: var(--gold); color: white; font-size: 8px; font-weight: 700; padding: 2px 6px; border-radius: 20px; }
+.badge-sold { position: absolute; top: 6px; right: 6px; background: rgba(0,0,0,.45); color: white; font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 20px; }
+.dgc-body { padding: 8px 10px 10px; }
+.dgc-name { font-size: 12px; font-weight: 600; color: var(--ink); line-height: 1.3; margin-bottom: 1px; }
+.dgc-brand { font-size: 10px; color: var(--muted); margin-bottom: 6px; }
+.dgc-price-row { display: flex; align-items: baseline; gap: 5px; margin-bottom: 6px; }
+.dgc-price { font-size: 14px; font-weight: 700; color: var(--orange); }
+.dgc-orig { font-size: 10px; color: var(--muted); text-decoration: line-through; }
+.dgc-btn { width: 100%; background: var(--orange); color: white; font-size: 11px; font-weight: 700; padding: 6px; border-radius: 7px; text-align: center; cursor: pointer; border: none; }
+.dgc-btn.pro { background: var(--gold-light); color: var(--gold); }
+.dgc-btn.sold { background: #F0EBE6; color: var(--muted); pointer-events: none; }
+.dgc.sold-out { opacity: .52; pointer-events: none; }
+
+/* ── SCREEN 3: CART ── */
+.cart-page {}
+.page-header-plain { padding: 14px 20px; display: flex; align-items: center; gap: 12px; background: var(--white); border-bottom: 1px solid var(--border); }
+.cart-section-label { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; padding: 14px 20px 8px; }
+.cart-item-row { padding: 10px 20px; display: flex; gap: 12px; align-items: center; border-bottom: 1px solid var(--border); }
+.ci-emoji { font-size: 30px; width: 42px; text-align: center; flex-shrink: 0; }
+.ci-info { flex: 1; }
+.ci-name { font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 2px; }
+.ci-price { font-size: 13px; font-weight: 700; color: var(--orange); }
+.ci-qty { display: flex; align-items: center; gap: 7px; border: 1.5px solid var(--border); border-radius: 8px; padding: 4px 8px; }
+.ci-qty button { background: none; border: none; cursor: pointer; font-size: 16px; color: var(--orange); font-weight: 700; line-height: 1; }
+.ci-qty-num { font-size: 13px; font-weight: 700; color: var(--ink); }
+
+/* STEAL DEALS IN CART — the key UX change */
+.steal-section {
+  margin: 0 0 0; border-top: 1px solid var(--border);
+  padding: 14px 0 16px; background: var(--white);
+}
+.steal-section-header {
+  padding: 0 20px 10px; display: flex; align-items: center; justify-content: space-between;
+}
+.steal-section-title { display: flex; align-items: center; gap: 7px; }
+.steal-section-title span { font-size: 13px; font-weight: 700; color: var(--ink); }
+.steal-section-title .count-pill { background: var(--orange); color: white; font-size: 10px; font-weight: 700; padding: 1px 7px; border-radius: 20px; }
+.steal-section-hint { font-size: 11px; color: var(--muted); }
+.steal-items-scroll { padding: 0 20px; display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; }
+.steal-items-scroll::-webkit-scrollbar { display: none; }
+.steal-item-card {
+  flex-shrink: 0; width: 136px; background: var(--surface);
+  border: 1.5px solid var(--border); border-radius: 12px; padding: 10px;
+  position: relative; transition: border-color .15s;
+}
+.steal-item-card:hover { border-color: var(--orange-mid); }
+.steal-item-card.added { border-color: var(--green); background: var(--green-light); }
+.sic-emoji { font-size: 30px; margin-bottom: 6px; display: block; }
+.sic-name { font-size: 11px; font-weight: 600; color: var(--ink); line-height: 1.3; margin-bottom: 2px; }
+.sic-brand { font-size: 10px; color: var(--muted); margin-bottom: 6px; }
+.sic-price-row { display: flex; align-items: baseline; gap: 5px; margin-bottom: 8px; }
+.sic-price { font-size: 13px; font-weight: 700; color: var(--orange); }
+.sic-orig { font-size: 10px; color: var(--muted); text-decoration: line-through; }
+.sic-save { font-size: 9px; font-weight: 700; color: var(--red); background: #FEE; padding: 1px 5px; border-radius: 5px; }
+.sic-add {
+  width: 100%; background: var(--orange); color: white; border: none;
+  font-size: 11px; font-weight: 700; padding: 6px; border-radius: 7px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px;
+  transition: all .15s;
+}
+.sic-add.added { background: var(--green); }
+.sic-pct { position: absolute; top: 7px; right: 7px; background: var(--red); color: white; font-size: 8px; font-weight: 700; padding: 1px 5px; border-radius: 10px; }
+
+.cart-summary { margin: 12px 20px; background: var(--surface); border-radius: 14px; border: 1px solid var(--border); padding: 14px 16px; }
+.cs-row { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); padding: 4px 0; }
+.cs-row.total { color: var(--ink); font-weight: 700; font-size: 15px; border-top: 1px solid var(--border); margin-top: 8px; padding-top: 10px; }
+.cs-savings { color: var(--green); font-weight: 700; }
+.checkout-btn { margin: 0 20px 20px; background: var(--orange); color: white; font-size: 15px; font-weight: 700; padding: 16px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+
+/* ── SCREEN 4: PROCESSING ANIMATION ── */
+.processing-screen { padding: 40px 30px; text-align: center; min-height: 600px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--white); }
+.processing-ring { position: relative; width: 110px; height: 110px; margin: 0 auto 24px; }
+.ring-bg { position: absolute; inset: 0; border-radius: 50%; border: 4px solid var(--border); }
+.ring-progress { position: absolute; inset: 0; border-radius: 50%; border: 4px solid transparent; border-top-color: var(--orange); border-right-color: var(--orange); animation: spin 1.2s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.ring-inner { position: absolute; inset: 10px; border-radius: 50%; background: var(--orange-light); display: flex; align-items: center; justify-content: center; font-size: 36px; animation: pulse-scale 1.2s ease-in-out infinite; }
+@keyframes pulse-scale { 0%,100%{transform:scale(1)} 50%{transform:scale(1.08)} }
+.processing-title { font-size: 18px; font-weight: 700; color: var(--ink); margin-bottom: 6px; }
+.processing-sub { font-size: 13px; color: var(--muted); line-height: 1.6; }
+.deal-burst { margin-top: 28px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.deal-burst-chip {
+  display: flex; align-items: center; gap: 6px; background: var(--orange-light);
+  border: 1px solid #FFD0B8; border-radius: 20px; padding: 5px 12px;
+  font-size: 11px; font-weight: 600; color: var(--orange);
+  animation: chip-pop .4s cubic-bezier(.34,1.56,.64,1) both;
+}
+.deal-burst-chip:nth-child(1) { animation-delay: .1s; }
+.deal-burst-chip:nth-child(2) { animation-delay: .25s; }
+.deal-burst-chip:nth-child(3) { animation-delay: .4s; }
+@keyframes chip-pop { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
+
+/* Confetti canvas */
+#confetti-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; border-radius: 44px; overflow: hidden; }
+
+/* ── SCREEN 5: ORDER CONFIRMATION ── */
+.confirm-screen { background: var(--surface); padding-bottom: 24px; }
+.confirm-hero { background: var(--white); padding: 20px 20px 18px; text-align: center; border-bottom: 1px solid var(--border); }
+.confirm-check { width: 64px; height: 64px; background: var(--green-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; margin: 0 auto 12px; animation: pop .4s cubic-bezier(.34,1.56,.64,1); }
+@keyframes pop { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
+.confirm-title { font-size: 20px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+.confirm-eta { font-size: 13px; color: var(--muted); }
+.confirm-eta strong { color: var(--green); }
+
+/* ORDER CARD — primary focus */
+.order-card { margin: 12px 16px 0; background: var(--white); border-radius: 16px; border: 1px solid var(--border); overflow: hidden; }
+.order-card-header { padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+.order-card-title { font-size: 13px; font-weight: 700; color: var(--ink); }
+.order-id { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); }
+.order-item-row { padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
+.order-item-row:last-child { border-bottom: none; }
+.oir-left { display: flex; align-items: center; gap: 8px; }
+.oir-emoji { font-size: 22px; }
+.oir-name { font-size: 12px; font-weight: 600; color: var(--ink); }
+.oir-qty { font-size: 11px; color: var(--muted); }
+.oir-price { font-size: 13px; font-weight: 700; color: var(--ink); }
+.oir-deal-price { font-size: 13px; font-weight: 700; color: var(--orange); }
+.steal-tag { display: inline-flex; align-items: center; gap: 3px; background: var(--orange-light); color: var(--orange); font-size: 9px; font-weight: 700; padding: 1px 6px; border-radius: 10px; margin-top: 2px; }
+.order-total-row { padding: 12px 16px; background: var(--surface); display: flex; justify-content: space-between; font-size: 14px; font-weight: 700; color: var(--ink); }
+
+/* SAVINGS WIDGET — secondary but visible */
+.savings-widget { margin: 12px 16px 0; background: linear-gradient(135deg, #FF5A1F 0%, #FF3D00 100%); border-radius: 16px; padding: 16px; overflow: hidden; position: relative; }
+.savings-widget::before { content: ''; position: absolute; top: -20px; right: -20px; width: 90px; height: 90px; background: rgba(255,255,255,.1); border-radius: 50%; }
+.sw-title { font-size: 11px; font-weight: 700; color: rgba(255,255,255,.75); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+.sw-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.sw-stat { background: rgba(255,255,255,.15); border-radius: 10px; padding: 10px 12px; }
+.sw-stat-val { font-family: 'DM Mono', monospace; font-size: 22px; font-weight: 500; color: white; line-height: 1; }
+.sw-stat-label { font-size: 10px; color: rgba(255,255,255,.7); margin-top: 3px; line-height: 1.3; }
+.sw-stat-label strong { color: white; font-weight: 700; }
+
+.track-btn { margin: 12px 16px 0; background: var(--ink); color: white; font-size: 14px; font-weight: 700; padding: 14px; border-radius: 14px; text-align: center; cursor: pointer; }
+.home-btn { margin: 10px 16px 0; background: white; color: var(--ink); font-size: 13px; font-weight: 600; padding: 12px; border-radius: 14px; text-align: center; cursor: pointer; border: 1px solid var(--border); }
+</style>
+</head>
+<body>
+
+<!-- ── PHONE ── -->
+<div class="phone-wrap">
+  <div class="screen-label" id="screen-label">Screen 1 of 4 — Home</div>
+  <div class="phone" style="position:relative;">
+    <canvas id="confetti-canvas"></canvas>
+    <div class="notch"><div class="notch-cam"></div><div class="notch-sensor"></div></div>
+    <div class="status-bar">
+      <span>9:41</span>
+      <div class="status-icons">
+        <svg width="16" height="12" fill="none"><rect x="0" y="4" width="3" height="8" fill="currentColor" rx=".5"/><rect x="4.5" y="2.5" width="3" height="9.5" fill="currentColor" rx=".5"/><rect x="9" y=".5" width="3" height="11.5" fill="currentColor" rx=".5"/></svg>
+        <div class="battery"><div class="battery-fill"></div></div>
+      </div>
+    </div>
+
+    <div class="screen-content">
+
+      <!-- ══ SCREEN 1: HOME ══ -->
+      <div class="screen active" id="s1">
+        <div class="app-header">
+          <div class="header-top">
+            <div class="talabat-logo">talabat</div>
+            <div class="header-icons"><div class="icon-btn">🔔</div><div class="icon-btn" onclick="go(2)">🛒</div></div>
+          </div>
+          <div class="delivery-row">📍 Delivering to <strong>Dubai Marina, B12</strong> · <span style="color:var(--green);font-weight:600">12 min</span></div>
+        </div>
+
+        <div class="search-bar">
+          <svg width="16" height="16" fill="none" stroke="#8A7060" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          Search groceries, brands…
+        </div>
+
+        <!-- STEAL DEALS BANNER — lean entry point only -->
+        <div class="steal-banner" onclick="go(2)">
+          <div class="banner-left">
+            <div class="banner-live"><div class="pulse-dot"></div> Live now · 23 deals</div>
+            <div class="banner-title">Steal Deals 🔥</div>
+            <div class="banner-sub">Prices so low they shouldn't exist</div>
+          </div>
+          <div class="banner-right">
+            <div class="banner-arrow">→</div>
+          </div>
+        </div>
+
+        <!-- REST OF HOME — categories, promos -->
+        <div class="home-section">
+          <div class="home-section-title">Shop by category</div>
+          <div class="category-row">
+            <div class="cat-chip"><div class="cat-icon">🥩</div><div class="cat-label">Meat</div></div>
+            <div class="cat-chip"><div class="cat-icon">🥦</div><div class="cat-label">Produce</div></div>
+            <div class="cat-chip"><div class="cat-icon">🥛</div><div class="cat-label">Dairy</div></div>
+            <div class="cat-chip"><div class="cat-icon">🍞</div><div class="cat-label">Bakery</div></div>
+            <div class="cat-chip"><div class="cat-icon">🧴</div><div class="cat-label">Personal care</div></div>
+            <div class="cat-chip"><div class="cat-icon">🍿</div><div class="cat-label">Snacks</div></div>
+          </div>
+        </div>
+
+        <div class="promo-card">
+          <div class="promo-img">
+            <div class="promo-img-text">✨ talabat Pro — Free delivery on every order</div>
+          </div>
+          <div class="promo-sub-row">
+            <div class="promo-tag"><strong>Free delivery</strong>All orders</div>
+            <div class="promo-tag"><strong>Priority</strong>Support</div>
+            <div class="promo-tag"><strong>Early</strong>Deal access</div>
+          </div>
+        </div>
+
+        <div class="home-section">
+          <div class="home-section-title">Top picks for you</div>
+          <div class="category-row" style="align-items:stretch">
+            <div style="flex-shrink:0;width:120px;background:white;border-radius:14px;border:1px solid var(--border);padding:10px;cursor:pointer">
+              <div style="font-size:32px;margin-bottom:6px">🧃</div>
+              <div style="font-size:12px;font-weight:600;color:var(--ink);margin-bottom:2px">Orange Juice 1L</div>
+              <div style="font-size:13px;font-weight:700;color:var(--orange)">AED 4.40</div>
+            </div>
+            <div style="flex-shrink:0;width:120px;background:white;border-radius:14px;border:1px solid var(--border);padding:10px;cursor:pointer">
+              <div style="font-size:32px;margin-bottom:6px">🥗</div>
+              <div style="font-size:12px;font-weight:600;color:var(--ink);margin-bottom:2px">Salad Kit 200g</div>
+              <div style="font-size:13px;font-weight:700;color:var(--orange)">AED 12.90</div>
+            </div>
+            <div style="flex-shrink:0;width:120px;background:white;border-radius:14px;border:1px solid var(--border);padding:10px;cursor:pointer">
+              <div style="font-size:32px;margin-bottom:6px">🍗</div>
+              <div style="font-size:12px;font-weight:600;color:var(--ink);margin-bottom:2px">Chicken Breast</div>
+              <div style="font-size:13px;font-weight:700;color:var(--orange)">AED 16.50</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="height:12px"></div>
+        <div class="nav-bar">
+          <div class="nav-item active"><div class="nav-icon">🏠</div><div>Home</div></div>
+          <div class="nav-item" onclick="go(2)"><div class="nav-icon">🛒</div><div>Cart</div></div>
+          <div class="nav-item"><div class="nav-icon">🔍</div><div>Search</div></div>
+          <div class="nav-item"><div class="nav-icon">👤</div><div>Profile</div></div>
+        </div>
+      </div>
+
+
+      <!-- ══ SCREEN 3: CART WITH INLINE STEAL DEALS ══ -->
+      <div class="screen" id="s2">
+        <div class="page-header-plain">
+          <div class="back-btn" onclick="go(1)">←</div>
+          <div class="page-title" style="font-size:16px;font-weight:700;color:var(--ink);flex:1">Your Cart</div>
+          <div style="font-size:12px;color:var(--muted)">3 items</div>
+        </div>
+
+        <div class="cart-section-label">Your items</div>
+        <div class="cart-item-row">
+          <div class="ci-emoji">🥗</div>
+          <div class="ci-info"><div class="ci-name">Greek Salad Kit</div><div class="ci-price">AED 12.90</div></div>
+          <div class="ci-qty"><button>−</button><div class="ci-qty-num">1</div><button>+</button></div>
+        </div>
+        <div class="cart-item-row">
+          <div class="ci-emoji">🍗</div>
+          <div class="ci-info"><div class="ci-name">Chicken Breast 500g</div><div class="ci-price">AED 16.50</div></div>
+          <div class="ci-qty"><button>−</button><div class="ci-qty-num">2</div><button>+</button></div>
+        </div>
+        <div class="cart-item-row" id="milk-row" style="display:none">
+          <div class="ci-emoji">🥛</div>
+          <div class="ci-info"><div class="ci-name">Full Cream Milk 2L <span style="font-size:9px;background:var(--orange-light);color:var(--orange);padding:1px 5px;border-radius:8px;font-weight:700">Steal Deal</span></div><div class="ci-price">AED 0.99 <span style="text-decoration:line-through;color:var(--muted);font-size:11px;font-weight:400">5.50</span></div></div>
+          <div class="ci-qty"><button>−</button><div class="ci-qty-num">1</div><button>+</button></div>
+        </div>
+
+        <!-- ⭐ STEAL DEALS SECTION INLINE — no redirect, no distraction -->
+        <div class="steal-section">
+          <div class="steal-section-header">
+            <div class="steal-section-title">
+              <span>🔥 Steal Deals for you</span>
+              <span class="count-pill">3 unlocked</span>
+            </div>
+            <div class="steal-section-hint">1-tap add</div>
+          </div>
+          <div class="steal-items-scroll">
+            <!-- Card 1 -->
+            <div class="steal-item-card" id="sic1">
+              <div class="sic-pct">−82%</div>
+              <span class="sic-emoji">🥛</span>
+              <div class="sic-name">Full Cream Milk 2L</div>
+              <div class="sic-brand">Almarai</div>
+              <div class="sic-price-row"><div class="sic-price">AED 0.99</div><div class="sic-orig">5.50</div></div>
+              <button class="sic-add" id="sic1-btn" onclick="addDeal(1)">+ Add</button>
+            </div>
+            <!-- Card 2 -->
+            <div class="steal-item-card" id="sic2">
+              <div class="sic-pct">−68%</div>
+              <span class="sic-emoji">🧀</span>
+              <div class="sic-name">Cheddar Slices 200g</div>
+              <div class="sic-brand">Président</div>
+              <div class="sic-price-row"><div class="sic-price">AED 1.25</div><div class="sic-orig">3.90</div></div>
+              <button class="sic-add" id="sic2-btn" onclick="addDeal(2)">+ Add</button>
+            </div>
+            <!-- Card 3 -->
+            <div class="steal-item-card" id="sic3">
+              <div class="sic-pct">−60%</div>
+              <span class="sic-emoji">🥚</span>
+              <div class="sic-name">Free Range Eggs ×12</div>
+              <div class="sic-brand">Happy Farms</div>
+              <div class="sic-price-row"><div class="sic-price">AED 2.50</div><div class="sic-orig">6.25</div></div>
+              <button class="sic-add" id="sic3-btn" onclick="addDeal(3)">+ Add</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="cart-section-label">Order summary</div>
+        <div class="cart-summary">
+          <div class="cs-row"><span>Subtotal</span><span>AED 45.90</span></div>
+          <div class="cs-row"><span>Delivery</span><span style="color:var(--green)">Free (Pro)</span></div>
+          <div class="cs-row" id="savings-row" style="display:none"><span>Steal Deal savings</span><span class="cs-savings" id="savings-val">−AED 0</span></div>
+          <div class="cs-row total"><span>Total</span><span id="cart-total">AED 45.90</span></div>
+        </div>
+        <div class="checkout-btn" onclick="go(3)">
+          <span>Place order</span><span id="checkout-total">AED 45.90 →</span>
+        </div>
+      </div>
+
+      <!-- ══ SCREEN 4: PROCESSING + CELEBRATION ══ -->
+      <div class="screen" id="s3">
+        <div class="processing-screen">
+          <div class="processing-ring">
+            <div class="ring-bg"></div>
+            <div class="ring-progress" id="ring"></div>
+            <div class="ring-inner">🛒</div>
+          </div>
+          <div class="processing-title">Placing your order…</div>
+          <div class="processing-sub">Locking in your Steal Deal<br>before anyone else grabs it</div>
+          <div class="deal-burst" id="burst">
+            <div class="deal-burst-chip">🥛 Milk locked at AED 0.99</div>
+            <div class="deal-burst-chip">🔥 Deal secured!</div>
+            <div class="deal-burst-chip">💰 Saving AED 4.51</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ SCREEN 5: ORDER CONFIRMATION ══ -->
+      <div class="screen" id="s4">
+        <div class="confirm-screen">
+          <!-- PRIMARY: Order confirmation -->
+          <div class="confirm-hero">
+            <div class="confirm-check">✅</div>
+            <div class="confirm-title">Order confirmed!</div>
+            <div class="confirm-eta">Arriving in <strong>12–15 min</strong> · #TLB-8842</div>
+          </div>
+
+          <!-- ORDER SUMMARY — main focus -->
+          <div class="order-card">
+            <div class="order-card-header">
+              <div class="order-card-title">Your order</div>
+              <div class="order-id">#TLB-8842</div>
+            </div>
+            <div class="order-item-row">
+              <div class="oir-left"><div class="oir-emoji">🥗</div><div><div class="oir-name">Greek Salad Kit</div><div class="oir-qty">×1</div></div></div>
+              <div class="oir-price">AED 12.90</div>
+            </div>
+            <div class="order-item-row">
+              <div class="oir-left"><div class="oir-emoji">🍗</div><div><div class="oir-name">Chicken Breast 500g</div><div class="oir-qty">×2</div></div></div>
+              <div class="oir-price">AED 33.00</div>
+            </div>
+            <div class="order-item-row">
+              <div class="oir-left"><div class="oir-emoji">🥛</div><div><div class="oir-name">Full Cream Milk 2L</div><div class="steal-tag">🔥 Steal Deal</div></div></div>
+              <div>
+                <div class="oir-deal-price">AED 0.99</div>
+                <div style="font-size:10px;text-decoration:line-through;color:var(--muted);text-align:right">5.50</div>
+              </div>
+            </div>
+            <div class="order-total-row"><span>Total paid</span><span>AED 46.89</span></div>
+          </div>
+
+          <!-- SECONDARY: Savings widget -->
+          <div class="savings-widget">
+            <div class="sw-title">🔥 Your Steal Deal savings</div>
+            <div class="sw-grid">
+              <div class="sw-stat">
+                <div class="sw-stat-val">AED 4.51</div>
+                <div class="sw-stat-label">Saved <strong>this order</strong></div>
+              </div>
+              <div class="sw-stat">
+                <div class="sw-stat-val">AED 67</div>
+                <div class="sw-stat-label"><strong>Lifetime</strong> Steal Deal savings</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="track-btn">Track my order →</div>
+          <div class="home-btn" onclick="go(1)">← Back to home</div>
+        </div>
+      </div>
+
+    </div><!-- /screen-content -->
+  </div><!-- /phone -->
+</div><!-- /phone-wrap -->
+
+<!-- ── ANNOTATION PANEL ── -->
+<div style="width:310px;padding-top:58px;">
+  <div style="font-size:22px;font-weight:700;color:var(--deep);margin-bottom:4px;line-height:1.2">Steal Deals</div>
+  <div style="font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.55">4 screens: Home → Cart (inline deals) → Processing → Confirmation. Tap the banner or cart icon to navigate.</div>
+
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:22px">
+    <div class="ndot active" id="d1" onclick="go(1)">Home</div>
+    <div class="ndot" id="d2" onclick="go(2)">Cart</div>
+    <div class="ndot" id="d3" onclick="go(3)">Processing</div>
+    <div class="ndot" id="d4" onclick="go(4)">Confirmed</div>
+  </div>
+
+  <div id="anno-cards"></div>
+</div>
+
+<style>
+.ndot { padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);color:var(--muted);transition:all .2s;white-space:nowrap; }
+.ndot.active { background:var(--orange);color:white;border-color:var(--orange); }
+.anno-card { background:white;border-radius:14px;padding:14px 16px;margin-bottom:10px;border:1px solid var(--border); }
+.anno-num { display:inline-flex;width:20px;height:20px;background:var(--orange-light);color:var(--orange);border-radius:50%;font-size:10px;font-weight:700;align-items:center;justify-content:center;margin-bottom:5px; }
+.anno-card h4 { font-size:13px;font-weight:700;color:var(--ink);margin-bottom:3px; }
+.anno-card p { font-size:12px;color:var(--muted);line-height:1.55; }
+.anno-metric { display:inline-flex;align-items:center;gap:3px;background:var(--green-light);color:var(--green);font-size:11px;font-weight:700;padding:2px 7px;border-radius:5px;margin-top:7px; }
+</style>
+
+<script>
+const ANNO = {
+  1: [
+    { n:"1", t:"Banner-only entry", b:"Home page is undistracted. Steal Deals lives as one lean banner — orange, punchy, and self-contained. Tap it to go straight to cart. No timer strips, no deal cards cluttering the feed.", m:"Respects the home page hierarchy" },
+    { n:"2", t:"Deal count shown in banner", b:"'23 deals' gives enough information to decide whether to tap — without requiring the shopper to leave home to see if there's anything worth looking at.", m:"Pre-qualifies intent before tap" },
+    { n:"3", t:"Rest of home is undisturbed", b:"Category grid, promo cards, and top picks are fully visible. Steal Deals doesn't compete for attention — it lives in its lane.", m:"No cannibalization of core discovery" },
+  ],
+  2: [
+    { n:"1", t:"No redirect — deals are inline", b:"Steal Deals appear as a horizontal-scroll section inside the cart page itself. The shopper never leaves checkout. The primary job — completing the order — stays front and centre.", m:"Zero checkout abandonment risk" },
+    { n:"2", t:"'1-tap add' label sets expectation", b:"The section header explicitly says '1-tap add'. Shoppers know the friction is minimal before they look at the cards. This label alone drives engagement.", m:"Reduces hesitation to engage" },
+    { n:"3", t:"Cards are compact, not disruptive", b:"Each card is 136px wide — enough to show emoji, name, prices and an add button without the section ever exceeding ~140px of vertical height. It reads as an aside, not a takeover.", m:"Section height ≤ 140px" },
+    { n:"4", t:"Savings line appears on add", b:"When a deal is added, the savings row appears in the order summary below. The shopper sees immediate proof of value without scrolling or navigating away.", m:"Immediate feedback loop" },
+  ],
+  3: [
+    { n:"1", t:"Processing is also a celebration", b:"The spinner is branded with talabat colours. Instead of a generic 'Loading…', the copy reads 'Locking in your Steal Deal before anyone else grabs it' — turns waiting into excitement.", m:"Transforms dead time into brand moment" },
+    { n:"2", t:"Deal burst chips animate in", b:"Three chips animate in staggered: the product locked, the deal secured, the savings amount. This mini-feed gives the impression that something special is happening in the background.", m:"Staggered animation: 100ms, 250ms, 400ms" },
+    { n:"3", t:"Auto-advance to confirmation", b:"The screen auto-advances to the order confirmation after ~2.5s. No button required — it mirrors how native payment flows feel. Keeps the user in flow.", m:"Auto-advance: 2500ms" },
+  ],
+  4: [
+    { n:"1", t:"Order confirmation is primary", b:"The ✅ check, ETA, and full order itemized list are shown first and largest. The shopper can immediately verify what they ordered and when it arrives. Order is the hero.", m:"Primary focus: order & ETA" },
+    { n:"2", t:"Steal Deal tagged inline", b:"The milk row has a 'Steal Deal' tag and shows the original vs deal price inline. The saving is tangible without a separate section — the order summary IS the proof.", m:"Savings visible without scrolling" },
+    { n:"3", t:"Savings widget is secondary", b:"The orange widget appears below the order card — visible but not competing. Two stats: this-order saving and lifetime aggregate. The lifetime number grows with each order and builds long-term habit.", m:"Lifetime metric drives repeat behavior" },
+    { n:"4", t:"Lifetime savings = retention engine", b:"Showing 'AED 67 lifetime saved' makes the user feel invested in Steal Deals as a feature they've benefited from repeatedly. Creates switching cost.", m:"Product attachment / anti-churn" },
+  ],
+};
+
+let dealSavings = 0;
+let milkAdded = false;
+
+function go(n) {
+  [1,2,3,4].forEach(i => {
+    document.getElementById('s'+i).classList.remove('active');
+    const d = document.getElementById('d'+i);
+    if(d) d.classList.remove('active');
+  });
+  document.getElementById('s'+n).classList.add('active');
+  const dn = document.getElementById('d'+n);
+  if(dn) dn.classList.add('active');
+  const labels = {1:'Screen 1 — Home',2:'Screen 2 — Cart (inline deals)',3:'Screen 3 — Processing & celebration',4:'Screen 4 — Order confirmation'};
+  document.getElementById('screen-label').textContent = labels[n];
+  renderAnno(n);
+  if(n===3) startProcessing();
+}
+
+function addDeal(id) {
+  const card = document.getElementById('sic'+id);
+  const btn = document.getElementById('sic'+id+'-btn');
+  if(!card || btn.disabled) return;
+  card.classList.add('added');
+  btn.classList.add('added');
+  btn.textContent = '✓ Added';
+  btn.disabled = true;
+  if(id===1 && !milkAdded) {
+    milkAdded = true;
+    dealSavings += 4.51;
+    document.getElementById('milk-row').style.display='flex';
+    document.getElementById('savings-row').style.display='flex';
+    document.getElementById('savings-val').textContent = '−AED '+dealSavings.toFixed(2);
+    const newTotal = (45.90 + 0.99).toFixed(2);
+    document.getElementById('cart-total').textContent = 'AED '+newTotal;
+    document.getElementById('checkout-total').textContent = 'AED '+newTotal+' →';
+  }
+}
+
+function startProcessing() {
+  stopConfetti();
+  setTimeout(() => {
+    startConfetti();
+    setTimeout(() => { stopConfetti(); go(4); }, 2500);
+  }, 1800);
+}
+
+// ── CONFETTI ──
+let confettiFrame = null;
+const colors = ['#FF5A1F','#FF8552','#00A86B','#F4A225','#FF3D00','#FFD070','#3DD68C'];
+function startConfetti() {
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = canvas.offsetWidth;
+  canvas.height = canvas.offsetHeight;
+  const pieces = Array.from({length:60},()=>({
+    x: Math.random()*canvas.width, y: Math.random()*-canvas.height*0.5,
+    r: Math.random()*5+3, color: colors[Math.floor(Math.random()*colors.length)],
+    vx: (Math.random()-0.5)*3, vy: Math.random()*4+2,
+    angle: Math.random()*360, spin: (Math.random()-0.5)*8
+  }));
+  function draw() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    pieces.forEach(p=>{
+      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.angle*Math.PI/180);
+      ctx.fillStyle=p.color; ctx.fillRect(-p.r,-p.r/2,p.r*2,p.r);
+      ctx.restore();
+      p.x+=p.vx; p.y+=p.vy; p.angle+=p.spin;
+    });
+    confettiFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
+function stopConfetti() {
+  if(confettiFrame) cancelAnimationFrame(confettiFrame);
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+}
+
+function renderAnno(n) {
+  const cards = ANNO[n]||[];
+  document.getElementById('anno-cards').innerHTML = cards.map(c=>`
+    <div class="anno-card">
+      <div class="anno-num">${c.n}</div>
+      <h4>${c.t}</h4>
+      <p>${c.b}</p>
+      ${c.m?`<div class="anno-metric">↗ ${c.m}</div>`:''}
+    </div>`).join('');
+}
+
+renderAnno(1);
+</script>
+</body>
+</html>

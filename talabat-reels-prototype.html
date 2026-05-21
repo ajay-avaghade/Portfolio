@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>talabat Reels</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Sora',sans-serif;background:#1A0D26;display:flex;align-items:flex-start;justify-content:center;min-height:100vh;padding:32px 20px;gap:32px;flex-wrap:wrap;}
+
+/* ── PHONE ── */
+.phone-wrap{display:flex;flex-direction:column;align-items:center;gap:12px;}
+.phone{width:375px;height:780px;background:#000;border-radius:44px;box-shadow:0 40px 100px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.07);overflow:hidden;position:relative;display:flex;flex-direction:column;}
+.notch{width:118px;height:26px;background:#000;border-radius:0 0 16px 16px;margin:0 auto;position:absolute;top:0;left:50%;transform:translateX(-50%);z-index:50;display:flex;align-items:center;justify-content:center;gap:6px;}
+.nc{width:9px;height:9px;background:#1a1a1a;border-radius:50%;border:1.5px solid #2a2a2a;}
+.ns{width:5px;height:5px;background:#1a1a1a;border-radius:50%;}
+.status{position:absolute;top:0;left:0;right:0;height:40px;display:flex;justify-content:space-between;align-items:flex-end;padding:0 22px 6px;z-index:49;pointer-events:none;}
+.status span{font-size:11px;font-weight:600;color:#fff;}
+
+/* ── SCREEN ROUTER ── */
+.screen{position:absolute;inset:0;display:none;flex-direction:column;background:#000;}
+.screen.on{display:flex;}
+
+/* ══════════════════════════════════════
+   VERTICAL FEED — core reels experience
+══════════════════════════════════════ */
+#feed-screen{background:#000;}
+
+/* Tab bar at very top */
+.feed-tabs{position:absolute;top:40px;left:0;right:0;z-index:40;display:flex;justify-content:center;gap:22px;padding:6px 0;}
+.feed-tab{font-size:14px;font-weight:600;color:rgba(255,255,255,.5);cursor:pointer;padding:4px 2px;border-bottom:2px solid transparent;transition:all .2s;}
+.feed-tab.active{color:#fff;border-bottom-color:#fff;}
+
+/* The scrollable reel container */
+.reel-viewport{position:absolute;inset:0;overflow:hidden;}
+.reel-strip{display:flex;flex-direction:column;transition:transform .38s cubic-bezier(.4,0,.2,1);}
+.reel{width:375px;height:780px;position:relative;flex-shrink:0;overflow:hidden;}
+
+/* Reel background */
+.reel-bg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;}
+
+/* Gradient overlay for text readability */
+.reel-vignette{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.3) 0%,transparent 25%,transparent 50%,rgba(0,0,0,.6) 100%);}
+
+/* Play/pause tap zone */
+.reel-tap{position:absolute;inset:0;z-index:2;cursor:pointer;}
+
+/* Side actions */
+.side-actions{position:absolute;right:12px;bottom:100px;z-index:10;display:flex;flex-direction:column;gap:18px;align-items:center;}
+.sa-item{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;}
+.sa-icon{width:42px;height:42px;border-radius:50%;background:rgba(0,0,0,.4);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;font-size:19px;transition:transform .15s;}
+.sa-icon:active{transform:scale(.88);}
+.sa-count{font-size:10px;font-weight:600;color:rgba(255,255,255,.8);}
+.sa-avatar{width:42px;height:42px;border-radius:50%;border:2px solid #fff;object-fit:cover;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#fff;cursor:pointer;overflow:hidden;}
+.follow-dot{width:18px;height:18px;background:#E91E8C;border-radius:50%;border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;margin-top:-10px;}
+
+/* Bottom info */
+.reel-info{position:absolute;bottom:70px;left:14px;right:70px;z-index:10;}
+.ri-creator{font-size:13px;font-weight:700;color:#fff;margin-bottom:4px;}
+.ri-caption{font-size:12px;color:rgba(255,255,255,.88);line-height:1.5;margin-bottom:10px;}
+/* product chip */
+.ri-chip{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.14);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.22);border-radius:22px;padding:6px 12px;cursor:pointer;transition:background .2s;max-width:260px;}
+.ri-chip:hover,.ri-chip:active{background:rgba(233,30,140,.35);}
+.chip-emoji{font-size:15px;flex-shrink:0;}
+.chip-text{display:flex;flex-direction:column;}
+.chip-name{font-size:11px;font-weight:600;color:#fff;line-height:1.2;}
+.chip-price{font-size:11px;color:#E91E8C;font-weight:700;}
+.chip-arrow{font-size:12px;color:rgba(255,255,255,.5);margin-left:auto;flex-shrink:0;}
+
+/* Progress bar */
+.reel-progress{position:absolute;bottom:60px;left:0;right:0;height:2px;background:rgba(255,255,255,.15);z-index:10;}
+.reel-progress-fill{height:100%;background:rgba(255,255,255,.7);width:40%;border-radius:1px;animation:progress 12s linear infinite;}
+@keyframes progress{from{width:0%}to{width:100%}}
+
+/* Sound indicator */
+.sound-indicator{position:absolute;top:52px;right:14px;z-index:42;background:rgba(0,0,0,.4);backdrop-filter:blur(6px);border-radius:20px;padding:4px 10px;font-size:11px;font-weight:600;color:rgba(255,255,255,.7);display:flex;align-items:center;gap:5px;}
+.sound-dot{width:5px;height:5px;background:#E91E8C;border-radius:50%;animation:pulse 1.2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* Scroll indicator arrows */
+.scroll-hint-up{position:absolute;top:95px;left:50%;transform:translateX(-50%);z-index:42;font-size:11px;color:rgba(255,255,255,.35);display:flex;flex-direction:column;align-items:center;gap:2px;pointer-events:none;}
+.scroll-hint-dn{position:absolute;bottom:62px;left:50%;transform:translateX(-50%);z-index:42;font-size:11px;color:rgba(255,255,255,.35);display:flex;flex-direction:column;align-items:center;gap:2px;pointer-events:none;}
+
+/* ══════════════════════════════════════
+   PRODUCT SHEET (slide-up overlay)
+══════════════════════════════════════ */
+.sheet-overlay{position:absolute;inset:0;background:rgba(0,0,0,.5);z-index:60;display:none;align-items:flex-end;}
+.sheet-overlay.on{display:flex;}
+.sheet{background:#1C0A2E;border-radius:22px 22px 0 0;width:100%;padding:14px 18px 32px;max-height:70%;overflow-y:auto;}
+.sheet-handle{width:36px;height:4px;background:rgba(255,255,255,.18);border-radius:2px;margin:0 auto 16px;}
+.sheet-close{position:absolute;top:18px;right:18px;width:30px;height:30px;background:rgba(255,255,255,.1);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;color:#fff;}
+.sheet-section-label{font-size:10px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px;display:flex;align-items:center;gap:6px;}
+.sheet-product-row{display:flex;gap:12px;margin-bottom:14px;}
+.sp-img{width:68px;height:68px;border-radius:12px;background:#2D1040;border:1px solid #4A2060;display:flex;align-items:center;justify-content:center;font-size:30px;flex-shrink:0;}
+.sp-details{flex:1;}
+.sp-brand{font-size:10px;font-weight:600;color:#E91E8C;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px;}
+.sp-name{font-size:14px;font-weight:700;color:#fff;margin-bottom:4px;line-height:1.3;}
+.sp-meta{font-size:11px;color:rgba(255,255,255,.5);margin-bottom:6px;}
+.sp-rating{font-size:11px;color:rgba(255,255,255,.6);display:flex;align-items:center;gap:4px;margin-bottom:6px;}
+.sp-price-row{display:flex;align-items:center;gap:10px;}
+.sp-price{font-size:20px;font-weight:800;color:#E91E8C;}
+.sp-orig{font-size:12px;color:rgba(255,255,255,.35);text-decoration:line-through;}
+.sp-eta{font-size:10px;font-weight:700;color:#00C853;background:rgba(0,200,83,.12);padding:2px 8px;border-radius:10px;}
+/* shades */
+.shades-row{display:flex;gap:8px;margin-bottom:14px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none;}
+.shade{width:30px;height:30px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:border-color .15s;flex-shrink:0;}
+.shade.sel{border-color:#fff;box-shadow:0 0 0 1px #E91E8C;}
+/* add btn */
+.add-btn{width:100%;background:#E91E8C;color:#fff;font-size:14px;font-weight:700;padding:14px;border-radius:14px;border:none;cursor:pointer;margin-bottom:10px;}
+.view-more{text-align:center;font-size:12px;color:rgba(255,255,255,.4);cursor:pointer;}
+.view-more span{color:#E91E8C;}
+
+/* ══════════════════════════════════════
+   SEARCH SCREEN
+══════════════════════════════════════ */
+#search-screen{background:#0D0014;}
+.search-header{padding:44px 18px 12px;background:#0D0014;}
+.search-title{font-size:18px;font-weight:700;color:#fff;margin-bottom:12px;}
+.search-input-wrap{position:relative;margin-bottom:14px;}
+.search-input{width:100%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:11px 16px 11px 40px;font-size:14px;color:#fff;font-family:'Sora',sans-serif;outline:none;}
+.search-input::placeholder{color:rgba(255,255,255,.35);}
+.search-input:focus{border-color:rgba(233,30,140,.5);}
+.search-icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:16px;pointer-events:none;}
+.search-clear{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:16px;cursor:pointer;color:rgba(255,255,255,.4);}
+/* trending */
+.trending-section{padding:0 18px;overflow-y:auto;flex:1;}
+.ts-label{font-size:11px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;}
+.trend-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;}
+.trend-chip{padding:7px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid;}
+/* creator row */
+.creator-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06);cursor:pointer;}
+.cr-avatar{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#fff;flex-shrink:0;}
+.cr-info{flex:1;}
+.cr-name{font-size:13px;font-weight:600;color:#fff;}
+.cr-sub{font-size:11px;color:rgba(255,255,255,.4);}
+.cr-follow{font-size:11px;font-weight:700;color:#E91E8C;border:1px solid rgba(233,30,140,.4);padding:4px 12px;border-radius:20px;}
+/* search results grid */
+.results-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px;margin-top:4px;}
+.rg-item{aspect-ratio:9/16;background:#1a0a2a;display:flex;align-items:center;justify-content:center;font-size:30px;cursor:pointer;position:relative;overflow:hidden;}
+.rg-views{position:absolute;bottom:5px;left:5px;font-size:9px;font-weight:600;color:#fff;display:flex;align-items:center;gap:3px;}
+
+/* ══════════════════════════════════════
+   BOTTOM NAV
+══════════════════════════════════════ */
+.bottom-nav{position:absolute;bottom:0;left:0;right:0;height:58px;background:rgba(0,0,0,.7);backdrop-filter:blur(16px);border-top:1px solid rgba(255,255,255,.07);display:flex;justify-content:space-around;align-items:center;z-index:45;padding-bottom:4px;}
+.bn-item{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;opacity:.45;transition:opacity .2s;padding:4px 12px;}
+.bn-item.active{opacity:1;}
+.bn-icon{font-size:22px;}
+.bn-label{font-size:9px;font-weight:600;color:#fff;}
+.bn-item.active .bn-label{color:#E91E8C;}
+
+/* ══════════════════════════════════════
+   DINEOUT REEL SPECIFICS
+══════════════════════════════════════ */
+.book-chip{display:inline-flex;align-items:center;gap:7px;background:rgba(255,87,34,.2);backdrop-filter:blur(10px);border:1px solid rgba(255,87,34,.4);border-radius:22px;padding:6px 12px;cursor:pointer;}
+.book-chip .chip-price{color:#FF5722;}
+
+/* FOOD reel */
+.recipe-chip{display:inline-flex;align-items:center;gap:7px;background:rgba(67,160,71,.2);backdrop-filter:blur(10px);border:1px solid rgba(67,160,71,.4);border-radius:22px;padding:6px 12px;cursor:pointer;}
+.recipe-chip .chip-price{color:#43A047;}
+
+/* GROCERY reel */
+.grocery-chip{background:rgba(0,188,212,.2);border:1px solid rgba(0,188,212,.4);}
+.grocery-chip .chip-price{color:#00BCD4;}
+
+/* ══════════════════════════════════════
+   DINEOUT SHEET
+══════════════════════════════════════ */
+.sheet-orange{background:#1C0A00;}
+.sheet-green{background:#0A1C0A;}
+.sheet-teal{background:#001C1E;}
+.dine-card{background:rgba(255,87,34,.08);border:1px solid rgba(255,87,34,.2);border-radius:14px;padding:14px;margin-bottom:12px;}
+.food-card{background:rgba(67,160,71,.08);border:1px solid rgba(67,160,71,.2);border-radius:14px;padding:14px;margin-bottom:12px;}
+.grocery-card{background:rgba(0,188,212,.08);border:1px solid rgba(0,188,212,.2);border-radius:14px;padding:14px;margin-bottom:12px;}
+.dc-title{font-size:15px;font-weight:700;color:#fff;margin-bottom:3px;}
+.dc-sub{font-size:12px;color:rgba(255,255,255,.5);margin-bottom:10px;}
+.dc-row{display:flex;justify-content:space-between;align-items:center;}
+.dc-badge{font-size:10px;font-weight:700;padding:3px 9px;border-radius:10px;}
+.dc-badge-orange{background:rgba(255,87,34,.2);color:#FF5722;}
+.dc-badge-green{background:rgba(67,160,71,.2);color:#43A047;}
+.dc-badge-teal{background:rgba(0,188,212,.2);color:#00BCD4;}
+.book-btn{width:100%;padding:13px;border-radius:12px;border:none;font-size:14px;font-weight:700;cursor:pointer;margin-top:10px;}
+.book-btn-orange{background:#FF5722;color:#fff;}
+.book-btn-green{background:#43A047;color:#fff;}
+.book-btn-teal{background:#00BCD4;color:#fff;}
+
+/* ingredients list */
+.ingredient-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.06);}
+.ing-emoji{font-size:18px;width:24px;text-align:center;flex-shrink:0;}
+.ing-name{font-size:12px;color:rgba(255,255,255,.8);flex:1;}
+.ing-qty{font-size:11px;color:rgba(255,255,255,.4);}
+.ing-price{font-size:12px;font-weight:700;color:#43A047;}
+</style>
+</head>
+<body>
+
+<!-- ══ PHONE ══ -->
+<div class="phone-wrap">
+  <div class="phone" id="phone">
+    <div class="notch"><div class="nc"></div><div class="ns"></div></div>
+    <div class="status"><span>9:41</span><span>●●●● 🔋</span></div>
+
+    <!-- ════════ FEED SCREEN ════════ -->
+    <div class="screen on" id="feed-screen">
+      <!-- Vertical tabs -->
+      <div class="feed-tabs">
+        <div class="feed-tab" onclick="switchTab('beauty')">Beauty</div>
+        <div class="feed-tab active" id="tab-all" onclick="switchTab('all')">For you</div>
+        <div class="feed-tab" onclick="switchTab('dineout')">Dineout</div>
+        <div class="feed-tab" onclick="switchTab('food')">Food</div>
+        <div class="feed-tab" onclick="switchTab('grocery')">Grocery</div>
+      </div>
+
+      <div class="sound-indicator"><div class="sound-dot"></div>Sara Khalid · Viral Sound</div>
+
+      <!-- REEL VIEWPORT -->
+      <div class="reel-viewport" id="reel-vp">
+        <div class="reel-strip" id="reel-strip">
+          <!-- Reels injected by JS -->
+        </div>
+      </div>
+
+      <!-- Bottom nav -->
+      <div class="bottom-nav">
+        <div class="bn-item active" onclick="showScreen('feed')"><div class="bn-icon">🏠</div><div class="bn-label">Home</div></div>
+        <div class="bn-item" onclick="showScreen('search')"><div class="bn-icon">🔍</div><div class="bn-label">Search</div></div>
+        <div class="bn-item" onclick="showScreen('upload')"><div class="bn-icon">➕</div><div class="bn-label">Create</div></div>
+        <div class="bn-item"><div class="bn-icon">🛍️</div><div class="bn-label">Bag (3)</div></div>
+        <div class="bn-item"><div class="bn-icon">👤</div><div class="bn-label">Profile</div></div>
+      </div>
+    </div>
+
+    <!-- ════════ SEARCH SCREEN ════════ -->
+    <div class="screen" id="search-screen">
+      <div class="search-header">
+        <div class="search-title">Discover</div>
+        <div class="search-input-wrap">
+          <span class="search-icon">🔍</span>
+          <input class="search-input" id="search-input" placeholder="Search products, creators, brands…" oninput="onSearch(this.value)"/>
+          <span class="search-clear" onclick="clearSearch()">✕</span>
+        </div>
+      </div>
+      <div class="trending-section" id="trending-section">
+        <div class="ts-label">Trending now</div>
+        <div class="trend-chips">
+          <div class="trend-chip" style="color:#E91E8C;border-color:rgba(233,30,140,.3);background:rgba(233,30,140,.08)" onclick="doSearch('Charlotte Tilbury')">Charlotte Tilbury</div>
+          <div class="trend-chip" style="color:#FF5722;border-color:rgba(255,87,34,.3);background:rgba(255,87,34,.08)" onclick="doSearch('SPF 50')">SPF 50</div>
+          <div class="trend-chip" style="color:#00BCD4;border-color:rgba(0,188,212,.3);background:rgba(0,188,212,.08)" onclick="doSearch('Skincare routine')">Skincare routine</div>
+          <div class="trend-chip" style="color:#FFB300;border-color:rgba(255,179,0,.3);background:rgba(255,179,0,.08)" onclick="doSearch('Dubai restaurant')">Dubai restaurant</div>
+          <div class="trend-chip" style="color:#43A047;border-color:rgba(67,160,71,.3);background:rgba(67,160,71,.08)" onclick="doSearch('Recipe')">Recipe</div>
+          <div class="trend-chip" style="color:rgba(255,255,255,.6);border-color:rgba(255,255,255,.1);background:rgba(255,255,255,.05)" onclick="doSearch('GRWM')">GRWM</div>
+        </div>
+        <div class="ts-label">Top creators</div>
+        <div class="creator-row" onclick="showScreen('feed')">
+          <div class="cr-avatar" style="background:#E91E8C">S</div>
+          <div class="cr-info"><div class="cr-name">@sarabeauty_ae</div><div class="cr-sub">Beauty · 48.2K followers · 247 orders driven</div></div>
+          <div class="cr-follow">Follow</div>
+        </div>
+        <div class="creator-row" onclick="showScreen('feed')">
+          <div class="cr-avatar" style="background:#6A35B0">N</div>
+          <div class="cr-info"><div class="cr-name">@nourskinglow</div><div class="cr-sub">Skincare · 31.4K followers · 189 orders driven</div></div>
+          <div class="cr-follow">Follow</div>
+        </div>
+        <div class="creator-row" onclick="showScreen('feed')">
+          <div class="cr-avatar" style="background:#FF5722">R</div>
+          <div class="cr-info"><div class="cr-name">@reem.eats</div><div class="cr-sub">Dineout · 22.8K followers · 310 bookings driven</div></div>
+          <div class="cr-follow">Follow</div>
+        </div>
+        <div class="creator-row" onclick="showScreen('feed')">
+          <div class="cr-avatar" style="background:#43A047">F</div>
+          <div class="cr-info"><div class="cr-name">@foodie_fatima</div><div class="cr-sub">Food + recipes · 18.9K followers</div></div>
+          <div class="cr-follow">Follow</div>
+        </div>
+        <div style="height:70px"></div>
+      </div>
+      <div id="search-results" style="display:none;padding:0 18px;overflow-y:auto;flex:1;">
+        <div class="ts-label" id="results-label" style="padding-top:8px">Results</div>
+        <div class="results-grid" id="results-grid"></div>
+        <div style="height:70px"></div>
+      </div>
+      <div class="bottom-nav">
+        <div class="bn-item" onclick="showScreen('feed')"><div class="bn-icon">🏠</div><div class="bn-label">Home</div></div>
+        <div class="bn-item active"><div class="bn-icon">🔍</div><div class="bn-label">Search</div></div>
+        <div class="bn-item"><div class="bn-icon">➕</div><div class="bn-label">Create</div></div>
+        <div class="bn-item"><div class="bn-icon">🛍️</div><div class="bn-label">Bag (3)</div></div>
+        <div class="bn-item"><div class="bn-icon">👤</div><div class="bn-label">Profile</div></div>
+      </div>
+    </div>
+
+    <!-- ════════ PRODUCT SHEET OVERLAY ════════ -->
+    <div class="sheet-overlay" id="sheet-overlay" onclick="closeSheet(event)">
+      <div class="sheet" id="sheet-content">
+        <!-- filled by JS -->
+      </div>
+    </div>
+
+  </div><!-- /phone -->
+</div>
+
+<!-- ══ ANNOTATION PANEL ══ -->
+<div style="width:300px;padding-top:44px;">
+  <div style="font-family:'DM Mono',monospace;font-size:11px;font-weight:500;color:#9A7AAA;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px">talabat Reels</div>
+  <div style="font-size:21px;font-weight:800;color:#fff;margin-bottom:6px;line-height:1.15">Short video discovery<br>across 4 verticals</div>
+  <div style="font-size:13px;color:#9A7AAA;margin-bottom:22px;line-height:1.6">Swipe up to scroll through the feed. Tap a product chip to open the shoppable sheet. Use the tab bar to switch verticals.</div>
+
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:22px" id="anno-nav">
+    <div class="andot active" id="an-feed" onclick="showAnno('feed')">Feed</div>
+    <div class="andot" id="an-beauty" onclick="showAnno('beauty')">Beauty</div>
+    <div class="andot" id="an-dineout" onclick="showAnno('dineout')">Dineout</div>
+    <div class="andot" id="an-food" onclick="showAnno('food')">Food</div>
+    <div class="andot" id="an-grocery" onclick="showAnno('grocery')">Grocery</div>
+    <div class="andot" id="an-search" onclick="showAnno('search')">Search</div>
+  </div>
+
+  <div id="anno-body"></div>
+</div>
+
+<style>
+.andot{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid rgba(255,255,255,.12);color:rgba(255,255,255,.4);transition:all .2s;white-space:nowrap;}
+.andot.active{background:#E91E8C;color:#fff;border-color:#E91E8C;}
+.acard{background:rgba(255,255,255,.05);border-radius:14px;padding:14px 16px;margin-bottom:10px;border:1px solid rgba(255,255,255,.07);}
+.acard h4{font-size:13px;font-weight:700;color:#fff;margin-bottom:3px;}
+.acard p{font-size:12px;color:#9A7AAA;line-height:1.55;}
+.ametric{display:inline-flex;align-items:center;gap:3px;background:rgba(0,200,83,.12);color:#00C853;font-size:11px;font-weight:700;padding:2px 7px;border-radius:5px;margin-top:7px;}
+.anum{display:inline-flex;width:18px;height:18px;background:rgba(233,30,140,.2);color:#E91E8C;border-radius:50%;font-size:10px;font-weight:700;align-items:center;justify-content:center;margin-bottom:5px;}
+</style>
+
+<script>
+/* ════════════════════════════════════
+   REEL DATA — all 4 verticals
+════════════════════════════════════ */
+const REELS = {
+  all: ["b1","b2","d1","f1","b3","g1","d2","f2","g2","b4"],
+  beauty: ["b1","b2","b3","b4"],
+  dineout: ["d1","d2"],
+  food: ["f1","f2"],
+  grocery: ["g1","g2"],
+};
+
+const REEL_DATA = {
+  b1:{
+    vertical:"beauty",
+    bg:"linear-gradient(160deg,#2D0A3A 0%,#4A1060 50%,#1A0A2A 100%)",
+    emoji:"💄",label:"Beauty",labelColor:"#E91E8C",
+    creator:"@sarabeauty_ae",name:"Sara Khalid",avatarBg:"#E91E8C",avatarLetter:"S",
+    caption:"This lip liner is everything 🤩 Shade: Pillow Talk, lasts ALL day even under my mask!",
+    chipEmoji:"💄",chipName:"Pillow Talk Lip Liner",chipPrice:"AED 115",chipType:"beauty",
+    likes:"4.2K",comments:"183",shares:"2.1K",
+    sound:"Sara Khalid · Trending audio",
+    sheetType:"beauty",
+    sheet:{
+      emoji:"💄",brand:"Charlotte Tilbury",name:"Lip Cheat Lip Liner",
+      shade:"Shade: Pillow Talk",rating:"4.8 (2,341 reviews)",
+      price:"AED 115",orig:"",eta:"Arrives in 30 min",
+      shades:["#C98B8B","#A0522D","#C44569","#8B1A1A","#E8B4B8","#D4785A"],
+    }
+  },
+  b2:{
+    vertical:"beauty",
+    bg:"linear-gradient(160deg,#0A1A2D 0%,#163050 50%,#0A1520 100%)",
+    emoji:"🧴",label:"Beauty",labelColor:"#E91E8C",
+    creator:"@nourskinglow",name:"Nour Al-Amin",avatarBg:"#6A35B0",avatarLetter:"N",
+    caption:"No white cast on tan skin 🙌 I tested this SPF for 3 weeks in Dubai heat ☀️ Highly recommend",
+    chipEmoji:"🧴",chipName:"Anthelios SPF50",chipPrice:"AED 88",chipType:"beauty",
+    likes:"2.8K",comments:"94",shares:"1.4K",
+    sound:"Nour Skinglow · Voiceover",
+    sheetType:"beauty",
+    sheet:{
+      emoji:"🧴",brand:"La Roche-Posay",name:"Anthelios Invisible SPF 50",
+      shade:"Formula: Fluid, no white cast",rating:"4.9 (5,102 reviews)",
+      price:"AED 88",orig:"",eta:"Arrives in 25 min",
+      shades:["#F5DEB3","#D2B48C","#C19A6B","#A0785A"],
+    }
+  },
+  b3:{
+    vertical:"beauty",
+    bg:"linear-gradient(160deg,#1A0A10 0%,#3D1020 50%,#1A0510 100%)",
+    emoji:"✨",label:"Beauty",labelColor:"#E91E8C",
+    creator:"@glowwithlina",name:"Lina Haddad",avatarBg:"#C44569",avatarLetter:"L",
+    caption:"5 products I actually repurchase every month 🌸 Realistic skincare on a budget in Dubai",
+    chipEmoji:"🌸",chipName:"CeraVe Moisturiser",chipPrice:"AED 65",chipType:"beauty",
+    likes:"6.1K",comments:"312",shares:"3.8K",
+    sound:"Lina Haddad · Original voiceover",
+    sheetType:"beauty",
+    sheet:{
+      emoji:"🌸",brand:"CeraVe",name:"Moisturising Cream 340g",
+      shade:"For normal to dry skin",rating:"4.9 (8,441 reviews)",
+      price:"AED 65",orig:"AED 82",eta:"Arrives in 22 min",
+      shades:[],
+    }
+  },
+  b4:{
+    vertical:"beauty",
+    bg:"linear-gradient(160deg,#0D0A1A 0%,#1A1040 50%,#0D0A1A 100%)",
+    emoji:"💅",label:"Beauty",labelColor:"#E91E8C",
+    creator:"@beautybyrana",name:"Rana Khalil",avatarBg:"#8B0057",avatarLetter:"R",
+    caption:"Testing the top 3 foundations for MENA skin tones 🤎 Honest review, no filter",
+    chipEmoji:"💅",chipName:"Fenty Beauty Pro Filt'r",chipPrice:"AED 175",chipType:"beauty",
+    likes:"9.4K",comments:"521",shares:"5.2K",
+    sound:"Rana Khalil · Trending",
+    sheetType:"beauty",
+    sheet:{
+      emoji:"💅",brand:"Fenty Beauty",name:"Pro Filt'r Soft Matte Foundation",
+      shade:"Shade: 360W",rating:"4.7 (12,210 reviews)",
+      price:"AED 175",orig:"",eta:"Arrives in 35 min",
+      shades:["#F5CBA7","#D4A574","#C19A6B","#A0785A","#8B6347","#6B4423"],
+    }
+  },
+  d1:{
+    vertical:"dineout",
+    bg:"linear-gradient(160deg,#1A0A00 0%,#2D1500 50%,#1A0800 100%)",
+    emoji:"🍽️",label:"Dineout",labelColor:"#FF5722",
+    creator:"@reem.eats",name:"Reem Al-Sayed",avatarBg:"#FF5722",avatarLetter:"R",
+    caption:"This truffle pasta at Zuma Dubai deserves its own reel 🤤 Date night approved, booking via talabat",
+    chipEmoji:"🍽️",chipName:"Zuma Dubai — Book a table",chipPrice:"From AED 250",chipType:"dineout",
+    likes:"8.3K",comments:"445",shares:"4.2K",
+    sound:"Reem Eats · Original",
+    sheetType:"dineout",
+    sheet:{
+      emoji:"🍽️",name:"Zuma Dubai",cuisine:"Japanese Robatayaki · DIFC",
+      rating:"4.9 (3,201 reviews)",priceRange:"AED 250–400 per person",
+      eta:"Reserve for tonight",slots:["7:00 PM","7:30 PM","8:00 PM","8:30 PM"],
+      badge:"Trending tonight",
+    }
+  },
+  d2:{
+    vertical:"dineout",
+    bg:"linear-gradient(160deg,#001020 0%,#001A30 50%,#000D1A 100%)",
+    emoji:"🥗",label:"Dineout",labelColor:"#FF5722",
+    creator:"@dubai.foodie",name:"Ahmed Al-Rashid",avatarBg:"#1565C0",avatarLetter:"A",
+    caption:"Hidden gem for weekend brunch 🌅 Outdoor terrace, perfect vibe — DIFC area, book before it fills up",
+    chipEmoji:"🥂",chipName:"Netsu Dubai — Brunch",chipPrice:"AED 395 / person",chipType:"dineout",
+    likes:"5.1K",comments:"287",shares:"2.9K",
+    sound:"Dubai Foodie · Viral sound",
+    sheetType:"dineout",
+    sheet:{
+      emoji:"🥂",name:"Netsu Dubai",cuisine:"Modern Asian · Four Seasons DIFC",
+      rating:"4.8 (1,870 reviews)",priceRange:"AED 395 brunch / AED 180–300 à la carte",
+      eta:"Friday & Saturday brunch",slots:["12:00 PM","12:30 PM","1:00 PM","1:30 PM"],
+      badge:"New on talabat",
+    }
+  },
+  f1:{
+    vertical:"food",
+    bg:"linear-gradient(160deg,#0A1A05 0%,#112B08 50%,#081508 100%)",
+    emoji:"🥘",label:"Food",labelColor:"#43A047",
+    creator:"@foodie_fatima",name:"Fatima Al-Zahra",avatarBg:"#43A047",avatarLetter:"F",
+    caption:"Chicken shawarma rice bowl in 20 mins 🔥 All ingredients from talabat grocery — seriously so easy",
+    chipEmoji:"🛒",chipName:"Get all 8 ingredients",chipPrice:"AED 34.50 total",chipType:"food",
+    likes:"11.2K",comments:"634",shares:"7.8K",
+    sound:"Fatima · Kitchen ASMR",
+    sheetType:"food",
+    sheet:{
+      recipeName:"Chicken Shawarma Rice Bowl",servings:"2 servings · 20 min",
+      totalPrice:"AED 34.50",
+      ingredients:[
+        {emoji:"🍗",name:"Chicken thigh 500g",qty:"1 pack",price:"AED 16.50"},
+        {emoji:"🌾",name:"Basmati rice 500g",qty:"1 bag",price:"AED 5.20"},
+        {emoji:"🧄",name:"Garlic bulb",qty:"1 head",price:"AED 1.80"},
+        {emoji:"🫙",name:"Shawarma spice mix",qty:"1 jar",price:"AED 4.90"},
+        {emoji:"🥒",name:"Cucumber",qty:"2 pieces",price:"AED 2.40"},
+        {emoji:"🍋",name:"Lemon",qty:"2 pieces",price:"AED 1.80"},
+      ]
+    }
+  },
+  f2:{
+    vertical:"food",
+    bg:"linear-gradient(160deg,#1A0A05 0%,#2D150A 50%,#1A0800 100%)",
+    emoji:"🍜",label:"Food",labelColor:"#43A047",
+    creator:"@chefwithsaad",name:"Saad Al-Mansouri",avatarBg:"#FF8C00",avatarLetter:"S",
+    caption:"Authentic Emirati balaleet in 15 mins 🇦🇪 Perfect Ramadan breakfast — all ingredients delivered",
+    chipEmoji:"🛒",chipName:"Get all 6 ingredients",chipPrice:"AED 22.80 total",chipType:"food",
+    likes:"7.8K",comments:"412",shares:"5.1K",
+    sound:"Chef Saad · Arabic background music",
+    sheetType:"food",
+    sheet:{
+      recipeName:"Emirati Balaleet",servings:"4 servings · 15 min",
+      totalPrice:"AED 22.80",
+      ingredients:[
+        {emoji:"🍝",name:"Vermicelli noodles",qty:"1 packet",price:"AED 3.50"},
+        {emoji:"🥚",name:"Eggs × 6",qty:"1 pack",price:"AED 6.50"},
+        {emoji:"🧅",name:"Onion",qty:"2 medium",price:"AED 1.80"},
+        {emoji:"🫙",name:"Rose water",qty:"Small bottle",price:"AED 4.90"},
+        {emoji:"🍭",name:"Sugar",qty:"½ cup",price:"AED 2.10"},
+        {emoji:"🌿",name:"Cardamom powder",qty:"1 tsp",price:"AED 4.00"},
+      ]
+    }
+  },
+  g1:{
+    vertical:"grocery",
+    bg:"linear-gradient(160deg,#001A1F 0%,#002530 50%,#001015 100%)",
+    emoji:"🛒",label:"Grocery",labelColor:"#00BCD4",
+    creator:"@mart_haul_uae",name:"Mariam Al-Ketbi",avatarBg:"#00BCD4",avatarLetter:"M",
+    caption:"Weekly grocery haul — AED 180 for 2 people in Dubai 💪 Everything from talabat grocery, 20min delivery",
+    chipEmoji:"🛒",chipName:"Full haul list — 18 items",chipPrice:"AED 180 total",chipType:"grocery",
+    likes:"14.8K",comments:"892",shares:"9.1K",
+    sound:"Mariam · Original voiceover",
+    sheetType:"grocery",
+    sheet:{
+      title:"Mariam's weekly haul",subtitle:"18 items · AED 180 · Delivered in 20 min",
+      items:[
+        {emoji:"🥛",name:"Full cream milk 2L",qty:"×2",price:"AED 10.60",badge:"Steal Deal"},
+        {emoji:"🍌",name:"Bananas 1kg",qty:"×1",price:"AED 1.95",badge:""},
+        {emoji:"🍗",name:"Chicken breast 500g",qty:"×2",price:"AED 33.00",badge:""},
+        {emoji:"🥦",name:"Broccoli",qty:"×2",price:"AED 5.80",badge:"Fresh today"},
+        {emoji:"🧀",name:"Cheddar slices 200g",qty:"×1",price:"AED 3.90",badge:"Steal Deal"},
+        {emoji:"🫙",name:"Olive oil 500ml",qty:"×1",price:"AED 18.50",badge:""},
+      ]
+    }
+  },
+  g2:{
+    vertical:"grocery",
+    bg:"linear-gradient(160deg,#0A1A05 0%,#0F2610 50%,#061505 100%)",
+    emoji:"🥬",label:"Grocery",labelColor:"#00BCD4",
+    creator:"@healthydxb",name:"Hessa Buhumaid",avatarBg:"#2E7D32",avatarLetter:"H",
+    caption:"Healthy meal prep for the week 🥗 All organic produce from talabat — everything under AED 95",
+    chipEmoji:"🥬",chipName:"Organic bundle — 10 items",chipPrice:"AED 92 total",chipType:"grocery",
+    likes:"6.2K",comments:"318",shares:"3.4K",
+    sound:"Hessa · Chill background",
+    sheetType:"grocery",
+    sheet:{
+      title:"Hessa's organic meal prep",subtitle:"10 items · AED 92 · Delivered fresh",
+      items:[
+        {emoji:"🥬",name:"Organic mixed greens",qty:"×2",price:"AED 14.80",badge:"Organic"},
+        {emoji:"🥑",name:"Avocado ×3",qty:"×1",price:"AED 12.50",badge:""},
+        {emoji:"🍓",name:"Strawberries 250g",qty:"×2",price:"AED 17.60",badge:"Seasonal"},
+        {emoji:"🫐",name:"Blueberries 125g",qty:"×2",price:"AED 22.40",badge:""},
+        {emoji:"🥦",name:"Organic broccoli",qty:"×1",price:"AED 7.90",badge:"Organic"},
+        {emoji:"🥕",name:"Carrots 500g",qty:"×1",price:"AED 4.20",badge:""},
+      ]
+    }
+  },
+};
+
+/* ════════════════════════════════
+   BUILD REELS
+════════════════════════════════ */
+let currentTab = "all";
+let currentIndex = 0;
+let activeReelIds = [];
+let isDragging = false;
+let startY = 0;
+let currentTranslate = 0;
+
+function buildReels(tab){
+  const ids = REELS[tab] || REELS.all;
+  // repeat for infinite feel
+  activeReelIds = [...ids,...ids,...ids];
+  const strip = document.getElementById("reel-strip");
+  strip.innerHTML = "";
+  activeReelIds.forEach((id,i)=>{
+    const r = REEL_DATA[id];
+    if(!r) return;
+    const div = document.createElement("div");
+    div.className = "reel";
+    div.dataset.index = i;
+    div.dataset.id = id;
+
+    const chipHTML = buildChipHTML(r);
+    div.innerHTML = `
+      <div class="reel-bg" style="background:${r.bg}">
+        <div style="text-align:center;opacity:.5">
+          <div style="font-size:90px">${r.emoji}</div>
+        </div>
+      </div>
+      <div class="reel-vignette"></div>
+      <div class="reel-tap" onclick="togglePlayPause(this)"></div>
+      <div class="side-actions">
+        <div>
+          <div class="sa-avatar" style="background:${r.avatarBg}">${r.avatarLetter}</div>
+          <div class="follow-dot">+</div>
+        </div>
+        <div class="sa-item"><div class="sa-icon" onclick="likeReel(this,event)">🤍</div><div class="sa-count">${r.likes}</div></div>
+        <div class="sa-item"><div class="sa-icon">💬</div><div class="sa-count">${r.comments}</div></div>
+        <div class="sa-item"><div class="sa-icon">↗️</div><div class="sa-count">${r.shares}</div></div>
+        <div class="sa-item"><div class="sa-icon">⋯</div><div class="sa-count">More</div></div>
+      </div>
+      <div class="reel-info">
+        <div class="ri-creator">${r.creator} · ${r.name}</div>
+        <div class="ri-caption">${r.caption}</div>
+        ${chipHTML}
+      </div>
+      <div class="reel-progress"><div class="reel-progress-fill"></div></div>`;
+    strip.appendChild(div);
+  });
+  goToReel(0,false);
+}
+
+function buildChipHTML(r){
+  if(r.vertical==="dineout") return `<div class="book-chip" onclick="openSheet('${r.sheetType}','${activeReelIds[0]}',event)"><span class="chip-emoji">${r.chipEmoji}</span><span class="chip-text"><span class="chip-name">${r.chipName}</span><span class="chip-price">${r.chipPrice}</span></span><span class="chip-arrow">→</span></div>`;
+  if(r.vertical==="food") return `<div class="recipe-chip" onclick="openSheet('${r.sheetType}','${r.vertical}1',event)"><span class="chip-emoji">${r.chipEmoji}</span><span class="chip-text"><span class="chip-name">${r.chipName}</span><span class="chip-price">${r.chipPrice}</span></span><span class="chip-arrow">→</span></div>`;
+  if(r.vertical==="grocery") return `<div class="ri-chip grocery-chip" onclick="openSheet('${r.sheetType}','grocery',event)"><span class="chip-emoji">${r.chipEmoji}</span><span class="chip-text"><span class="chip-name">${r.chipName}</span><span class="chip-price">${r.chipPrice}</span></span><span class="chip-arrow">→</span></div>`;
+  // default beauty chip — need id
+  return "";
+}
+
+function goToReel(idx,animate=true){
+  const strip = document.getElementById("reel-strip");
+  currentIndex = Math.max(0,Math.min(idx,activeReelIds.length-1));
+  const y = -currentIndex * 780;
+  strip.style.transition = animate ? "transform .38s cubic-bezier(.4,0,.2,1)" : "none";
+  strip.style.transform = `translateY(${y}px)`;
+  updateSoundLabel();
+}
+
+function updateSoundLabel(){
+  const id = activeReelIds[currentIndex];
+  const r = REEL_DATA[id];
+  if(r){
+    const el = document.querySelector(".sound-indicator");
+    if(el) el.innerHTML = `<div class="sound-dot"></div> ${r.sound}`;
+  }
+}
+
+/* ── DRAG/SWIPE ── */
+const vp = ()=>document.getElementById("reel-vp");
+
+function initDrag(){
+  const el = vp();
+  el.addEventListener("mousedown",e=>{isDragging=true;startY=e.clientY;el.style.userSelect="none";});
+  el.addEventListener("touchstart",e=>{isDragging=true;startY=e.touches[0].clientY;},{passive:true});
+  el.addEventListener("mousemove",e=>{if(!isDragging)return;});
+  el.addEventListener("touchmove",e=>{},{passive:true});
+  el.addEventListener("mouseup",e=>{if(!isDragging)return;isDragging=false;const dy=startY-e.clientY;if(dy>40)goToReel(currentIndex+1);else if(dy<-40)goToReel(currentIndex-1);});
+  el.addEventListener("touchend",e=>{if(!isDragging)return;isDragging=false;const dy=startY-e.changedTouches[0].clientY;if(dy>40)goToReel(currentIndex+1);else if(dy<-40)goToReel(currentIndex-1);});
+  // keyboard
+  document.addEventListener("keydown",e=>{
+    if(document.getElementById("feed-screen").classList.contains("on")){
+      if(e.key==="ArrowDown"||e.key==="ArrowUp"){e.preventDefault();goToReel(e.key==="ArrowDown"?currentIndex+1:currentIndex-1);}
+    }
+  });
+}
+
+/* ── TAB SWITCH ── */
+function switchTab(tab){
+  currentTab = tab;
+  document.querySelectorAll(".feed-tab").forEach(t=>{
+    const map={all:"For you",beauty:"Beauty",dineout:"Dineout",food:"Food",grocery:"Grocery"};
+    t.classList.toggle("active",t.textContent===map[tab]);
+  });
+  buildReels(tab);
+}
+
+/* ── CHIP-BASED SHEET OPEN ── */
+document.addEventListener("click",e=>{
+  const chip = e.target.closest("[data-sheet]");
+  if(chip) openSheet(chip.dataset.sheet,chip.dataset.id,e);
+  const reelEl = e.target.closest(".reel");
+  if(reelEl && !e.target.closest(".side-actions") && !e.target.closest(".ri-chip,.book-chip,.recipe-chip")){
+    const id = reelEl.dataset.id;
+    if(id) openSheetForReel(id);
+  }
+});
+
+function openSheetForReel(id){
+  const r=REEL_DATA[id];
+  if(!r)return;
+  openSheet(r.sheetType,id,null);
+}
+
+function openSheet(type,id,e){
+  if(e){e.stopPropagation();}
+  const overlay=document.getElementById("sheet-overlay");
+  const content=document.getElementById("sheet-content");
+  const r=REEL_DATA[id]||REEL_DATA[activeReelIds[currentIndex]];
+  if(!r)return;
+  let html="";
+  if(type==="beauty"){
+    const s=r.sheet;
+    const shadesHTML=s.shades.length?`<div style="font-size:11px;font-weight:600;color:rgba(255,255,255,.4);margin-bottom:8px">Select shade</div><div class="shades-row">${s.shades.map((c,i)=>`<div class="shade${i===0?" sel":""}" style="background:${c}" onclick="selectShade(this)"></div>`).join("")}</div>`:""
+    html=`<div class="sheet-handle"></div><div class="sheet-close" onclick="closeSheet()">✕</div>
+    <div class="sheet-section-label">🛍️ Spotted in this reel</div>
+    <div class="sheet-product-row">
+      <div class="sp-img">${s.emoji}</div>
+      <div class="sp-details">
+        <div class="sp-brand">${s.brand}</div>
+        <div class="sp-name">${s.name}</div>
+        <div class="sp-meta">${s.shade}</div>
+        <div class="sp-rating">⭐⭐⭐⭐⭐ ${s.rating}</div>
+        <div class="sp-price-row"><div class="sp-price">${s.price}</div>${s.orig?`<div class="sp-orig">${s.orig}</div>`:""}<div class="sp-eta">${s.eta}</div></div>
+      </div>
+    </div>
+    ${shadesHTML}
+    <button class="add-btn" onclick="addedToCart()">Add to bag — ${s.price} →</button>
+    <div class="view-more">More from <span>@creator</span> · <span>View all ${s.brand}</span></div>`;
+  } else if(type==="dineout"){
+    const s=r.sheet;
+    html=`<div class="dine-card"><div class="sheet-handle"></div><div class="sheet-close" onclick="closeSheet()">✕</div>
+    <div class="sheet-section-label" style="color:rgba(255,87,34,.7)">🍽️ Book this restaurant</div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+      <div style="font-size:32px">${s.emoji}</div>
+      <div><div class="dc-title">${s.name}</div><div class="dc-sub">${s.cuisine}</div></div>
+    </div>
+    <div class="dc-row" style="margin-bottom:8px">
+      <div style="font-size:12px;color:rgba(255,255,255,.6)">⭐ ${s.rating}</div>
+      <div class="dc-badge dc-badge-orange">${s.badge}</div>
+    </div>
+    <div style="font-size:12px;color:rgba(255,255,255,.5);margin-bottom:10px">${s.priceRange}</div>
+    <div style="font-size:11px;font-weight:700;color:rgba(255,87,34,.8);margin-bottom:8px">${s.eta}</div>
+    <div style="display:flex;gap:8px;overflow-x:auto;margin-bottom:12px;padding-bottom:4px;scrollbar-width:none">${s.slots.map(sl=>`<div style="flex-shrink:0;background:rgba(255,87,34,.15);border:1px solid rgba(255,87,34,.3);border-radius:10px;padding:7px 14px;font-size:12px;font-weight:600;color:#FF5722;cursor:pointer">${sl}</div>`).join("")}</div>
+    <button class="book-btn book-btn-orange" onclick="addedToCart()">Confirm booking →</button></div>`;
+  } else if(type==="food"){
+    const s=r.sheet;
+    html=`<div class="sheet-handle"></div><div class="sheet-close" onclick="closeSheet()">✕</div>
+    <div class="sheet-section-label" style="color:rgba(67,160,71,.7)">🛒 Recipe — get all ingredients</div>
+    <div class="food-card">
+      <div class="dc-title">${s.recipeName}</div>
+      <div class="dc-sub">${s.servings}</div>
+    </div>
+    ${s.ingredients.map(i=>`<div class="ingredient-row"><div class="ing-emoji">${i.emoji}</div><div class="ing-name">${i.name}</div><div class="ing-qty">${i.qty}</div><div class="ing-price">${i.price}</div></div>`).join("")}
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-top:1px solid rgba(255,255,255,.08);margin-top:8px">
+      <div style="font-size:13px;color:rgba(255,255,255,.6)">Total</div>
+      <div style="font-size:18px;font-weight:800;color:#43A047">${s.totalPrice}</div>
+    </div>
+    <button class="book-btn book-btn-green" onclick="addedToCart()">Add all to cart · ${s.totalPrice} →</button>`;
+  } else if(type==="grocery"){
+    const s=r.sheet;
+    html=`<div class="sheet-handle"></div><div class="sheet-close" onclick="closeSheet()">✕</div>
+    <div class="sheet-section-label" style="color:rgba(0,188,212,.7)">🛒 ${s.title}</div>
+    <div class="grocery-card"><div class="dc-title" style="font-size:13px">${s.subtitle}</div></div>
+    ${s.items.map(i=>`<div class="ingredient-row"><div class="ing-emoji">${i.emoji}</div><div class="ing-name">${i.name}${i.badge?` <span style="font-size:9px;background:rgba(0,188,212,.15);color:#00BCD4;padding:1px 6px;border-radius:8px;font-weight:700">${i.badge}</span>`:""}</div><div class="ing-qty">${i.qty}</div><div style="font-size:12px;font-weight:700;color:#00BCD4">${i.price}</div></div>`).join("")}
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-top:1px solid rgba(255,255,255,.08);margin-top:8px">
+      <div style="font-size:13px;color:rgba(255,255,255,.6)">Shown items subtotal</div>
+      <div style="font-size:16px;font-weight:800;color:#00BCD4">${s.items.reduce((a,b)=>a+parseFloat(b.price.replace("AED ","")),0).toFixed(2)} AED</div>
+    </div>
+    <button class="book-btn book-btn-teal" onclick="addedToCart()">Add all to cart →</button>`;
+  }
+  content.innerHTML=html;
+  overlay.classList.add("on");
+}
+
+function closeSheet(e){
+  if(e && e.target!==document.getElementById("sheet-overlay"))return;
+  document.getElementById("sheet-overlay").classList.remove("on");
+}
+function selectShade(el){document.querySelectorAll(".shade").forEach(s=>s.classList.remove("sel"));el.classList.add("sel");}
+function likeReel(el,e){e.stopPropagation();el.textContent=el.textContent==="🤍"?"❤️":"🤍";}
+function togglePlayPause(el){
+  const p=el.parentElement.querySelector(".play-indicator");
+  if(p)p.remove();else{const d=document.createElement("div");d.className="play-indicator";d.textContent="⏸";el.parentElement.appendChild(d);setTimeout(()=>d.remove(),800);}
+}
+function addedToCart(){
+  closeSheet();
+  const toast=document.createElement("div");
+  toast.style="position:absolute;bottom:75px;left:50%;transform:translateX(-50%);background:rgba(0,200,83,.9);color:#fff;font-size:12px;font-weight:700;padding:8px 18px;border-radius:20px;z-index:99;white-space:nowrap;";
+  toast.textContent="✓ Added to bag";
+  document.getElementById("phone").appendChild(toast);
+  setTimeout(()=>toast.remove(),2000);
+}
+
+/* ── SCREEN ROUTING ── */
+function showScreen(s){
+  document.querySelectorAll(".screen").forEach(el=>el.classList.remove("on"));
+  document.getElementById(s+"-screen").classList.add("on");
+  document.querySelectorAll(".bn-item").forEach((el,i)=>{
+    const map=["feed","search","upload","bag","profile"];
+    el.classList.toggle("active",map[i]===s);
+  });
+  if(s==="feed") updateSoundLabel();
+}
+
+/* ── SEARCH ── */
+const SEARCH_RESULTS = {
+  "Charlotte Tilbury":[{e:"💄",col:"#4A1060"},{e:"💅",col:"#3D0A3A"},{e:"✨",col:"#2D1040"},{e:"💄",col:"#1A0A2A"},{e:"🌸",col:"#3A0A4A"},{e:"💋",col:"#2A0A35"}],
+  "SPF 50":[{e:"🧴",col:"#0A1A2D"},{e:"☀️",col:"#1A1A0A"},{e:"🧴",col:"#0D1520"},{e:"✨",col:"#0A1018"}],
+  "Dubai restaurant":[{e:"🍽️",col:"#1A0A00"},{e:"🥂",col:"#0A1A0A"},{e:"🍜",col:"#1A0800"},{e:"🍱",col:"#0A0A1A"}],
+  "Recipe":[{e:"🥘",col:"#0A1A05"},{e:"🍜",col:"#1A0A05"},{e:"🥗",col:"#051A05"},{e:"🍛",col:"#0A1508"}],
+  "Skincare routine":[{e:"🌸",col:"#1A0A1A"},{e:"🧴",col:"#0A101A"},{e:"✨",col:"#150A1A"},{e:"💆",col:"#0A1A15"}],
+  "GRWM":[{e:"💄",col:"#1A0A0D"},{e:"💅",col:"#1A0A1A"},{e:"✨",col:"#0D0A1A"},{e:"👗",col:"#0A0D1A"}],
+};
+function doSearch(q){
+  document.getElementById("search-input").value=q;
+  onSearch(q);
+}
+function onSearch(q){
+  const ts=document.getElementById("trending-section");
+  const sr=document.getElementById("search-results");
+  if(!q.trim()){ts.style.display="block";sr.style.display="none";return;}
+  ts.style.display="none";sr.style.display="block";
+  const label=document.getElementById("results-label");
+  label.textContent=`Results for "${q}"`;
+  const grid=document.getElementById("results-grid");
+  const key=Object.keys(SEARCH_RESULTS).find(k=>q.toLowerCase().includes(k.toLowerCase()))||"Charlotte Tilbury";
+  const items=(SEARCH_RESULTS[key]||SEARCH_RESULTS["Charlotte Tilbury"]).slice(0,6);
+  grid.innerHTML=items.map(it=>`<div class="rg-item" style="background:${it.col}" onclick="showScreen('feed')"><div style="font-size:36px">${it.e}</div><div class="rg-views">▶ ${(Math.random()*9+1).toFixed(1)}K</div></div>`).join("");
+}
+function clearSearch(){
+  document.getElementById("search-input").value="";
+  onSearch("");
+}
+
+/* ── ANNOTATIONS ── */
+const ANNO_DATA={
+  feed:[
+    {n:"1",t:"Infinite scroll — true rabbit hole",b:"The feed uses a 375×780px viewport with vertical transform-based scrolling. Drag/swipe on phone, arrow keys on desktop. The strip repeats content for an infinite feel."},
+    {n:"2",t:"Tab bar switches vertical context",b:"Beauty, Dineout, Food, Grocery each load their own curated reel set. The 'For you' tab blends across verticals — ranked by AI based on watch time, purchases, and skin-tone profile."},
+    {n:"3",t:"Side action bar",b:"Like (heart toggles), comment, share, and more — matching the Instagram Reels interaction grammar. Familiar patterns reduce learning curve to zero."},
+  ],
+  beauty:[
+    {n:"1",t:"Skin-tone personalisation",b:"Reels from creators with matching skin tones rise in the feed. The '✨ Matches your tone' badge (on Beauty reels) signals relevance — builds trust before the shopper has read a word.",metric:"3.4× conversion vs generic feed"},
+    {n:"2",t:"Shoppable chip embedded in video",b:"The product chip is part of the reel frame — not an interstitial. Name, brand, and price visible without tapping. One tap slides up the product sheet without leaving the video.",metric:"Chip-to-sheet: 0 navigation steps"},
+    {n:"3",t:"Shade selector in the sheet",b:"The single biggest drop-off in beauty e-commerce is shade selection. The product sheet surfaces swatches inline — no new page required. Tap shade → tap add → done.",metric:"Target: 31% watch-to-add CVR"},
+  ],
+  dineout:[
+    {n:"1",t:"Restaurant experience reel",b:"A 30-second reel showing a table, the food arriving, the vibe — replaces static photo grids that haven't evolved since 2018. Emotional context drives booking intent more than any star rating.",metric:"Target: +28% booking CVR vs photo grid"},
+    {n:"2",t:"Time slot booking inside the sheet",b:"Available slots shown as tappable chips directly in the sheet. The shopper never visits a booking page. Confirm → booked. Entire flow: watch → tap chip → select time → confirm.",metric:"Sub-30-second booking flow"},
+    {n:"3",t:"Trending tonight badge",b:"Scarcity signal ('Trending tonight') on the restaurant card creates urgency without fake countdown timers. Based on real booking velocity data.",metric:"Urgency without dark patterns"},
+  ],
+  food:[
+    {n:"1",t:"Recipe-to-basket — the missing link",b:"A creator makes a recipe reel and tags every ingredient. The shopper sees the full ingredient list with prices and a single 'Add all to cart' button. Food inspiration → grocery order in one tap.",metric:"New use case: inspiration purchase"},
+    {n:"2",t:"Ingredient transparency",b:"Each ingredient shows name, quantity for the recipe, and price. The shopper knows exactly what they're getting before tapping. No hidden items, no surprise total.",metric:"Basket AOV target: +AED 35"},
+    {n:"3",t:"Local recipe focus",b:"Emirati, Levantine, and Gulf recipes surface for local creators — this is where talabat has a genuine cultural edge over global platforms. Region-specific content = defensible.",metric:"Creator NPS target: > 65"},
+  ],
+  grocery:[
+    {n:"1",t:"Weekly haul as discovery content",b:"Haul videos are among the most-watched content formats on TikTok. A creator's honest weekly shop removes the blank-page problem of grocery browsing — 'what should I even buy?' is answered.",metric:"+18% weekly active grocery users"},
+    {n:"2",t:"Steal Deal badges inline",b:"When a creator tags a Steal Deal item, the badge appears directly on the ingredient row in the sheet. Deal discovery happens naturally inside content — not as a separate feature.",metric:"Steal Deals × Reels cross-feature synergy"},
+    {n:"3",t:"Full cart in one tap",b:"'Add all to cart' adds every item the creator tagged in a single action. The shopper doesn't build a list — they adopt someone else's. This is the grocery equivalent of 1-click reorder.",metric:"New behaviour: adopt-a-cart"},
+  ],
+  search:[
+    {n:"1",t:"Search anchors the discovery loop",b:"Search lets intent-driven shoppers find specific products, creators, or brands they've seen elsewhere. The trending chips are seeded from real search volume — Charlotte Tilbury, SPF, GRWM.",metric:"Surfaces high-intent shoppers"},
+    {n:"2",t:"Creator cards with conversion stats",b:"Creators are shown with their follower count AND orders driven — this is visible to shoppers and signals commercial credibility, not just social reach.",metric:"Trust signal: orders, not followers"},
+    {n:"3",t:"Results grid = shoppable content map",b:"Search results render as a grid of reel thumbnails — not a product list. Shoppers discover through content, not through a filtered catalogue. Content is the UI.",metric:"Content-first search paradigm"},
+  ],
+};
+
+function showAnno(key){
+  document.querySelectorAll(".andot").forEach(el=>el.classList.toggle("active",el.id==="an-"+key));
+  const cards=ANNO_DATA[key]||[];
+  document.getElementById("anno-body").innerHTML=cards.map(c=>`
+    <div class="acard">
+      <div class="anum">${c.n}</div>
+      <h4>${c.t}</h4>
+      <p>${c.b}</p>
+      ${c.metric?`<div class="ametric">↗ ${c.metric}</div>`:""}
+    </div>`).join("");
+}
+
+/* ── INIT ── */
+buildReels("all");
+initDrag();
+showAnno("feed");
+
+// Intercept chip clicks inside injected reel HTML
+document.getElementById("reel-strip").addEventListener("click",e=>{
+  const chip=e.target.closest(".ri-chip,.book-chip,.recipe-chip");
+  if(!chip)return;
+  e.stopPropagation();
+  const reelEl=chip.closest(".reel");
+  if(reelEl) openSheetForReel(reelEl.dataset.id);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Beauty Match — talabat Beauty</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Sora',sans-serif;background:#0F0A1A;display:flex;align-items:flex-start;justify-content:center;min-height:100vh;padding:32px 20px;gap:32px;flex-wrap:wrap;}
+
+/* ── PHONE ── */
+.pw{display:flex;flex-direction:column;align-items:center;gap:12px;}
+.phone{width:375px;height:780px;background:#0A0010;border-radius:44px;box-shadow:0 40px 100px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.07);overflow:hidden;position:relative;display:flex;flex-direction:column;}
+.notch{width:118px;height:26px;background:#0A0010;border-radius:0 0 16px 16px;margin:0 auto;position:absolute;top:0;left:50%;transform:translateX(-50%);z-index:50;display:flex;align-items:center;justify-content:center;gap:6px;}
+.nc{width:9px;height:9px;background:#1a1a1a;border-radius:50%;border:1.5px solid #222;}
+.ns{width:5px;height:5px;background:#1a1a1a;border-radius:50%;}
+.statusbar{position:absolute;top:0;left:0;right:0;height:38px;display:flex;justify-content:space-between;align-items:flex-end;padding:0 22px 5px;z-index:49;pointer-events:none;}
+.statusbar span{font-size:11px;font-weight:600;color:rgba(255,255,255,.8);}
+
+/* ── SCREEN ROUTER ── */
+.scr{position:absolute;inset:0;display:none;flex-direction:column;overflow:hidden;}
+.scr.on{display:flex;}
+
+/* ══════════════════════════
+   S0 — BEAUTY HOME
+══════════════════════════ */
+#s0{background:#0A0010;}
+.home-header{padding:44px 20px 14px;display:flex;justify-content:space-between;align-items:flex-end;}
+.home-logo{font-size:18px;font-weight:800;color:#E91E8C;letter-spacing:-.5px;}
+.home-logo span{color:rgba(255,255,255,.5);font-weight:400;font-size:13px;}
+.home-body{overflow-y:auto;flex:1;padding-bottom:70px;}
+/* AI match banner */
+.ai-banner{margin:0 16px 16px;background:linear-gradient(120deg,#1A0030 0%,#2D0050 100%);border-radius:18px;padding:18px 18px 16px;position:relative;overflow:hidden;cursor:pointer;border:1px solid rgba(233,30,140,.2);}
+.ai-banner::before{content:'';position:absolute;top:-30px;right:-30px;width:120px;height:120px;background:rgba(233,30,140,.12);border-radius:50%;}
+.ai-banner-tag{display:inline-flex;align-items:center;gap:5px;background:rgba(233,30,140,.18);border:1px solid rgba(233,30,140,.3);border-radius:20px;padding:2px 10px;font-size:9px;font-weight:700;color:#E91E8C;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;}
+.ai-banner-tag .dot{width:5px;height:5px;background:#E91E8C;border-radius:50%;animation:pulse 1.4s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.ai-banner-title{font-size:19px;font-weight:800;color:#fff;margin-bottom:4px;line-height:1.15;}
+.ai-banner-sub{font-size:12px;color:rgba(255,255,255,.55);margin-bottom:12px;line-height:1.5;}
+.ai-banner-cta{display:inline-flex;align-items:center;gap:6px;background:#E91E8C;color:#fff;font-size:12px;font-weight:700;padding:8px 16px;border-radius:10px;}
+.ai-banner-emoji{position:absolute;right:16px;bottom:12px;font-size:42px;animation:float 3s ease-in-out infinite;}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+/* section */
+.home-section{padding:0 16px 16px;}
+.hs-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.hs-title{font-size:14px;font-weight:700;color:#fff;}
+.hs-link{font-size:12px;color:#E91E8C;font-weight:600;}
+/* product cards */
+.product-scroll{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;}
+.product-scroll::-webkit-scrollbar{display:none;}
+.pcard{flex-shrink:0;width:140px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;overflow:hidden;cursor:pointer;transition:border-color .2s;}
+.pcard:hover{border-color:rgba(233,30,140,.4);}
+.pcard-img{width:100%;height:100px;display:flex;align-items:center;justify-content:center;font-size:42px;background:rgba(255,255,255,.03);}
+.pcard-body{padding:8px 10px 10px;}
+.pcard-brand{font-size:9px;font-weight:700;color:#E91E8C;text-transform:uppercase;letter-spacing:.04em;}
+.pcard-name{font-size:11px;font-weight:600;color:#fff;margin:2px 0 5px;line-height:1.3;}
+.pcard-price{font-size:13px;font-weight:700;color:#fff;}
+/* match badge on personalised cards */
+.match-badge{display:inline-flex;align-items:center;gap:3px;background:rgba(0,200,83,.15);color:#00C853;font-size:9px;font-weight:700;padding:2px 6px;border-radius:8px;margin-bottom:4px;}
+.match-bar{height:3px;background:rgba(255,255,255,.08);border-radius:2px;margin-top:5px;overflow:hidden;}
+.match-fill{height:100%;background:linear-gradient(90deg,#E91E8C,#9C27B0);border-radius:2px;}
+
+/* bottom nav */
+.bnav{position:absolute;bottom:0;left:0;right:0;height:58px;background:rgba(10,0,16,.92);backdrop-filter:blur(16px);border-top:1px solid rgba(255,255,255,.06);display:flex;justify-content:space-around;align-items:center;z-index:40;padding-bottom:4px;}
+.bni{display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;opacity:.4;transition:opacity .2s;padding:4px 10px;}
+.bni.active{opacity:1;}
+.bni-icon{font-size:21px;}
+.bni-label{font-size:9px;font-weight:600;color:#fff;}
+.bni.active .bni-label{color:#E91E8C;}
+
+/* ══════════════════════════
+   S1 — ONBOARDING INTRO
+══════════════════════════ */
+#s1{background:linear-gradient(170deg,#0F0020 0%,#1A0035 60%,#0A0018 100%);}
+.onb-intro{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:44px 28px 20px;text-align:center;}
+.onb-orb{width:110px;height:110px;background:radial-gradient(circle,rgba(233,30,140,.35) 0%,rgba(156,39,176,.2) 50%,transparent 70%);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:48px;margin:0 auto 24px;animation:orb-pulse 2.5s ease-in-out infinite;}
+@keyframes orb-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+.onb-title{font-size:26px;font-weight:800;color:#fff;line-height:1.2;margin-bottom:10px;}
+.onb-title em{font-style:normal;color:#E91E8C;}
+.onb-sub{font-size:14px;color:rgba(255,255,255,.55);line-height:1.65;margin-bottom:28px;}
+.onb-features{display:flex;flex-direction:column;gap:10px;width:100%;margin-bottom:32px;}
+.onb-feat{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:12px 14px;text-align:left;}
+.onb-feat-icon{font-size:20px;flex-shrink:0;}
+.onb-feat-text{font-size:12px;color:rgba(255,255,255,.7);line-height:1.45;}
+.onb-feat-text strong{color:#fff;display:block;font-size:13px;margin-bottom:1px;}
+.start-btn{width:100%;background:#E91E8C;color:#fff;font-size:15px;font-weight:700;padding:16px;border-radius:16px;border:none;cursor:pointer;}
+.skip-link{margin-top:12px;font-size:12px;color:rgba(255,255,255,.3);cursor:pointer;text-align:center;}
+
+/* ══════════════════════════
+   S2 — SCAN SCREEN
+══════════════════════════ */
+#s2{background:#000;}
+.scan-header{padding:44px 18px 12px;display:flex;align-items:center;gap:12px;}
+.back-btn{width:34px;height:34px;background:rgba(255,255,255,.08);border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;color:#fff;flex-shrink:0;}
+.scan-step{font-size:12px;font-weight:600;color:rgba(255,255,255,.4);}
+.scan-title{font-size:15px;font-weight:700;color:#fff;flex:1;}
+.scan-area{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 24px 20px;position:relative;}
+/* camera viewfinder */
+.viewfinder{width:240px;height:280px;position:relative;margin-bottom:24px;}
+.vf-face{width:100%;height:100%;background:rgba(255,255,255,.03);border-radius:120px 120px 100px 100px;border:1.5px solid rgba(233,30,140,.35);display:flex;align-items:center;justify-content:center;font-size:80px;position:relative;overflow:hidden;}
+.vf-scan-line{position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(233,30,140,.8),transparent);animation:scan-sweep 2.2s ease-in-out infinite;}
+@keyframes scan-sweep{0%{top:10%;opacity:1}50%{top:85%;opacity:.8}100%{top:10%;opacity:1}}
+/* corner brackets */
+.vf-corner{position:absolute;width:22px;height:22px;border-color:#E91E8C;border-style:solid;}
+.vf-corner.tl{top:-1px;left:-1px;border-width:2px 0 0 2px;border-radius:4px 0 0 0;}
+.vf-corner.tr{top:-1px;right:-1px;border-width:2px 2px 0 0;border-radius:0 4px 0 0;}
+.vf-corner.bl{bottom:-1px;left:-1px;border-width:0 0 2px 2px;border-radius:0 0 0 4px;}
+.vf-corner.br{bottom:-1px;right:-1px;border-width:0 2px 2px 0;border-radius:0 0 4px 0;}
+.scan-instruction{font-size:13px;color:rgba(255,255,255,.55);text-align:center;line-height:1.6;margin-bottom:24px;}
+.scan-btn{background:#E91E8C;color:#fff;font-size:14px;font-weight:700;padding:14px 32px;border-radius:14px;border:none;cursor:pointer;width:100%;}
+/* detecting state */
+.detecting-overlay{position:absolute;inset:0;background:rgba(0,0,0,.7);display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;}
+.detecting-overlay.on{display:flex;}
+.detecting-ring{width:70px;height:70px;border-radius:50%;border:3px solid transparent;border-top-color:#E91E8C;border-right-color:#E91E8C;animation:spin 1s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.detecting-label{font-size:13px;font-weight:600;color:#fff;}
+.detecting-sub{font-size:11px;color:rgba(255,255,255,.45);}
+/* tone result chips */
+.tone-chips{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
+.tone-chip{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:2px solid transparent;transition:all .18s;}
+.tone-chip.selected{border-color:#fff;}
+
+/* ══════════════════════════
+   S3 — QUIZ
+══════════════════════════ */
+#s3{background:#0F0020;}
+.quiz-header{padding:44px 18px 8px;display:flex;align-items:center;gap:12px;}
+.quiz-progress-bar{height:3px;background:rgba(255,255,255,.08);margin:0 18px 16px;border-radius:2px;}
+.quiz-progress-fill{height:100%;background:#E91E8C;border-radius:2px;transition:width .4s;}
+.quiz-body{flex:1;overflow-y:auto;padding:0 18px 20px;}
+.quiz-question{font-size:17px;font-weight:800;color:#fff;margin-bottom:4px;line-height:1.3;}
+.quiz-hint{font-size:12px;color:rgba(255,255,255,.4);margin-bottom:18px;}
+.quiz-options{display:flex;flex-direction:column;gap:9px;}
+.qopt{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.08);border-radius:12px;padding:12px 14px;cursor:pointer;transition:all .18s;}
+.qopt.selected{border-color:#E91E8C;background:rgba(233,30,140,.1);}
+.qopt:hover{border-color:rgba(233,30,140,.3);}
+.qopt-icon{font-size:20px;flex-shrink:0;}
+.qopt-text{flex:1;}
+.qopt-label{font-size:13px;font-weight:600;color:#fff;}
+.qopt-sub{font-size:11px;color:rgba(255,255,255,.4);margin-top:1px;}
+.qopt-check{width:20px;height:20px;border-radius:50%;border:1.5px solid rgba(255,255,255,.2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all .18s;}
+.qopt.selected .qopt-check{background:#E91E8C;border-color:#E91E8C;color:#fff;}
+.quiz-next{width:100%;background:#E91E8C;color:#fff;font-size:14px;font-weight:700;padding:14px;border-radius:14px;border:none;cursor:pointer;margin-top:20px;}
+.quiz-next:disabled{background:rgba(255,255,255,.08);color:rgba(255,255,255,.3);}
+
+/* ══════════════════════════
+   S4 — BUILDING PROFILE
+══════════════════════════ */
+#s4{background:#0F0020;}
+.building-screen{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:44px 28px 28px;text-align:center;}
+.building-orb{width:120px;height:120px;border-radius:50%;border:2px solid rgba(233,30,140,.3);display:flex;align-items:center;justify-content:center;margin:0 auto 24px;position:relative;}
+.building-orb::before{content:'';position:absolute;inset:-6px;border-radius:50%;border:2px solid transparent;border-top-color:#E91E8C;animation:spin 1.4s linear infinite;}
+.building-orb::after{content:'';position:absolute;inset:-14px;border-radius:50%;border:1px solid rgba(233,30,140,.15);animation:spin 2.2s linear infinite reverse;}
+.building-face{font-size:46px;}
+.building-title{font-size:22px;font-weight:800;color:#fff;margin-bottom:8px;}
+.building-sub{font-size:13px;color:rgba(255,255,255,.45);line-height:1.6;margin-bottom:28px;}
+.building-steps{display:flex;flex-direction:column;gap:8px;width:100%;}
+.bstep{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;background:rgba(255,255,255,.03);font-size:12px;color:rgba(255,255,255,.4);transition:all .4s;}
+.bstep.done{color:rgba(255,255,255,.8);background:rgba(0,200,83,.08);}
+.bstep.doing{color:#fff;background:rgba(233,30,140,.1);}
+.bstep-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.15);flex-shrink:0;}
+.bstep.done .bstep-dot{background:#00C853;}
+.bstep.doing .bstep-dot{background:#E91E8C;animation:pulse 1s infinite;}
+
+/* ══════════════════════════
+   S5 — YOUR MATCH SHELF
+══════════════════════════ */
+#s5{background:#0A0010;overflow:hidden;}
+.shelf-header{padding:44px 18px 12px;background:rgba(10,0,16,.95);}
+.shelf-title-row{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px;}
+.shelf-title{font-size:18px;font-weight:800;color:#fff;line-height:1.2;}
+.profile-pill{display:flex;align-items:center;gap:6px;background:rgba(233,30,140,.12);border:1px solid rgba(233,30,140,.2);border-radius:20px;padding:4px 10px;cursor:pointer;}
+.profile-pill-tone{width:18px;height:18px;border-radius:50%;border:1.5px solid rgba(233,30,140,.4);}
+.profile-pill-label{font-size:10px;font-weight:700;color:#E91E8C;}
+.shelf-sub{font-size:12px;color:rgba(255,255,255,.4);line-height:1.5;}
+/* filter bar */
+.shelf-filters{display:flex;gap:8px;overflow-x:auto;padding:8px 18px 0;scrollbar-width:none;}
+.shelf-filters::-webkit-scrollbar{display:none;}
+.sf-chip{flex-shrink:0;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;border:1.5px solid rgba(255,255,255,.1);color:rgba(255,255,255,.45);cursor:pointer;white-space:nowrap;transition:all .18s;}
+.sf-chip.active{background:#E91E8C;color:#fff;border-color:#E91E8C;}
+/* products grid */
+.shelf-grid{overflow-y:auto;flex:1;padding:12px 12px 70px;display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.sgcard{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:14px;overflow:hidden;cursor:pointer;transition:all .2s;position:relative;}
+.sgcard:hover{border-color:rgba(233,30,140,.3);}
+.sgcard.top-match{border-color:rgba(233,30,140,.35);box-shadow:0 0 0 1px rgba(233,30,140,.2);}
+.sgc-img{width:100%;height:110px;display:flex;align-items:center;justify-content:center;font-size:44px;background:rgba(255,255,255,.02);}
+.sgc-body{padding:10px 10px 12px;}
+.sgc-match{display:inline-flex;align-items:center;gap:3px;font-size:9px;font-weight:700;padding:2px 6px;border-radius:7px;margin-bottom:5px;}
+.sgc-match.high{background:rgba(0,200,83,.15);color:#00C853;}
+.sgc-match.med{background:rgba(255,179,0,.12);color:#FFB300;}
+.sgc-brand{font-size:9px;font-weight:700;color:#E91E8C;text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px;}
+.sgc-name{font-size:11px;font-weight:600;color:#fff;line-height:1.3;margin-bottom:4px;}
+.sgc-why{font-size:10px;color:rgba(255,255,255,.35);line-height:1.4;margin-bottom:6px;}
+.sgc-price{font-size:14px;font-weight:800;color:#fff;}
+.sgc-orig{font-size:10px;color:rgba(255,255,255,.25);text-decoration:line-through;margin-left:4px;}
+/* match progress bar on card */
+.sgc-bar{height:2px;background:rgba(255,255,255,.06);border-radius:1px;margin-top:5px;overflow:hidden;}
+.sgc-bar-fill{height:100%;border-radius:1px;}
+/* top match ribbon */
+.top-ribbon{position:absolute;top:8px;left:8px;background:#E91E8C;color:#fff;font-size:8px;font-weight:700;padding:2px 7px;border-radius:8px;letter-spacing:.03em;}
+
+/* ══════════════════════════
+   S6 — PRODUCT DETAIL
+══════════════════════════ */
+#s6{background:#0A0010;overflow:hidden;}
+.pd-header{padding:44px 18px 12px;display:flex;align-items:center;gap:12px;background:rgba(10,0,16,.95);}
+.pd-body{overflow-y:auto;flex:1;padding-bottom:80px;}
+.pd-img-area{width:100%;height:200px;display:flex;align-items:center;justify-content:center;font-size:80px;background:rgba(255,255,255,.02);}
+.pd-info{padding:16px 18px 0;}
+.pd-brand{font-size:11px;font-weight:700;color:#E91E8C;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;}
+.pd-name{font-size:18px;font-weight:800;color:#fff;margin-bottom:6px;line-height:1.25;}
+.pd-rating-row{display:flex;align-items:center;gap:8px;margin-bottom:12px;}
+.pd-rating{font-size:12px;color:rgba(255,255,255,.6);}
+.pd-reviews-count{font-size:11px;color:rgba(255,255,255,.35);}
+/* Match breakdown */
+.match-breakdown{margin:0 18px 16px;background:rgba(233,30,140,.06);border:1px solid rgba(233,30,140,.18);border-radius:14px;padding:14px;}
+.mb-title{font-size:11px;font-weight:700;color:#E91E8C;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.mb-score{font-size:26px;font-weight:800;color:#E91E8C;}
+.mb-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
+.mb-label{font-size:11px;color:rgba(255,255,255,.5);width:120px;flex-shrink:0;}
+.mb-bar-wrap{flex:1;height:5px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden;}
+.mb-bar{height:100%;border-radius:3px;background:linear-gradient(90deg,#E91E8C,#9C27B0);}
+.mb-val{font-size:10px;font-weight:700;color:#E91E8C;width:28px;text-align:right;flex-shrink:0;}
+/* Similar reviews */
+.similar-reviews{padding:0 18px 16px;}
+.sr-title{font-size:13px;font-weight:700;color:#fff;margin-bottom:10px;}
+.sr-card{background:rgba(255,255,255,.03);border-radius:12px;padding:12px;margin-bottom:8px;border:1px solid rgba(255,255,255,.06);}
+.src-top{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.src-avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0;}
+.src-name{font-size:12px;font-weight:600;color:#fff;}
+.src-tone{font-size:10px;color:rgba(255,255,255,.35);}
+.src-match{font-size:10px;font-weight:700;color:#00C853;margin-left:auto;}
+.src-text{font-size:12px;color:rgba(255,255,255,.6);line-height:1.55;}
+/* Shade selector */
+.pd-shades{padding:0 18px 16px;}
+.pd-shades-title{font-size:13px;font-weight:700;color:#fff;margin-bottom:8px;}
+.pd-shade-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;}
+.pd-shade{width:32px;height:32px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all .18s;flex-shrink:0;}
+.pd-shade.sel{border-color:#fff;box-shadow:0 0 0 2px #E91E8C;}
+.pd-ai-rec{font-size:10px;color:#E91E8C;margin-top:6px;font-weight:600;}
+/* Add to cart fixed bar */
+.pd-cart-bar{position:absolute;bottom:0;left:0;right:0;padding:12px 18px 22px;background:linear-gradient(transparent,rgba(10,0,16,.98) 40%);display:flex;gap:10px;align-items:center;}
+.pd-price{font-size:22px;font-weight:800;color:#fff;flex:1;}
+.pd-add{background:#E91E8C;color:#fff;font-size:14px;font-weight:700;padding:13px 24px;border-radius:12px;border:none;cursor:pointer;flex-shrink:0;}
+</style>
+</head>
+<body>
+
+<div class="pw">
+  <div class="phone">
+    <div class="notch"><div class="nc"></div><div class="ns"></div></div>
+    <div class="statusbar"><span>9:41</span><span>●●●● 🔋</span></div>
+
+    <!-- ══ S0: BEAUTY HOME ══ -->
+    <div class="scr on" id="s0">
+      <div class="home-header">
+        <div>
+          <div class="home-logo">talabat beauty <span>/ Dubai Marina</span></div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <div style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer">🔍</div>
+          <div style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer">🛍️</div>
+        </div>
+      </div>
+      <div class="home-body">
+        <!-- AI Match Banner -->
+        <div class="ai-banner" onclick="go('s1')">
+          <div class="ai-banner-tag"><div class="dot"></div> New · AI powered</div>
+          <div class="ai-banner-title">Your Beauty Match<br>is waiting</div>
+          <div class="ai-banner-sub">Skin scan + quick quiz → a shelf built for you. Takes 90 seconds.</div>
+          <div class="ai-banner-cta">Get my matches →</div>
+          <div class="ai-banner-emoji">✨</div>
+        </div>
+
+        <!-- Generic shelf (before personalisation) -->
+        <div class="home-section">
+          <div class="hs-row"><div class="hs-title">Trending now</div><div class="hs-link">See all</div></div>
+          <div class="product-scroll">
+            <div class="pcard" onclick="go('s5')">
+              <div class="pcard-img">💄</div>
+              <div class="pcard-body">
+                <div class="pcard-brand">Charlotte Tilbury</div>
+                <div class="pcard-name">Lip Cheat Liner</div>
+                <div class="pcard-price">AED 115</div>
+              </div>
+            </div>
+            <div class="pcard" onclick="go('s5')">
+              <div class="pcard-img">🧴</div>
+              <div class="pcard-body">
+                <div class="pcard-brand">La Roche-Posay</div>
+                <div class="pcard-name">Anthelios SPF50</div>
+                <div class="pcard-price">AED 88</div>
+              </div>
+            </div>
+            <div class="pcard" onclick="go('s5')">
+              <div class="pcard-img">🌸</div>
+              <div class="pcard-body">
+                <div class="pcard-brand">CeraVe</div>
+                <div class="pcard-name">Moisturising Cream</div>
+                <div class="pcard-price">AED 65</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="home-section">
+          <div class="hs-row"><div class="hs-title">New arrivals</div><div class="hs-link">See all</div></div>
+          <div class="product-scroll">
+            <div class="pcard">
+              <div class="pcard-img">💅</div>
+              <div class="pcard-body">
+                <div class="pcard-brand">Fenty Beauty</div>
+                <div class="pcard-name">Pro Filt'r Foundation</div>
+                <div class="pcard-price">AED 175</div>
+              </div>
+            </div>
+            <div class="pcard">
+              <div class="pcard-img">✨</div>
+              <div class="pcard-body">
+                <div class="pcard-brand">Drunk Elephant</div>
+                <div class="pcard-name">C-Firma Serum</div>
+                <div class="pcard-price">AED 290</div>
+              </div>
+            </div>
+            <div class="pcard">
+              <div class="pcard-img">🫧</div>
+              <div class="pcard-body">
+                <div class="pcard-brand">Paula's Choice</div>
+                <div class="pcard-name">BHA Exfoliant</div>
+                <div class="pcard-price">AED 145</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="height:12px"></div>
+      </div>
+      <div class="bnav">
+        <div class="bni active"><div class="bni-icon">🏠</div><div class="bni-label">Home</div></div>
+        <div class="bni"><div class="bni-icon">🔍</div><div class="bni-label">Search</div></div>
+        <div class="bni" onclick="go('s1')"><div class="bni-icon">✨</div><div class="bni-label">My Match</div></div>
+        <div class="bni"><div class="bni-icon">🛍️</div><div class="bni-label">Bag</div></div>
+        <div class="bni"><div class="bni-icon">👤</div><div class="bni-label">Profile</div></div>
+      </div>
+    </div>
+
+    <!-- ══ S1: ONBOARDING INTRO ══ -->
+    <div class="scr" id="s1">
+      <div class="onb-intro">
+        <div class="onb-orb">✨</div>
+        <div class="onb-title">Beauty <em>made<br>for your skin</em></div>
+        <div class="onb-sub">A 90-second setup that creates a shelf of products matched to your exact skin tone, type, and concerns — and gets smarter with every purchase.</div>
+        <div class="onb-features">
+          <div class="onb-feat">
+            <div class="onb-feat-icon">📷</div>
+            <div class="onb-feat-text"><strong>Skin scan</strong>Camera analyses your tone, undertone, and texture in seconds</div>
+          </div>
+          <div class="onb-feat">
+            <div class="onb-feat-icon">✍️</div>
+            <div class="onb-feat-text"><strong>5-question quiz</strong>Skin type, concerns, goals, budget — takes under 60 seconds</div>
+          </div>
+          <div class="onb-feat">
+            <div class="onb-feat-icon">🎯</div>
+            <div class="onb-feat-text"><strong>Your match score</strong>Every product gets a % score explaining exactly why it fits</div>
+          </div>
+        </div>
+        <button class="start-btn" onclick="go('s2')">Start my scan →</button>
+        <div class="skip-link" onclick="go('s5')">Skip — browse without personalising</div>
+      </div>
+    </div>
+
+    <!-- ══ S2: SKIN SCAN ══ -->
+    <div class="scr" id="s2">
+      <div class="scan-header">
+        <div class="back-btn" onclick="go('s1')">←</div>
+        <div style="flex:1">
+          <div class="scan-step">Step 1 of 2 · Skin scan</div>
+          <div class="scan-title">Position your face in the frame</div>
+        </div>
+      </div>
+      <div class="scan-area">
+        <div class="viewfinder" id="vf">
+          <div class="vf-face" id="vf-face">🧑🏽</div>
+          <div class="vf-scan-line" id="scan-line"></div>
+          <div class="vf-corner tl"></div><div class="vf-corner tr"></div>
+          <div class="vf-corner bl"></div><div class="vf-corner br"></div>
+        </div>
+        <div class="scan-instruction" id="scan-instruction">
+          Hold still and ensure your face is in good natural light.<br>Avoid strong shadows or direct sun.
+        </div>
+        <div id="tone-result" style="display:none;text-align:center;margin-bottom:16px">
+          <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:10px">Detected tone — confirm or adjust</div>
+          <div class="tone-chips">
+            <div class="tone-chip" style="background:#FDDBB4;color:#5A3010" onclick="selectTone(this)">Fair warm</div>
+            <div class="tone-chip selected" style="background:#C8956C;color:#fff" onclick="selectTone(this)">Medium warm ✓</div>
+            <div class="tone-chip" style="background:#A0673A;color:#fff" onclick="selectTone(this)">Tan warm</div>
+            <div class="tone-chip" style="background:#7B4B2A;color:#fff" onclick="selectTone(this)">Deep warm</div>
+          </div>
+        </div>
+        <button class="scan-btn" id="scan-btn" onclick="startScan()">Scan my skin tone</button>
+
+        <!-- Detecting overlay -->
+        <div class="detecting-overlay" id="detecting">
+          <div class="detecting-ring"></div>
+          <div class="detecting-label">Analysing skin tone…</div>
+          <div class="detecting-sub">Reading undertones, depth, and texture</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ S3: QUIZ ══ -->
+    <div class="scr" id="s3">
+      <div class="quiz-header">
+        <div class="back-btn" onclick="go('s2')">←</div>
+        <div style="flex:1">
+          <div class="scan-step" id="quiz-step-label">Step 2 of 2 · Quick quiz</div>
+          <div class="scan-title" id="quiz-q-title">What's your skin type?</div>
+        </div>
+      </div>
+      <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="qpbar" style="width:20%"></div></div>
+      <div class="quiz-body">
+        <div class="quiz-question" id="quiz-q"></div>
+        <div class="quiz-hint" id="quiz-hint"></div>
+        <div class="quiz-options" id="quiz-opts"></div>
+        <button class="quiz-next" id="quiz-next" disabled onclick="nextQuestion()">Next →</button>
+      </div>
+    </div>
+
+    <!-- ══ S4: BUILDING PROFILE ══ -->
+    <div class="scr" id="s4">
+      <div class="building-screen">
+        <div class="building-orb"><div class="building-face" id="bf-face">✨</div></div>
+        <div class="building-title">Building your profile…</div>
+        <div class="building-sub">Matching your skin data against 12,000+ products and 380K purchase patterns from MENA shoppers</div>
+        <div class="building-steps" id="bsteps">
+          <div class="bstep doing" id="bst0"><div class="bstep-dot"></div>Calibrating skin tone model</div>
+          <div class="bstep" id="bst1"><div class="bstep-dot"></div>Applying skin type filters</div>
+          <div class="bstep" id="bst2"><div class="bstep-dot"></div>Running concern matching</div>
+          <div class="bstep" id="bst3"><div class="bstep-dot"></div>Ranking MENA shopper reviews</div>
+          <div class="bstep" id="bst4"><div class="bstep-dot"></div>Generating match scores</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ S5: MATCH SHELF ══ -->
+    <div class="scr" id="s5">
+      <div class="shelf-header">
+        <div class="shelf-title-row">
+          <div class="shelf-title">Your Beauty<br>Match shelf ✨</div>
+          <div class="profile-pill" onclick="go('s1')">
+            <div class="profile-pill-tone" style="background:#C8956C"></div>
+            <div class="profile-pill-label">Edit profile</div>
+          </div>
+        </div>
+        <div class="shelf-sub">14 products · Personalised for medium warm, oily-combo, acne-prone</div>
+      </div>
+      <div class="shelf-filters">
+        <div class="sf-chip active">All matches</div>
+        <div class="sf-chip">Skincare</div>
+        <div class="sf-chip">Foundation</div>
+        <div class="sf-chip">Lips</div>
+        <div class="sf-chip">SPF</div>
+        <div class="sf-chip">Serum</div>
+      </div>
+      <div class="shelf-grid">
+        <div class="sgcard top-match" onclick="go('s6')">
+          <div class="top-ribbon">Top match</div>
+          <div class="sgc-img">🧴</div>
+          <div class="sgc-body">
+            <div class="sgc-match high">✓ 97% match</div>
+            <div class="sgc-brand">La Roche-Posay</div>
+            <div class="sgc-name">Anthelios Invisible SPF50</div>
+            <div class="sgc-why">No white cast · Oily skin · 4,200 MENA reviews</div>
+            <div class="sgc-price">AED 88</div>
+            <div class="sgc-bar"><div class="sgc-bar-fill" style="width:97%;background:linear-gradient(90deg,#E91E8C,#9C27B0)"></div></div>
+          </div>
+        </div>
+        <div class="sgcard" onclick="go('s6')">
+          <div class="sgc-img">🌸</div>
+          <div class="sgc-body">
+            <div class="sgc-match high">✓ 94% match</div>
+            <div class="sgc-brand">CeraVe</div>
+            <div class="sgc-name">Moisturising Cream 340g</div>
+            <div class="sgc-why">Non-comedogenic · Dry patches · Great for combo</div>
+            <div class="sgc-price">AED 65 <span class="sgc-orig">82</span></div>
+            <div class="sgc-bar"><div class="sgc-bar-fill" style="width:94%;background:linear-gradient(90deg,#E91E8C,#9C27B0)"></div></div>
+          </div>
+        </div>
+        <div class="sgcard" onclick="go('s6')">
+          <div class="sgc-img">💄</div>
+          <div class="sgc-body">
+            <div class="sgc-match high">✓ 91% match</div>
+            <div class="sgc-brand">Charlotte Tilbury</div>
+            <div class="sgc-name">Beautiful Skin Foundation</div>
+            <div class="sgc-why">Shade 10 — warm undertone · Buildable coverage</div>
+            <div class="sgc-price">AED 220</div>
+            <div class="sgc-bar"><div class="sgc-bar-fill" style="width:91%;background:linear-gradient(90deg,#E91E8C,#9C27B0)"></div></div>
+          </div>
+        </div>
+        <div class="sgcard" onclick="go('s6')">
+          <div class="sgc-img">🫧</div>
+          <div class="sgc-body">
+            <div class="sgc-match high">✓ 89% match</div>
+            <div class="sgc-brand">Paula's Choice</div>
+            <div class="sgc-name">2% BHA Liquid Exfoliant</div>
+            <div class="sgc-why">Acne-prone · Pore-minimising · Gentle formula</div>
+            <div class="sgc-price">AED 145</div>
+            <div class="sgc-bar"><div class="sgc-bar-fill" style="width:89%;background:linear-gradient(90deg,#E91E8C,#9C27B0)"></div></div>
+          </div>
+        </div>
+        <div class="sgcard">
+          <div class="sgc-img">✨</div>
+          <div class="sgc-body">
+            <div class="sgc-match med">~ 82% match</div>
+            <div class="sgc-brand">Drunk Elephant</div>
+            <div class="sgc-name">C-Firma Fresh Day Serum</div>
+            <div class="sgc-why">Brightening · Warm tone · Some users report sensitivity</div>
+            <div class="sgc-price">AED 290</div>
+            <div class="sgc-bar"><div class="sgc-bar-fill" style="width:82%;background:linear-gradient(90deg,#FFB300,#E91E8C)"></div></div>
+          </div>
+        </div>
+        <div class="sgcard">
+          <div class="sgc-img">💅</div>
+          <div class="sgc-body">
+            <div class="sgc-match med">~ 78% match</div>
+            <div class="sgc-brand">Fenty Beauty</div>
+            <div class="sgc-name">Pro Filt'r Soft Matte Foundation</div>
+            <div class="sgc-why">Shade 360W · Matte finish · Heavy for combo skin</div>
+            <div class="sgc-price">AED 175</div>
+            <div class="sgc-bar"><div class="sgc-bar-fill" style="width:78%;background:linear-gradient(90deg,#FFB300,#E91E8C)"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ S6: PRODUCT DETAIL WITH MATCH BREAKDOWN ══ -->
+    <div class="scr" id="s6">
+      <div class="pd-header">
+        <div class="back-btn" onclick="go('s5')">←</div>
+        <div style="flex:1;font-size:14px;font-weight:700;color:#fff;">Product detail</div>
+        <div style="font-size:20px;cursor:pointer">🔖</div>
+      </div>
+      <div class="pd-body">
+        <div class="pd-img-area">🧴</div>
+        <div class="pd-info">
+          <div class="pd-brand">La Roche-Posay</div>
+          <div class="pd-name">Anthelios Invisible Fluid SPF 50</div>
+          <div class="pd-rating-row">
+            <div class="pd-rating">⭐⭐⭐⭐⭐ 4.9</div>
+            <div class="pd-reviews-count">4,102 reviews · 2,341 from MENA shoppers</div>
+          </div>
+        </div>
+
+        <!-- AI Match Breakdown — the centrepiece -->
+        <div class="match-breakdown">
+          <div class="mb-title">
+            <div class="mb-score">97%</div>
+            <div style="font-size:13px;font-weight:600;color:rgba(255,255,255,.7);margin-left:6px">match for your profile</div>
+          </div>
+          <div style="font-size:11px;color:rgba(255,255,255,.35);margin-bottom:12px">Why this product fits you</div>
+          <div class="mb-row">
+            <div class="mb-label">Skin tone match</div>
+            <div class="mb-bar-wrap"><div class="mb-bar" style="width:98%"></div></div>
+            <div class="mb-val">98%</div>
+          </div>
+          <div class="mb-row">
+            <div class="mb-label">Oily/combo skin</div>
+            <div class="mb-bar-wrap"><div class="mb-bar" style="width:96%"></div></div>
+            <div class="mb-val">96%</div>
+          </div>
+          <div class="mb-row">
+            <div class="mb-label">Acne-prone</div>
+            <div class="mb-bar-wrap"><div class="mb-bar" style="width:95%"></div></div>
+            <div class="mb-val">95%</div>
+          </div>
+          <div class="mb-row">
+            <div class="mb-label">No white cast</div>
+            <div class="mb-bar-wrap"><div class="mb-bar" style="width:99%"></div></div>
+            <div class="mb-val">99%</div>
+          </div>
+          <div class="mb-row">
+            <div class="mb-label">MENA climate</div>
+            <div class="mb-bar-wrap"><div class="mb-bar" style="width:97%"></div></div>
+            <div class="mb-val">97%</div>
+          </div>
+          <div style="font-size:10px;color:rgba(233,30,140,.7);margin-top:10px;font-weight:600">Based on 2,341 shoppers with similar skin in UAE + KSA</div>
+        </div>
+
+        <!-- Similar skin reviews -->
+        <div class="similar-reviews">
+          <div class="sr-title">Reviews from similar skin profiles</div>
+          <div class="sr-card">
+            <div class="src-top">
+              <div class="src-avatar" style="background:#C8956C">L</div>
+              <div><div class="src-name">Lina H.</div><div class="src-tone">Medium warm · Oily · Dubai</div></div>
+              <div class="src-match">98% match</div>
+            </div>
+            <div class="src-text">"Finally an SPF with zero white cast! I've been through 8 different ones. This one is genuinely invisible even on my medium skin."</div>
+          </div>
+          <div class="sr-card">
+            <div class="src-top">
+              <div class="src-avatar" style="background:#A0673A">S</div>
+              <div><div class="src-name">Sara M.</div><div class="src-tone">Tan warm · Combo · Abu Dhabi</div></div>
+              <div class="src-match">94% match</div>
+            </div>
+            <div class="src-text">"Survived 3 months of UAE summer! No breakouts, no greasiness. The texture is so light I sometimes forget I'm wearing it."</div>
+          </div>
+        </div>
+
+        <!-- Shade select (for context, SPF doesn't have shades but keeping consistent UX) -->
+        <div class="pd-shades">
+          <div class="pd-shades-title">Your recommended shade match</div>
+          <div class="pd-shade-row">
+            <div class="pd-shade sel" style="background:#C8956C" title="Medium warm"></div>
+            <div class="pd-shade" style="background:#FDDBB4" title="Fair warm"></div>
+            <div class="pd-shade" style="background:#A0673A" title="Tan warm"></div>
+            <div class="pd-shade" style="background:#7B4B2A" title="Deep warm"></div>
+          </div>
+          <div class="pd-ai-rec">✓ AI recommends: Medium warm (matches your scan)</div>
+        </div>
+
+        <div style="height:80px"></div>
+      </div>
+      <div class="pd-cart-bar">
+        <div class="pd-price">AED 88</div>
+        <button class="pd-add" onclick="showToast('Added to bag ✓')">Add to bag →</button>
+      </div>
+    </div>
+
+  </div><!-- /phone -->
+</div>
+
+<!-- ══ ANNOTATION PANEL ══ -->
+<div style="width:300px;padding-top:44px;">
+  <div style="font-family:'DM Mono',monospace;font-size:11px;font-weight:500;color:#9A5ABB;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px">AI Beauty Match</div>
+  <div style="font-size:21px;font-weight:800;color:#fff;margin-bottom:6px;line-height:1.15;">A shelf built for<br>your exact skin</div>
+  <div style="font-size:13px;color:#9A7AAA;margin-bottom:22px;line-height:1.6">Tap through the full flow: Home → Scan → Quiz → Profile building → Match shelf → Product detail with match breakdown.</div>
+
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:22px">
+    <div class="and active" id="and-home" onclick="showAnno('home');go('s0')">Home</div>
+    <div class="and" id="and-scan" onclick="showAnno('scan');go('s2')">Scan</div>
+    <div class="and" id="and-quiz" onclick="showAnno('quiz');go('s3')">Quiz</div>
+    <div class="and" id="and-shelf" onclick="showAnno('shelf');go('s5')">Match shelf</div>
+    <div class="and" id="and-detail" onclick="showAnno('detail');go('s6')">Product detail</div>
+    <div class="and" id="and-loop" onclick="showAnno('loop')">Learning loop</div>
+  </div>
+
+  <div id="anno"></div>
+</div>
+
+<style>
+.and{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid rgba(255,255,255,.1);color:rgba(255,255,255,.4);transition:all .2s;white-space:nowrap;}
+.and.active{background:#E91E8C;color:#fff;border-color:#E91E8C;}
+.ac2{background:rgba(255,255,255,.04);border-radius:14px;padding:14px 16px;margin-bottom:10px;border:1px solid rgba(255,255,255,.07);}
+.ac2 h4{font-size:13px;font-weight:700;color:#fff;margin-bottom:3px;}
+.ac2 p{font-size:12px;color:#9A7AAA;line-height:1.55;}
+.am{display:inline-flex;align-items:center;gap:3px;background:rgba(0,200,83,.1);color:#00C853;font-size:11px;font-weight:700;padding:2px 7px;border-radius:5px;margin-top:7px;}
+.an{display:inline-flex;width:18px;height:18px;background:rgba(233,30,140,.15);color:#E91E8C;border-radius:50%;font-size:10px;font-weight:700;align-items:center;justify-content:center;margin-bottom:5px;}
+</style>
+
+<script>
+/* ── SCREEN NAV ── */
+function go(id){
+  document.querySelectorAll('.scr').forEach(s=>s.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+}
+
+function showToast(msg){
+  const t=document.createElement('div');
+  t.style='position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:rgba(0,200,83,.9);color:#fff;font-size:12px;font-weight:700;padding:8px 18px;border-radius:20px;z-index:999;white-space:nowrap;';
+  t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),2000);
+}
+
+/* ── SCAN FLOW ── */
+function startScan(){
+  document.getElementById('detecting').classList.add('on');
+  document.getElementById('scan-btn').disabled=true;
+  // Phase 1: scanning animation 1.8s
+  setTimeout(()=>{
+    document.getElementById('vf-face').textContent='🧑🏽';
+    // Phase 2: show result 1.2s later
+    setTimeout(()=>{
+      document.getElementById('detecting').classList.remove('on');
+      document.getElementById('scan-line').style.display='none';
+      document.getElementById('scan-instruction').textContent='Tone detected: Medium warm ✓ — Undertone: warm golden';
+      document.getElementById('tone-result').style.display='block';
+      document.getElementById('scan-btn').textContent='Confirm & continue →';
+      document.getElementById('scan-btn').disabled=false;
+      document.getElementById('scan-btn').onclick=()=>go('s3');
+    },1200);
+  },1800);
+}
+
+function selectTone(el){
+  document.querySelectorAll('.tone-chip').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  el.textContent=el.textContent.replace(' ✓','')+' ✓';
+}
+
+/* ── QUIZ ── */
+const QUIZ=[
+  {q:"What's your skin type?",hint:"Choose the option that best describes most days",opts:[
+    {icon:"💧",label:"Oily",sub:"Shiny throughout, large pores"},
+    {icon:"🌊",label:"Combination",sub:"Oily T-zone, normal or dry cheeks"},
+    {icon:"🏜️",label:"Dry",sub:"Tight, flaky, or rough patches"},
+    {icon:"🌿",label:"Normal",sub:"Balanced, rarely oily or dry"},
+  ]},
+  {q:"What are your main concerns?",hint:"Pick all that apply — tap multiple",opts:[
+    {icon:"🔴",label:"Acne & breakouts",sub:"Active spots or post-acne marks"},
+    {icon:"🌅",label:"Dark spots & uneven tone",sub:"Hyperpigmentation, discolouration"},
+    {icon:"⏳",label:"Fine lines & texture",sub:"Smoothing, anti-ageing focus"},
+    {icon:"☀️",label:"Sun protection",sub:"Daily SPF is a priority"},
+  ]},
+  {q:"What's your monthly beauty budget?",hint:"Helps us prioritise products by value",opts:[
+    {icon:"💸",label:"Under AED 200",sub:"Budget-conscious, great value"},
+    {icon:"💳",label:"AED 200–500",sub:"Mid-range, quality focused"},
+    {icon:"💎",label:"AED 500+",sub:"Premium and luxury products"},
+  ]},
+  {q:"Which brands do you already love?",hint:"Helps calibrate your taste profile",opts:[
+    {icon:"🌸",label:"Skincare-focused",sub:"La Roche-Posay, CeraVe, Paula's Choice"},
+    {icon:"💄",label:"Luxury makeup",sub:"Charlotte Tilbury, Fenty, NARS"},
+    {icon:"🌿",label:"Clean beauty",sub:"Drunk Elephant, Tatcha, Byoma"},
+    {icon:"✨",label:"Mix of everything",sub:"Open to all brands"},
+  ]},
+  {q:"What's your primary beauty goal right now?",hint:"We'll lead your shelf with this",opts:[
+    {icon:"🎯",label:"Perfect base",sub:"Foundation, concealer, primer"},
+    {icon:"🌟",label:"Skincare routine",sub:"Cleanse, treat, moisturise, SPF"},
+    {icon:"💋",label:"Eye & lip focus",sub:"Statement makeup"},
+    {icon:"🔄",label:"Replenish my staples",sub:"Reordering tried-and-tested products"},
+  ]},
+];
+
+let qIdx=0;
+let selections={};
+
+function renderQuestion(){
+  const q=QUIZ[qIdx];
+  document.getElementById('quiz-step-label').textContent=`Step 2 of 2 · Question ${qIdx+1} of ${QUIZ.length}`;
+  document.getElementById('quiz-q-title').textContent=q.q;
+  document.getElementById('quiz-q').textContent=q.q;
+  document.getElementById('quiz-hint').textContent=q.hint;
+  document.getElementById('qpbar').style.width=((qIdx+1)/QUIZ.length*100)+'%';
+  const opts=document.getElementById('quiz-opts');
+  opts.innerHTML=q.opts.map((o,i)=>`
+    <div class="qopt" onclick="selectOpt(this,${i})">
+      <div class="qopt-icon">${o.icon}</div>
+      <div class="qopt-text"><div class="qopt-label">${o.label}</div><div class="qopt-sub">${o.sub}</div></div>
+      <div class="qopt-check"></div>
+    </div>`).join('');
+  document.getElementById('quiz-next').disabled=true;
+}
+
+function selectOpt(el,i){
+  el.classList.toggle('selected');
+  document.getElementById('quiz-next').disabled=document.querySelectorAll('.qopt.selected').length===0;
+}
+
+function nextQuestion(){
+  selections[qIdx]=Array.from(document.querySelectorAll('.qopt.selected')).map(e=>e.querySelector('.qopt-label').textContent);
+  qIdx++;
+  if(qIdx>=QUIZ.length){go('s4');startBuilding();return;}
+  renderQuestion();
+}
+
+/* ── BUILDING PROFILE ANIMATION ── */
+function startBuilding(){
+  const steps=['bst0','bst1','bst2','bst3','bst4'];
+  let i=0;
+  function next(){
+    if(i>0) document.getElementById(steps[i-1]).className='bstep done';
+    if(i<steps.length){
+      document.getElementById(steps[i]).className='bstep doing';
+      i++;
+      setTimeout(next,700);
+    } else {
+      setTimeout(()=>go('s5'),600);
+    }
+  }
+  next();
+}
+
+/* ── ANNO ── */
+const ANNOS={
+  home:[
+    {n:"1",t:"Non-intrusive entry point",b:"The AI Beauty Match banner lives on the home screen as a clear but non-blocking call-to-action. Shoppers who don't want personalisation can browse the generic shelf below — no friction, no walls."},
+    {n:"2",t:"The proposition is concrete",b:"'90 seconds' and 'a shelf built for you' are the two claims that do the work. No vague promises — specific commitment to time and outcome. This respects the shopper's time.",m:"Onboarding starts with a clear promise"},
+  ],
+  scan:[
+    {n:"1",t:"Camera scan — the moat begins here",b:"The skin tone scan uses on-device ML to detect undertone (warm/cool/neutral), depth, and surface texture. The result is confirmed by the shopper — they can override it. This creates trust while seeding the model.",m:"MENA undertones: underserved by global models"},
+    {n:"2",t:"Tone confirmation chips",b:"After scanning, 4 tone chips appear. The detected tone is pre-selected but the shopper can correct it. This is important — MENA skin has high warm-undertone prevalence that Western models misclassify.",m:"Overtone correction = data quality improvement"},
+    {n:"3",t:"Graceful without camera",b:"If the shopper denies camera permission, they see the manual tone chip selector only — no scan. The experience degrades gracefully rather than failing.",m:"Permission-optional design"},
+  ],
+  quiz:[
+    {n:"1",t:"5 questions, not 50",b:"Skin type, concerns, budget, brands, goal. Each question is one dimension that changes the recommendation meaningfully. Every additional question costs engagement — these 5 were chosen because they have the highest signal-to-friction ratio.",m:"90-second total onboarding target"},
+    {n:"2",t:"Multi-select where it matters",b:"Skin concerns allows multiple selections — because someone can have both acne and dark spots. Single-select for type, budget, and goal. The data model needs to know what to weight.",m:"Question type matches the real behaviour"},
+    {n:"3",t:"Quiz data has dual purpose",b:"Quiz responses train the initial ranking model AND feed the recommendation engine for new products. A shopper who says 'acne-prone + warm tone' will never see a heavy foundation in their top matches.",m:"Every answer is a permanent filter"},
+  ],
+  shelf:[
+    {n:"1",t:"Match score is the primary UI element",b:"Every product leads with its match % — not just a recommendation badge but a specific number with a visual bar. 97% vs 78% communicates calibration. Shoppers trust precision more than vague 'recommended for you' labels.",m:"+45% CVR vs generic shelf (benchmark)"},
+    {n:"2",t:"Why text under every product",b:"Three short reasons per product explain the match: 'No white cast · Oily skin · 4,200 MENA reviews'. This is the 'show your work' principle — the model earns trust by being explainable.",m:"Explanation reduces return rate"},
+    {n:"3",t:"Partial matches shown honestly",b:"78% matches are shown with an amber badge and caveats ('Heavy for combo skin'). Showing imperfect matches honestly builds more trust than hiding them. Shoppers appreciate candour — it makes the 97% scores more credible.",m:"Transparency = long-term trust"},
+  ],
+  detail:[
+    {n:"1",t:"Match breakdown panel — centrepiece",b:"Five dimensions shown as labelled progress bars: skin tone, skin type, specific concerns, a notable feature (no white cast), and MENA climate suitability. The shopper can see exactly why the model recommended this product.",m:"Explainability = purchase confidence"},
+    {n:"2",t:"Reviews filtered to similar profiles",b:"'2,341 reviews from MENA shoppers' and the individual reviews show the reviewer's tone + skin type + location. This is dramatically more useful than a global 4.8 star average from predominantly Western reviewers.",m:"Social proof that actually maps to the shopper"},
+    {n:"3",t:"AI shade recommendation",b:"The recommended shade is pre-selected based on the scan — the shopper doesn't have to guess. For foundations, this removes the single biggest source of returns and dissatisfaction in beauty e-commerce.",m:"Shade mismatch = #1 return driver in beauty"},
+  ],
+  loop:[
+    {n:"1",t:"Every purchase improves the model",b:"When a shopper buys, uses, and rates a product, that data feeds back into their profile. A 5-star rating for the SPF increases confidence for similar SPF recommendations. A return signals the model was wrong and corrects it.",m:"Model accuracy improves with every order"},
+    {n:"2",t:"The switching cost builds over time",b:"After 3 purchases, the shelf is meaningfully better than on day one. After 10 purchases, it's a genuine competitive moat — a competitor would need to rebuild this profile from scratch to match it.",m:"Profile depth = retention engine"},
+    {n:"3",t:"Replenishment intelligence",b:"The model tracks product usage patterns and sends a 'running low?' push at the predicted reorder date. A shopper who uses SPF daily gets a nudge at day 45. This drives repeat without requiring the shopper to remember.",m:"Predicted replenishment: +34% reorder rate"},
+  ],
+};
+
+function showAnno(key){
+  document.querySelectorAll('.and').forEach(el=>el.classList.toggle('active',el.id==='and-'+key));
+  document.getElementById('anno').innerHTML=(ANNOS[key]||[]).map(c=>`
+    <div class="ac2">
+      <div class="an">${c.n}</div>
+      <h4>${c.t}</h4>
+      <p>${c.b}</p>
+      ${c.m?`<div class="am">↗ ${c.m}</div>`:''}
+    </div>`).join('');
+}
+
+renderQuestion();
+showAnno('home');
+</script>
+</body>
+</html>
