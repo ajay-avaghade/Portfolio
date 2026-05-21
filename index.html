@@ -208,7 +208,7 @@
             </div>
 
             <!-- Talabat company block -->
-            <div class="rw-company-block animate-on-scroll">
+            <div class="rw-company-block animate-on-scroll" id="rw-talabat">
                 <div class="rw-company-header">
                     <div class="rw-company-logo">
                         <span class="rw-logo-text" style="color:#FF5A1F;">talabat</span>
@@ -289,7 +289,7 @@
             </div>
 
             <!-- Virtusa company block -->
-            <div class="rw-company-block animate-on-scroll" style="margin-top: 64px;">
+            <div class="rw-company-block animate-on-scroll" id="rw-virtusa" style="margin-top: 64px;">
                 <div class="rw-company-header">
                     <div class="rw-company-logo-wrap" style="background: linear-gradient(135deg, #0A1F0A 0%, #162816 100%); border: 2px solid #22C55E33;">
                         <span class="rw-company-logo-text" style="color: #22C55E; font-size: 1.1rem; font-weight: 800; letter-spacing: 0.05em;">VirtuPay</span>
@@ -320,11 +320,11 @@
                             </div>
                         </div>
                         <div class="rw-case-actions">
-                            <a href="virtusa-milestone-prototype.html" target="_blank" class="rw-btn rw-btn-primary" style="background: #22C55E; color: #0A1F0A;">
-                                <i data-lucide="smartphone" style="width:14px;"></i> Live Prototype
+                            <a href="virtusa-milestone-prototype.html" target="_blank" class="btn btn-primary rw-btn" style="background: #22C55E; box-shadow: 0 4px 14px rgba(34,197,94,0.35);">
+                                <i data-lucide="smartphone"></i> Live Prototype
                             </a>
-                            <a href="assets/virtusa-milestone-deck.pptx" download class="rw-btn rw-btn-outline" style="border-color: #22C55E; color: #22C55E;">
-                                <i data-lucide="download" style="width:14px;"></i> CEO Pitch Deck
+                            <a href="assets/virtusa-milestone-deck.pptx" download class="btn btn-outline rw-btn" style="border-color: #22C55E; color: #22C55E;">
+                                <i data-lucide="download"></i> CEO Pitch Deck
                             </a>
                         </div>
                     </div>
@@ -426,5 +426,31 @@
     </div>
 
     <script src="script.js"></script>
+
+    <!-- Hash-based deep-link routing: #real-world/company-name scrolls to that company block -->
+    <script>
+    (function () {
+      function handleRealWorldHash() {
+        const hash = window.location.hash; // e.g. "#real-world/virtusa"
+        const match = hash.match(/^#real-world\/(.+)$/);
+        if (match) {
+          const company = match[1].toLowerCase().replace(/[^a-z0-9-]/g, '');
+          const target = document.getElementById('rw-' + company);
+          if (target) {
+            // Small delay so page layout is ready
+            setTimeout(() => {
+              target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 300);
+          }
+        } else if (hash === '#real-world') {
+          const section = document.getElementById('real-world');
+          if (section) setTimeout(() => section.scrollIntoView({ behavior: 'smooth', block: 'start' }), 300);
+        }
+      }
+      // Fire on load and whenever the hash changes
+      window.addEventListener('load', handleRealWorldHash);
+      window.addEventListener('hashchange', handleRealWorldHash);
+    })();
+    </script>
 </body>
 </html>
