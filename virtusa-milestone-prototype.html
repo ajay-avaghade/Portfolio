@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VirtuPay — Merchant Milestone Rental Waiver</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --g-dark:#0A1F0A;--g-hero:#162816;--g-mid:#1E4A1E;--g-bright:#22C55E;--g-accent:#4ADE80;
+  --orange:#F97316;--white:#FFFFFF;--gray:#F4F7F4;--border:#E2EBE2;
+  --ink:#0F1F0F;--muted:#5A7A5A;--light:#8FAA8F;
+}
+body{font-family:'Sora',sans-serif;background:#D6E8D6;display:flex;align-items:flex-start;justify-content:center;min-height:100vh;padding:40px 20px;gap:28px;flex-wrap:wrap;}
+
+/* ── PHONE SHELL ── */
+.pw{display:flex;flex-direction:column;align-items:center;gap:12px;}
+.slabel{font-family:'DM Mono',monospace;font-size:10px;font-weight:500;color:#3A5A3A;letter-spacing:.1em;text-transform:uppercase;}
+.phone{width:375px;background:#fff;border-radius:46px;box-shadow:0 40px 100px rgba(10,31,10,.28),0 2px 8px rgba(10,31,10,.1);overflow:hidden;border:1.5px solid rgba(10,31,10,.08);}
+.notch{width:118px;height:28px;background:var(--g-dark);border-radius:0 0 16px 16px;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:6px;}
+.nc{width:10px;height:10px;background:#0f1f0f;border-radius:50%;border:1.5px solid #1a2e1a;}
+.ns{width:5px;height:5px;background:#0f1f0f;border-radius:50%;}
+.sb{padding:6px 22px 5px;display:flex;justify-content:space-between;align-items:center;font-size:11px;font-weight:700;color:rgba(255,255,255,.9);}
+.sc{overflow-y:auto;max-height:724px;scrollbar-width:none;}
+.sc::-webkit-scrollbar{display:none;}
+
+/* ── SUNBURST HERO ── */
+.hero{position:relative;height:216px;overflow:hidden;background:var(--g-dark);display:flex;flex-direction:column;}
+.hero svg.burst{position:absolute;inset:0;width:100%;height:100%;}
+.hero-nav{position:relative;z-index:10;display:flex;justify-content:space-between;align-items:center;padding:10px 18px;}
+.back{color:#fff;font-size:22px;cursor:pointer;line-height:1;}
+.help-pill{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:5px 12px;font-size:11px;font-weight:700;color:#fff;cursor:pointer;}
+.days-pill{position:absolute;top:50px;right:18px;background:rgba(255,255,255,.95);color:var(--orange);font-size:9px;font-weight:800;letter-spacing:.1em;padding:4px 12px;border-radius:20px;z-index:10;}
+.hero-coin{position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);width:86px;height:86px;background:radial-gradient(circle at 40% 35%,var(--g-mid),var(--g-dark));border-radius:50%;border:2.5px solid rgba(74,222,128,.2);display:flex;align-items:center;justify-content:center;font-size:32px;z-index:10;box-shadow:0 8px 24px rgba(0,0,0,.4);}
+
+/* ── CONTENT ── */
+.body{padding:38px 18px 20px;background:#fff;}
+.hl{text-align:center;margin-bottom:18px;}
+.hl h2{font-size:17px;font-weight:700;color:var(--ink);margin-bottom:3px;}
+.hl h2 .cross{text-decoration:line-through;color:var(--light);font-weight:400;}
+.hl h2 .new{color:var(--g-bright);font-weight:800;}
+.hl p{font-size:12px;color:var(--muted);}
+
+/* Goal card */
+.gc{background:var(--gray);border:1px solid var(--border);border-radius:14px;padding:14px 15px;margin-bottom:11px;}
+.gc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:2px;}
+.gc-title{font-size:12px;font-weight:700;color:var(--ink);}
+.gc-meta{font-size:10px;color:var(--muted);text-align:right;}
+.gc-sub{font-size:11px;color:var(--muted);margin-bottom:9px;}
+.track{height:9px;background:#C7DEC7;border-radius:9px;overflow:visible;margin-bottom:5px;position:relative;}
+.fill{height:100%;border-radius:9px;background:linear-gradient(90deg,var(--g-bright),#16A34A);position:relative;transition:width .6s ease;}
+.fill-badge{position:absolute;right:-1px;top:50%;transform:translateY(-50%) translateX(50%);background:#16A34A;color:#fff;font-size:8px;font-weight:800;padding:2px 6px;border-radius:8px;white-space:nowrap;z-index:2;}
+.pl{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:4px;}
+.pl .cur{color:var(--g-bright);font-weight:700;}
+.nudge{display:flex;align-items:center;gap:5px;margin-top:8px;padding:6px 9px;background:rgba(249,115,22,.08);border-radius:8px;font-size:11px;color:var(--orange);font-weight:600;}
+.nudge.green{background:rgba(34,197,94,.08);color:#16A34A;}
+
+/* Details */
+.det{padding:14px 18px 20px;background:#fff;border-top:1px solid var(--border);}
+.det-title{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:8px;}
+.det ul{list-style:none;display:flex;flex-direction:column;gap:5px;}
+.det li{font-size:12px;color:var(--muted);padding-left:14px;position:relative;line-height:1.55;}
+.det li::before{content:'·';position:absolute;left:4px;font-weight:700;color:var(--g-bright);}
+.tnc{display:block;margin-top:12px;font-size:12px;color:#2563EB;font-weight:600;cursor:pointer;}
+
+/* ── HOME SCREEN ── */
+.home-top{background:#fff;padding:44px 18px 12px;display:flex;justify-content:space-between;align-items:center;}
+.logo{font-size:21px;font-weight:800;color:var(--g-dark);letter-spacing:-.5px;}
+.logo em{color:var(--g-bright);font-style:normal;}
+.bell{width:36px;height:36px;background:var(--gray);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;cursor:pointer;}
+.merchant-bar{padding:0 18px 14px;background:#fff;}
+.merchant-bar p{font-size:12px;color:var(--muted);}
+.merchant-bar h3{font-size:17px;font-weight:700;color:var(--ink);}
+
+/* Milestone banner */
+.m-banner{margin:0 14px 14px;background:var(--g-hero);border-radius:18px;padding:18px;position:relative;overflow:hidden;cursor:pointer;border:1px solid rgba(74,222,128,.15);}
+.m-banner::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 75% 50%,rgba(34,197,94,.14) 0%,transparent 65%);}
+.m-tag{display:inline-flex;align-items:center;gap:5px;background:rgba(74,222,128,.15);border:1px solid rgba(74,222,128,.25);border-radius:20px;padding:2px 10px;font-size:9px;font-weight:700;color:var(--g-accent);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
+.dot-pulse{width:5px;height:5px;background:var(--g-accent);border-radius:50%;animation:pulse 1.4s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.m-title{font-size:17px;font-weight:800;color:#fff;margin-bottom:4px;line-height:1.2;}
+.m-sub{font-size:11px;color:rgba(255,255,255,.55);margin-bottom:12px;line-height:1.5;}
+.m-cta{display:inline-flex;align-items:center;gap:6px;background:var(--g-bright);color:#fff;font-size:12px;font-weight:700;padding:8px 16px;border-radius:10px;}
+.m-pct{position:absolute;right:16px;bottom:14px;text-align:right;}
+.m-pct .big{font-size:30px;font-weight:800;color:var(--g-accent);line-height:1;}
+.m-pct .sm{font-size:10px;color:rgba(255,255,255,.45);}
+
+/* Stats row */
+.stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;padding:0 14px 14px;}
+.stat{background:#fff;border:1px solid var(--border);border-radius:12px;padding:11px 8px;text-align:center;}
+.stat .si{font-size:18px;margin-bottom:3px;}
+.stat .sv{font-size:13px;font-weight:800;color:var(--ink);}
+.stat .sl{font-size:9px;color:var(--light);text-transform:uppercase;letter-spacing:.04em;}
+
+/* Transactions */
+.sec-row{display:flex;justify-content:space-between;align-items:center;padding:0 14px 9px;}
+.sec-t{font-size:13px;font-weight:700;color:var(--ink);}
+.sec-l{font-size:12px;color:var(--g-bright);font-weight:600;}
+.txn{display:flex;align-items:center;gap:11px;padding:10px 14px;border-bottom:1px solid var(--border);}
+.txn-av{width:36px;height:36px;background:var(--gray);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.txn-i{flex:1;}
+.txn-i .n{font-size:13px;font-weight:600;color:var(--ink);}
+.txn-i .t{font-size:11px;color:var(--light);}
+.txn-a{font-size:14px;font-weight:700;color:var(--g-bright);}
+
+/* Bottom nav */
+.bnav{display:flex;background:#fff;border-top:1px solid var(--border);padding:10px 0 6px;}
+.bni{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;}
+.bni .bi{font-size:19px;}
+.bni .bl{font-size:9px;font-weight:600;color:var(--light);}
+.bni.on .bl{color:var(--g-bright);}
+
+/* ── SUCCESS STATE ── */
+.confetti-wrap{position:absolute;inset:0;pointer-events:none;z-index:5;overflow:hidden;}
+.cp{position:absolute;border-radius:2px;animation:cf-fall linear infinite;}
+@keyframes cf-fall{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(240px) rotate(400deg);opacity:0}}
+.success-hl{text-align:center;padding:38px 18px 14px;}
+.success-hl h2{font-size:22px;font-weight:800;color:var(--g-bright);margin-bottom:5px;}
+.success-hl .s-rent{font-size:16px;font-weight:700;color:var(--ink);line-height:1.3;}
+.success-hl .s-rent .cross{text-decoration:line-through;color:var(--light);font-weight:400;}
+.success-hl .s-rent .new{color:var(--g-bright);font-weight:800;}
+.success-hl .s-sub{font-size:12px;color:var(--muted);margin-top:4px;}
+.gc.done{background:#F0FBF0;border-color:#B8E8B8;}
+.check-circle{width:34px;height:34px;background:var(--g-bright);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.check-circle svg{width:16px;height:16px;stroke:#fff;stroke-width:2.5;fill:none;}
+.gc-row{display:flex;align-items:center;gap:11px;}
+.gc-row-info{flex:1;}
+.gc-row-info .lb{font-size:11px;color:var(--muted);}
+.gc-row-info .vl{font-size:14px;font-weight:700;color:var(--ink);}
+.gc-row-right{text-align:right;}
+.gc-row-right .lb{font-size:11px;color:var(--muted);}
+.gc-row-right .vl{font-size:16px;font-weight:800;color:var(--g-bright);}
+
+/* ── NUDGE SCREEN ── */
+.nudge-hdr{background:var(--g-hero);padding:44px 18px 18px;}
+.nudge-hdr .nh-eyebrow{font-size:10px;color:rgba(255,255,255,.45);letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px;}
+.nudge-hdr h3{font-size:19px;font-weight:800;color:#fff;margin-bottom:4px;}
+.nudge-hdr p{font-size:12px;color:rgba(255,255,255,.55);}
+.ncard{background:#fff;border:1px solid var(--border);border-radius:14px;margin:14px 14px 0;overflow:hidden;}
+.ncard-hdr{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.ncard-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.ncard-info{flex:1;}
+.ncard-info .nt{font-size:13px;font-weight:700;color:var(--ink);}
+.ncard-info .ns{font-size:11px;color:var(--muted);}
+.ncard-body{padding:13px 14px;}
+.nmsg{font-size:13px;color:var(--ink);line-height:1.65;margin-bottom:11px;}
+.np-mini{margin-bottom:10px;}
+.np-mini .nlr{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:3px;}
+.na{display:flex;gap:9px;margin-top:12px;}
+.na-p{flex:1;background:var(--g-bright);color:#fff;font-size:12px;font-weight:700;padding:10px;border-radius:10px;text-align:center;cursor:pointer;}
+.na-s{flex:1;background:var(--gray);color:var(--ink);font-size:12px;font-weight:600;padding:10px;border-radius:10px;text-align:center;cursor:pointer;}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════
+  SCREEN 01 — MERCHANT HOME
+══════════════════════════════════ -->
+<div class="pw">
+  <span class="slabel">01 — Merchant Home</span>
+  <div class="phone">
+    <div class="notch"><div class="nc"></div><div class="ns"></div></div>
+    <div class="sb" style="background:var(--g-dark)"><span>9:41</span><span>▲ ▐▐ ▮</span></div>
+    <div class="sc">
+      <div class="home-top">
+        <div class="logo">Virtusa<em>Pay</em></div>
+        <div class="bell">🔔</div>
+      </div>
+      <div class="merchant-bar">
+        <p>Good morning,</p>
+        <h3>Al Baraka Grocery · Dubai</h3>
+      </div>
+
+      <!-- Milestone Banner -->
+      <div class="m-banner">
+        <div class="m-tag"><div class="dot-pulse"></div> Milestone Challenge · 42 Days Left</div>
+        <div class="m-title">Waive Your Terminal Rental</div>
+        <div class="m-sub">Hit both goals → pay just AED 1/mo instead of AED 45</div>
+        <div class="m-cta">View Progress →</div>
+        <div class="m-pct">
+          <div class="big">62%</div>
+          <div class="sm">complete</div>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats">
+        <div class="stat"><div class="si">💳</div><div class="sv">AED 9.3K</div><div class="sl">Today Sales</div></div>
+        <div class="stat"><div class="si">👥</div><div class="sv">47</div><div class="sl">Customers</div></div>
+        <div class="stat"><div class="si">📊</div><div class="sv">198</div><div class="sl">Transactions</div></div>
+      </div>
+
+      <!-- Recent Transactions -->
+      <div class="sec-row"><span class="sec-t">Recent Transactions</span><span class="sec-l">See all</span></div>
+      <div class="txn"><div class="txn-av">🧑</div><div class="txn-i"><div class="n">Tap &amp; Pay</div><div class="t">2 min ago · Visa ****4821</div></div><div class="txn-a">+AED 145</div></div>
+      <div class="txn"><div class="txn-av">👩</div><div class="txn-i"><div class="n">Contactless</div><div class="t">14 min ago · Mastercard</div></div><div class="txn-a">+AED 67</div></div>
+      <div class="txn"><div class="txn-av">👨</div><div class="txn-i"><div class="n">Chip &amp; PIN</div><div class="t">31 min ago · Visa ****2290</div></div><div class="txn-a">+AED 210</div></div>
+      <div class="txn"><div class="txn-av">🧓</div><div class="txn-i"><div class="n">Tap &amp; Pay</div><div class="t">1 hr ago · Emirates NBD</div></div><div class="txn-a">+AED 38</div></div>
+
+      <div class="bnav">
+        <div class="bni on"><div class="bi">🏠</div><div class="bl" style="color:var(--g-bright)">Home</div></div>
+        <div class="bni"><div class="bi">📊</div><div class="bl">Reports</div></div>
+        <div class="bni"><div class="bi">🏆</div><div class="bl">Milestone</div></div>
+        <div class="bni"><div class="bi">⚙️</div><div class="bl">Settings</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+  SCREEN 02 — MILESTONE TRACKER (IN PROGRESS)
+══════════════════════════════════ -->
+<div class="pw">
+  <span class="slabel">02 — Milestone Tracker</span>
+  <div class="phone">
+    <div class="notch"><div class="nc"></div><div class="ns"></div></div>
+    <div class="sb" style="background:var(--g-dark)"><span>9:41</span><span>▲ ▐▐ ▮</span></div>
+    <div class="sc">
+      <div class="hero">
+        <svg class="burst" viewBox="0 0 375 216" preserveAspectRatio="none">
+          <g opacity=".22">
+            <line x1="188" y1="230" x2="-10" y2="-10" stroke="#4ADE80" stroke-width="28"/>
+            <line x1="188" y1="230" x2="60" y2="-10" stroke="#4ADE80" stroke-width="20"/>
+            <line x1="188" y1="230" x2="140" y2="-10" stroke="#4ADE80" stroke-width="14"/>
+            <line x1="188" y1="230" x2="220" y2="-10" stroke="#4ADE80" stroke-width="14"/>
+            <line x1="188" y1="230" x2="300" y2="-10" stroke="#4ADE80" stroke-width="20"/>
+            <line x1="188" y1="230" x2="390" y2="-10" stroke="#4ADE80" stroke-width="28"/>
+            <line x1="188" y1="230" x2="390" y2="90" stroke="#4ADE80" stroke-width="12"/>
+            <line x1="188" y1="230" x2="-10" y2="90" stroke="#4ADE80" stroke-width="12"/>
+            <line x1="188" y1="230" x2="50" y2="180" stroke="#4ADE80" stroke-width="7"/>
+            <line x1="188" y1="230" x2="330" y2="170" stroke="#4ADE80" stroke-width="7"/>
+          </g>
+        </svg>
+        <!-- Sparkle dots -->
+        <div style="position:absolute;top:58px;left:38px;font-size:12px;color:rgba(74,222,128,.5)">✦</div>
+        <div style="position:absolute;top:88px;right:55px;font-size:9px;color:rgba(74,222,128,.35)">✦</div>
+        <div style="position:absolute;bottom:55px;left:75px;font-size:7px;color:rgba(74,222,128,.25)">✦</div>
+        <div style="position:absolute;bottom:70px;right:42px;font-size:11px;color:rgba(74,222,128,.3)">✦</div>
+
+        <div class="hero-nav">
+          <div class="back">←</div>
+          <div class="help-pill">❓ HELP</div>
+        </div>
+        <div class="days-pill">42 DAYS LEFT</div>
+        <div class="hero-coin">🏆</div>
+      </div>
+
+      <div class="body">
+        <div class="hl">
+          <h2>Pay monthly rent of <span class="cross">AED 45</span> <span class="new">AED 1</span></h2>
+          <p>Complete both goals to unlock your discount</p>
+        </div>
+
+        <!-- TPV Goal Card -->
+        <div class="gc">
+          <div class="gc-top">
+            <span class="gc-title">💰 Payment Volume (TPV)</span>
+            <span class="gc-meta">AED 9,320 / AED 15,000</span>
+          </div>
+          <div class="gc-sub">Process AED 15,000 in total payments before 28 Feb</div>
+          <div class="track">
+            <div class="fill" style="width:62%">
+              <span class="fill-badge">62%</span>
+            </div>
+          </div>
+          <div class="pl">
+            <span>AED 0</span>
+            <span class="cur">AED 9,320 collected</span>
+            <span>AED 15,000</span>
+          </div>
+          <div class="nudge">⚡ AED 5,680 more to reach your payment goal</div>
+        </div>
+
+        <!-- TPC Goal Card -->
+        <div class="gc">
+          <div class="gc-top">
+            <span class="gc-title">👥 Unique Customers (TPC)</span>
+            <span class="gc-meta">67 / 100 customers</span>
+          </div>
+          <div class="gc-sub">Serve 100 unique cardholders before 28 Feb</div>
+          <div class="track">
+            <div class="fill" style="width:67%">
+              <span class="fill-badge">67%</span>
+            </div>
+          </div>
+          <div class="pl">
+            <span>0</span>
+            <span class="cur">67 served</span>
+            <span>100</span>
+          </div>
+          <div class="nudge">🎯 33 more unique customers needed to complete this goal</div>
+        </div>
+      </div>
+
+      <div class="det">
+        <div class="det-title">Details</div>
+        <ul>
+          <li>Your current monthly terminal rental is <strong>AED 45</strong></li>
+          <li>Unique customer = a new cardholder not seen in this 90-day window</li>
+          <li>Both TPV and TPC goals must be met to unlock the rental waiver</li>
+          <li>Waiver auto-applied on your next monthly invoice — no action needed</li>
+        </ul>
+        <span class="tnc">Terms and Conditions</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+  SCREEN 03 — GOAL ACHIEVED 🎉
+══════════════════════════════════ -->
+<div class="pw">
+  <span class="slabel">03 — Rental Waiver Unlocked 🎉</span>
+  <div class="phone">
+    <div class="notch"><div class="nc"></div><div class="ns"></div></div>
+    <div class="sb" style="background:var(--g-dark)"><span>9:41</span><span>▲ ▐▐ ▮</span></div>
+    <div class="sc">
+      <div class="hero">
+        <svg class="burst" viewBox="0 0 375 216" preserveAspectRatio="none">
+          <g opacity=".22">
+            <line x1="188" y1="230" x2="-10" y2="-10" stroke="#4ADE80" stroke-width="28"/>
+            <line x1="188" y1="230" x2="60" y2="-10" stroke="#4ADE80" stroke-width="20"/>
+            <line x1="188" y1="230" x2="140" y2="-10" stroke="#4ADE80" stroke-width="14"/>
+            <line x1="188" y1="230" x2="220" y2="-10" stroke="#4ADE80" stroke-width="14"/>
+            <line x1="188" y1="230" x2="300" y2="-10" stroke="#4ADE80" stroke-width="20"/>
+            <line x1="188" y1="230" x2="390" y2="-10" stroke="#4ADE80" stroke-width="28"/>
+            <line x1="188" y1="230" x2="390" y2="90" stroke="#4ADE80" stroke-width="12"/>
+            <line x1="188" y1="230" x2="-10" y2="90" stroke="#4ADE80" stroke-width="12"/>
+          </g>
+        </svg>
+        <!-- Confetti -->
+        <div class="confetti-wrap" id="conf"></div>
+
+        <div class="hero-nav">
+          <div class="back">←</div>
+          <div class="help-pill">❓ HELP</div>
+        </div>
+        <div class="days-pill" style="background:rgba(34,197,94,.2);color:var(--g-accent);">✓ GOAL ACHIEVED</div>
+        <div class="hero-coin" style="background:radial-gradient(circle at 40% 35%,#22C55E,#15803D);border-color:rgba(74,222,128,.4);">🎉</div>
+      </div>
+
+      <div class="success-hl">
+        <h2>Congratulations!</h2>
+        <p class="s-rent">Monthly rent of <span class="cross">AED 45</span> → <span class="new">AED 1</span> is unlocked</p>
+        <p class="s-sub">Your offer will be auto-applied in the next invoice</p>
+      </div>
+
+      <div style="padding:0 18px 16px;">
+        <div class="gc done" style="margin-bottom:10px;">
+          <div class="gc-row">
+            <div class="check-circle"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="gc-row-info"><div class="lb">Payment goal (TPV)</div><div class="vl">AED 15,000</div></div>
+            <div class="gc-row-right"><div class="lb">collected</div><div class="vl">AED 15,420</div></div>
+          </div>
+        </div>
+        <div class="gc done">
+          <div class="gc-row">
+            <div class="check-circle"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="gc-row-info"><div class="lb">Unique customers (TPC)</div><div class="vl">100 customers</div></div>
+            <div class="gc-row-right"><div class="lb">served</div><div class="vl">107</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="det">
+        <div class="det-title">Details</div>
+        <ul>
+          <li>Your monthly terminal rental was <strong>AED 45</strong></li>
+          <li>From next billing cycle you pay only <strong>AED 1/month</strong></li>
+          <li>Offer auto-applied — no paperwork or follow-up needed</li>
+          <li>Unique Customers = non-repeating cardholders in the 90-day window</li>
+        </ul>
+        <span class="tnc">Terms and Conditions</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+  SCREEN 04 — ACQUIRER NUDGE
+══════════════════════════════════ -->
+<div class="pw">
+  <span class="slabel">04 — Acquirer Nudge Engine</span>
+  <div class="phone">
+    <div class="notch"><div class="nc"></div><div class="ns"></div></div>
+    <div class="sb" style="background:var(--g-dark)"><span>9:41</span><span>▲ ▐▐ ▮</span></div>
+    <div class="sc">
+      <div class="nudge-hdr">
+        <div class="nh-eyebrow">VirtuPay · Merchant Growth</div>
+        <h3>🎯 You're Almost There!</h3>
+        <p>Just 3 days to unlock your AED 45 terminal rental waiver</p>
+      </div>
+
+      <!-- Main Nudge Card -->
+      <div class="ncard">
+        <div class="ncard-hdr">
+          <div class="ncard-icon" style="background:linear-gradient(135deg,#22C55E,#15803D);">💡</div>
+          <div class="ncard-info">
+            <div class="nt">Rental Waiver — 3 days left</div>
+            <div class="ns">From VirtuPay Merchant Growth Team</div>
+          </div>
+        </div>
+        <div class="ncard-body">
+          <div class="nmsg">
+            You're <strong>88% of the way</strong> there. Just <strong>AED 1,800 more in payments</strong> and <strong>11 more unique customers</strong> to unlock your rental waiver. Keep the terminal active — you're almost done! 💪
+          </div>
+          <div class="np-mini">
+            <div class="nlr"><span>💰 TPV Progress</span><span style="color:var(--g-bright);font-weight:700">88% — AED 13,200 / 15,000</span></div>
+            <div class="track"><div class="fill" style="width:88%"><span class="fill-badge">88%</span></div></div>
+          </div>
+          <div class="np-mini">
+            <div class="nlr"><span>👥 TPC Progress</span><span style="color:var(--orange);font-weight:700">89% — 89 / 100</span></div>
+            <div class="track"><div class="fill" style="width:89%"><span class="fill-badge">89%</span></div></div>
+          </div>
+          <div class="na">
+            <div class="na-p">View My Progress</div>
+            <div class="na-s">Remind Me Later</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tip Card -->
+      <div class="ncard" style="margin-top:12px;">
+        <div class="ncard-hdr">
+          <div class="ncard-icon" style="background:linear-gradient(135deg,#F97316,#C2410C);">📣</div>
+          <div class="ncard-info">
+            <div class="nt">Tip: Tap-to-Pay drives new customers</div>
+            <div class="ns">VirtuPay Insights</div>
+          </div>
+        </div>
+        <div class="ncard-body">
+          <div class="nmsg">Merchants who enable Tap-to-Pay prompts at checkout see <strong>28% more unique customers</strong> per week on average — perfect for hitting your TPC goal.</div>
+          <div class="na">
+            <div class="na-p" style="background:var(--orange)">Enable Tap-to-Pay</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="height:24px;"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Confetti
+const c = document.getElementById('conf');
+const cols = ['#4ADE80','#F97316','#60A5FA','#FBBF24','#F472B6','#A78BFA','#34D399'];
+for(let i=0;i<32;i++){
+  const p = document.createElement('div');
+  p.className='cp';
+  const size = 4+Math.random()*7;
+  p.style.cssText=`
+    left:${Math.random()*100}%;
+    top:${Math.random()*120-10}%;
+    width:${size}px;height:${size}px;
+    background:${cols[Math.floor(Math.random()*cols.length)]};
+    border-radius:${Math.random()>.5?'50%':'2px'};
+    animation-duration:${1.4+Math.random()*1.8}s;
+    animation-delay:${Math.random()*2.4}s;
+  `;
+  c.appendChild(p);
+}
+</script>
+</body>
+</html>
