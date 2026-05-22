@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Snapmint — SnapPay: Credit on UPI · Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --c-dark:   #0A0F2E;
+  --c-hero:   #111827;
+  --c-bright: #4F46E5;
+  --c-accent: #6366F1;
+  --gold:     #F59E0B;
+  --gold-lt:  #FEF3C7;
+  --green:    #10B981;
+  --red:      #EF4444;
+  --ink:      #0f172a;
+  --muted:    #64748b;
+  --border:   #e2e8f0;
+  --gray:     #f1f5f9;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family:'Sora',sans-serif;
+  background:#EEF2FF;
+  min-height:100vh;
+  padding:40px 0 60px;
+}
+
+/* ── Page Header ── */
+.page-hdr { text-align:center; margin-bottom:40px; }
+.page-tag {
+  display:inline-block;
+  background:var(--c-dark); color:rgba(255,255,255,.5);
+  font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+  padding:5px 14px; border-radius:99px; margin-bottom:10px;
+}
+.page-hdr h1 { font-size:22px; font-weight:800; color:var(--c-dark); margin-bottom:4px; }
+.page-hdr p  { font-size:13px; color:var(--muted); }
+
+/* ── Proto wrap ── */
+.proto-wrap {
+  display:flex; gap:32px;
+  justify-content:center; align-items:flex-start;
+  padding:0 40px;
+}
+.phone-col { display:flex; flex-direction:column; align-items:center; gap:12px; }
+.screen-label {
+  font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--c-bright); opacity:.75;
+}
+
+/* ── Phone chrome ── */
+.phone {
+  width:375px;
+  background:#fff;
+  border-radius:46px;
+  box-shadow:0 40px 100px rgba(10,15,46,.22),0 2px 8px rgba(10,15,46,.1);
+  overflow:hidden;
+  border:1.5px solid rgba(10,15,46,.1);
+}
+.notch {
+  width:118px; height:28px;
+  background:var(--c-dark);
+  border-radius:0 0 16px 16px;
+  margin:0 auto;
+  display:flex; align-items:center; justify-content:center; gap:6px;
+}
+.nc   { width:10px; height:10px; background:#060a1e; border-radius:50%; border:1.5px solid #1a1f3e; }
+.ndot { width:5px;  height:5px;  background:#060a1e; border-radius:50%; }
+.sb {
+  padding:5px 22px;
+  display:flex; justify-content:space-between; align-items:center;
+  font-size:11px; font-weight:700;
+}
+.sb.dark  { background:var(--c-dark);   color:rgba(255,255,255,.9); }
+.sb.indig { background:var(--c-bright); color:rgba(255,255,255,.9); }
+.sb.light { background:#fff;            color:var(--ink); }
+.sc { overflow-y:auto; max-height:724px; scrollbar-width:none; }
+.sc::-webkit-scrollbar { display:none; }
+
+/* ── Shared components ── */
+.track { height:8px; background:var(--border); border-radius:99px; overflow:visible; position:relative; }
+.fill  { height:100%; border-radius:99px; background:var(--c-bright); position:relative; }
+.fill-badge {
+  position:absolute; right:-2px; top:-9px;
+  background:var(--c-bright); color:#fff;
+  font-size:9px; font-weight:700; padding:2px 5px; border-radius:6px;
+}
+.bot-nav {
+  display:flex; justify-content:space-around; align-items:center;
+  padding:10px 0 14px; border-top:1px solid var(--border); background:#fff;
+}
+.bn-item { display:flex; flex-direction:column; align-items:center; gap:2px; font-size:9px; color:var(--muted); font-weight:600; }
+.bn-item.active { color:var(--c-bright); }
+.bn-ico { font-size:16px; }
+
+/* ════════════════════════════════════
+   SCREEN 01 — UPI CREDIT SETUP
+════════════════════════════════════ */
+.s1-hero { background:var(--c-dark); padding:16px 18px 20px; }
+.s1-toprow { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+.s1-brand { font-size:17px; font-weight:800; color:#fff; letter-spacing:-.02em; }
+.s1-brand span { color:var(--gold); }
+.s1-bell { width:32px; height:32px; background:rgba(255,255,255,.08); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:15px; }
+.s1-greet { font-size:11px; color:rgba(255,255,255,.45); margin-bottom:2px; }
+.s1-name  { font-size:17px; font-weight:700; color:#fff; margin-bottom:14px; }
+.s1-credit-pill {
+  background:rgba(79,70,229,.18); border:1px solid rgba(79,70,229,.35);
+  border-radius:12px; padding:12px 14px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.s1-cp-lbl { font-size:9px; color:rgba(255,255,255,.4); letter-spacing:.05em; text-transform:uppercase; margin-bottom:2px; }
+.s1-cp-amt { font-family:'DM Mono',monospace; font-size:22px; font-weight:500; color:#fff; }
+.s1-cp-amt small { font-size:12px; color:rgba(255,255,255,.4); }
+.s1-cp-badge {
+  background:rgba(245,158,11,.15); border:1px solid rgba(245,158,11,.3);
+  border-radius:8px; padding:4px 10px; font-size:10px; font-weight:700; color:var(--gold);
+}
+
+/* SnapPay setup banner */
+.setup-banner {
+  margin:14px 14px 0;
+  background:linear-gradient(135deg,#4F46E5 0%,#7C3AED 100%);
+  border-radius:16px; padding:14px 16px; color:#fff;
+}
+.sb-eyebrow { font-size:9px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; opacity:.65; margin-bottom:4px; }
+.sb-title   { font-size:14px; font-weight:800; margin-bottom:11px; }
+.setup-steps { display:flex; flex-direction:column; gap:8px; }
+.setup-step { display:flex; align-items:center; gap:10px; }
+.step-ico {
+  width:24px; height:24px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:11px; font-weight:700; flex-shrink:0;
+}
+.step-ico.done   { background:#10B981; color:#fff; }
+.step-ico.active { background:rgba(255,255,255,.18); color:#fff; border:1.5px solid rgba(255,255,255,.5); }
+.step-ico.pend   { background:rgba(255,255,255,.08); color:rgba(255,255,255,.35); }
+.step-txt      { font-size:12px; font-weight:600; }
+.step-txt.muted{ opacity:.4; }
+.setup-cta {
+  margin-top:12px; background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.25);
+  border-radius:10px; padding:10px; text-align:center; font-size:12px; font-weight:700;
+}
+
+/* Stats row */
+.s1-stats { display:flex; gap:8px; margin:12px 14px 0; }
+.s1-stat { flex:1; background:var(--gray); border-radius:12px; padding:10px 12px; }
+.s1-stat-val { font-family:'DM Mono',monospace; font-size:14px; font-weight:500; color:var(--ink); margin-bottom:2px; }
+.s1-stat-lbl { font-size:9px; color:var(--muted); font-weight:600; text-transform:uppercase; letter-spacing:.03em; }
+
+/* Txn list */
+.sec-hdr { font-size:11px; font-weight:700; color:var(--ink); margin:14px 14px 6px; }
+.txn { display:flex; align-items:center; gap:10px; padding:9px 14px; border-bottom:1px solid var(--border); }
+.txn-ico  { width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; }
+.txn-info { flex:1; }
+.txn-name { font-size:12px; font-weight:600; color:var(--ink); }
+.txn-meta { font-size:10px; color:var(--muted); }
+.txn-amt  { font-family:'DM Mono',monospace; font-size:13px; font-weight:500; }
+.txn-amt.dr { color:var(--red); }
+.txn-amt.cr { color:var(--green); }
+
+/* ════════════════════════════════════
+   SCREEN 02 — CREDIT AT THE QR
+════════════════════════════════════ */
+.s2-hdr { background:var(--c-dark); padding:14px 18px 16px; }
+.s2-back   { font-size:11px; color:rgba(255,255,255,.4); margin-bottom:12px; }
+.s2-to     { font-size:10px; color:rgba(255,255,255,.4); margin-bottom:2px; }
+.s2-merch  { font-size:18px; font-weight:800; color:#fff; margin-bottom:14px; }
+.s2-amt-row{ display:flex; align-items:baseline; gap:6px; margin-bottom:12px; }
+.s2-amt-lbl{ font-size:11px; color:rgba(255,255,255,.4); }
+.s2-amt    { font-family:'DM Mono',monospace; font-size:32px; font-weight:500; color:#fff; }
+.s2-bank-row {
+  background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1);
+  border-radius:12px; padding:10px 14px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.s2-bank-name { font-size:11px; color:rgba(255,255,255,.4); margin-bottom:1px; }
+.s2-bank-acc  { font-size:13px; font-weight:600; color:#fff; }
+.s2-bal-chip {
+  background:rgba(239,68,68,.15); border:1px solid rgba(239,68,68,.3);
+  border-radius:8px; padding:4px 10px; font-size:10px; font-weight:700; color:#FCA5A5;
+}
+.s2-alert {
+  margin:10px 14px 0;
+  background:rgba(239,68,68,.07); border:1px solid rgba(239,68,68,.18);
+  border-radius:12px; padding:10px 14px;
+  display:flex; align-items:center; gap:8px;
+  font-size:11px; font-weight:600; color:var(--red);
+}
+
+/* SnapPay intercept sheet */
+.sp-sheet {
+  margin:10px 14px 0;
+  background:linear-gradient(160deg,#4F46E5 0%,#312E81 100%);
+  border-radius:20px; padding:16px; color:#fff;
+}
+.sp-sheet-hdr { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+.sp-sheet-title { font-size:14px; font-weight:800; }
+.sp-sheet-sub   { font-size:10px; opacity:.55; }
+.sp-amt-card {
+  background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.15);
+  border-radius:14px; padding:12px; text-align:center; margin-bottom:12px;
+}
+.sp-paying { font-size:10px; opacity:.55; margin-bottom:2px; }
+.sp-big    { font-family:'DM Mono',monospace; font-size:26px; font-weight:500; margin-bottom:4px; }
+.sp-emi-ln { font-size:12px; font-weight:700; color:var(--gold); }
+
+/* EMI option chips */
+.emi-opts { display:flex; gap:8px; margin-bottom:12px; }
+.emi-opt {
+  flex:1; background:rgba(255,255,255,.08); border:1.5px solid rgba(255,255,255,.15);
+  border-radius:12px; padding:10px 6px; text-align:center; cursor:pointer;
+}
+.emi-opt.sel { background:rgba(245,158,11,.15); border-color:var(--gold); }
+.emi-mo  { font-size:9px; opacity:.55; margin-bottom:2px; }
+.emi-num { font-size:18px; font-weight:800; line-height:1; margin-bottom:3px; }
+.emi-amt { font-family:'DM Mono',monospace; font-size:11px; color:var(--gold); }
+.emi-cst { font-size:9px; color:#10B981; margin-top:2px; }
+
+.sp-trust { display:flex; justify-content:center; gap:14px; margin-bottom:12px; }
+.sp-trust-it { font-size:9px; opacity:.55; }
+
+.sp-pay-btn {
+  background:#fff; color:var(--c-bright);
+  border-radius:12px; padding:13px;
+  text-align:center; font-size:14px; font-weight:800;
+  margin-bottom:8px; cursor:pointer;
+}
+.sp-alt { text-align:center; font-size:10px; opacity:.4; cursor:pointer; }
+
+/* ════════════════════════════════════
+   SCREEN 03 — PAYMENT CONFIRMED
+════════════════════════════════════ */
+.s3-hdr {
+  background:var(--c-bright); padding:38px 18px 26px;
+  text-align:center; position:relative; overflow:hidden;
+}
+#conf { position:absolute; inset:0; pointer-events:none; }
+.cp { position:absolute; animation:fall linear infinite; }
+@keyframes fall {
+  0%   { transform:translateY(-20px) rotate(0deg);   opacity:1; }
+  100% { transform:translateY(350px) rotate(360deg); opacity:0; }
+}
+.s3-emoji { font-size:50px; margin-bottom:8px; }
+.s3-title { font-size:20px; font-weight:800; color:#fff; margin-bottom:4px; }
+.s3-sub   { font-size:12px; color:rgba(255,255,255,.7); }
+
+.receipt {
+  margin:14px; background:#fff;
+  border:1px solid var(--border); border-radius:16px; overflow:hidden;
+}
+.receipt-hdr {
+  background:var(--gray); padding:9px 14px;
+  font-size:9px; font-weight:700; color:var(--muted);
+  text-transform:uppercase; letter-spacing:.07em;
+}
+.r-row {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:9px 14px; border-bottom:1px solid var(--border);
+}
+.r-row:last-child { border-bottom:none; }
+.r-lbl { font-size:11px; color:var(--muted); }
+.r-val { font-size:12px; font-weight:700; color:var(--ink); font-family:'DM Mono',monospace; }
+.r-val.ind   { color:var(--c-bright); }
+.r-val.grn   { color:var(--green); }
+.r-val.small { font-size:10px; }
+
+/* EMI timeline */
+.emi-sched { margin:0 14px 14px; }
+.emi-sched-hdr { font-size:11px; font-weight:700; color:var(--ink); margin-bottom:8px; }
+.emi-item { display:flex; align-items:center; gap:10px; padding:7px 0; border-bottom:1px dashed var(--border); }
+.emi-item:last-child { border-bottom:none; }
+.emi-dot      { width:10px; height:10px; border-radius:50%; background:var(--c-bright); flex-shrink:0; }
+.emi-dot.fut  { background:var(--border); }
+.emi-date     { flex:1; font-size:11px; color:var(--muted); }
+.emi-date .tag{ font-size:9px; font-weight:700; color:var(--c-bright); margin-left:4px; }
+.emi-price    { font-family:'DM Mono',monospace; font-size:12px; font-weight:500; color:var(--ink); }
+
+.autopay-cta {
+  margin:0 14px 14px;
+  background:linear-gradient(135deg,#4F46E5,#7C3AED);
+  border-radius:14px; padding:14px;
+  display:flex; align-items:center; gap:12px;
+}
+.ap-icon  { font-size:24px; }
+.ap-body  { flex:1; }
+.ap-title { font-size:12px; font-weight:800; color:#fff; margin-bottom:2px; }
+.ap-sub   { font-size:10px; color:rgba(255,255,255,.6); }
+.ap-arrow { font-size:18px; color:rgba(255,255,255,.5); }
+
+/* ════════════════════════════════════
+   SCREEN 04 — AUTOPAY MANDATE
+════════════════════════════════════ */
+.s4-hdr { background:var(--c-dark); padding:16px 18px 18px; }
+.s4-back  { font-size:11px; color:rgba(255,255,255,.35); margin-bottom:12px; }
+.s4-title { font-size:18px; font-weight:800; color:#fff; margin-bottom:4px; }
+.s4-sub   { font-size:11px; color:rgba(255,255,255,.4); }
+
+.mandate-card {
+  margin:14px;
+  background:linear-gradient(135deg,#4F46E5,#312E81);
+  border-radius:18px; padding:16px; color:#fff;
+}
+.mc-lbl   { font-size:9px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; opacity:.55; margin-bottom:8px; }
+.mc-bank  { display:flex; align-items:center; gap:10px; margin-bottom:14px; }
+.mc-bank-ico  { font-size:22px; }
+.mc-bank-name { font-size:13px; font-weight:700; }
+.mc-bank-acc  { font-size:10px; opacity:.55; }
+.mc-rows      { display:flex; flex-direction:column; gap:9px; margin-bottom:14px; }
+.mc-row       { display:flex; justify-content:space-between; align-items:center; }
+.mc-row-lbl   { font-size:10px; opacity:.45; }
+.mc-row-val   { font-family:'DM Mono',monospace; font-size:12px; font-weight:500; }
+.mc-row-val.gold { color:var(--gold); }
+.mc-activate-btn {
+  background:#fff; color:var(--c-bright);
+  border-radius:12px; padding:12px; text-align:center;
+  font-size:13px; font-weight:800; cursor:pointer;
+}
+
+/* EMI calendar */
+.cal-hdr { font-size:11px; font-weight:700; color:var(--ink); margin:4px 14px 8px; }
+.cal-item {
+  display:flex; align-items:center; gap:12px;
+  padding:11px 14px; border-bottom:1px solid var(--border);
+}
+.cal-date {
+  width:42px; height:42px; background:var(--gray);
+  border-radius:12px; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; flex-shrink:0;
+}
+.cal-date.up { background:var(--c-bright); }
+.cal-day   { font-size:16px; font-weight:800; color:var(--ink); line-height:1; }
+.cal-date.up .cal-day { color:#fff; }
+.cal-mo    { font-size:8px; color:var(--muted); font-weight:600; text-transform:uppercase; }
+.cal-date.up .cal-mo { color:rgba(255,255,255,.65); }
+.cal-info  { flex:1; }
+.cal-name  { font-size:12px; font-weight:600; color:var(--ink); }
+.cal-status{ font-size:10px; color:var(--muted); }
+.cal-status.act { color:var(--c-bright); font-weight:600; }
+.cal-amt   { font-family:'DM Mono',monospace; font-size:13px; font-weight:500; color:var(--ink); }
+
+/* Alert box */
+.alert-box {
+  margin:12px 14px;
+  background:rgba(245,158,11,.07); border:1px solid rgba(245,158,11,.2);
+  border-radius:14px; padding:12px 14px;
+  display:flex; gap:10px;
+}
+.alert-ico   { font-size:18px; flex-shrink:0; }
+.alert-title { font-size:12px; font-weight:700; color:var(--ink); margin-bottom:2px; }
+.alert-sub   { font-size:10px; color:var(--muted); line-height:1.5; }
+.active-badge {
+  display:inline-flex; align-items:center; gap:4px;
+  background:rgba(16,185,129,.1); border:1px solid rgba(16,185,129,.22);
+  border-radius:99px; padding:3px 10px;
+  font-size:9px; font-weight:700; color:var(--green); margin-top:6px;
+}
+</style>
+</head>
+<body>
+
+<div class="page-hdr">
+  <div class="page-tag">Snapmint — Case Study</div>
+  <h1>SnapPay: Credit on UPI</h1>
+  <p>Interactive prototype · 4 screen states · UPI Credit Line + Contextual Credit at QR</p>
+</div>
+
+<div class="proto-wrap">
+
+<!-- ══════════════════════════════════
+     SCREEN 01 — UPI CREDIT SETUP
+══════════════════════════════════ -->
+<div class="phone-col">
+  <div class="screen-label">01 — UPI Credit Setup</div>
+  <div class="phone">
+    <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+    <div class="sb dark"><span>9:41</span><span>▲ ▐▐ ▮</span></div>
+    <div class="sc">
+
+      <div class="s1-hero">
+        <div class="s1-toprow">
+          <div class="s1-brand">Snap<span>mint</span></div>
+          <div class="s1-bell">🔔</div>
+        </div>
+        <div class="s1-greet">Good morning,</div>
+        <div class="s1-name">Rahul Sharma 👋</div>
+        <div class="s1-credit-pill">
+          <div>
+            <div class="s1-cp-lbl">SnapPay Credit Limit</div>
+            <div class="s1-cp-amt">₹25,000 <small>available</small></div>
+          </div>
+          <div class="s1-cp-badge">⚡ UPI Ready</div>
+        </div>
+      </div>
+
+      <!-- Setup banner -->
+      <div class="setup-banner">
+        <div class="sb-eyebrow">✦ New — SnapPay UPI</div>
+        <div class="sb-title">Activate Credit on UPI in 60 sec</div>
+        <div class="setup-steps">
+          <div class="setup-step">
+            <div class="step-ico done">✓</div>
+            <div class="step-txt">Credit limit approved</div>
+          </div>
+          <div class="setup-step">
+            <div class="step-ico active">2</div>
+            <div class="step-txt">Link bank &amp; set UPI PIN</div>
+          </div>
+          <div class="setup-step">
+            <div class="step-ico pend">3</div>
+            <div class="step-txt muted">SnapPay goes live</div>
+          </div>
+        </div>
+        <div class="setup-cta">Continue Setup →</div>
+      </div>
+
+      <!-- Stats -->
+      <div class="s1-stats">
+        <div class="s1-stat">
+          <div class="s1-stat-val">₹0</div>
+          <div class="s1-stat-lbl">EMI Cost</div>
+        </div>
+        <div class="s1-stat">
+          <div class="s1-stat-val">3</div>
+          <div class="s1-stat-lbl">EMI Plans</div>
+        </div>
+        <div class="s1-stat">
+          <div class="s1-stat-val">500M+</div>
+          <div class="s1-stat-lbl">Merchants</div>
+        </div>
+      </div>
+
+      <!-- Recent txns -->
+      <div class="sec-hdr">Recent Transactions</div>
+      <div class="txn">
+        <div class="txn-ico" style="background:#FEF3C7;">🛒</div>
+        <div class="txn-info">
+          <div class="txn-name">BigBasket</div>
+          <div class="txn-meta">EMI 2/3 · May 20</div>
+        </div>
+        <div class="txn-amt dr">−₹667</div>
+      </div>
+      <div class="txn">
+        <div class="txn-ico" style="background:#EEF2FF;">👗</div>
+        <div class="txn-info">
+          <div class="txn-name">Myntra</div>
+          <div class="txn-meta">EMI 1/6 · May 18</div>
+        </div>
+        <div class="txn-amt dr">−₹833</div>
+      </div>
+      <div class="txn">
+        <div class="txn-ico" style="background:#F0FDF4;">💳</div>
+        <div class="txn-info">
+          <div class="txn-name">Credit Refreshed</div>
+          <div class="txn-meta">Limit reset · May 15</div>
+        </div>
+        <div class="txn-amt cr">+₹25,000</div>
+      </div>
+
+      <div class="bot-nav">
+        <div class="bn-item active"><div class="bn-ico">🏠</div>Home</div>
+        <div class="bn-item"><div class="bn-ico">📱</div>SnapPay</div>
+        <div class="bn-item"><div class="bn-ico">📋</div>EMIs</div>
+        <div class="bn-item"><div class="bn-ico">👤</div>Profile</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     SCREEN 02 — CREDIT AT THE QR
+══════════════════════════════════ -->
+<div class="phone-col">
+  <div class="screen-label">02 — Credit at the QR</div>
+  <div class="phone">
+    <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+    <div class="sb dark"><span>9:41</span><span>▲ ▐▐ ▮</span></div>
+    <div class="sc">
+
+      <div class="s2-hdr">
+        <div class="s2-back">← Pay</div>
+        <div class="s2-to">Paying to</div>
+        <div class="s2-merch">Sharma Electronics 🏪</div>
+        <div class="s2-amt-row">
+          <div class="s2-amt-lbl">Amount</div>
+          <div class="s2-amt">₹3,200</div>
+        </div>
+        <div class="s2-bank-row">
+          <div>
+            <div class="s2-bank-name">HDFC Bank</div>
+            <div class="s2-bank-acc">Savings ••••4521</div>
+          </div>
+          <div class="s2-bal-chip">⚠ Bal: ₹410</div>
+        </div>
+      </div>
+
+      <div class="s2-alert">
+        <span>⛔</span>
+        <span>Insufficient balance — payment cannot proceed</span>
+      </div>
+
+      <!-- SnapPay intercept sheet -->
+      <div class="sp-sheet">
+        <div class="sp-sheet-hdr">
+          <span style="font-size:22px;">💳</span>
+          <div>
+            <div class="sp-sheet-title">SnapPay can cover this</div>
+            <div class="sp-sheet-sub">Use your ₹25,000 credit limit · No card needed</div>
+          </div>
+        </div>
+
+        <div class="sp-amt-card">
+          <div class="sp-paying">Paying ₹3,200 as</div>
+          <div class="sp-big">₹3,200</div>
+          <div class="sp-emi-ln">→ Split into EMIs at ₹0 cost</div>
+        </div>
+
+        <div class="emi-opts">
+          <div class="emi-opt sel">
+            <div class="emi-mo">months</div>
+            <div class="emi-num">3</div>
+            <div class="emi-amt">₹1,067/mo</div>
+            <div class="emi-cst">₹0 cost</div>
+          </div>
+          <div class="emi-opt">
+            <div class="emi-mo">months</div>
+            <div class="emi-num">6</div>
+            <div class="emi-amt">₹534/mo</div>
+            <div class="emi-cst">₹0 cost</div>
+          </div>
+          <div class="emi-opt">
+            <div class="emi-mo">months</div>
+            <div class="emi-num">9</div>
+            <div class="emi-amt">₹356/mo</div>
+            <div class="emi-cst">₹0 cost</div>
+          </div>
+        </div>
+
+        <div class="sp-trust">
+          <div class="sp-trust-it">✓ Instant approval</div>
+          <div class="sp-trust-it">✓ Zero interest</div>
+          <div class="sp-trust-it">✓ NPCI secured</div>
+        </div>
+
+        <div class="sp-pay-btn">Pay ₹3,200 with SnapPay</div>
+        <div class="sp-alt">Use different payment method</div>
+      </div>
+
+      <div style="height:16px;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     SCREEN 03 — PAYMENT CONFIRMED
+══════════════════════════════════ -->
+<div class="phone-col">
+  <div class="screen-label">03 — Payment Confirmed</div>
+  <div class="phone">
+    <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+    <div class="sb indig"><span>9:41</span><span>▲ ▐▐ ▮</span></div>
+    <div class="sc">
+
+      <div class="s3-hdr">
+        <div id="conf"></div>
+        <div class="s3-emoji">✅</div>
+        <div class="s3-title">Payment Successful!</div>
+        <div class="s3-sub">Paid via SnapPay Credit · 3-month plan</div>
+      </div>
+
+      <div class="receipt">
+        <div class="receipt-hdr">Payment Details</div>
+        <div class="r-row">
+          <div class="r-lbl">Paid to</div>
+          <div class="r-val">Sharma Electronics</div>
+        </div>
+        <div class="r-row">
+          <div class="r-lbl">Amount</div>
+          <div class="r-val ind">₹3,200</div>
+        </div>
+        <div class="r-row">
+          <div class="r-lbl">EMI Plan</div>
+          <div class="r-val">3 × ₹1,067</div>
+        </div>
+        <div class="r-row">
+          <div class="r-lbl">Total Cost</div>
+          <div class="r-val grn">₹0 (Zero cost)</div>
+        </div>
+        <div class="r-row">
+          <div class="r-lbl">UPI Ref</div>
+          <div class="r-val small">SNP2405221847</div>
+        </div>
+      </div>
+
+      <div class="emi-sched">
+        <div class="emi-sched-hdr">Your EMI Schedule</div>
+        <div class="emi-item">
+          <div class="emi-dot"></div>
+          <div class="emi-date">Jun 15, 2025 <span class="tag">UPCOMING</span></div>
+          <div class="emi-price">₹1,067</div>
+        </div>
+        <div class="emi-item">
+          <div class="emi-dot fut"></div>
+          <div class="emi-date">Jul 15, 2025</div>
+          <div class="emi-price">₹1,067</div>
+        </div>
+        <div class="emi-item">
+          <div class="emi-dot fut"></div>
+          <div class="emi-date">Aug 15, 2025</div>
+          <div class="emi-price">₹1,067</div>
+        </div>
+      </div>
+
+      <div class="autopay-cta">
+        <div class="ap-icon">🔁</div>
+        <div class="ap-body">
+          <div class="ap-title">Set up AutoPay</div>
+          <div class="ap-sub">Never miss an EMI — auto-debit from HDFC</div>
+        </div>
+        <div class="ap-arrow">›</div>
+      </div>
+
+      <div style="height:16px;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     SCREEN 04 — AUTOPAY MANDATE
+══════════════════════════════════ -->
+<div class="phone-col">
+  <div class="screen-label">04 — AutoPay Mandate</div>
+  <div class="phone">
+    <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+    <div class="sb dark"><span>9:41</span><span>▲ ▐▐ ▮</span></div>
+    <div class="sc">
+
+      <div class="s4-hdr">
+        <div class="s4-back">← Payment Confirmed</div>
+        <div class="s4-title">Set Up AutoPay</div>
+        <div class="s4-sub">Auto-debit EMIs · never miss a due date</div>
+      </div>
+
+      <div class="mandate-card">
+        <div class="mc-lbl">UPI AutoPay Mandate</div>
+        <div class="mc-bank">
+          <div class="mc-bank-ico">🏦</div>
+          <div>
+            <div class="mc-bank-name">HDFC Bank</div>
+            <div class="mc-bank-acc">Savings ••••4521</div>
+          </div>
+        </div>
+        <div class="mc-rows">
+          <div class="mc-row">
+            <div class="mc-row-lbl">Auto-debit amount</div>
+            <div class="mc-row-val gold">₹1,067 / month</div>
+          </div>
+          <div class="mc-row">
+            <div class="mc-row-lbl">First debit</div>
+            <div class="mc-row-val">Jun 15, 2025</div>
+          </div>
+          <div class="mc-row">
+            <div class="mc-row-lbl">Total payments</div>
+            <div class="mc-row-val">3 installments</div>
+          </div>
+          <div class="mc-row">
+            <div class="mc-row-lbl">Mandate via</div>
+            <div class="mc-row-val">NPCI UPI AutoPay</div>
+          </div>
+        </div>
+        <div class="mc-activate-btn">Activate AutoPay →</div>
+      </div>
+
+      <div class="cal-hdr">EMI Calendar</div>
+      <div class="cal-item">
+        <div class="cal-date up">
+          <div class="cal-day">15</div>
+          <div class="cal-mo">Jun</div>
+        </div>
+        <div class="cal-info">
+          <div class="cal-name">EMI 1 of 3</div>
+          <div class="cal-status act">AutoPay scheduled</div>
+        </div>
+        <div class="cal-amt">₹1,067</div>
+      </div>
+      <div class="cal-item">
+        <div class="cal-date">
+          <div class="cal-day">15</div>
+          <div class="cal-mo">Jul</div>
+        </div>
+        <div class="cal-info">
+          <div class="cal-name">EMI 2 of 3</div>
+          <div class="cal-status">Scheduled</div>
+        </div>
+        <div class="cal-amt">₹1,067</div>
+      </div>
+      <div class="cal-item">
+        <div class="cal-date">
+          <div class="cal-day">15</div>
+          <div class="cal-mo">Aug</div>
+        </div>
+        <div class="cal-info">
+          <div class="cal-name">EMI 3 of 3 · Final</div>
+          <div class="cal-status">Scheduled</div>
+        </div>
+        <div class="cal-amt">₹1,067</div>
+      </div>
+
+      <div class="alert-box">
+        <div class="alert-ico">🔔</div>
+        <div>
+          <div class="alert-title">Pre-debit alerts on</div>
+          <div class="alert-sub">You'll get a reminder 3 days before each debit so you can ensure sufficient balance.</div>
+          <div class="active-badge">● Mandate Active</div>
+        </div>
+      </div>
+
+      <div style="height:20px;"></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /proto-wrap -->
+
+<script>
+const c = document.getElementById('conf');
+const cols = ['#4ADE80','#F97316','#60A5FA','#FBBF24','#F472B6','#A78BFA','#34D399','#4F46E5','#F59E0B'];
+for(let i=0;i<32;i++){
+  const p=document.createElement('div');
+  p.className='cp';
+  const sz=4+Math.random()*7;
+  p.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*120-10}%;width:${sz}px;height:${sz}px;background:${cols[Math.floor(Math.random()*cols.length)]};border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${1.4+Math.random()*1.8}s;animation-delay:${Math.random()*2.4}s;`;
+  c.appendChild(p);
+}
+</script>
+</body>
+</html>
