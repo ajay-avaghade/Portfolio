@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Amazon Pay — SmartOffer Engine · Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --c-dark:#131921; --c-hero:#232F3E; --c-bright:#FF9900; --c-accent:#FEBD69;
+  --ink:#0f172a; --muted:#64748b; --border:#e2e8f0; --gray:#f1f5f9; --white:#fff;
+  --green:#15803d; --green-bg:#f0fdf4; --green-border:#86efac;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Sora',sans-serif;background:#0d1117;min-height:100vh;padding:40px 24px;display:flex;flex-direction:column;align-items:center;}
+.hdr{color:#94a3b8;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;text-align:center;}
+.hdr span{color:var(--c-bright);}
+.hdr-sub{color:#475569;font-size:11px;text-align:center;margin-bottom:36px;}
+.wrap{display:flex;gap:28px;align-items:flex-start;}
+.col{display:flex;flex-direction:column;align-items:center;gap:12px;}
+.lbl{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--c-accent);text-align:center;}
+
+/* Phone */
+.phone{width:375px;background:var(--c-dark);border-radius:46px;box-shadow:0 40px 100px rgba(0,0,0,.32);overflow:hidden;position:relative;}
+.notch{width:118px;height:28px;background:var(--c-dark);border-radius:0 0 16px 16px;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:6px;position:relative;z-index:10;}
+.nc{width:10px;height:10px;background:#1e293b;border-radius:50%;}
+.ndot{width:5px;height:5px;background:#0f172a;border-radius:50%;}
+.sbar{display:flex;justify-content:space-between;align-items:center;padding:4px 18px 6px;font-size:10px;font-weight:700;font-family:'DM Mono',monospace;color:#94a3b8;background:var(--c-dark);}
+.sc{overflow-y:auto;max-height:724px;scrollbar-width:none;background:#fff;}
+.sc::-webkit-scrollbar{display:none;}
+
+/* Shared */
+.amz-hdr{background:var(--c-dark);padding:14px 16px;}
+.amz-logo{font-size:18px;font-weight:800;color:var(--c-bright);letter-spacing:-.5px;}
+.amz-hdr-title{font-size:13px;font-weight:700;color:#fff;margin-top:2px;}
+.amz-hdr-sub{font-size:10px;color:#94a3b8;margin-top:1px;}
+.back{display:flex;align-items:center;gap:4px;color:var(--c-bright);font-size:10px;font-weight:700;margin-bottom:10px;cursor:pointer;}
+
+/* S1 – Smart Checkout */
+.sec{padding:12px 14px;border-bottom:1px solid var(--border);}
+.sec-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:8px;}
+.prod-row{display:flex;gap:10px;align-items:flex-start;}
+.prod-img{width:54px;height:54px;background:#f1f5f9;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;}
+.prod-name{font-size:11px;font-weight:600;color:var(--ink);line-height:1.35;}
+.prod-price{font-size:15px;font-weight:800;color:var(--ink);font-family:'DM Mono',monospace;margin-top:3px;}
+.prod-mrp{font-size:10px;color:var(--muted);text-decoration:line-through;font-family:'DM Mono',monospace;}
+.prod-badge{display:inline-block;background:#fef2f2;color:#dc2626;font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;margin-left:4px;}
+
+.ibd-banner{margin:10px 14px;background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1.5px solid var(--c-bright);border-radius:12px;padding:12px 12px 10px;position:relative;}
+.ibd-pill{position:absolute;top:-9px;left:12px;background:var(--c-bright);color:#000;font-size:9px;font-weight:800;padding:2px 8px;border-radius:99px;letter-spacing:.04em;}
+.ibd-top{display:flex;align-items:center;gap:8px;margin-top:4px;}
+.bank-chip{background:var(--c-dark);color:#fff;font-size:9px;font-weight:800;padding:3px 8px;border-radius:6px;letter-spacing:.04em;}
+.ibd-save{font-size:15px;font-weight:800;color:#166534;font-family:'DM Mono',monospace;}
+.ibd-desc{font-size:10px;color:#92400e;margin-top:5px;line-height:1.4;}
+.ibd-btn{display:block;margin-top:10px;background:var(--c-bright);color:#000;font-size:12px;font-weight:800;text-align:center;padding:9px;border-radius:8px;border:none;width:100%;}
+
+.pay-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);}
+.pay-row:last-child{border-bottom:none;}
+.radio{width:16px;height:16px;border-radius:50%;border:2px solid #cbd5e1;flex-shrink:0;}
+.radio.on{border-color:var(--c-bright);background:radial-gradient(circle,var(--c-bright) 4px,transparent 4px);}
+.pay-name{font-size:11px;font-weight:600;color:var(--ink);}
+.pay-sub{font-size:9px;color:var(--muted);}
+.pay-amt{font-size:12px;font-weight:700;font-family:'DM Mono',monospace;color:var(--ink);margin-left:auto;}
+
+.sum-row{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:4px;}
+.sum-row.save{color:#166534;font-weight:700;}
+.sum-row.total{font-size:13px;font-weight:800;color:var(--ink);border-top:1px solid var(--border);padding-top:8px;margin-top:4px;}
+.place-btn{display:block;margin:12px 14px;background:var(--c-bright);color:#000;font-size:13px;font-weight:800;text-align:center;padding:12px;border-radius:8px;border:none;width:calc(100% - 28px);}
+.secure{text-align:center;font-size:9px;color:var(--muted);padding:0 14px 14px;}
+
+/* S2 – Eligibility Detail */
+.card-vis{background:linear-gradient(135deg,#1e3a5f,#0f2744);border-radius:14px;padding:16px 16px 14px;margin:-8px 14px 0;box-shadow:0 8px 24px rgba(0,0,0,.2);position:relative;overflow:hidden;}
+.card-vis::before{content:'';position:absolute;right:-20px;top:-20px;width:100px;height:100px;background:rgba(255,255,255,.06);border-radius:50%;}
+.cv-bank{font-size:10px;font-weight:700;color:rgba(255,255,255,.6);letter-spacing:.1em;}
+.cv-name{font-size:15px;font-weight:800;color:#fff;margin-top:3px;}
+.cv-num{font-family:'DM Mono',monospace;font-size:12px;color:rgba(255,255,255,.5);margin-top:8px;letter-spacing:.2em;}
+.cv-badge{position:absolute;right:14px;bottom:14px;background:var(--c-bright);color:#000;font-size:9px;font-weight:800;padding:3px 8px;border-radius:6px;}
+
+.save-box{margin:12px 14px 0;background:var(--green-bg);border:1px solid var(--green-border);border-radius:10px;padding:14px;text-align:center;}
+.save-big{font-size:30px;font-weight:800;color:var(--green);font-family:'DM Mono',monospace;}
+.save-lbl{font-size:10px;color:#166534;margin-top:2px;}
+
+.pr-row{display:flex;justify-content:space-between;font-size:11px;padding:7px 0;border-bottom:1px solid var(--border);}
+.pr-row:last-child{border-bottom:none;}
+.pr-row .lname{color:var(--muted);}
+.pr-row .lval{font-family:'DM Mono',monospace;font-weight:700;color:var(--ink);}
+.pr-row .lval.g{color:var(--green);}
+
+.chk-item{display:flex;align-items:center;gap:8px;padding:6px 0;}
+.chk-ico{width:18px;height:18px;background:#dcfce7;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;}
+.chk-txt{font-size:10px;font-weight:500;color:var(--ink);}
+.use-btn{display:block;margin:8px 14px 14px;background:var(--c-bright);color:#000;font-size:13px;font-weight:800;text-align:center;padding:12px;border-radius:8px;width:calc(100% - 28px);}
+
+/* S3 – Success */
+.suc-hdr{background:var(--c-dark);padding:24px 16px 20px;text-align:center;position:relative;overflow:hidden;}
+#conf{position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none;}
+.cp{position:absolute;animation:cffall linear infinite;}
+@keyframes cffall{0%{transform:translateY(-10px) rotate(0deg);opacity:1}100%{transform:translateY(120px) rotate(360deg);opacity:0}}
+.suc-icon{width:56px;height:56px;background:#dcfce7;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 8px;position:relative;z-index:2;}
+.suc-title{font-size:20px;font-weight:800;color:#fff;position:relative;z-index:2;}
+.suc-sub{font-size:10px;color:#94a3b8;margin-top:2px;position:relative;z-index:2;}
+.save-pill{background:var(--c-bright);color:#000;font-size:14px;font-weight:800;text-align:center;padding:10px;margin:0 14px;border-radius:10px;font-family:'DM Mono',monospace;}
+.rcpt{margin:12px 14px;border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.rcpt-hdr{background:#f8fafc;padding:8px 12px;font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;}
+.rcpt-row{display:flex;justify-content:space-between;padding:8px 12px;border-top:1px solid var(--border);font-size:11px;}
+.rcpt-l{color:var(--muted);}
+.rcpt-v{font-weight:700;font-family:'DM Mono',monospace;color:var(--ink);}
+.rcpt-v.g{color:var(--green);}
+.nudge{margin:0 14px 14px;background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1px solid #fed7aa;border-radius:10px;padding:10px 12px;}
+.nudge-t{font-size:11px;font-weight:800;color:#92400e;}
+.nudge-s{font-size:10px;color:#b45309;margin-top:3px;line-height:1.4;}
+
+/* S4 – Ops Dashboard */
+.ops-hdr{background:var(--c-dark);padding:14px 16px;}
+.ops-title{font-size:15px;font-weight:800;color:#fff;}
+.ops-sub{font-size:9px;color:#94a3b8;margin-top:1px;}
+.live-bdg{display:inline-flex;align-items:center;gap:4px;background:#064e3b;color:#34d399;font-size:9px;font-weight:700;padding:2px 8px;border-radius:99px;margin-top:6px;}
+.ldot{width:5px;height:5px;background:#34d399;border-radius:50%;animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.ops-body{background:#f8fafc;padding:12px 14px;}
+.kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.kpi-box{background:#fff;border-radius:10px;padding:10px;border:1px solid var(--border);}
+.kpi-val{font-size:19px;font-weight:800;font-family:'DM Mono',monospace;color:var(--ink);}
+.kpi-val.o{color:var(--c-bright);}
+.kpi-val.g{color:var(--green);}
+.kpi-lbl{font-size:9px;color:var(--muted);margin-top:2px;line-height:1.3;}
+.sec-hd{font-size:10px;font-weight:700;color:var(--ink);margin-bottom:8px;}
+.coh-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.coh-lbl{font-size:9px;color:var(--muted);width:68px;flex-shrink:0;}
+.coh-track{flex:1;height:8px;background:#e2e8f0;border-radius:99px;overflow:hidden;}
+.coh-fill{height:100%;border-radius:99px;}
+.coh-fill.grey{background:#94a3b8;}
+.coh-fill.org{background:var(--c-bright);}
+.coh-pct{font-size:9px;font-weight:700;font-family:'DM Mono',monospace;color:var(--ink);width:28px;text-align:right;}
+.bank-tbl{background:#fff;border-radius:10px;border:1px solid var(--border);overflow:hidden;margin-bottom:10px;}
+.tbl-hdr{display:grid;grid-template-columns:1fr 60px 50px;background:#f8fafc;padding:6px 10px;font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--border);}
+.tbl-row{display:grid;grid-template-columns:1fr 60px 50px;padding:7px 10px;border-bottom:1px solid var(--border);font-size:10px;}
+.tbl-row:last-child{border-bottom:none;}
+.tbl-row .bn{font-weight:700;color:var(--ink);}
+.tbl-row .bsp{font-family:'DM Mono',monospace;color:var(--muted);}
+.tbl-row .bcv{font-family:'DM Mono',monospace;font-weight:700;}
+.tbl-row .bcv.g{color:var(--green);}
+.insight-box{background:#fff;border:1px solid var(--border);border-left:3px solid var(--c-bright);border-radius:8px;padding:10px 12px;}
+.ins-t{font-size:10px;font-weight:700;color:var(--ink);}
+.ins-s{font-size:9px;color:var(--muted);margin-top:3px;line-height:1.4;}
+</style>
+</head>
+<body>
+<div class="hdr">Amazon Pay — <span>SmartOffer Engine</span> · Interactive Prototype</div>
+<div class="hdr-sub">Precision bank discount surfacing powered by payment propensity ML</div>
+<div class="wrap">
+
+<!-- SCREEN 1 -->
+<div class="col">
+<div class="lbl">01 — Smart Checkout</div>
+<div class="phone">
+  <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+  <div class="sbar"><span>9:41</span><span>▶ ● ■</span></div>
+  <div class="sc">
+    <div class="amz-hdr">
+      <div class="amz-logo">amazon</div>
+      <div class="amz-hdr-title">Checkout (1 item)</div>
+    </div>
+
+    <!-- Product -->
+    <div class="sec">
+      <div class="sec-title">Delivering to Bangalore 560001</div>
+      <div class="prod-row">
+        <div class="prod-img">🎧</div>
+        <div>
+          <div class="prod-name">Sony WH-1000XM5 Wireless Noise Cancelling Headphones</div>
+          <div class="prod-price">₹24,990 <span class="prod-badge">17% off</span></div>
+          <div class="prod-mrp">MRP ₹29,990</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SmartOffer Banner -->
+    <div class="ibd-banner">
+      <div class="ibd-pill">✦ PERSONALISED OFFER</div>
+      <div class="ibd-top">
+        <div class="bank-chip">HDFC</div>
+        <div class="ibd-save">Save ₹2,499 instantly</div>
+      </div>
+      <div class="ibd-desc">Your HDFC Regalia card qualifies for 10% instant discount on this order. Limited to your card — offer active today only.</div>
+      <button class="ibd-btn">Apply HDFC Discount → Pay ₹22,491</button>
+    </div>
+
+    <!-- Payment -->
+    <div class="sec">
+      <div class="sec-title">Payment Method</div>
+      <div class="pay-row">
+        <div class="radio on"></div>
+        <div><div class="pay-name">HDFC Regalia Credit Card</div><div class="pay-sub">✦ Instant 10% off applied · ****4521</div></div>
+        <div class="pay-amt">₹22,491</div>
+      </div>
+      <div class="pay-row">
+        <div class="radio"></div>
+        <div><div class="pay-name">UPI</div><div class="pay-sub">GPay / PhonePe / Paytm</div></div>
+        <div class="pay-amt">₹24,990</div>
+      </div>
+      <div class="pay-row">
+        <div class="radio"></div>
+        <div><div class="pay-name">Amazon Pay Balance</div><div class="pay-sub">₹340 available</div></div>
+        <div class="pay-amt">₹24,650</div>
+      </div>
+    </div>
+
+    <!-- Summary -->
+    <div class="sec" style="border-bottom:none;">
+      <div class="sec-title">Order Summary</div>
+      <div class="sum-row"><span>Item subtotal</span><span>₹24,990</span></div>
+      <div class="sum-row save"><span>✓ HDFC bank discount</span><span>–₹2,499</span></div>
+      <div class="sum-row"><span>Delivery</span><span>FREE</span></div>
+      <div class="sum-row total"><span>Order total</span><span style="font-family:'DM Mono',monospace;">₹22,491</span></div>
+    </div>
+
+    <button class="place-btn">Place Order · Save ₹2,499</button>
+    <div class="secure">🔒 Secure checkout · Encrypted payment · Easy returns</div>
+  </div>
+</div>
+</div>
+
+<!-- SCREEN 2 -->
+<div class="col">
+<div class="lbl">02 — Eligibility Detail</div>
+<div class="phone">
+  <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+  <div class="sbar"><span>9:41</span><span>▶ ● ■</span></div>
+  <div class="sc">
+    <div class="amz-hdr" style="padding-bottom:20px;">
+      <div class="back">← Back to checkout</div>
+      <div class="amz-hdr-title" style="font-size:16px;font-weight:800;">Your Bank Offer</div>
+      <div class="amz-hdr-sub">Personalised for your HDFC card</div>
+    </div>
+
+    <div class="card-vis">
+      <div class="cv-bank">HDFC BANK</div>
+      <div class="cv-name">Regalia Credit Card</div>
+      <div class="cv-num">**** **** **** 4521</div>
+      <div class="cv-badge">10% OFF</div>
+    </div>
+
+    <div class="save-box">
+      <div class="save-big">₹2,499</div>
+      <div class="save-lbl">Instant savings on this order</div>
+    </div>
+
+    <div class="sec" style="border-bottom:none;">
+      <div class="sec-title">Price Breakdown</div>
+      <div class="pr-row"><span class="lname">Product price</span><span class="lval">₹24,990</span></div>
+      <div class="pr-row"><span class="lname">HDFC instant discount (10%)</span><span class="lval g">–₹2,499</span></div>
+      <div class="pr-row"><span class="lname">Delivery</span><span class="lval g">FREE</span></div>
+      <div class="pr-row" style="font-weight:800;"><span class="lname" style="color:var(--ink);font-weight:800;">You pay</span><span class="lval" style="font-size:15px;">₹22,491</span></div>
+    </div>
+
+    <div class="sec" style="border-bottom:none;padding-top:8px;">
+      <div class="sec-title">Eligibility Checks</div>
+      <div class="chk-item"><div class="chk-ico">✓</div><div class="chk-txt">HDFC card linked to your Amazon account</div></div>
+      <div class="chk-item"><div class="chk-ico">✓</div><div class="chk-txt">Offer valid until 11:59 PM today</div></div>
+      <div class="chk-item"><div class="chk-ico">✓</div><div class="chk-txt">Min. order ₹999 met (₹24,990 cart)</div></div>
+      <div class="chk-item"><div class="chk-ico">✓</div><div class="chk-txt">Offer limit: 1 use remaining this month</div></div>
+    </div>
+
+    <div style="padding:0 14px;margin-bottom:6px;">
+      <div style="background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:10px 12px;">
+        <div style="font-size:10px;font-weight:700;color:var(--ink);">Why am I seeing this?</div>
+        <div style="font-size:9px;color:var(--muted);margin-top:3px;line-height:1.4;">Our SmartOffer engine detected your HDFC card in your payment vault and identified this as a relevant offer for your current cart value and shopping pattern.</div>
+      </div>
+    </div>
+    <button class="use-btn">Use HDFC Card · Save ₹2,499</button>
+  </div>
+</div>
+</div>
+
+<!-- SCREEN 3 -->
+<div class="col">
+<div class="lbl">03 — Discount Applied</div>
+<div class="phone">
+  <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+  <div class="sbar"><span>9:42</span><span>▶ ● ■</span></div>
+  <div class="sc" style="background:#fff;">
+    <div class="suc-hdr">
+      <div id="conf"></div>
+      <div class="suc-icon">✓</div>
+      <div class="suc-title">Order Placed!</div>
+      <div class="suc-sub">Your HDFC discount was applied successfully</div>
+    </div>
+
+    <div style="height:12px;background:#fff;"></div>
+    <div class="save-pill">💰 ₹2,499 Saved with HDFC Regalia</div>
+
+    <div class="rcpt">
+      <div class="rcpt-hdr">Order Confirmation</div>
+      <div class="rcpt-row"><span class="rcpt-l">Product</span><span class="rcpt-v">Sony WH-1000XM5</span></div>
+      <div class="rcpt-row"><span class="rcpt-l">MRP</span><span class="rcpt-v">₹24,990</span></div>
+      <div class="rcpt-row"><span class="rcpt-l">HDFC Discount</span><span class="rcpt-v g">–₹2,499</span></div>
+      <div class="rcpt-row"><span class="rcpt-l">Delivery</span><span class="rcpt-v g">FREE</span></div>
+      <div class="rcpt-row" style="font-weight:800;border-top:1.5px solid var(--border);"><span class="rcpt-l" style="color:var(--ink);font-weight:800;">Amount paid</span><span class="rcpt-v" style="font-size:13px;">₹22,491</span></div>
+      <div class="rcpt-row"><span class="rcpt-l">Payment</span><span class="rcpt-v">HDFC ****4521</span></div>
+      <div class="rcpt-row"><span class="rcpt-l">Delivery by</span><span class="rcpt-v">Tomorrow, 10 AM</span></div>
+    </div>
+
+    <div class="nudge">
+      <div class="nudge-t">🎯 Your HDFC offer resets next month</div>
+      <div class="nudge-s">You have 0 uses left this month. Your 10% HDFC instant discount resets on June 1 — add items to cart now to plan ahead.</div>
+    </div>
+
+    <div style="margin:0 14px 14px;">
+      <div style="background:var(--c-dark);border-radius:10px;padding:12px;text-align:center;">
+        <div style="font-size:11px;font-weight:700;color:#fff;">Track your order</div>
+        <div style="font-size:9px;color:#94a3b8;margin-top:2px;">Order ID: 408-7291034-5649182</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- SCREEN 4 -->
+<div class="col">
+<div class="lbl">04 — Ops Dashboard</div>
+<div class="phone">
+  <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+  <div class="sbar" style="background:var(--c-dark);"><span>9:41</span><span>▶ ● ■</span></div>
+  <div class="sc" style="background:#f8fafc;">
+    <div class="ops-hdr">
+      <div class="ops-title">SmartOffer Engine</div>
+      <div class="ops-sub">Instant Bank Discount · Campaign Manager</div>
+      <div class="live-bdg"><div class="ldot"></div>LIVE</div>
+    </div>
+
+    <div class="ops-body">
+      <div class="kpi-grid">
+        <div class="kpi-box"><div class="kpi-val o">12.4K</div><div class="kpi-lbl">Targeted impressions today</div></div>
+        <div class="kpi-box"><div class="kpi-val g">3,847</div><div class="kpi-lbl">Conversions from SmartOffer</div></div>
+        <div class="kpi-box"><div class="kpi-val">₹18.2L</div><div class="kpi-lbl">Budget saved vs. flat targeting</div></div>
+        <div class="kpi-box"><div class="kpi-val g">3.2×</div><div class="kpi-lbl">IBD ROI (GMV per ₹ spent)</div></div>
+      </div>
+
+      <div class="sec-hd">Cohort Targeting Split</div>
+      <div style="background:#fff;border-radius:10px;border:1px solid var(--border);padding:10px;margin-bottom:12px;">
+        <div class="coh-row">
+          <div class="coh-lbl">High Intent<br><span style="color:#15803d;font-weight:700;font-size:8px;">Suppressed ✓</span></div>
+          <div class="coh-track"><div class="coh-fill grey" style="width:68%;"></div></div>
+          <div class="coh-pct">68%</div>
+        </div>
+        <div class="coh-row">
+          <div class="coh-lbl">Undecided<br><span style="color:var(--c-bright);font-weight:700;font-size:8px;">Targeted ✦</span></div>
+          <div class="coh-track"><div class="coh-fill org" style="width:32%;"></div></div>
+          <div class="coh-pct">32%</div>
+        </div>
+        <div style="font-size:9px;color:var(--muted);margin-top:4px;line-height:1.4;">Discount suppressed for 68% of checkout users — budget redirected to undecided cohort with 2.4× higher conversion lift.</div>
+      </div>
+
+      <div class="sec-hd">Bank Partner Performance</div>
+      <div class="bank-tbl">
+        <div class="tbl-hdr"><span>Bank</span><span>Budget used</span><span>Conv. %</span></div>
+        <div class="tbl-row"><span class="bn">HDFC</span><span class="bsp">₹42.1L</span><span class="bcv g">31.2%</span></div>
+        <div class="tbl-row"><span class="bn">Axis</span><span class="bsp">₹28.7L</span><span class="bcv g">28.8%</span></div>
+        <div class="tbl-row"><span class="bn">ICICI</span><span class="bsp">₹19.3L</span><span class="bcv g">26.1%</span></div>
+        <div class="tbl-row"><span class="bn">Kotak</span><span class="bsp">₹11.2L</span><span class="bcv" style="color:var(--muted);">18.4%</span></div>
+      </div>
+
+      <div class="insight-box">
+        <div class="ins-t">⚡ Insight: HDFC cohort efficiency up 34%</div>
+        <div class="ins-s">SmartOffer targeting vs. prior flat IBD: 34% improvement in GMV per discount rupee on HDFC budget. Recommend increasing HDFC allocation by ₹10L next week.</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+</div><!-- /wrap -->
+
+<script>
+// Confetti on Screen 3
+const c = document.getElementById('conf');
+const cols = ['#FF9900','#FEBD69','#60A5FA','#FBBF24','#F472B6','#A78BFA','#34D399'];
+for(let i=0;i<32;i++){
+  const p = document.createElement('div');
+  p.className='cp';
+  const size = 4+Math.random()*7;
+  p.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*120-10}%;width:${size}px;height:${size}px;background:${cols[Math.floor(Math.random()*cols.length)]};border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${1.4+Math.random()*1.8}s;animation-delay:${Math.random()*2.4}s;`;
+  c.appendChild(p);
+}
+</script>
+</body>
+</html>

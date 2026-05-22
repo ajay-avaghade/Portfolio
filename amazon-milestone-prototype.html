@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Amazon Pay — Milestone · Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --c-dark:#131921; --c-hero:#232F3E; --c-bright:#FF9900; --c-accent:#FEBD69;
+  --ink:#0f172a; --muted:#64748b; --border:#e2e8f0; --gray:#f1f5f9;
+  --green:#15803d; --green-bg:#f0fdf4; --green-border:#86efac;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Sora',sans-serif;background:#0d1117;min-height:100vh;padding:40px 24px;display:flex;flex-direction:column;align-items:center;}
+.hdr{color:#94a3b8;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;text-align:center;}
+.hdr span{color:var(--c-bright);}
+.hdr-sub{color:#475569;font-size:11px;text-align:center;margin-bottom:36px;}
+.wrap{display:flex;gap:28px;align-items:flex-start;}
+.col{display:flex;flex-direction:column;align-items:center;gap:12px;}
+.lbl{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--c-accent);text-align:center;}
+
+.phone{width:375px;background:var(--c-dark);border-radius:46px;box-shadow:0 40px 100px rgba(0,0,0,.32);overflow:hidden;}
+.notch{width:118px;height:28px;background:var(--c-dark);border-radius:0 0 16px 16px;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:6px;}
+.nc{width:10px;height:10px;background:#1e293b;border-radius:50%;}
+.ndot{width:5px;height:5px;background:#0f172a;border-radius:50%;}
+.sbar{display:flex;justify-content:space-between;padding:4px 18px 6px;font-size:10px;font-weight:700;font-family:'DM Mono',monospace;color:#94a3b8;background:var(--c-dark);}
+.sc{overflow-y:auto;max-height:724px;scrollbar-width:none;background:#fff;}
+.sc::-webkit-scrollbar{display:none;}
+
+/* Shared util */
+.amz-hdr{background:var(--c-dark);padding:14px 16px;}
+.amz-logo{font-size:18px;font-weight:800;color:var(--c-bright);}
+.amz-hdr-title{font-size:14px;font-weight:800;color:#fff;margin-top:2px;}
+.amz-hdr-sub{font-size:10px;color:#94a3b8;margin-top:1px;}
+.sec{padding:12px 14px;border-bottom:1px solid var(--border);}
+.sec-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:8px;}
+.back{display:flex;align-items:center;gap:4px;color:var(--c-bright);font-size:10px;font-weight:700;margin-bottom:8px;}
+
+/* Progress bar standard */
+.track{height:8px;background:#e2e8f0;border-radius:99px;overflow:visible;position:relative;}
+.fill{height:100%;border-radius:99px;background:var(--c-bright);position:relative;transition:.6s ease;}
+.fill-badge{position:absolute;right:-2px;top:-9px;background:var(--c-bright);color:#000;font-size:9px;font-weight:700;padding:2px 5px;border-radius:6px;}
+
+/* ── SCREEN 1 – Amazon Pay Home ── */
+.pay-home-hdr{background:var(--c-dark);padding:16px 16px 14px;}
+.pay-balance-card{background:linear-gradient(135deg,var(--c-hero),#1a2332);border-radius:14px;padding:14px 16px;margin:12px 14px 0;border:1px solid rgba(255,153,0,.2);}
+.pbc-lbl{font-size:10px;color:#94a3b8;letter-spacing:.06em;text-transform:uppercase;}
+.pbc-amount{font-size:26px;font-weight:800;color:#fff;font-family:'DM Mono',monospace;margin-top:2px;}
+.pbc-sub{font-size:10px;color:#94a3b8;margin-top:2px;}
+
+/* Milestone banner on home */
+.ms-banner{margin:12px 14px;background:linear-gradient(135deg,#1a1000,#2a1800);border:1.5px solid var(--c-bright);border-radius:14px;padding:14px;position:relative;overflow:hidden;}
+.ms-banner::before{content:'';position:absolute;right:-20px;top:-20px;width:80px;height:80px;background:rgba(255,153,0,.08);border-radius:50%;}
+.ms-banner-tag{background:var(--c-bright);color:#000;font-size:9px;font-weight:800;padding:2px 8px;border-radius:99px;display:inline-block;margin-bottom:8px;letter-spacing:.04em;}
+.ms-banner-title{font-size:14px;font-weight:800;color:#fff;line-height:1.3;}
+.ms-banner-sub{font-size:10px;color:#94a3b8;margin-top:3px;}
+.ms-progress-wrap{margin-top:10px;}
+.ms-prog-row{display:flex;justify-content:space-between;font-size:10px;color:#94a3b8;margin-bottom:4px;}
+.ms-prog-row strong{color:var(--c-bright);}
+.ms-tap{display:block;margin-top:10px;background:var(--c-bright);color:#000;font-size:11px;font-weight:800;text-align:center;padding:8px;border-radius:8px;border:none;width:100%;}
+
+/* Quick actions */
+.qa-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:12px 14px;}
+.qa-item{display:flex;flex-direction:column;align-items:center;gap:4px;}
+.qa-icon{width:42px;height:42px;background:#f1f5f9;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+.qa-lbl{font-size:9px;color:var(--muted);text-align:center;font-weight:600;}
+
+/* Recent txn */
+.txn-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);}
+.txn-row:last-child{border-bottom:none;}
+.txn-icon{width:34px;height:34px;background:#f1f5f9;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.txn-name{font-size:11px;font-weight:600;color:var(--ink);}
+.txn-date{font-size:9px;color:var(--muted);}
+.txn-amt{font-size:12px;font-weight:700;font-family:'DM Mono',monospace;color:var(--ink);margin-left:auto;}
+.txn-save{font-size:9px;font-weight:700;color:var(--green);margin-left:auto;text-align:right;}
+
+/* ── SCREEN 2 – Milestone Tracker ── */
+.tier-card{margin:10px 14px;border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.tier-hdr{padding:10px 12px;display:flex;align-items:center;justify-content:space-between;}
+.tier-hdr.t1{background:#FFF7ED;}
+.tier-hdr.t2{background:#fffbeb;border-top:1px solid var(--border);}
+.tier-hdr.t3{background:#f0fdf4;border-top:1px solid var(--border);}
+.tier-name{font-size:11px;font-weight:800;color:var(--ink);}
+.tier-reward{font-size:10px;font-weight:700;}
+.tier-reward.t1c{color:#92400e;}
+.tier-reward.t2c{color:#b45309;}
+.tier-reward.t3c{color:var(--green);}
+.tier-body{padding:10px 12px;border-top:1px solid var(--border);background:#fff;}
+.tier-prog-lbl{display:flex;justify-content:space-between;font-size:9px;color:var(--muted);margin-bottom:4px;}
+.tier-status{font-size:9px;font-weight:700;margin-top:5px;}
+.tier-status.done{color:var(--green);}
+.tier-status.active{color:var(--c-bright);}
+.tier-status.locked{color:var(--muted);}
+
+.txn-hist{margin:10px 14px;}
+.th-title{font-size:10px;font-weight:700;color:var(--ink);margin-bottom:8px;}
+.th-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);}
+.th-row:last-child{border-bottom:none;}
+.th-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.th-dot.done{background:var(--c-bright);}
+.th-dot.pending{background:#e2e8f0;border:2px solid #cbd5e1;}
+.th-mer{font-size:10px;font-weight:600;color:var(--ink);}
+.th-date{font-size:9px;color:var(--muted);}
+.th-amt{font-size:10px;font-weight:700;font-family:'DM Mono',monospace;color:var(--ink);margin-left:auto;}
+
+.countdown-box{margin:10px 14px;background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1px solid #fcd34d;border-radius:10px;padding:10px 12px;}
+.cd-title{font-size:11px;font-weight:800;color:#92400e;}
+.cd-sub{font-size:10px;color:#b45309;margin-top:2px;line-height:1.4;}
+.shop-btn{display:block;margin:10px 14px 14px;background:var(--c-bright);color:#000;font-size:13px;font-weight:800;text-align:center;padding:12px;border-radius:8px;width:calc(100% - 28px);}
+
+/* ── SCREEN 3 – Milestone Unlocked ── */
+.ms-suc-hdr{background:var(--c-dark);padding:24px 16px 20px;text-align:center;position:relative;overflow:hidden;}
+#conf{position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none;}
+.cp{position:absolute;animation:cffall linear infinite;}
+@keyframes cffall{0%{transform:translateY(-10px) rotate(0deg);opacity:1}100%{transform:translateY(130px) rotate(360deg);opacity:0}}
+.ms-suc-badge{font-size:11px;font-weight:700;background:var(--c-bright);color:#000;padding:3px 10px;border-radius:99px;display:inline-block;margin-bottom:8px;position:relative;z-index:2;}
+.ms-suc-title{font-size:22px;font-weight:800;color:#fff;position:relative;z-index:2;line-height:1.2;}
+.ms-suc-sub{font-size:10px;color:#94a3b8;margin-top:4px;position:relative;z-index:2;}
+.ms-unlock-pill{background:var(--c-bright);color:#000;font-size:13px;font-weight:800;text-align:center;padding:10px;margin:0 14px;border-radius:10px;}
+
+.new-rate-card{margin:12px 14px;background:linear-gradient(135deg,#1a1000,#2a1800);border:1.5px solid var(--c-bright);border-radius:12px;padding:14px;}
+.nrc-lbl{font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;}
+.nrc-rate{font-size:36px;font-weight:800;color:var(--c-bright);font-family:'DM Mono',monospace;margin-top:2px;}
+.nrc-sub{font-size:10px;color:#94a3b8;margin-top:3px;}
+.nrc-prev{font-size:10px;color:var(--muted);text-decoration:line-through;margin-top:4px;font-family:'DM Mono',monospace;}
+
+.next-tier-card{margin:10px 14px;border:1px solid var(--border);border-radius:10px;padding:12px;}
+.nt-title{font-size:11px;font-weight:700;color:var(--ink);margin-bottom:8px;}
+.nt-prog-lbl{display:flex;justify-content:space-between;font-size:9px;color:var(--muted);margin-bottom:4px;}
+.nt-hint{font-size:10px;color:var(--muted);margin-top:6px;line-height:1.4;}
+
+/* ── SCREEN 4 – Bank Partner Ops ── */
+.ops-hdr{background:var(--c-dark);padding:14px 16px;}
+.ops-title{font-size:15px;font-weight:800;color:#fff;}
+.ops-sub{font-size:9px;color:#94a3b8;margin-top:1px;}
+.live-bdg{display:inline-flex;align-items:center;gap:4px;background:#064e3b;color:#34d399;font-size:9px;font-weight:700;padding:2px 8px;border-radius:99px;margin-top:6px;}
+.ldot{width:5px;height:5px;background:#34d399;border-radius:50%;animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.ops-body{background:#f8fafc;padding:12px 14px;}
+.kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.kpi-box{background:#fff;border-radius:10px;padding:10px;border:1px solid var(--border);}
+.kpi-val{font-size:19px;font-weight:800;font-family:'DM Mono',monospace;color:var(--ink);}
+.kpi-val.o{color:var(--c-bright);}
+.kpi-val.g{color:var(--green);}
+.kpi-lbl{font-size:9px;color:var(--muted);margin-top:2px;line-height:1.3;}
+.sec-hd{font-size:10px;font-weight:700;color:var(--ink);margin-bottom:8px;}
+.tier-perf-box{background:#fff;border-radius:10px;border:1px solid var(--border);padding:10px;margin-bottom:12px;}
+.tp-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.tp-row:last-child{margin-bottom:0;}
+.tp-lbl{font-size:9px;font-weight:700;color:var(--muted);width:56px;flex-shrink:0;}
+.tp-track{flex:1;height:8px;background:#e2e8f0;border-radius:99px;overflow:visible;position:relative;}
+.tp-fill{height:100%;border-radius:99px;}
+.tp-fill.t1{background:#F97316;}
+.tp-fill.t2{background:var(--c-bright);}
+.tp-fill.t3{background:var(--green);}
+.tp-pct{font-size:9px;font-weight:700;font-family:'DM Mono',monospace;color:var(--ink);width:30px;text-align:right;}
+.nudge-tbl{background:#fff;border-radius:10px;border:1px solid var(--border);overflow:hidden;margin-bottom:10px;}
+.nt-hdr{display:grid;grid-template-columns:1fr 52px 52px;background:#f8fafc;padding:6px 10px;font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--border);}
+.nt-row{display:grid;grid-template-columns:1fr 52px 52px;padding:7px 10px;border-bottom:1px solid var(--border);font-size:10px;}
+.nt-row:last-child{border-bottom:none;}
+.nt-row .nn{font-weight:700;color:var(--ink);}
+.nt-row .ns2{font-family:'DM Mono',monospace;color:var(--muted);}
+.nt-row .nr{font-family:'DM Mono',monospace;font-weight:700;color:var(--green);}
+.insight-box{background:#fff;border:1px solid var(--border);border-left:3px solid var(--c-bright);border-radius:8px;padding:10px 12px;}
+.ins-t{font-size:10px;font-weight:700;color:var(--ink);}
+.ins-s{font-size:9px;color:var(--muted);margin-top:3px;line-height:1.4;}
+</style>
+</head>
+<body>
+<div class="hdr">Amazon Pay — <span>Milestone</span> · Interactive Prototype</div>
+<div class="hdr-sub">Progressive bank discount tiers that convert one-time IBD users into habitual Amazon Pay customers</div>
+<div class="wrap">
+
+<!-- SCREEN 1 -->
+<div class="col">
+<div class="lbl">01 — Amazon Pay Home</div>
+<div class="phone">
+  <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+  <div class="sbar"><span>9:41</span><span>▶ ● ■</span></div>
+  <div class="sc">
+    <div class="pay-home-hdr">
+      <div class="amz-logo">amazon pay</div>
+    </div>
+
+    <div class="pay-balance-card">
+      <div class="pbc-lbl">Amazon Pay Balance</div>
+      <div class="pbc-amount">₹1,240</div>
+      <div class="pbc-sub">HDFC Regalia linked · ****4521</div>
+    </div>
+
+    <!-- Milestone Banner -->
+    <div class="ms-banner">
+      <div class="ms-banner-tag">🏆 HDFC MILESTONE — ACTIVE</div>
+      <div class="ms-banner-title">4 more transactions for<br>8% instant off</div>
+      <div class="ms-banner-sub">Currently earning 5% · Tier 1 complete · 4/10 done</div>
+      <div class="ms-progress-wrap">
+        <div class="ms-prog-row"><span>Tier 2 progress</span><strong>4 / 10 transactions</strong></div>
+        <div class="track"><div class="fill" style="width:40%;"><div class="fill-badge">40%</div></div></div>
+      </div>
+      <button class="ms-tap">View Milestones →</button>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="qa-grid">
+      <div class="qa-item"><div class="qa-icon">💳</div><div class="qa-lbl">Pay Bills</div></div>
+      <div class="qa-item"><div class="qa-icon">📱</div><div class="qa-lbl">Mobile Recharge</div></div>
+      <div class="qa-item"><div class="qa-icon">🛍️</div><div class="qa-lbl">Shop Now</div></div>
+      <div class="qa-item"><div class="qa-icon">✈️</div><div class="qa-lbl">Travel</div></div>
+    </div>
+
+    <!-- Recent Transactions -->
+    <div class="sec" style="border-bottom:none;">
+      <div class="sec-title">Recent · HDFC Transactions</div>
+      <div class="txn-row">
+        <div class="txn-icon">📦</div>
+        <div><div class="txn-name">Amazon Shopping</div><div class="txn-date">Today, 8:21 AM · Txn 4/10</div></div>
+        <div style="text-align:right"><div class="txn-amt">₹1,299</div><div class="txn-save">5% saved</div></div>
+      </div>
+      <div class="txn-row">
+        <div class="txn-icon">🔌</div>
+        <div><div class="txn-name">BESCOM Electricity</div><div class="txn-date">Yesterday · Txn 3/10</div></div>
+        <div style="text-align:right"><div class="txn-amt">₹2,340</div><div class="txn-save">5% saved</div></div>
+      </div>
+      <div class="txn-row">
+        <div class="txn-icon">🎬</div>
+        <div><div class="txn-name">PVR Cinemas</div><div class="txn-date">22 May · Txn 2/10</div></div>
+        <div style="text-align:right"><div class="txn-amt">₹680</div><div class="txn-save">5% saved</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- SCREEN 2 -->
+<div class="col">
+<div class="lbl">02 — Milestone Tracker</div>
+<div class="phone">
+  <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+  <div class="sbar"><span>9:42</span><span>▶ ● ■</span></div>
+  <div class="sc">
+    <div class="amz-hdr">
+      <div class="back">← Amazon Pay</div>
+      <div class="amz-hdr-title">HDFC Milestone Program</div>
+      <div class="amz-hdr-sub">May 1 – May 31 · 9 days left</div>
+    </div>
+
+    <!-- Tier 1 — DONE -->
+    <div class="tier-card" style="margin-top:10px;">
+      <div class="tier-hdr t1" style="background:#f0fdf4;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;">
+        <div><div class="tier-name">Tier 1 · 3 transactions</div><div style="font-size:9px;color:var(--muted);margin-top:1px;">Completed May 20</div></div>
+        <div class="tier-reward t3c" style="font-size:12px;font-weight:800;">5% OFF ✓</div>
+      </div>
+      <div class="tier-body">
+        <div class="tier-prog-lbl"><span>3 / 3 transactions</span><span style="color:var(--green);font-weight:700;">Complete!</span></div>
+        <div class="track"><div class="fill" style="width:100%;background:var(--green);"><div class="fill-badge" style="background:var(--green);">100%</div></div></div>
+        <div class="tier-status done">✓ Unlocked — 5% instant off on all HDFC transactions</div>
+      </div>
+    </div>
+
+    <!-- Tier 2 — ACTIVE -->
+    <div class="tier-card">
+      <div class="tier-hdr t2" style="padding:10px 12px;display:flex;align-items:center;justify-content:space-between;">
+        <div><div class="tier-name">Tier 2 · 10 transactions</div><div style="font-size:9px;color:var(--muted);margin-top:1px;">In progress</div></div>
+        <div class="tier-reward t2c" style="font-size:12px;font-weight:800;">8% OFF</div>
+      </div>
+      <div class="tier-body">
+        <div class="tier-prog-lbl"><span>4 / 10 transactions</span><span style="color:var(--c-bright);font-weight:700;">6 more to go</span></div>
+        <div class="track"><div class="fill" style="width:40%;"><div class="fill-badge">40%</div></div></div>
+        <div class="tier-status active">⚡ Active — complete 6 more transactions to unlock 8% off</div>
+      </div>
+    </div>
+
+    <!-- Tier 3 — LOCKED -->
+    <div class="tier-card">
+      <div class="tier-hdr" style="background:#f8fafc;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);">
+        <div><div class="tier-name" style="color:var(--muted);">Tier 3 · 20 transactions</div><div style="font-size:9px;color:#cbd5e1;margin-top:1px;">Locked</div></div>
+        <div style="font-size:12px;font-weight:800;color:var(--muted);">12% OFF 🔒</div>
+      </div>
+      <div class="tier-body" style="opacity:.5;">
+        <div class="tier-prog-lbl"><span>4 / 20 transactions</span><span>16 more to go</span></div>
+        <div class="track"><div class="fill" style="width:20%;background:#cbd5e1;"></div></div>
+        <div class="tier-status locked">🔒 Unlock Tier 2 first to progress here</div>
+      </div>
+    </div>
+
+    <!-- Transaction history -->
+    <div class="txn-hist">
+      <div class="th-title">Your HDFC Transactions This Month</div>
+      <div class="th-row"><div class="th-dot done"></div><div><div class="th-mer">Amazon Shopping</div><div class="th-date">Today, 8:21 AM</div></div><div class="th-amt">₹1,299</div></div>
+      <div class="th-row"><div class="th-dot done"></div><div><div class="th-mer">BESCOM Electricity</div><div class="th-date">Yesterday</div></div><div class="th-amt">₹2,340</div></div>
+      <div class="th-row"><div class="th-dot done"></div><div><div class="th-mer">PVR Cinemas</div><div class="th-date">22 May</div></div><div class="th-amt">₹680</div></div>
+      <div class="th-row"><div class="th-dot done"></div><div><div class="th-mer">Swiggy Food</div><div class="th-date">21 May</div></div><div class="th-amt">₹448</div></div>
+      <div class="th-row"><div class="th-dot pending"></div><div><div class="th-mer" style="color:var(--muted);">Transaction 5 of 10</div><div class="th-date" style="color:#cbd5e1;">Upcoming</div></div><div class="th-amt" style="color:var(--muted);">—</div></div>
+    </div>
+
+    <div class="countdown-box">
+      <div class="cd-title">⏰ 9 days left to unlock 8% off</div>
+      <div class="cd-sub">Make 6 more transactions with your HDFC card on Amazon, bills, food, or travel — anything counts.</div>
+    </div>
+    <button class="shop-btn">Shop Now on Amazon →</button>
+  </div>
+</div>
+</div>
+
+<!-- SCREEN 3 -->
+<div class="col">
+<div class="lbl">03 — Milestone Unlocked</div>
+<div class="phone">
+  <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+  <div class="sbar"><span>9:43</span><span>▶ ● ■</span></div>
+  <div class="sc">
+    <div class="ms-suc-hdr">
+      <div id="conf"></div>
+      <div class="ms-suc-badge">🏆 MILESTONE UNLOCKED</div>
+      <div class="ms-suc-title">Tier 2 Complete!</div>
+      <div class="ms-suc-sub">You completed 10 HDFC transactions this month</div>
+    </div>
+
+    <div style="height:12px;"></div>
+    <div class="ms-unlock-pill">🎉 You've unlocked 8% instant off with HDFC!</div>
+
+    <div class="new-rate-card">
+      <div class="nrc-lbl">Your new discount rate</div>
+      <div class="nrc-rate">8%</div>
+      <div class="nrc-sub">Instant off on all Amazon Pay transactions with HDFC Regalia</div>
+      <div class="nrc-prev">Previously: 5% off</div>
+    </div>
+
+    <div style="padding:12px 14px;">
+      <div style="background:var(--green-bg);border:1px solid var(--green-border);border-radius:10px;padding:12px;">
+        <div style="font-size:11px;font-weight:800;color:var(--green);">Monthly savings estimate</div>
+        <div style="font-size:22px;font-weight:800;color:var(--green);font-family:'DM Mono',monospace;margin-top:4px;">₹820 / month</div>
+        <div style="font-size:9px;color:#166534;margin-top:2px;">Based on your avg. ₹10,250/month HDFC spending on Amazon</div>
+      </div>
+    </div>
+
+    <!-- Next tier teaser -->
+    <div class="next-tier-card">
+      <div class="nt-title">Next: Tier 3 — 12% off 🔒</div>
+      <div class="nt-prog-lbl"><span>10 / 20 transactions</span><span>10 more to go</span></div>
+      <div class="track"><div class="fill" style="width:50%;"><div class="fill-badge">50%</div></div></div>
+      <div class="nt-hint">You're halfway to 12% off. Make 10 more transactions with HDFC this month to unlock the highest tier.</div>
+    </div>
+
+    <button class="shop-btn" style="margin-top:4px;">Keep Shopping → Unlock 12%</button>
+  </div>
+</div>
+</div>
+
+<!-- SCREEN 4 -->
+<div class="col">
+<div class="lbl">04 — Bank Partner Ops</div>
+<div class="phone">
+  <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+  <div class="sbar" style="background:var(--c-dark);"><span>9:41</span><span>▶ ● ■</span></div>
+  <div class="sc" style="background:#f8fafc;">
+    <div class="ops-hdr">
+      <div class="ops-title">Milestone Program</div>
+      <div class="ops-sub">HDFC Bank Partner Dashboard · May 2025</div>
+      <div class="live-bdg"><div class="ldot"></div>LIVE</div>
+    </div>
+
+    <div class="ops-body">
+      <div class="kpi-grid">
+        <div class="kpi-box"><div class="kpi-val o">84.2K</div><div class="kpi-lbl">Active milestone users</div></div>
+        <div class="kpi-box"><div class="kpi-val g">3.1×</div><div class="kpi-lbl">Repeat txn rate vs. baseline</div></div>
+        <div class="kpi-box"><div class="kpi-val">₹8.4Cr</div><div class="kpi-lbl">HDFC GMV this month</div></div>
+        <div class="kpi-box"><div class="kpi-val g">41%</div><div class="kpi-lbl">Tier 2+ completion rate</div></div>
+      </div>
+
+      <div class="sec-hd">Tier Completion Rate</div>
+      <div class="tier-perf-box">
+        <div class="tp-row">
+          <div class="tp-lbl">Tier 1<br><span style="color:#F97316;font-size:8px;font-weight:700;">5% off</span></div>
+          <div class="tp-track"><div class="tp-fill t1" style="width:82%;"></div></div>
+          <div class="tp-pct">82%</div>
+        </div>
+        <div class="tp-row">
+          <div class="tp-lbl">Tier 2<br><span style="color:var(--c-bright);font-size:8px;font-weight:700;">8% off</span></div>
+          <div class="tp-track"><div class="tp-fill t2" style="width:41%;"></div></div>
+          <div class="tp-pct">41%</div>
+        </div>
+        <div class="tp-row">
+          <div class="tp-lbl">Tier 3<br><span style="color:var(--green);font-size:8px;font-weight:700;">12% off</span></div>
+          <div class="tp-track"><div class="tp-fill t3" style="width:14%;"></div></div>
+          <div class="tp-pct">14%</div>
+        </div>
+        <div style="font-size:9px;color:var(--muted);margin-top:6px;line-height:1.4;">Nudge sent at 50%, 80%, 95% progress thresholds. Tier 2 completion driving 2.8× GMV per user vs. Tier 1 completers.</div>
+      </div>
+
+      <div class="sec-hd">Nudge Performance</div>
+      <div class="nudge-tbl">
+        <div class="nt-hdr"><span>Nudge</span><span>Sent</span><span>CTR</span></div>
+        <div class="nt-row"><span class="nn">50% progress</span><span class="ns2">42.1K</span><span class="nr">34%</span></div>
+        <div class="nt-row"><span class="nn">80% progress</span><span class="ns2">28.4K</span><span class="nr">48%</span></div>
+        <div class="nt-row"><span class="nn">95% progress</span><span class="ns2">12.7K</span><span class="nr">62%</span></div>
+        <div class="nt-row"><span class="nn">Expiry –3 days</span><span class="ns2">19.8K</span><span class="nr">51%</span></div>
+      </div>
+
+      <div class="insight-box">
+        <div class="ins-t">⚡ HDFC requesting Tier 4 (15%) for Q3</div>
+        <div class="ins-s">HDFC partnership team wants to add a Tier 4 at 25 transactions (15% off) based on Tier 3 completion data. Recommend approving — projected +22% GMV uplift with marginal discount cost increase.</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+</div><!-- /wrap -->
+
+<script>
+const c = document.getElementById('conf');
+const cols = ['#FF9900','#FEBD69','#60A5FA','#FBBF24','#F472B6','#A78BFA','#34D399'];
+for(let i=0;i<32;i++){
+  const p = document.createElement('div');
+  p.className='cp';
+  const size = 4+Math.random()*7;
+  p.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*120-10}%;width:${size}px;height:${size}px;background:${cols[Math.floor(Math.random()*cols.length)]};border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${1.4+Math.random()*1.8}s;animation-delay:${Math.random()*2.4}s;`;
+  c.appendChild(p);
+}
+</script>
+</body>
+</html>
