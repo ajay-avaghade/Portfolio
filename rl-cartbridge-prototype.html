@@ -1,0 +1,1234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ralph Lauren — RL CartBridge · Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --c-dark: #0D1B2A;
+  --c-hero: #1B2A4A;
+  --c-bright: #C9A84C;
+  --c-accent: #E8D5A3;
+  --cream: #F5F0E8;
+  --burg: #7D2027;
+  --ink: #0D1B2A;
+  --muted: #6B7A94;
+  --border: #D8D0C4;
+  --gray: #EDE8E0;
+  --green: #15803D;
+  --red: #B91C1C;
+  --orange: #C2670A;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family:'Sora',sans-serif;
+  background:#0a0a14;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:40px 24px 60px;
+}
+.header-strip {
+  background:rgba(201,168,76,0.1);
+  border:1px solid rgba(201,168,76,0.25);
+  border-radius:10px;
+  padding:10px 28px;
+  color:#E8D5A3;
+  font-size:12px;
+  font-weight:600;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  margin-bottom:36px;
+}
+.prototype-wrap {
+  display:flex;
+  gap:32px;
+  align-items:flex-start;
+  flex-wrap:wrap;
+  justify-content:center;
+}
+.phone-col { display:flex; flex-direction:column; align-items:center; gap:14px; }
+.phone-label {
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.09em;
+  text-transform:uppercase;
+  color:#6B7A94;
+  font-family:'DM Mono',monospace;
+}
+.phone {
+  width:375px;
+  height:812px;
+  border-radius:46px;
+  background:#fff;
+  position:relative;
+  overflow:hidden;
+  box-shadow:0 40px 100px rgba(0,0,0,0.55), 0 0 0 2px rgba(255,255,255,0.08);
+  flex-shrink:0;
+}
+
+/* Notch */
+.notch {
+  position:absolute;
+  top:0; left:50%;
+  transform:translateX(-50%);
+  width:118px; height:28px;
+  background:var(--c-dark);
+  border-radius:0 0 16px 16px;
+  z-index:100;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+}
+.ncam { width:10px; height:10px; border-radius:50%; background:#1a2a3a; border:1px solid #2a3a4a; }
+.ndot { width:5px; height:5px; border-radius:50%; background:#2a3a4a; }
+
+/* Status bar */
+.statusbar {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:34px 20px 6px;
+  font-size:10px;
+  font-weight:700;
+  font-family:'DM Mono',monospace;
+}
+.sb-time { color:#fff; }
+.sb-icons { color:#fff; display:flex; gap:4px; align-items:center; }
+
+/* Screen container */
+.sc {
+  overflow-y:auto;
+  max-height:724px;
+  scrollbar-width:none;
+  -ms-overflow-style:none;
+}
+.sc::-webkit-scrollbar { display:none; }
+
+/* ============ SCREEN 1 — POS STOCK ALERT ============ */
+.s1-bg { background:var(--cream); }
+.s1-statusbar { background:var(--c-dark); }
+.s1-top {
+  background:var(--c-dark);
+  padding:10px 18px 18px;
+}
+.s1-top-label {
+  font-size:9px;
+  font-weight:700;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:rgba(201,168,76,0.7);
+  margin-bottom:4px;
+}
+.s1-top-title {
+  font-size:15px;
+  font-weight:800;
+  color:#fff;
+  margin-bottom:2px;
+}
+.s1-top-sub {
+  font-size:10px;
+  color:rgba(255,255,255,0.5);
+}
+.s1-alert-banner {
+  background:linear-gradient(135deg,#7D2027,#a52530);
+  margin:14px 14px 0;
+  border-radius:14px;
+  padding:14px 16px;
+  display:flex;
+  gap:12px;
+  align-items:flex-start;
+}
+.s1-alert-icon {
+  width:36px; height:36px;
+  border-radius:10px;
+  background:rgba(255,255,255,0.15);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:18px;
+  flex-shrink:0;
+}
+.s1-alert-body { flex:1; }
+.s1-alert-label {
+  font-size:9px;
+  font-weight:700;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,0.65);
+  margin-bottom:3px;
+}
+.s1-alert-title {
+  font-size:13px;
+  font-weight:800;
+  color:#fff;
+  margin-bottom:2px;
+}
+.s1-alert-sub {
+  font-size:10px;
+  color:rgba(255,255,255,0.75);
+}
+
+/* Item card */
+.s1-item-card {
+  margin:12px 14px 0;
+  background:#fff;
+  border-radius:14px;
+  overflow:hidden;
+  border:1px solid var(--border);
+}
+.s1-item-top {
+  display:flex;
+  gap:0;
+}
+.s1-item-img {
+  width:80px;
+  background:linear-gradient(145deg,#1B2A4A,#0D1B2A);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:28px;
+  padding:16px 0;
+  flex-shrink:0;
+}
+.s1-item-info {
+  padding:12px 14px;
+  flex:1;
+}
+.s1-item-brand {
+  font-size:8px;
+  font-weight:700;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--c-bright);
+  margin-bottom:2px;
+}
+.s1-item-name {
+  font-size:12px;
+  font-weight:700;
+  color:var(--ink);
+  margin-bottom:4px;
+  line-height:1.3;
+}
+.s1-item-meta {
+  display:flex;
+  gap:8px;
+}
+.s1-item-chip {
+  background:var(--gray);
+  border-radius:6px;
+  padding:3px 8px;
+  font-size:9px;
+  font-weight:600;
+  color:#444;
+}
+.s1-item-price {
+  font-size:13px;
+  font-weight:800;
+  color:var(--ink);
+  font-family:'DM Mono',monospace;
+  margin-top:6px;
+}
+.s1-stock-label {
+  background:rgba(185,28,28,0.08);
+  border-top:1px solid rgba(185,28,28,0.12);
+  padding:8px 14px;
+  font-size:10px;
+  font-weight:700;
+  color:var(--red);
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.s1-stock-dot { width:6px; height:6px; border-radius:50%; background:var(--red); }
+
+/* Quick availability row */
+.s1-avail-section {
+  margin:12px 14px 0;
+}
+.s1-avail-label {
+  font-size:9px;
+  font-weight:700;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:8px;
+}
+.s1-avail-row {
+  display:flex;
+  gap:8px;
+}
+.s1-avail-card {
+  flex:1;
+  background:#fff;
+  border-radius:12px;
+  border:1px solid var(--border);
+  padding:10px 10px 10px;
+  text-align:center;
+}
+.s1-avail-channel {
+  font-size:8px;
+  font-weight:700;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:4px;
+}
+.s1-avail-status {
+  font-size:13px;
+  font-weight:800;
+}
+.s1-avail-status.green { color:var(--green); }
+.s1-avail-status.orange { color:var(--orange); }
+.s1-avail-status.blue { color:#1D4ED8; }
+.s1-avail-sub {
+  font-size:9px;
+  color:var(--muted);
+  margin-top:1px;
+}
+
+/* CTA row */
+.s1-cta-row {
+  margin:14px 14px 0;
+  display:flex;
+  gap:8px;
+}
+.s1-btn-primary {
+  flex:1;
+  background:var(--c-dark);
+  color:#fff;
+  border:none;
+  border-radius:12px;
+  padding:13px 8px;
+  font-family:'Sora',sans-serif;
+  font-size:11px;
+  font-weight:700;
+  cursor:pointer;
+  text-align:center;
+  letter-spacing:.02em;
+}
+.s1-btn-outline {
+  flex:1;
+  background:transparent;
+  color:var(--c-dark);
+  border:1.5px solid var(--c-dark);
+  border-radius:12px;
+  padding:13px 8px;
+  font-family:'Sora',sans-serif;
+  font-size:11px;
+  font-weight:700;
+  cursor:pointer;
+  text-align:center;
+  letter-spacing:.02em;
+}
+
+/* Customer context */
+.s1-customer-card {
+  margin:12px 14px 14px;
+  background:#fff;
+  border-radius:14px;
+  border:1px solid var(--border);
+  padding:12px 14px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.s1-cust-av {
+  width:38px; height:38px;
+  border-radius:50%;
+  background:linear-gradient(135deg,#0D1B2A,#1B2A4A);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:14px;
+  font-weight:800;
+  color:var(--c-bright);
+  flex-shrink:0;
+}
+.s1-cust-info { flex:1; }
+.s1-cust-name { font-size:12px; font-weight:700; color:var(--ink); margin-bottom:2px; }
+.s1-cust-tier {
+  display:inline-block;
+  background:var(--burg);
+  color:#fff;
+  font-size:8px;
+  font-weight:700;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  border-radius:4px;
+  padding:2px 6px;
+  margin-bottom:2px;
+}
+.s1-cust-ltv { font-size:10px; color:var(--muted); }
+.s1-cust-arrow { color:var(--muted); font-size:14px; }
+
+/* ============ SCREEN 2 — INVENTORY MAP ============ */
+.s2-bg { background:var(--cream); }
+.s2-top {
+  background:var(--c-dark);
+  padding:10px 18px 16px;
+}
+.s2-top-label { font-size:9px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:rgba(201,168,76,0.7); margin-bottom:3px; }
+.s2-top-title { font-size:15px; font-weight:800; color:#fff; margin-bottom:1px; }
+.s2-top-sub { font-size:10px; color:rgba(255,255,255,0.5); }
+
+.s2-item-strip {
+  margin:12px 14px 0;
+  background:#fff;
+  border-radius:12px;
+  border:1px solid var(--border);
+  padding:10px 14px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.s2-item-thumb {
+  width:44px; height:44px;
+  border-radius:8px;
+  background:linear-gradient(135deg,#1B2A4A,#0D1B2A);
+  display:flex; align-items:center; justify-content:center;
+  font-size:20px;
+  flex-shrink:0;
+}
+.s2-item-strip-info { flex:1; }
+.s2-item-strip-name { font-size:11px; font-weight:700; color:var(--ink); }
+.s2-item-strip-meta { font-size:10px; color:var(--muted); }
+.s2-item-strip-price { font-size:12px; font-weight:800; color:var(--ink); font-family:'DM Mono',monospace; }
+
+.s2-section-label {
+  margin:14px 14px 6px;
+  font-size:9px;
+  font-weight:700;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+
+/* Map channel card */
+.s2-channel-card {
+  margin:0 14px 8px;
+  background:#fff;
+  border-radius:14px;
+  border:1px solid var(--border);
+  padding:13px 14px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.s2-ch-icon {
+  width:40px; height:40px;
+  border-radius:10px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:18px;
+  flex-shrink:0;
+}
+.s2-ch-icon.green-bg { background:rgba(21,128,61,0.1); }
+.s2-ch-icon.amber-bg { background:rgba(194,103,10,0.1); }
+.s2-ch-icon.blue-bg  { background:rgba(29,78,216,0.1); }
+.s2-ch-info { flex:1; }
+.s2-ch-name { font-size:12px; font-weight:700; color:var(--ink); margin-bottom:2px; }
+.s2-ch-detail { font-size:10px; color:var(--muted); }
+.s2-ch-badge {
+  border-radius:8px;
+  padding:5px 10px;
+  font-size:10px;
+  font-weight:800;
+  font-family:'DM Mono',monospace;
+  flex-shrink:0;
+}
+.s2-ch-badge.green { background:rgba(21,128,61,0.12); color:var(--green); }
+.s2-ch-badge.amber { background:rgba(194,103,10,0.1); color:var(--orange); }
+.s2-ch-badge.blue  { background:rgba(29,78,216,0.1); color:#1D4ED8; }
+
+/* Size grid */
+.s2-size-section {
+  margin:0 14px 0;
+  background:#fff;
+  border-radius:14px;
+  border:1px solid var(--border);
+  padding:12px 14px;
+}
+.s2-size-top {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:10px;
+}
+.s2-size-title { font-size:11px; font-weight:700; color:var(--ink); }
+.s2-size-grid {
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:6px;
+}
+.s2-size-cell {
+  text-align:center;
+  border-radius:8px;
+  padding:7px 4px;
+  font-size:11px;
+  font-weight:700;
+}
+.s2-size-cell.avail { background:rgba(21,128,61,0.1); color:var(--green); }
+.s2-size-cell.oost  { background:rgba(185,28,28,0.08); color:var(--red); text-decoration:line-through; }
+.s2-size-cell.limited { background:rgba(194,103,10,0.1); color:var(--orange); }
+.s2-size-cell.selected { background:var(--c-dark); color:#fff; }
+
+.s2-select-btn {
+  margin:12px 14px 14px;
+  background:var(--c-bright);
+  color:var(--ink);
+  border:none;
+  border-radius:12px;
+  padding:14px;
+  font-family:'Sora',sans-serif;
+  font-size:12px;
+  font-weight:800;
+  width:calc(100% - 28px);
+  cursor:pointer;
+  letter-spacing:.02em;
+}
+
+/* ============ SCREEN 3 — SHIP-TO-HOME CHECKOUT ============ */
+.s3-bg { background:var(--cream); }
+.s3-top {
+  background:linear-gradient(145deg,#0D1B2A,#1B2A4A);
+  padding:10px 18px 18px;
+}
+.s3-top-label { font-size:9px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:rgba(201,168,76,0.7); margin-bottom:3px; }
+.s3-top-title { font-size:16px; font-weight:800; color:#fff; margin-bottom:1px; }
+.s3-top-sub { font-size:10px; color:rgba(255,255,255,0.5); }
+
+/* Progress steps */
+.s3-steps {
+  display:flex;
+  align-items:center;
+  gap:0;
+  margin:0 18px 0;
+  padding:14px 0 10px;
+  background:var(--cream);
+}
+.s3-step {
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  flex:1;
+  position:relative;
+}
+.s3-step-circle {
+  width:26px; height:26px;
+  border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:11px;
+  font-weight:800;
+  margin-bottom:4px;
+  z-index:2;
+  position:relative;
+}
+.s3-step-circle.done { background:var(--green); color:#fff; }
+.s3-step-circle.active { background:var(--c-dark); color:#fff; }
+.s3-step-circle.todo { background:var(--border); color:var(--muted); }
+.s3-step-label { font-size:8px; font-weight:600; color:var(--muted); text-align:center; }
+.s3-step-label.active-lbl { color:var(--c-dark); font-weight:700; }
+.s3-step::after {
+  content:'';
+  position:absolute;
+  top:13px;
+  left:calc(50% + 13px);
+  width:calc(100% - 26px);
+  height:2px;
+  background:var(--border);
+}
+.s3-step:last-child::after { display:none; }
+.s3-step.done-line::after { background:var(--green); }
+
+/* Order summary */
+.s3-order-card {
+  margin:0 14px 10px;
+  background:#fff;
+  border-radius:14px;
+  border:1px solid var(--border);
+  overflow:hidden;
+}
+.s3-order-header {
+  background:var(--gray);
+  padding:8px 14px;
+  font-size:9px;
+  font-weight:700;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+.s3-order-item {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:12px 14px;
+  border-bottom:1px solid var(--border);
+}
+.s3-order-img {
+  width:48px; height:48px;
+  border-radius:8px;
+  background:linear-gradient(135deg,#1B2A4A,#0D1B2A);
+  display:flex; align-items:center; justify-content:center;
+  font-size:22px;
+  flex-shrink:0;
+}
+.s3-order-info { flex:1; }
+.s3-order-brand { font-size:8px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--c-bright); margin-bottom:2px; }
+.s3-order-name { font-size:11px; font-weight:700; color:var(--ink); margin-bottom:2px; }
+.s3-order-size { font-size:10px; color:var(--muted); }
+.s3-order-price { font-size:13px; font-weight:800; color:var(--ink); font-family:'DM Mono',monospace; }
+
+/* Address section */
+.s3-addr-card {
+  margin:0 14px 10px;
+  background:#fff;
+  border-radius:14px;
+  border:1px solid var(--border);
+  overflow:hidden;
+}
+.s3-addr-header {
+  background:var(--gray);
+  padding:8px 14px;
+  font-size:9px;
+  font-weight:700;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:var(--muted);
+  display:flex;
+  justify-content:space-between;
+}
+.s3-addr-edit { color:var(--c-bright); font-weight:700; font-size:9px; }
+.s3-addr-body {
+  padding:12px 14px;
+}
+.s3-addr-name { font-size:12px; font-weight:700; color:var(--ink); margin-bottom:2px; }
+.s3-addr-line { font-size:10px; color:var(--muted); line-height:1.5; }
+
+/* Delivery ETA */
+.s3-eta-card {
+  margin:0 14px 10px;
+  background:rgba(21,128,61,0.07);
+  border-radius:14px;
+  border:1px solid rgba(21,128,61,0.2);
+  padding:12px 14px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.s3-eta-icon { font-size:22px; }
+.s3-eta-info { flex:1; }
+.s3-eta-label { font-size:10px; font-weight:700; color:var(--green); margin-bottom:1px; }
+.s3-eta-date { font-size:12px; font-weight:700; color:var(--ink); }
+.s3-eta-free {
+  background:var(--green);
+  color:#fff;
+  border-radius:6px;
+  padding:3px 8px;
+  font-size:9px;
+  font-weight:700;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+}
+
+/* Payment row */
+.s3-pay-row {
+  margin:0 14px 10px;
+  background:#fff;
+  border-radius:14px;
+  border:1px solid var(--border);
+  padding:12px 14px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.s3-pay-icon {
+  width:36px; height:36px;
+  border-radius:8px;
+  background:var(--gray);
+  display:flex; align-items:center; justify-content:center;
+  font-size:16px;
+  flex-shrink:0;
+}
+.s3-pay-info { flex:1; }
+.s3-pay-label { font-size:10px; color:var(--muted); margin-bottom:1px; }
+.s3-pay-card { font-size:12px; font-weight:700; color:var(--ink); }
+.s3-pay-amount { font-size:14px; font-weight:800; color:var(--ink); font-family:'DM Mono',monospace; }
+
+.s3-confirm-btn {
+  margin:0 14px 14px;
+  background:var(--c-dark);
+  color:#fff;
+  border:none;
+  border-radius:14px;
+  padding:16px;
+  font-family:'Sora',sans-serif;
+  font-size:13px;
+  font-weight:700;
+  width:calc(100% - 28px);
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  letter-spacing:.02em;
+}
+.s3-confirm-lock { font-size:14px; }
+
+/* ============ SCREEN 4 — FULFILMENT OPS DASHBOARD ============ */
+.s4-bg { background:var(--c-dark); }
+.s4-header {
+  background:var(--c-dark);
+  padding:10px 18px 16px;
+}
+.s4-header-label { font-size:9px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:rgba(201,168,76,0.65); margin-bottom:4px; }
+.s4-header-title { font-size:15px; font-weight:800; color:#fff; margin-bottom:1px; }
+.s4-header-sub { font-size:10px; color:rgba(255,255,255,0.45); }
+
+/* KPI row */
+.s4-kpi-row {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin:12px 14px 0;
+}
+.s4-kpi-card {
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:14px;
+  padding:12px 12px;
+}
+.s4-kpi-icon { font-size:18px; margin-bottom:6px; }
+.s4-kpi-val {
+  font-size:22px;
+  font-weight:800;
+  color:var(--c-bright);
+  font-family:'DM Mono',monospace;
+  line-height:1;
+  margin-bottom:3px;
+}
+.s4-kpi-val.green { color:#4ADE80; }
+.s4-kpi-val.red { color:#F87171; }
+.s4-kpi-val.blue { color:#60A5FA; }
+.s4-kpi-label { font-size:10px; color:rgba(255,255,255,0.55); font-weight:500; }
+.s4-kpi-delta { font-size:9px; color:rgba(255,255,255,0.4); margin-top:2px; }
+
+/* Recovery by store */
+.s4-section-label {
+  margin:14px 14px 8px;
+  font-size:9px;
+  font-weight:700;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,0.4);
+}
+.s4-store-card {
+  margin:0 14px 8px;
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.07);
+  border-radius:12px;
+  padding:11px 14px;
+}
+.s4-store-row {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:6px;
+}
+.s4-store-name { font-size:11px; font-weight:700; color:#fff; }
+.s4-store-rate {
+  font-size:12px;
+  font-weight:800;
+  color:var(--c-bright);
+  font-family:'DM Mono',monospace;
+}
+.s4-store-bar { height:6px; background:rgba(255,255,255,0.1); border-radius:99px; }
+.s4-store-fill { height:100%; border-radius:99px; background:linear-gradient(90deg,#C9A84C,#E8D5A3); }
+.s4-store-meta {
+  display:flex;
+  justify-content:space-between;
+  margin-top:5px;
+}
+.s4-store-sub { font-size:9px; color:rgba(255,255,255,0.4); }
+
+/* Top stock-out SKUs */
+.s4-sku-card {
+  margin:0 14px 8px;
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.07);
+  border-radius:12px;
+  overflow:hidden;
+}
+.s4-sku-header {
+  padding:8px 14px;
+  display:grid;
+  grid-template-columns:1fr auto auto auto;
+  gap:8px;
+  font-size:8px;
+  font-weight:700;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,0.35);
+  border-bottom:1px solid rgba(255,255,255,0.06);
+}
+.s4-sku-row {
+  padding:9px 14px;
+  display:grid;
+  grid-template-columns:1fr auto auto auto;
+  gap:8px;
+  align-items:center;
+  border-bottom:1px solid rgba(255,255,255,0.04);
+}
+.s4-sku-row:last-child { border-bottom:none; }
+.s4-sku-name { font-size:10px; font-weight:600; color:#fff; }
+.s4-sku-size { font-size:9px; color:rgba(255,255,255,0.5); text-align:center; font-family:'DM Mono',monospace; }
+.s4-sku-miss { font-size:10px; font-weight:700; color:#F87171; text-align:center; font-family:'DM Mono',monospace; }
+.s4-sku-ship { font-size:10px; font-weight:700; color:#4ADE80; text-align:right; font-family:'DM Mono',monospace; }
+
+/* Insight box */
+.s4-insight {
+  margin:0 14px 14px;
+  background:rgba(201,168,76,0.1);
+  border:1px solid rgba(201,168,76,0.25);
+  border-radius:12px;
+  padding:12px 14px;
+  display:flex;
+  gap:10px;
+}
+.s4-insight-icon { font-size:18px; flex-shrink:0; }
+.s4-insight-text { font-size:10px; color:rgba(232,213,163,0.85); line-height:1.5; font-weight:500; }
+.s4-insight-text strong { color:var(--c-bright); }
+
+/* Confetti */
+@keyframes confetti-fall {
+  0%   { transform:translateY(-20px) rotate(0deg); opacity:1; }
+  100% { transform:translateY(800px) rotate(720deg); opacity:0; }
+}
+.cp {
+  position:absolute;
+  animation:confetti-fall linear both;
+  z-index:50;
+}
+#conf { position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; overflow:hidden; }
+</style>
+</head>
+<body>
+
+<div class="header-strip">Ralph Lauren — RL CartBridge · Interactive Prototype</div>
+
+<div class="prototype-wrap">
+
+  <!-- SCREEN 1 — POS STOCK ALERT -->
+  <div class="phone-col">
+    <div class="phone-label">01 — POS STOCK ALERT</div>
+    <div class="phone">
+      <div class="notch"><div class="ncam"></div><div class="ndot"></div></div>
+      <div class="s1-bg">
+        <div class="s1-statusbar statusbar">
+          <span class="sb-time" style="color:#fff;">9:41</span>
+          <span class="sb-icons">▲ ◆ ■</span>
+        </div>
+        <div class="s1-top">
+          <div class="s1-top-label">RL CartBridge · SoHo Flagship</div>
+          <div class="s1-top-title">Stock Alert</div>
+          <div class="s1-top-sub">Associate: Sophie M. · POS Station 3</div>
+        </div>
+        <div class="sc">
+          <!-- Alert banner -->
+          <div class="s1-alert-banner">
+            <div class="s1-alert-icon">⚠️</div>
+            <div class="s1-alert-body">
+              <div class="s1-alert-label">Size Not In Store</div>
+              <div class="s1-alert-title">Size M unavailable — SoHo</div>
+              <div class="s1-alert-sub">Scanned at POS · 2 other fulfilment options found</div>
+            </div>
+          </div>
+
+          <!-- Item card -->
+          <div class="s1-item-card">
+            <div class="s1-item-top">
+              <div class="s1-item-img">🧥</div>
+              <div class="s1-item-info">
+                <div class="s1-item-brand">Purple Label</div>
+                <div class="s1-item-name">Italian Wool Blazer — Navy</div>
+                <div class="s1-item-meta">
+                  <div class="s1-item-chip">Size M</div>
+                  <div class="s1-item-chip">Slim Fit</div>
+                </div>
+                <div class="s1-item-price">$1,295</div>
+              </div>
+            </div>
+            <div class="s1-stock-label">
+              <div class="s1-stock-dot"></div>
+              Out of stock — SoHo Flagship (Size M)
+            </div>
+          </div>
+
+          <!-- Availability summary -->
+          <div class="s1-avail-section">
+            <div class="s1-avail-label">Instant Recovery Options</div>
+            <div class="s1-avail-row">
+              <div class="s1-avail-card">
+                <div class="s1-avail-channel">5th Ave</div>
+                <div class="s1-avail-status green">✓ 2</div>
+                <div class="s1-avail-sub">0.8 mi away</div>
+              </div>
+              <div class="s1-avail-card">
+                <div class="s1-avail-channel">DC Stock</div>
+                <div class="s1-avail-status orange">→ 2d</div>
+                <div class="s1-avail-sub">Ships Tue</div>
+              </div>
+              <div class="s1-avail-card">
+                <div class="s1-avail-channel">Online</div>
+                <div class="s1-avail-status blue">4 left</div>
+                <div class="s1-avail-sub">2–3 days</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Customer context -->
+          <div class="s1-customer-card">
+            <div class="s1-cust-av">AC</div>
+            <div class="s1-cust-info">
+              <div class="s1-cust-name">Alexandra Chen</div>
+              <div><span class="s1-cust-tier">Purple Label</span></div>
+              <div class="s1-cust-ltv">LTV $12,847 · 47 orders</div>
+            </div>
+            <div class="s1-cust-arrow">›</div>
+          </div>
+
+          <!-- CTAs -->
+          <div class="s1-cta-row">
+            <div class="s1-btn-primary">Ship to Home →</div>
+            <div class="s1-btn-outline">Check 5th Ave</div>
+          </div>
+          <div style="height:14px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 2 — INVENTORY MAP -->
+  <div class="phone-col">
+    <div class="phone-label">02 — INVENTORY MAP</div>
+    <div class="phone">
+      <div class="notch"><div class="ncam"></div><div class="ndot"></div></div>
+      <div class="s2-bg">
+        <div class="s2-top" style="background:var(--c-dark);">
+          <div class="statusbar" style="padding:34px 0 6px; background:transparent;">
+            <span style="color:#fff;font-size:10px;font-weight:700;font-family:'DM Mono',monospace;">9:41</span>
+            <span style="color:#fff;font-size:10px;display:flex;gap:4px;">▲ ◆ ■</span>
+          </div>
+          <div class="s2-top-label">RL CartBridge · Inventory Map</div>
+          <div class="s2-top-title">Where is Size M?</div>
+          <div class="s2-top-sub">Italian Wool Blazer — Navy · Real-time stock</div>
+        </div>
+        <div class="sc">
+          <!-- Item strip -->
+          <div class="s2-item-strip">
+            <div class="s2-item-thumb">🧥</div>
+            <div class="s2-item-strip-info">
+              <div class="s2-item-strip-name">Italian Wool Blazer — Navy</div>
+              <div class="s2-item-strip-meta">Purple Label · Size M · Slim Fit</div>
+            </div>
+            <div class="s2-item-strip-price">$1,295</div>
+          </div>
+
+          <!-- Channel availability -->
+          <div class="s2-section-label">Availability by Channel</div>
+
+          <div class="s2-channel-card">
+            <div class="s2-ch-icon green-bg">🏬</div>
+            <div class="s2-ch-info">
+              <div class="s2-ch-name">5th Ave Flagship</div>
+              <div class="s2-ch-detail">0.8 mi · Floor 3, Rack C7 · Reserve available</div>
+            </div>
+            <div class="s2-ch-badge green">2 units</div>
+          </div>
+
+          <div class="s2-channel-card">
+            <div class="s2-ch-icon amber-bg">🏭</div>
+            <div class="s2-ch-info">
+              <div class="s2-ch-name">NJ Distribution Centre</div>
+              <div class="s2-ch-detail">Ships by Tue · Standard 2-day delivery</div>
+            </div>
+            <div class="s2-ch-badge amber">In DC</div>
+          </div>
+
+          <div class="s2-channel-card">
+            <div class="s2-ch-icon blue-bg">💻</div>
+            <div class="s2-ch-info">
+              <div class="s2-ch-name">RalphLauren.com</div>
+              <div class="s2-ch-detail">2–3 business days · Free shipping on $200+</div>
+            </div>
+            <div class="s2-ch-badge blue">4 left</div>
+          </div>
+
+          <!-- Size availability grid -->
+          <div class="s2-section-label">All Sizes — SoHo Stock</div>
+          <div class="s2-size-section">
+            <div class="s2-size-top">
+              <div class="s2-size-title">In-Store Availability</div>
+              <div style="font-size:9px;color:var(--green);font-weight:700;">Live</div>
+            </div>
+            <div class="s2-size-grid">
+              <div class="s2-size-cell avail">XS</div>
+              <div class="s2-size-cell avail">S</div>
+              <div class="s2-size-cell selected">M</div>
+              <div class="s2-size-cell limited">L</div>
+              <div class="s2-size-cell oost">XL</div>
+              <div class="s2-size-cell avail">36</div>
+              <div class="s2-size-cell avail">38</div>
+              <div class="s2-size-cell oost">40</div>
+              <div class="s2-size-cell avail">42</div>
+              <div class="s2-size-cell avail">44</div>
+            </div>
+            <div style="margin-top:10px;display:flex;gap:12px;align-items:center;">
+              <div style="display:flex;gap:5px;align-items:center;"><div style="width:10px;height:10px;border-radius:3px;background:rgba(21,128,61,0.2);"></div><span style="font-size:9px;color:var(--muted);">In stock</span></div>
+              <div style="display:flex;gap:5px;align-items:center;"><div style="width:10px;height:10px;border-radius:3px;background:var(--c-dark);"></div><span style="font-size:9px;color:var(--muted);">Requested</span></div>
+              <div style="display:flex;gap:5px;align-items:center;"><div style="width:10px;height:10px;border-radius:3px;background:rgba(194,103,10,0.15);"></div><span style="font-size:9px;color:var(--muted);">1 left</span></div>
+            </div>
+          </div>
+
+          <!-- CTA -->
+          <button class="s2-select-btn">Proceed to Ship-to-Home →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 3 — SHIP-TO-HOME CHECKOUT -->
+  <div class="phone-col">
+    <div class="phone-label">03 — SHIP-TO-HOME CHECKOUT</div>
+    <div class="phone" style="background:var(--cream);">
+      <div class="notch" style="background:#0D1B2A;"><div class="ncam"></div><div class="ndot"></div></div>
+      <div class="s3-bg">
+        <div class="s3-top">
+          <div class="statusbar" style="padding:34px 0 6px;background:transparent;">
+            <span style="color:#fff;font-size:10px;font-weight:700;font-family:'DM Mono',monospace;">9:41</span>
+            <span style="color:#fff;font-size:10px;">▲ ◆ ■</span>
+          </div>
+          <div class="s3-top-label">RL CartBridge · Checkout</div>
+          <div class="s3-top-title">Ship to Home</div>
+          <div class="s3-top-sub">Customer pays in-store · Item ships direct</div>
+        </div>
+        <div class="sc">
+          <!-- Progress steps -->
+          <div class="s3-steps">
+            <div class="s3-step done-line">
+              <div class="s3-step-circle done">✓</div>
+              <div class="s3-step-label">Item</div>
+            </div>
+            <div class="s3-step done-line">
+              <div class="s3-step-circle done">✓</div>
+              <div class="s3-step-label">Stock</div>
+            </div>
+            <div class="s3-step">
+              <div class="s3-step-circle active">3</div>
+              <div class="s3-step-label active-lbl">Checkout</div>
+            </div>
+            <div class="s3-step">
+              <div class="s3-step-circle todo">4</div>
+              <div class="s3-step-label">Confirm</div>
+            </div>
+          </div>
+
+          <!-- Order item -->
+          <div class="s3-order-card">
+            <div class="s3-order-header">Order Summary</div>
+            <div class="s3-order-item">
+              <div class="s3-order-img">🧥</div>
+              <div class="s3-order-info">
+                <div class="s3-order-brand">Purple Label</div>
+                <div class="s3-order-name">Italian Wool Blazer — Navy</div>
+                <div class="s3-order-size">Size M · Slim Fit</div>
+              </div>
+              <div class="s3-order-price">$1,295</div>
+            </div>
+            <div style="padding:10px 14px;background:var(--gray);">
+              <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:4px;"><span>Subtotal</span><span>$1,295.00</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--green);margin-bottom:4px;font-weight:600;"><span>Shipping</span><span>FREE</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:6px;"><span>Tax (8.875%)</span><span>$114.93</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--ink);font-weight:800;font-family:'DM Mono',monospace;"><span>Total</span><span>$1,409.93</span></div>
+            </div>
+          </div>
+
+          <!-- Delivery address -->
+          <div class="s3-addr-card">
+            <div class="s3-addr-header">
+              <span>Ship To</span>
+              <span class="s3-addr-edit">Edit</span>
+            </div>
+            <div class="s3-addr-body">
+              <div class="s3-addr-name">Alexandra Chen</div>
+              <div class="s3-addr-line">420 Park Avenue, Apt 14C<br>New York, NY 10022</div>
+            </div>
+          </div>
+
+          <!-- ETA -->
+          <div class="s3-eta-card">
+            <div class="s3-eta-icon">📦</div>
+            <div class="s3-eta-info">
+              <div class="s3-eta-label">Estimated Delivery</div>
+              <div class="s3-eta-date">Tuesday, May 26 · 2-Day Express</div>
+            </div>
+            <div class="s3-eta-free">Free</div>
+          </div>
+
+          <!-- Payment -->
+          <div class="s3-pay-row">
+            <div class="s3-pay-icon">💳</div>
+            <div class="s3-pay-info">
+              <div class="s3-pay-label">Payment · Amex on file</div>
+              <div class="s3-pay-card">•••• •••• •••• 4821</div>
+            </div>
+            <div class="s3-pay-amount">$1,409.93</div>
+          </div>
+
+          <!-- Confirm button -->
+          <button class="s3-confirm-btn">
+            <span class="s3-confirm-lock">🔒</span>
+            Confirm &amp; Place Order
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 4 — FULFILMENT OPS DASHBOARD -->
+  <div class="phone-col">
+    <div class="phone-label">04 — FULFILMENT OPS DASHBOARD</div>
+    <div class="phone" style="background:var(--c-dark);">
+      <div class="notch" style="background:#060e1a;"><div class="ncam" style="background:#060e1a;border-color:#0d1b2a;"></div><div class="ndot" style="background:#0d1b2a;"></div></div>
+      <div class="s4-bg">
+        <div class="s4-header">
+          <div class="statusbar" style="padding:34px 0 6px;background:transparent;">
+            <span style="color:#fff;font-size:10px;font-weight:700;font-family:'DM Mono',monospace;">9:41</span>
+            <span style="color:#fff;font-size:10px;">▲ ◆ ■</span>
+          </div>
+          <div class="s4-header-label">RL CartBridge · Store Ops</div>
+          <div class="s4-header-title">Fulfilment Dashboard</div>
+          <div class="s4-header-sub">SoHo Flagship · Week of May 19–25, 2026</div>
+        </div>
+        <div class="sc">
+          <!-- KPI grid -->
+          <div class="s4-kpi-row">
+            <div class="s4-kpi-card">
+              <div class="s4-kpi-icon">🛒</div>
+              <div class="s4-kpi-val green">73%</div>
+              <div class="s4-kpi-label">Stock-out Recovery Rate</div>
+              <div class="s4-kpi-delta">↑ from 0% (no CartBridge)</div>
+            </div>
+            <div class="s4-kpi-card">
+              <div class="s4-kpi-icon">💰</div>
+              <div class="s4-kpi-val">$184K</div>
+              <div class="s4-kpi-label">Revenue Rescued</div>
+              <div class="s4-kpi-delta">This week, would have been lost</div>
+            </div>
+            <div class="s4-kpi-card">
+              <div class="s4-kpi-icon">📦</div>
+              <div class="s4-kpi-val blue">68%</div>
+              <div class="s4-kpi-label">Ship-to-Home Rate</div>
+              <div class="s4-kpi-delta">32% cross-store transfer</div>
+            </div>
+            <div class="s4-kpi-card">
+              <div class="s4-kpi-icon">⏱</div>
+              <div class="s4-kpi-val">47s</div>
+              <div class="s4-kpi-label">Avg. Recovery Time</div>
+              <div class="s4-kpi-delta">Stock alert → order placed</div>
+            </div>
+          </div>
+
+          <!-- Store recovery rates -->
+          <div class="s4-section-label">Recovery Rate by Store</div>
+
+          <div class="s4-store-card">
+            <div class="s4-store-row">
+              <div class="s4-store-name">SoHo Flagship</div>
+              <div class="s4-store-rate">78%</div>
+            </div>
+            <div class="s4-store-bar"><div class="s4-store-fill" style="width:78%;"></div></div>
+            <div class="s4-store-meta">
+              <div class="s4-store-sub">29 recoveries this week</div>
+              <div class="s4-store-sub">$184K rescued</div>
+            </div>
+          </div>
+
+          <div class="s4-store-card">
+            <div class="s4-store-row">
+              <div class="s4-store-name">5th Avenue Flagship</div>
+              <div class="s4-store-rate">71%</div>
+            </div>
+            <div class="s4-store-bar"><div class="s4-store-fill" style="width:71%;"></div></div>
+            <div class="s4-store-meta">
+              <div class="s4-store-sub">41 recoveries this week</div>
+              <div class="s4-store-sub">$263K rescued</div>
+            </div>
+          </div>
+
+          <div class="s4-store-card">
+            <div class="s4-store-row">
+              <div class="s4-store-name">Madison Ave Polo Bar</div>
+              <div class="s4-store-rate">54%</div>
+            </div>
+            <div class="s4-store-bar"><div class="s4-store-fill" style="width:54%;"></div></div>
+            <div class="s4-store-meta">
+              <div class="s4-store-sub">18 recoveries this week</div>
+              <div class="s4-store-sub" style="color:#F87171;">Low adoption — nudge sent</div>
+            </div>
+          </div>
+
+          <!-- Top stock-out SKUs -->
+          <div class="s4-section-label">Top Stock-Out SKUs This Week</div>
+          <div class="s4-sku-card">
+            <div class="s4-sku-header">
+              <span>SKU</span>
+              <span>Size</span>
+              <span>Stock-outs</span>
+              <span>Shipped</span>
+            </div>
+            <div class="s4-sku-row">
+              <div class="s4-sku-name">Wool Blazer Navy</div>
+              <div class="s4-sku-size">M</div>
+              <div class="s4-sku-miss">14</div>
+              <div class="s4-sku-ship">11</div>
+            </div>
+            <div class="s4-sku-row">
+              <div class="s4-sku-name">Cashmere V-Neck</div>
+              <div class="s4-sku-size">S</div>
+              <div class="s4-sku-miss">9</div>
+              <div class="s4-sku-ship">7</div>
+            </div>
+            <div class="s4-sku-row">
+              <div class="s4-sku-name">Oxford Shirt Blue</div>
+              <div class="s4-sku-size">15.5</div>
+              <div class="s4-sku-miss">7</div>
+              <div class="s4-sku-ship">5</div>
+            </div>
+            <div class="s4-sku-row">
+              <div class="s4-sku-name">Chino Pant Khaki</div>
+              <div class="s4-sku-size">32×30</div>
+              <div class="s4-sku-miss">6</div>
+              <div class="s4-sku-ship">4</div>
+            </div>
+          </div>
+
+          <!-- Insight box -->
+          <div class="s4-insight">
+            <div class="s4-insight-icon">💡</div>
+            <div class="s4-insight-text">
+              <strong>Restock recommendation:</strong> Wool Blazer M and Cashmere V-Neck S account for 46% of all stock-outs in SoHo this week. Increasing par stock by 3 units each would eliminate the top recovery bottleneck and save 12+ associate minutes per day.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
