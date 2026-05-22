@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Agoda — TrustScore · Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --c-dark:#0B1F3A;--c-hero:#1A3458;--c-bright:#FF6B35;--c-accent:#FFB800;
+  --c-green:#15803D;--c-green-lt:#22C55E;--c-red:#B91C1C;--c-red-lt:#EF4444;
+  --ink:#0f172a;--muted:#64748b;--border:#e2e8f0;--gray:#f0f4f8;--white:#FFFFFF;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Sora',sans-serif;background:#060d18;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:40px 24px 60px;}
+.header-strip{background:rgba(255,107,53,0.1);border:1px solid rgba(255,107,53,0.25);border-radius:10px;padding:10px 28px;color:#FFB800;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-bottom:36px;}
+.prototype-wrap{display:flex;gap:32px;align-items:flex-start;flex-wrap:wrap;justify-content:center;}
+.phone-col{display:flex;flex-direction:column;align-items:center;gap:14px;}
+.phone-label{font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#4a5568;font-family:'DM Mono',monospace;}
+.phone{width:375px;height:812px;border-radius:46px;background:#fff;position:relative;overflow:hidden;box-shadow:0 40px 100px rgba(0,0,0,0.55),0 0 0 2px rgba(255,255,255,0.07);flex-shrink:0;}
+.notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:118px;height:28px;background:var(--c-dark);border-radius:0 0 16px 16px;z-index:100;display:flex;align-items:center;justify-content:center;gap:6px;}
+.ncam{width:10px;height:10px;border-radius:50%;background:#0a1828;border:1px solid #1a3050;}
+.ndot{width:5px;height:5px;border-radius:50%;background:#1a3050;}
+.statusbar{display:flex;justify-content:space-between;align-items:center;padding:34px 20px 6px;font-size:10px;font-weight:700;font-family:'DM Mono',monospace;}
+.sc{overflow-y:auto;max-height:724px;scrollbar-width:none;-ms-overflow-style:none;}
+.sc::-webkit-scrollbar{display:none;}
+
+/* ── SCREEN 1 — SEARCH RESULTS ── */
+.s1-bg{background:var(--gray);}
+.s1-top{background:var(--c-dark);padding:10px 16px 12px;}
+.s1-search-bar{background:rgba(255,255,255,0.1);border-radius:12px;padding:9px 14px;display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.s1-search-icon{font-size:14px;}
+.s1-search-text{font-size:11px;color:rgba(255,255,255,0.6);}
+.s1-persona-row{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;}
+.s1-persona-row::-webkit-scrollbar{display:none;}
+.s1-persona-chip{padding:6px 12px;border-radius:20px;font-size:10px;font-weight:700;white-space:nowrap;cursor:pointer;}
+.s1-persona-chip.active{background:var(--c-bright);color:#fff;}
+.s1-persona-chip.inactive{background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.6);}
+
+.s1-result-label{margin:10px 14px 7px;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
+.s1-hotel-card{background:#fff;border-radius:14px;border:1px solid var(--border);margin:0 14px 10px;overflow:hidden;}
+.s1-hotel-img{height:110px;display:flex;align-items:center;justify-content:center;font-size:52px;position:relative;}
+.s1-hotel-img-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.4),transparent);}
+.s1-hotel-persona-badge{position:absolute;bottom:8px;left:10px;background:var(--c-bright);color:#fff;border-radius:7px;padding:4px 9px;font-size:10px;font-weight:800;z-index:2;display:flex;align-items:center;gap:4px;}
+.s1-hotel-body{padding:11px 13px;}
+.s1-hotel-name{font-size:13px;font-weight:700;color:var(--c-dark);margin-bottom:2px;}
+.s1-hotel-loc{font-size:9px;color:var(--muted);margin-bottom:6px;}
+.s1-hotel-score-row{display:flex;align-items:center;gap:8px;margin-bottom:5px;}
+.s1-score-new{font-size:20px;font-weight:800;color:var(--c-bright);font-family:'DM Mono',monospace;}
+.s1-score-persona{font-size:10px;color:var(--muted);}
+.s1-score-old{font-size:10px;color:var(--muted);text-decoration:line-through;}
+.s1-hotel-price-row{display:flex;justify-content:space-between;align-items:center;}
+.s1-hotel-price{font-size:15px;font-weight:800;color:var(--c-dark);font-family:'DM Mono',monospace;}
+.s1-book-btn-sm{background:var(--c-bright);color:#fff;border:none;border-radius:8px;padding:7px 14px;font-family:'Sora',sans-serif;font-size:10px;font-weight:700;cursor:pointer;}
+
+/* Persona score bars on card */
+.s1-persona-bars{display:flex;gap:6px;margin-bottom:7px;}
+.s1-persona-bar-item{flex:1;text-align:center;}
+.s1-pbar-label{font-size:7px;font-weight:700;color:var(--muted);margin-bottom:2px;text-transform:uppercase;}
+.s1-pbar-track{height:4px;background:#e2e8f0;border-radius:99px;}
+.s1-pbar-fill{height:100%;border-radius:99px;}
+.s1-pbar-val{font-size:8px;font-weight:800;font-family:'DM Mono',monospace;margin-top:2px;}
+
+/* ── SCREEN 2 — PROPERTY PAGE ── */
+.s2-bg{background:var(--gray);}
+.s2-img-hero{height:170px;display:flex;align-items:center;justify-content:center;font-size:72px;position:relative;background:linear-gradient(135deg,#1a3458,#0b1f3a);}
+.s2-img-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.5),transparent);}
+.s2-img-top-bar{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:46px 14px 8px;}
+.s2-back-btn{background:rgba(0,0,0,0.4);border-radius:8px;padding:5px 10px;font-size:11px;color:#fff;}
+.s2-img-badge{background:var(--c-bright);color:#fff;border-radius:8px;padding:5px 10px;font-size:10px;font-weight:700;}
+
+.s2-hotel-info{padding:12px 14px 0;}
+.s2-hotel-name{font-size:16px;font-weight:800;color:var(--c-dark);margin-bottom:2px;}
+.s2-hotel-loc{font-size:10px;color:var(--muted);margin-bottom:8px;}
+
+/* TrustScore panel */
+.s2-trust-panel{margin:0 14px 10px;background:#fff;border-radius:14px;border:2px solid var(--c-bright);padding:13px 14px;}
+.s2-trust-title{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--c-bright);margin-bottom:8px;}
+.s2-trust-your-score{display:flex;align-items:baseline;gap:8px;margin-bottom:6px;}
+.s2-trust-score-big{font-size:32px;font-weight:800;color:var(--c-bright);font-family:'DM Mono',monospace;}
+.s2-trust-score-label{font-size:11px;color:var(--muted);}
+.s2-trust-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(21,128,61,0.1);border:1px solid rgba(21,128,61,0.25);border-radius:6px;padding:3px 8px;font-size:9px;font-weight:700;color:var(--c-green);margin-bottom:10px;}
+
+.s2-persona-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.s2-persona-score{background:var(--gray);border-radius:10px;padding:8px 10px;position:relative;}
+.s2-persona-score.active{background:rgba(255,107,53,0.06);border:1.5px solid rgba(255,107,53,0.25);}
+.s2-ps-persona{font-size:8px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px;}
+.s2-ps-val{font-size:18px;font-weight:800;font-family:'DM Mono',monospace;}
+.s2-ps-val.high{color:var(--c-green-lt);}
+.s2-ps-val.mid{color:var(--c-accent);}
+.s2-ps-val.low{color:var(--c-red-lt);}
+.s2-ps-chip{font-size:8px;color:var(--muted);}
+.s2-ps-active-dot{position:absolute;top:8px;right:8px;width:6px;height:6px;border-radius:50%;background:var(--c-bright);}
+
+/* Category ratings */
+.s2-categories{margin:0 14px 10px;background:#fff;border-radius:14px;border:1px solid var(--border);padding:12px 14px;}
+.s2-cat-title{font-size:10px;font-weight:700;color:var(--c-dark);margin-bottom:8px;}
+.s2-cat-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.s2-cat-label{font-size:10px;color:var(--muted);width:70px;flex-shrink:0;}
+.s2-cat-track{flex:1;height:6px;background:#e2e8f0;border-radius:99px;}
+.s2-cat-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--c-bright),var(--c-accent));}
+.s2-cat-val{font-size:10px;font-weight:700;color:var(--c-dark);font-family:'DM Mono',monospace;width:24px;text-align:right;}
+
+.s2-book-btn{margin:0 14px 12px;background:var(--c-bright);color:#fff;border:none;border-radius:12px;padding:14px;font-family:'Sora',sans-serif;font-size:13px;font-weight:700;display:block;width:calc(100%-28px);cursor:pointer;text-align:center;}
+
+/* ── SCREEN 3 — REVIEW FEED ── */
+.s3-bg{background:var(--gray);}
+.s3-top{background:var(--c-dark);padding:10px 16px 14px;}
+.s3-top-label{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,107,53,0.7);margin-bottom:3px;}
+.s3-top-title{font-size:15px;font-weight:800;color:#fff;}
+.s3-top-sub{font-size:10px;color:rgba(255,255,255,0.4);}
+
+.s3-filter-row{display:flex;gap:6px;padding:10px 14px 0;overflow-x:auto;scrollbar-width:none;}
+.s3-filter-row::-webkit-scrollbar{display:none;}
+.s3-filter-chip{padding:6px 12px;border-radius:20px;font-size:10px;font-weight:700;white-space:nowrap;cursor:pointer;flex-shrink:0;}
+.s3-filter-chip.active{background:var(--c-bright);color:#fff;}
+.s3-filter-chip.inactive{background:#fff;color:var(--muted);border:1px solid var(--border);}
+
+.s3-trust-summary{margin:10px 14px 0;background:#fff;border-radius:14px;border:1px solid var(--border);padding:12px 14px;display:flex;gap:12px;align-items:center;}
+.s3-trust-big{text-align:center;flex-shrink:0;}
+.s3-trust-pct{font-size:28px;font-weight:800;color:var(--c-green-lt);font-family:'DM Mono',monospace;}
+.s3-trust-lbl{font-size:9px;color:var(--muted);}
+.s3-trust-breakdown{flex:1;}
+.s3-trust-row{display:flex;justify-content:space-between;font-size:9.5px;margin-bottom:4px;}
+.s3-trust-row-lbl{color:var(--muted);}
+.s3-trust-row-val{font-weight:700;font-family:'DM Mono',monospace;}
+.s3-trust-row-val.green{color:var(--c-green-lt);}
+.s3-trust-row-val.red{color:var(--c-red-lt);}
+
+/* Review card */
+.s3-review{background:#fff;border-radius:14px;border:1px solid var(--border);margin:8px 14px 0;padding:12px 13px;position:relative;}
+.s3-review.flagged{border-color:rgba(185,28,28,0.3);background:rgba(185,28,28,0.02);}
+.s3-review-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:7px;}
+.s3-reviewer{display:flex;gap:8px;align-items:center;}
+.s3-rev-av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;flex-shrink:0;}
+.s3-rev-name{font-size:11px;font-weight:700;color:var(--c-dark);}
+.s3-rev-meta{font-size:9px;color:var(--muted);}
+.s3-rev-score{font-size:18px;font-weight:800;color:var(--c-bright);font-family:'DM Mono',monospace;}
+.s3-rev-text{font-size:10px;color:var(--ink);line-height:1.5;margin-bottom:7px;}
+.s3-rev-badges{display:flex;gap:5px;flex-wrap:wrap;}
+.s3-rev-badge{display:inline-flex;align-items:center;gap:3px;border-radius:5px;padding:3px 7px;font-size:8px;font-weight:700;}
+.s3-rev-badge.verified{background:rgba(21,128,61,0.1);color:var(--c-green);}
+.s3-rev-badge.persona{background:rgba(26,52,88,0.08);color:var(--c-hero);}
+.s3-rev-badge.flagged{background:rgba(185,28,28,0.1);color:var(--c-red);border:1px solid rgba(185,28,28,0.2);}
+.s3-flag-banner{background:rgba(185,28,28,0.05);border:1px solid rgba(185,28,28,0.15);border-radius:8px;padding:7px 10px;margin-top:7px;font-size:9px;color:var(--c-red);display:flex;gap:5px;align-items:flex-start;}
+
+/* ── SCREEN 4 — TRUST OPS DASHBOARD ── */
+.s4-bg{background:var(--c-dark);}
+.s4-header{background:var(--c-dark);padding:10px 16px 14px;}
+.s4-label{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,107,53,0.7);margin-bottom:3px;}
+.s4-title{font-size:15px;font-weight:800;color:#fff;}
+.s4-sub{font-size:10px;color:rgba(255,255,255,0.4);}
+
+.s4-kpis{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 14px 0;}
+.s4-kpi{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:11px 12px;}
+.s4-kpi-icon{font-size:16px;margin-bottom:5px;}
+.s4-kpi-val{font-size:22px;font-weight:800;font-family:'DM Mono',monospace;line-height:1;margin-bottom:2px;}
+.s4-kpi-val.orange{color:var(--c-bright);}
+.s4-kpi-val.green{color:#4ADE80;}
+.s4-kpi-val.red{color:#F87171;}
+.s4-kpi-val.blue{color:#60A5FA;}
+.s4-kpi-label{font-size:9px;color:rgba(255,255,255,0.5);}
+.s4-kpi-delta{font-size:8px;color:rgba(255,255,255,0.3);margin-top:2px;}
+
+.s4-section-label{margin:14px 14px 8px;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,0.35);}
+
+.s4-model-card{margin:0 14px 8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:11px 14px;}
+.s4-model-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;}
+.s4-model-name{font-size:10px;font-weight:600;color:#fff;}
+.s4-model-acc{font-size:11px;font-weight:800;font-family:'DM Mono',monospace;}
+.s4-model-acc.good{color:#4ADE80;}
+.s4-model-acc.warn{color:var(--c-accent);}
+.s4-model-bar{height:5px;background:rgba(255,255,255,0.08);border-radius:99px;}
+.s4-model-fill{height:100%;border-radius:99px;}
+.s4-model-sub{font-size:8.5px;color:rgba(255,255,255,0.35);margin-top:4px;}
+
+.s4-flag-table{margin:0 14px 0;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.07);border-radius:12px;overflow:hidden;}
+.s4-flag-header{padding:8px 14px;display:grid;grid-template-columns:1fr auto auto;gap:8px;font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,0.35);border-bottom:1px solid rgba(255,255,255,0.06);}
+.s4-flag-row{padding:9px 14px;display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;border-bottom:1px solid rgba(255,255,255,0.04);}
+.s4-flag-row:last-child{border-bottom:none;}
+.s4-flag-pattern{font-size:10px;font-weight:600;color:#fff;}
+.s4-flag-count{font-size:10px;font-weight:700;color:#F87171;text-align:center;font-family:'DM Mono',monospace;}
+.s4-flag-action{font-size:9px;font-weight:700;color:var(--c-accent);text-align:right;}
+
+.s4-insight{margin:10px 14px 14px;background:rgba(255,107,53,0.1);border:1px solid rgba(255,107,53,0.2);border-radius:12px;padding:11px 14px;display:flex;gap:10px;}
+.s4-insight-icon{font-size:16px;flex-shrink:0;}
+.s4-insight-text{font-size:9.5px;color:rgba(255,184,0,0.85);line-height:1.5;font-weight:500;}
+.s4-insight-text strong{color:var(--c-bright);}
+
+/* confetti */
+#conf{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:hidden;z-index:50;}
+@keyframes confetti-fall{0%{transform:translateY(-20px) rotate(0deg);opacity:1;}100%{transform:translateY(820px) rotate(720deg);opacity:0;}}
+.cp{position:absolute;animation:confetti-fall linear both;}
+</style>
+</head>
+<body>
+<div class="header-strip">Agoda — TrustScore · Interactive Prototype</div>
+<div class="prototype-wrap">
+
+<!-- SCREEN 1 — SEARCH RESULTS -->
+<div class="phone-col">
+  <div class="phone-label">01 — SEARCH RESULTS</div>
+  <div class="phone">
+    <div class="notch"><div class="ncam"></div><div class="ndot"></div></div>
+    <div class="s1-bg">
+      <div class="s1-top">
+        <div class="statusbar" style="background:transparent;color:#fff;padding:34px 0 8px;">
+          <span>9:41</span><span style="display:flex;gap:4px;">▲ ◆ ■</span>
+        </div>
+        <div class="s1-search-bar">
+          <div class="s1-search-icon">🔍</div>
+          <div class="s1-search-text">Bangkok · Apr 25–28 · 1 guest</div>
+        </div>
+        <div style="font-size:9px;color:rgba(255,255,255,0.45);margin-bottom:5px;">Scores personalised for you →</div>
+        <div class="s1-persona-row">
+          <div class="s1-persona-chip active">🎒 Solo Budget</div>
+          <div class="s1-persona-chip inactive">💑 Couples</div>
+          <div class="s1-persona-chip inactive">👨‍👩‍👧 Families</div>
+          <div class="s1-persona-chip inactive">💼 Business</div>
+        </div>
+      </div>
+      <div class="sc">
+        <div class="s1-result-label">142 hotels · sorted by your TrustScore</div>
+
+        <!-- Hotel Card 1 — high solo score -->
+        <div class="s1-hotel-card">
+          <div class="s1-hotel-img" style="background:linear-gradient(135deg,#1a3a2a,#2a5a3a);">
+            🏨
+            <div class="s1-hotel-img-overlay"></div>
+            <div class="s1-hotel-persona-badge">9.3 ★ for Solo Travelers</div>
+          </div>
+          <div class="s1-hotel-body">
+            <div class="s1-hotel-name">The Wanderer Hostel Bangkok</div>
+            <div class="s1-hotel-loc">📍 Khao San Road · 0.3km from BTS</div>
+            <div class="s1-persona-bars">
+              <div class="s1-persona-bar-item">
+                <div class="s1-pbar-label">Solo</div>
+                <div class="s1-pbar-track"><div class="s1-pbar-fill" style="width:93%;background:#22C55E;"></div></div>
+                <div class="s1-pbar-val" style="color:#22C55E;">9.3</div>
+              </div>
+              <div class="s1-persona-bar-item">
+                <div class="s1-pbar-label">Couples</div>
+                <div class="s1-pbar-track"><div class="s1-pbar-fill" style="width:64%;background:#FFB800;"></div></div>
+                <div class="s1-pbar-val" style="color:#FFB800;">6.4</div>
+              </div>
+              <div class="s1-persona-bar-item">
+                <div class="s1-pbar-label">Family</div>
+                <div class="s1-pbar-track"><div class="s1-pbar-fill" style="width:42%;background:#EF4444;"></div></div>
+                <div class="s1-pbar-val" style="color:#EF4444;">4.2</div>
+              </div>
+              <div class="s1-persona-bar-item">
+                <div class="s1-pbar-label">Business</div>
+                <div class="s1-pbar-track"><div class="s1-pbar-fill" style="width:51%;background:#64748b;"></div></div>
+                <div class="s1-pbar-val" style="color:#64748b;">5.1</div>
+              </div>
+            </div>
+            <div class="s1-hotel-price-row">
+              <div class="s1-hotel-price">$28/night</div>
+              <button class="s1-book-btn-sm">View Deal →</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hotel Card 2 -->
+        <div class="s1-hotel-card">
+          <div class="s1-hotel-img" style="background:linear-gradient(135deg,#1a2a4a,#2a3a6a);">
+            🏩
+            <div class="s1-hotel-img-overlay"></div>
+            <div class="s1-hotel-persona-badge" style="background:var(--c-accent);color:var(--ink);">8.7 ★ for Solo Travelers</div>
+          </div>
+          <div class="s1-hotel-body">
+            <div class="s1-hotel-name">Lub d Bangkok Silom</div>
+            <div class="s1-hotel-loc">📍 Silom · Near Lumpini Park · BTS accessible</div>
+            <div class="s1-persona-bars">
+              <div class="s1-persona-bar-item">
+                <div class="s1-pbar-label">Solo</div>
+                <div class="s1-pbar-track"><div class="s1-pbar-fill" style="width:87%;background:#22C55E;"></div></div>
+                <div class="s1-pbar-val" style="color:#22C55E;">8.7</div>
+              </div>
+              <div class="s1-persona-bar-item">
+                <div class="s1-pbar-label">Couples</div>
+                <div class="s1-pbar-track"><div class="s1-pbar-fill" style="width:78%;background:#FFB800;"></div></div>
+                <div class="s1-pbar-val" style="color:#FFB800;">7.8</div>
+              </div>
+              <div class="s1-persona-bar-item">
+                <div class="s1-pbar-label">Family</div>
+                <div class="s1-pbar-track"><div class="s1-pbar-fill" style="width:55%;background:#FFB800;"></div></div>
+                <div class="s1-pbar-val" style="color:#FFB800;">5.5</div>
+              </div>
+              <div class="s1-persona-bar-item">
+                <div class="s1-pbar-label">Business</div>
+                <div class="s1-pbar-track"><div class="s1-pbar-fill" style="width:74%;background:#60A5FA;"></div></div>
+                <div class="s1-pbar-val" style="color:#60A5FA;">7.4</div>
+              </div>
+            </div>
+            <div class="s1-hotel-price-row">
+              <div class="s1-hotel-price">$44/night</div>
+              <button class="s1-book-btn-sm">View Deal →</button>
+            </div>
+          </div>
+        </div>
+        <div style="height:14px;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN 2 — PROPERTY PAGE -->
+<div class="phone-col">
+  <div class="phone-label">02 — PROPERTY PAGE</div>
+  <div class="phone">
+    <div class="notch"><div class="ncam"></div><div class="ndot"></div></div>
+    <div class="s2-bg">
+      <div class="s2-img-hero">
+        🏨
+        <div class="s2-img-overlay"></div>
+        <div class="s2-img-top-bar">
+          <div class="s2-back-btn">← Results</div>
+          <div class="s2-img-badge">📸 48 photos</div>
+        </div>
+      </div>
+      <div class="sc">
+        <div class="s2-hotel-info">
+          <div class="s2-hotel-name">The Wanderer Hostel Bangkok</div>
+          <div class="s2-hotel-loc">📍 Khao San Road, Phra Nakhon · Show on map</div>
+        </div>
+
+        <!-- TrustScore Panel -->
+        <div class="s2-trust-panel">
+          <div class="s2-trust-title">🛡 TrustScore — Your Persona</div>
+          <div class="s2-trust-your-score">
+            <div class="s2-trust-score-big">9.3</div>
+            <div class="s2-trust-score-label">for Solo Budget Travelers<br><span style="color:var(--muted);font-size:9px;">Based on 847 verified reviews from travelers like you</span></div>
+          </div>
+          <div class="s2-trust-badge">✓ 91% verified reviews · 847 solo traveler reviews</div>
+          <div class="s2-persona-grid">
+            <div class="s2-persona-score active">
+              <div class="s2-ps-active-dot"></div>
+              <div class="s2-ps-persona">Solo Budget</div>
+              <div class="s2-ps-val high">9.3</div>
+              <div class="s2-ps-chip">847 reviews</div>
+            </div>
+            <div class="s2-persona-score">
+              <div class="s2-ps-persona">Couples</div>
+              <div class="s2-ps-val mid">6.4</div>
+              <div class="s2-ps-chip">312 reviews</div>
+            </div>
+            <div class="s2-persona-score">
+              <div class="s2-ps-persona">Families</div>
+              <div class="s2-ps-val low">4.2</div>
+              <div class="s2-ps-chip">89 reviews</div>
+            </div>
+            <div class="s2-persona-score">
+              <div class="s2-ps-persona">Business</div>
+              <div class="s2-ps-val mid">5.1</div>
+              <div class="s2-ps-chip">144 reviews</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Category Ratings -->
+        <div class="s2-categories">
+          <div class="s2-cat-title">Category Scores — Solo Travelers</div>
+          <div class="s2-cat-row">
+            <div class="s2-cat-label">Social vibe</div>
+            <div class="s2-cat-track"><div class="s2-cat-fill" style="width:97%;"></div></div>
+            <div class="s2-cat-val">9.7</div>
+          </div>
+          <div class="s2-cat-row">
+            <div class="s2-cat-label">Location</div>
+            <div class="s2-cat-track"><div class="s2-cat-fill" style="width:94%;"></div></div>
+            <div class="s2-cat-val">9.4</div>
+          </div>
+          <div class="s2-cat-row">
+            <div class="s2-cat-label">Value</div>
+            <div class="s2-cat-track"><div class="s2-cat-fill" style="width:92%;"></div></div>
+            <div class="s2-cat-val">9.2</div>
+          </div>
+          <div class="s2-cat-row">
+            <div class="s2-cat-label">Cleanliness</div>
+            <div class="s2-cat-track"><div class="s2-cat-fill" style="width:86%;"></div></div>
+            <div class="s2-cat-val">8.6</div>
+          </div>
+          <div class="s2-cat-row">
+            <div class="s2-cat-label">Safety</div>
+            <div class="s2-cat-track"><div class="s2-cat-fill" style="width:91%;"></div></div>
+            <div class="s2-cat-val">9.1</div>
+          </div>
+        </div>
+
+        <div class="s2-book-btn" style="display:block;width:calc(100% - 28px);margin:0 14px 14px;">Book $28/night →</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN 3 — REVIEW FEED -->
+<div class="phone-col">
+  <div class="phone-label">03 — REVIEW FEED</div>
+  <div class="phone">
+    <div class="notch"><div class="ncam"></div><div class="ndot"></div></div>
+    <div class="s3-bg">
+      <div class="s3-top">
+        <div class="statusbar" style="background:transparent;color:#fff;padding:34px 0 6px;">
+          <span>9:41</span><span style="display:flex;gap:4px;">▲ ◆ ■</span>
+        </div>
+        <div class="s3-top-label">The Wanderer Hostel · Reviews</div>
+        <div class="s3-top-title">1,392 Reviews</div>
+        <div class="s3-top-sub">Filtered for: Solo Budget Travelers</div>
+      </div>
+      <div class="sc">
+        <div class="s3-filter-row">
+          <div class="s3-filter-chip active">🎒 Solo Budget</div>
+          <div class="s3-filter-chip inactive">💑 Couples</div>
+          <div class="s3-filter-chip inactive">👨‍👩‍👧 Families</div>
+          <div class="s3-filter-chip inactive">💼 Business</div>
+          <div class="s3-filter-chip inactive">⚠ Flagged</div>
+        </div>
+
+        <div class="s3-trust-summary">
+          <div class="s3-trust-big">
+            <div class="s3-trust-pct">91%</div>
+            <div class="s3-trust-lbl">Verified</div>
+          </div>
+          <div class="s3-trust-breakdown">
+            <div class="s3-trust-row"><span class="s3-trust-row-lbl">✓ Verified stays</span><span class="s3-trust-row-val green">1,267</span></div>
+            <div class="s3-trust-row"><span class="s3-trust-row-lbl">⚠ Flagged suspicious</span><span class="s3-trust-row-val red">78</span></div>
+            <div class="s3-trust-row"><span class="s3-trust-row-lbl">📋 Unverified</span><span class="s3-trust-row-val" style="color:var(--muted);">47</span></div>
+          </div>
+        </div>
+
+        <!-- Review 1 — Verified, solo -->
+        <div class="s3-review">
+          <div class="s3-review-top">
+            <div class="s3-reviewer">
+              <div class="s3-rev-av" style="background:var(--c-hero);">MK</div>
+              <div>
+                <div class="s3-rev-name">Maya K.</div>
+                <div class="s3-rev-meta">Solo · 6 trips on Agoda · Apr 2026</div>
+              </div>
+            </div>
+            <div class="s3-rev-score">9.5</div>
+          </div>
+          <div class="s3-rev-text">Perfect base for solo exploration. The common area is amazing for meeting other travelers — made 4 new friends in 2 days. Staff goes out of their way to give local tips. Khao San Road access is unbeatable.</div>
+          <div class="s3-rev-badges">
+            <div class="s3-rev-badge verified">✓ Verified Stay</div>
+            <div class="s3-rev-badge persona">🎒 Solo Traveler</div>
+          </div>
+        </div>
+
+        <!-- Review 2 — Verified, solo -->
+        <div class="s3-review">
+          <div class="s3-review-top">
+            <div class="s3-reviewer">
+              <div class="s3-rev-av" style="background:#2d6a3f;">JT</div>
+              <div>
+                <div class="s3-rev-name">James T.</div>
+                <div class="s3-rev-meta">Solo · 12 trips on Agoda · Mar 2026</div>
+              </div>
+            </div>
+            <div class="s3-rev-score">9.1</div>
+          </div>
+          <div class="s3-rev-text">Great value, amazing location. The dorms are clean and lockers are solid. Night market right outside. Would not recommend for anyone wanting quiet — it's lively until 2am, which I loved.</div>
+          <div class="s3-rev-badges">
+            <div class="s3-rev-badge verified">✓ Verified Stay</div>
+            <div class="s3-rev-badge persona">🎒 Solo Traveler</div>
+          </div>
+        </div>
+
+        <!-- Review 3 — Flagged -->
+        <div class="s3-review flagged">
+          <div class="s3-review-top">
+            <div class="s3-reviewer">
+              <div class="s3-rev-av" style="background:#888;">U1</div>
+              <div>
+                <div class="s3-rev-name">User1829474</div>
+                <div class="s3-rev-meta">1 trip on Agoda · May 2026</div>
+              </div>
+            </div>
+            <div class="s3-rev-score" style="color:var(--muted);">10.0</div>
+          </div>
+          <div class="s3-rev-text" style="color:var(--muted);">Absolutely perfect in every way!! Best hotel I have ever stayed in my life. Will definitely recommend to all my friends!!</div>
+          <div class="s3-rev-badges">
+            <div class="s3-rev-badge flagged">⚠ AI Flagged — Review posted 4 min after check-in</div>
+          </div>
+          <div class="s3-flag-banner">⚠ This review was flagged by TrustScore AI: posted within 4 minutes of check-in, generic phrasing, first-ever review from this account. It is excluded from your TrustScore calculation.</div>
+        </div>
+        <div style="height:14px;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN 4 — TRUST OPS DASHBOARD -->
+<div class="phone-col">
+  <div class="phone-label">04 — TRUST & INTEGRITY OPS</div>
+  <div class="phone" style="background:var(--c-dark);">
+    <div class="notch" style="background:#060d18;"><div class="ncam" style="background:#060d18;border-color:#0B1F3A;"></div><div class="ndot" style="background:#0B1F3A;"></div></div>
+    <div class="s4-bg">
+      <div class="statusbar" style="background:var(--c-dark);color:#fff;">
+        <span>9:41</span><span style="display:flex;gap:4px;">▲ ◆ ■</span>
+      </div>
+      <div class="s4-header">
+        <div class="s4-label">TrustScore · Ops</div>
+        <div class="s4-title">Trust & Integrity</div>
+        <div class="s4-sub">May 2026 · All markets</div>
+      </div>
+      <div class="sc">
+        <div class="s4-kpis">
+          <div class="s4-kpi">
+            <div class="s4-kpi-icon">🛡</div>
+            <div class="s4-kpi-val green">91%</div>
+            <div class="s4-kpi-label">Review verification rate</div>
+            <div class="s4-kpi-delta">↑ from 61% (pre-TrustScore)</div>
+          </div>
+          <div class="s4-kpi">
+            <div class="s4-kpi-icon">⚠</div>
+            <div class="s4-kpi-val red">78K</div>
+            <div class="s4-kpi-label">Fake reviews caught this month</div>
+            <div class="s4-kpi-delta">94% precision · 88% recall</div>
+          </div>
+          <div class="s4-kpi">
+            <div class="s4-kpi-icon">😊</div>
+            <div class="s4-kpi-val orange">+18%</div>
+            <div class="s4-kpi-label">Post-booking satisfaction</div>
+            <div class="s4-kpi-delta">Right property for right traveler</div>
+          </div>
+          <div class="s4-kpi">
+            <div class="s4-kpi-icon">📝</div>
+            <div class="s4-kpi-val blue">+31%</div>
+            <div class="s4-kpi-label">Review submission rate</div>
+            <div class="s4-kpi-delta">Users trust → contribute more</div>
+          </div>
+        </div>
+
+        <div class="s4-section-label">Persona Model Accuracy</div>
+        <div class="s4-model-card">
+          <div class="s4-model-row"><div class="s4-model-name">Solo Traveler classifier</div><div class="s4-model-acc good">96%</div></div>
+          <div class="s4-model-bar"><div class="s4-model-fill" style="width:96%;background:#4ADE80;"></div></div>
+          <div class="s4-model-sub">847K reviews classified · 32K training samples</div>
+        </div>
+        <div class="s4-model-card">
+          <div class="s4-model-row"><div class="s4-model-name">Family classifier</div><div class="s4-model-acc good">91%</div></div>
+          <div class="s4-model-bar"><div class="s4-model-fill" style="width:91%;background:#4ADE80;"></div></div>
+          <div class="s4-model-sub">312K reviews classified · 14K training samples</div>
+        </div>
+        <div class="s4-model-card">
+          <div class="s4-model-row"><div class="s4-model-name">Business traveler classifier</div><div class="s4-model-acc warn">84%</div></div>
+          <div class="s4-model-bar"><div class="s4-model-fill" style="width:84%;background:var(--c-accent);"></div></div>
+          <div class="s4-model-sub">Need 8K more labeled reviews — retraining scheduled</div>
+        </div>
+
+        <div class="s4-section-label">Top Fake Review Patterns Detected</div>
+        <div class="s4-flag-table">
+          <div class="s4-flag-header"><span>Pattern</span><span>Count</span><span>Action</span></div>
+          <div class="s4-flag-row"><div class="s4-flag-pattern">Review within 5 min of check-in</div><div class="s4-flag-count">21K</div><div class="s4-flag-action">Hidden</div></div>
+          <div class="s4-flag-row"><div class="s4-flag-pattern">First-ever review, perfect 10</div><div class="s4-flag-count">18K</div><div class="s4-flag-action">Flagged</div></div>
+          <div class="s4-flag-row"><div class="s4-flag-pattern">IP cluster from same hotel WiFi</div><div class="s4-flag-count">14K</div><div class="s4-flag-action">Removed</div></div>
+          <div class="s4-flag-row"><div class="s4-flag-pattern">Identical phrasing across accts</div><div class="s4-flag-count">25K</div><div class="s4-flag-action">Removed</div></div>
+        </div>
+
+        <div class="s4-insight">
+          <div class="s4-insight-icon">💡</div>
+          <div class="s4-insight-text"><strong>24% reduction</strong> in "mismatched expectations" 1-star reviews since TrustScore launch — travelers who book using their persona score are landing at the right property for their travel style. Post-stay NPS up 14 points.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+</body>
+</html>

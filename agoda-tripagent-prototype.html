@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Agoda — TripAgent · Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --c-dark:#0B1F3A;--c-hero:#1A3458;--c-bright:#FF6B35;--c-accent:#FFB800;
+  --c-green:#22C55E;--c-cab:#8B5CF6;
+  --ink:#0f172a;--muted:#64748b;--border:#e2e8f0;--gray:#f0f4f8;--white:#FFFFFF;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Sora',sans-serif;background:#060d18;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:40px 24px 60px;}
+.header-strip{background:rgba(255,107,53,0.1);border:1px solid rgba(255,107,53,0.25);border-radius:10px;padding:10px 28px;color:#FFB800;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-bottom:36px;}
+.prototype-wrap{display:flex;gap:32px;align-items:flex-start;flex-wrap:wrap;justify-content:center;}
+.phone-col{display:flex;flex-direction:column;align-items:center;gap:14px;}
+.phone-label{font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#4a5568;font-family:'DM Mono',monospace;}
+.phone{width:375px;height:812px;border-radius:46px;background:#fff;position:relative;overflow:hidden;box-shadow:0 40px 100px rgba(0,0,0,0.55),0 0 0 2px rgba(255,255,255,0.07);flex-shrink:0;}
+.notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:118px;height:28px;background:var(--c-dark);border-radius:0 0 16px 16px;z-index:100;display:flex;align-items:center;justify-content:center;gap:6px;}
+.ncam{width:10px;height:10px;border-radius:50%;background:#0a1828;border:1px solid #1a3050;}
+.ndot{width:5px;height:5px;border-radius:50%;background:#1a3050;}
+.statusbar{display:flex;justify-content:space-between;align-items:center;padding:34px 20px 6px;font-size:10px;font-weight:700;font-family:'DM Mono',monospace;}
+.sc{overflow-y:auto;max-height:724px;scrollbar-width:none;-ms-overflow-style:none;}
+.sc::-webkit-scrollbar{display:none;}
+
+/* ── SCREEN 1 — AGENT CHAT ── */
+.s1-bg{background:var(--gray);}
+.s1-top{background:var(--c-dark);padding:10px 16px 14px;}
+.s1-agent-header{display:flex;align-items:center;gap:10px;}
+.s1-agent-av{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--c-bright),var(--c-accent));display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.s1-agent-info{}
+.s1-agent-name{font-size:13px;font-weight:800;color:#fff;}
+.s1-agent-status{font-size:9px;color:rgba(255,255,255,0.5);}
+.s1-online-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--c-green);margin-right:4px;}
+
+/* Chat bubbles */
+.s1-chat-area{padding:14px 14px 0;}
+.bubble-agent{display:flex;gap:8px;margin-bottom:10px;align-items:flex-end;}
+.bubble-av{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--c-bright),var(--c-accent));display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;}
+.bubble-text{background:#fff;border-radius:14px 14px 14px 4px;padding:10px 12px;max-width:260px;font-size:10.5px;color:var(--ink);line-height:1.5;border:1px solid var(--border);}
+.bubble-user{display:flex;justify-content:flex-end;margin-bottom:10px;}
+.bubble-user-text{background:var(--c-dark);color:#fff;border-radius:14px 14px 4px 14px;padding:10px 12px;max-width:240px;font-size:10.5px;line-height:1.5;}
+
+/* Intent chips */
+.s1-chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 12px 34px;}
+.s1-chip{background:#fff;border:1.5px solid var(--border);border-radius:20px;padding:6px 12px;font-size:10px;font-weight:600;color:var(--c-dark);cursor:pointer;}
+.s1-chip.selected{background:var(--c-bright);border-color:var(--c-bright);color:#fff;}
+
+/* Typing indicator */
+.s1-typing{display:flex;gap:8px;margin-bottom:10px;align-items:flex-end;}
+.s1-typing-dots{background:#fff;border-radius:14px;padding:10px 14px;border:1px solid var(--border);display:flex;gap:4px;align-items:center;}
+.dot-anim{width:7px;height:7px;border-radius:50%;background:var(--muted);animation:bounce .8s ease infinite;}
+.dot-anim:nth-child(2){animation-delay:.16s;}
+.dot-anim:nth-child(3){animation-delay:.32s;}
+@keyframes bounce{0%,80%,100%{transform:translateY(0);}40%{transform:translateY(-6px);}}
+
+.s1-input-bar{background:#fff;border-top:1px solid var(--border);padding:10px 14px;display:flex;gap:8px;align-items:center;position:sticky;bottom:0;}
+.s1-input{flex:1;border:1.5px solid var(--border);border-radius:22px;padding:9px 14px;font-family:'Sora',sans-serif;font-size:10px;color:var(--ink);background:var(--gray);}
+.s1-send{width:36px;height:36px;border-radius:50%;background:var(--c-bright);display:flex;align-items:center;justify-content:center;font-size:16px;border:none;cursor:pointer;flex-shrink:0;}
+
+/* ── SCREEN 2 — FULL ITINERARY ── */
+.s2-bg{background:var(--gray);}
+.s2-top{background:var(--c-dark);padding:10px 16px 16px;}
+.s2-label{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,107,53,0.7);margin-bottom:3px;}
+.s2-title{font-size:16px;font-weight:800;color:#fff;}
+.s2-sub{font-size:10px;color:rgba(255,255,255,0.45);}
+
+.s2-total-banner{background:linear-gradient(135deg,var(--c-bright),#e8520a);margin:12px 14px 0;border-radius:14px;padding:13px 16px;display:flex;justify-content:space-between;align-items:center;}
+.s2-total-label{font-size:11px;font-weight:700;color:rgba(255,255,255,0.8);}
+.s2-total-val{font-size:24px;font-weight:800;color:#fff;font-family:'DM Mono',monospace;}
+.s2-total-sub{font-size:9px;color:rgba(255,255,255,0.65);}
+
+.s2-section-label{margin:12px 14px 7px;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
+.s2-component{background:#fff;border-radius:14px;border:1px solid var(--border);margin:0 14px 8px;overflow:hidden;}
+.s2-comp-header{padding:10px 14px 0;display:flex;align-items:center;gap:8px;}
+.s2-comp-icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.s2-comp-icon.orange{background:rgba(255,107,53,0.1);}
+.s2-comp-icon.navy{background:rgba(26,52,88,0.1);}
+.s2-comp-icon.purple{background:rgba(139,92,246,0.1);}
+.s2-comp-icon.green{background:rgba(34,197,94,0.1);}
+.s2-comp-name{font-size:11px;font-weight:700;color:var(--c-dark);}
+.s2-comp-detail{font-size:9px;color:var(--muted);}
+.s2-comp-price{margin-left:auto;font-size:14px;font-weight:800;color:var(--c-dark);font-family:'DM Mono',monospace;}
+.s2-comp-body{padding:8px 14px 12px;}
+.s2-comp-row{display:flex;justify-content:space-between;font-size:9.5px;color:var(--muted);margin-bottom:3px;}
+.s2-comp-row span:last-child{color:var(--ink);font-weight:600;}
+.s2-new-badge{display:inline-block;background:rgba(139,92,246,0.1);color:var(--c-cab);font-size:8px;font-weight:700;border-radius:4px;padding:2px 6px;margin-left:6px;}
+
+.s2-day-label{margin:12px 14px 6px;font-size:11px;font-weight:800;color:var(--c-dark);}
+.s2-activity{background:#fff;border-radius:10px;border:1px solid var(--border);margin:0 14px 6px;padding:10px 12px;display:flex;align-items:center;gap:10px;}
+.s2-act-time{font-size:9px;font-weight:700;color:var(--muted);font-family:'DM Mono',monospace;width:36px;flex-shrink:0;}
+.s2-act-icon{font-size:18px;flex-shrink:0;}
+.s2-act-name{font-size:11px;font-weight:700;color:var(--c-dark);}
+.s2-act-sub{font-size:9px;color:var(--muted);}
+
+.s2-book-all-btn{margin:12px 14px 14px;background:var(--c-bright);color:#fff;border:none;border-radius:12px;padding:15px;font-family:'Sora',sans-serif;font-size:13px;font-weight:700;width:calc(100%-28px);cursor:pointer;display:block;text-align:center;}
+
+/* ── SCREEN 3 — BUNDLE BOOKING ── */
+.s3-bg{background:var(--gray);}
+#conf{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:hidden;z-index:50;}
+@keyframes confetti-fall{0%{transform:translateY(-20px) rotate(0deg);opacity:1;}100%{transform:translateY(820px) rotate(720deg);opacity:0;}}
+.cp{position:absolute;animation:confetti-fall linear both;}
+
+.s3-top{background:linear-gradient(145deg,var(--c-dark),var(--c-hero));padding:10px 16px 22px;text-align:center;}
+.s3-check{width:54px;height:54px;border-radius:50%;background:var(--c-green);margin:10px auto 10px;display:flex;align-items:center;justify-content:center;font-size:24px;}
+.s3-title{font-size:18px;font-weight:800;color:#fff;margin-bottom:3px;}
+.s3-sub{font-size:10px;color:rgba(255,255,255,0.55);}
+
+.s3-card{margin:12px 14px 0;background:#fff;border-radius:14px;border:1px solid var(--border);overflow:hidden;}
+.s3-card-header{background:var(--gray);padding:9px 14px;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
+.s3-row{padding:9px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);}
+.s3-row:last-child{border-bottom:none;}
+.s3-row-lbl{font-size:10px;color:var(--ink);}
+.s3-row-val{font-size:11px;font-weight:700;color:var(--c-dark);font-family:'DM Mono',monospace;}
+.s3-row-val.total{font-size:14px;color:var(--c-bright);}
+.s3-row-val.green{color:var(--c-green);}
+
+.s3-loyalty{margin:10px 14px 0;background:rgba(255,184,0,0.08);border:1px solid rgba(255,184,0,0.22);border-radius:12px;padding:11px 14px;display:flex;align-items:center;gap:10px;}
+.s3-loyalty-icon{font-size:22px;}
+.s3-loyalty-val{font-size:14px;font-weight:800;color:var(--c-accent);}
+.s3-loyalty-sub{font-size:10px;color:var(--muted);}
+
+.s3-expand-card{margin:10px 14px 0;background:#fff;border-radius:12px;border:1px solid var(--border);padding:12px 14px;}
+.s3-expand-title{font-size:11px;font-weight:700;color:var(--c-dark);margin-bottom:8px;}
+.s3-expand-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
+.s3-expand-icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+.s3-expand-text{font-size:10px;color:var(--ink);}
+.s3-expand-text strong{color:var(--c-dark);}
+
+.s3-actions{display:flex;gap:8px;margin:10px 14px 14px;}
+.s3-btn{flex:1;border-radius:10px;padding:12px;font-family:'Sora',sans-serif;font-size:11px;font-weight:700;text-align:center;cursor:pointer;border:none;}
+.s3-btn.outline{background:#fff;border:1.5px solid var(--border);color:var(--c-dark);}
+.s3-btn.primary{background:var(--c-dark);color:#fff;}
+
+/* ── SCREEN 4 — OPS DASHBOARD ── */
+.s4-bg{background:var(--c-dark);}
+.s4-header{background:var(--c-dark);padding:10px 16px 14px;}
+.s4-label{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,107,53,0.7);margin-bottom:3px;}
+.s4-title{font-size:15px;font-weight:800;color:#fff;}
+.s4-sub{font-size:10px;color:rgba(255,255,255,0.4);}
+
+.s4-kpis{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 14px 0;}
+.s4-kpi{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:11px 12px;}
+.s4-kpi-icon{font-size:16px;margin-bottom:5px;}
+.s4-kpi-val{font-size:22px;font-weight:800;font-family:'DM Mono',monospace;line-height:1;margin-bottom:2px;}
+.s4-kpi-val.orange{color:var(--c-bright);}
+.s4-kpi-val.gold{color:var(--c-accent);}
+.s4-kpi-val.green{color:#4ADE80;}
+.s4-kpi-val.purple{color:#C4B5FD;}
+.s4-kpi-label{font-size:9px;color:rgba(255,255,255,0.5);}
+.s4-kpi-delta{font-size:8px;color:rgba(255,255,255,0.3);margin-top:2px;}
+
+.s4-section{margin:14px 14px 0;}
+.s4-section-label{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:8px;}
+.s4-bar-card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:11px 14px;margin-bottom:7px;}
+.s4-bar-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;}
+.s4-bar-name{font-size:11px;font-weight:600;color:#fff;}
+.s4-bar-val{font-size:11px;font-weight:800;font-family:'DM Mono',monospace;color:var(--c-bright);}
+.s4-bar-bg{height:5px;background:rgba(255,255,255,0.08);border-radius:99px;}
+.s4-bar-fill{height:100%;border-radius:99px;}
+.s4-bar-meta{display:flex;justify-content:space-between;margin-top:4px;}
+.s4-bar-sub{font-size:9px;color:rgba(255,255,255,0.35);}
+
+.s4-cab-section{margin:14px 14px 0;background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.2);border-radius:14px;padding:12px 14px;}
+.s4-cab-title{font-size:11px;font-weight:700;color:#C4B5FD;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.s4-cab-badge{background:rgba(139,92,246,0.2);color:#C4B5FD;font-size:8px;font-weight:700;border-radius:4px;padding:2px 6px;}
+.s4-cab-stat{display:flex;justify-content:space-between;margin-bottom:5px;}
+.s4-cab-stat-lbl{font-size:10px;color:rgba(255,255,255,0.5);}
+.s4-cab-stat-val{font-size:11px;font-weight:700;color:#C4B5FD;font-family:'DM Mono',monospace;}
+
+.s4-insight{margin:10px 14px 14px;background:rgba(255,107,53,0.1);border:1px solid rgba(255,107,53,0.2);border-radius:12px;padding:11px 14px;display:flex;gap:10px;}
+.s4-insight-icon{font-size:16px;flex-shrink:0;}
+.s4-insight-text{font-size:9.5px;color:rgba(255,184,0,0.85);line-height:1.5;font-weight:500;}
+.s4-insight-text strong{color:var(--c-bright);}
+</style>
+</head>
+<body>
+<div class="header-strip">Agoda — TripAgent · Interactive Prototype</div>
+<div class="prototype-wrap">
+
+<!-- SCREEN 1 — AGENT CHAT -->
+<div class="phone-col">
+  <div class="phone-label">01 — AGENT CHAT</div>
+  <div class="phone">
+    <div class="notch"><div class="ncam"></div><div class="ndot"></div></div>
+    <div class="s1-bg">
+      <div class="s1-top">
+        <div class="statusbar" style="background:transparent;color:#fff;padding:34px 0 6px;">
+          <span>9:41</span><span style="display:flex;gap:4px;">▲ ◆ ■</span>
+        </div>
+        <div class="s1-agent-header">
+          <div class="s1-agent-av">🤖</div>
+          <div class="s1-agent-info">
+            <div class="s1-agent-name">Agoda TripAgent</div>
+            <div class="s1-agent-status"><span class="s1-online-dot"></span>Planning your trip now...</div>
+          </div>
+        </div>
+      </div>
+      <div class="sc">
+        <div class="s1-chat-area">
+          <div class="bubble-agent">
+            <div class="bubble-av">🤖</div>
+            <div class="bubble-text">Hi! I'm your AI trip planner. Tell me where you want to go, your budget, and what you love doing — I'll plan everything: flights, hotels, activities, and ground transport. ✈️🏨🚖</div>
+          </div>
+          <div class="bubble-user">
+            <div class="bubble-user-text">Plan me a 3-day trip to Chiang Mai under $500. I like hiking and local food.</div>
+          </div>
+          <div class="bubble-agent">
+            <div class="bubble-av">🤖</div>
+            <div class="bubble-text">Got it — Chiang Mai, 3 days, $500 budget, hiking + local food. A few quick questions to personalise your plan:</div>
+          </div>
+          <div class="s1-chips">
+            <div class="s1-chip selected">Solo traveler</div>
+            <div class="s1-chip">With a partner</div>
+            <div class="s1-chip">Group</div>
+          </div>
+          <div class="s1-chips" style="margin-top:-4px;">
+            <div class="s1-chip selected">Budget-conscious</div>
+            <div class="s1-chip">Mid-range</div>
+            <div class="s1-chip">Luxury</div>
+          </div>
+          <div class="bubble-agent">
+            <div class="bubble-av">🤖</div>
+            <div class="bubble-text">Perfect. Let me find the best options for a solo budget traveler who loves hiking and local food in Chiang Mai. Building your itinerary now...</div>
+          </div>
+          <div class="s1-typing">
+            <div class="bubble-av">🤖</div>
+            <div class="s1-typing-dots">
+              <div class="dot-anim"></div>
+              <div class="dot-anim"></div>
+              <div class="dot-anim"></div>
+            </div>
+          </div>
+        </div>
+        <div style="height:8px;"></div>
+        <div class="s1-input-bar">
+          <input class="s1-input" placeholder="Type your destination or trip idea..." readonly>
+          <button class="s1-send">➤</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN 2 — FULL ITINERARY -->
+<div class="phone-col">
+  <div class="phone-label">02 — FULL ITINERARY</div>
+  <div class="phone">
+    <div class="notch"><div class="ncam"></div><div class="ndot"></div></div>
+    <div class="s2-bg">
+      <div class="s2-top">
+        <div class="statusbar" style="background:transparent;color:#fff;padding:34px 0 6px;">
+          <span>9:41</span><span style="display:flex;gap:4px;">▲ ◆ ■</span>
+        </div>
+        <div class="s2-label">TripAgent · Your Plan</div>
+        <div class="s2-title">Chiang Mai · 3 Days 🌿</div>
+        <div class="s2-sub">Apr 25–28 · Solo · Budget · Hiking + Local Food</div>
+      </div>
+      <div class="sc">
+        <div class="s2-total-banner">
+          <div>
+            <div class="s2-total-label">Total bundle cost</div>
+            <div class="s2-total-sub">flights + hotel + cabs + activities</div>
+          </div>
+          <div style="text-align:right;">
+            <div class="s2-total-val">$423</div>
+            <div style="font-size:9px;color:rgba(255,255,255,0.6);">of $500 budget</div>
+          </div>
+        </div>
+
+        <!-- Components -->
+        <div class="s2-section-label">Bundle Components</div>
+
+        <div class="s2-component">
+          <div class="s2-comp-header">
+            <div class="s2-comp-icon orange">✈️</div>
+            <div><div class="s2-comp-name">BLR → CNX · IndiGo + Thai AirAsia</div><div class="s2-comp-detail">Apr 25 · 8h 10m · 1 stop via BKK</div></div>
+            <div class="s2-comp-price">$164</div>
+          </div>
+          <div class="s2-comp-body">
+            <div class="s2-comp-row"><span>Departs</span><span>07:25 BLR</span></div>
+            <div class="s2-comp-row"><span>Arrives</span><span>17:35 CNX</span></div>
+            <div class="s2-comp-row"><span>Return</span><span>Apr 28 · 16:00 CNX</span></div>
+          </div>
+        </div>
+
+        <div class="s2-component">
+          <div class="s2-comp-header">
+            <div class="s2-comp-icon navy">🏨</div>
+            <div><div class="s2-comp-name">Nimmana Boutique Hostel</div><div class="s2-comp-detail">3 nights · Nimman area · 4.7★ · Free cancel</div></div>
+            <div class="s2-comp-price">$87</div>
+          </div>
+          <div class="s2-comp-body">
+            <div class="s2-comp-row"><span>Per night</span><span>$29</span></div>
+            <div class="s2-comp-row"><span>Location</span><span>Near Doi Suthep trailhead</span></div>
+            <div class="s2-comp-row"><span>Breakfast</span><span>Included</span></div>
+          </div>
+        </div>
+
+        <div class="s2-component" style="border:1.5px solid rgba(139,92,246,0.3);">
+          <div class="s2-comp-header">
+            <div class="s2-comp-icon purple">🚖</div>
+            <div><div class="s2-comp-name">Ground Transport <span class="s2-new-badge">NEW</span></div><div class="s2-comp-detail">Airport transfers + 3 inter-activity cabs</div></div>
+            <div class="s2-comp-price" style="color:var(--c-cab);">$52</div>
+          </div>
+          <div class="s2-comp-body">
+            <div class="s2-comp-row"><span>Airport → Hotel</span><span>Day 1 · 17:50 CNX</span></div>
+            <div class="s2-comp-row"><span>Daily activity cabs</span><span>3 rides booked</span></div>
+            <div class="s2-comp-row"><span>Hotel → Airport</span><span>Day 3 · 13:30</span></div>
+          </div>
+        </div>
+
+        <!-- Day 1 -->
+        <div class="s2-day-label">📅 Day 1 — Arrive & Explore</div>
+        <div class="s2-activity">
+          <div class="s2-act-time">18:00</div>
+          <div class="s2-act-icon">🏨</div>
+          <div><div class="s2-act-name">Check in — Nimmana Hostel</div><div class="s2-act-sub">Cab booked · 25 min from CNX</div></div>
+        </div>
+        <div class="s2-activity">
+          <div class="s2-act-time">19:30</div>
+          <div class="s2-act-icon">🍜</div>
+          <div><div class="s2-act-name">Khao Soi at Lung Khao Soi</div><div class="s2-act-sub">Rated #1 local food spot · 0.4km walk</div></div>
+        </div>
+
+        <!-- Day 2 -->
+        <div class="s2-day-label">📅 Day 2 — Doi Inthanon Trek</div>
+        <div class="s2-activity">
+          <div class="s2-act-time">07:00</div>
+          <div class="s2-act-icon">🏔</div>
+          <div><div class="s2-act-name">Doi Inthanon National Park</div><div class="s2-act-sub">Cab booked · Highest peak in Thailand</div></div>
+        </div>
+        <div class="s2-activity">
+          <div class="s2-act-time">13:00</div>
+          <div class="s2-act-icon">🌿</div>
+          <div><div class="s2-act-name">Ang Ka Nature Trail</div><div class="s2-act-sub">Guided hike · $12 · 2h loop</div></div>
+        </div>
+
+        <button class="s2-book-all-btn" style="display:block;width:calc(100% - 28px);margin:12px 14px 14px;">Book All · $423 →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN 3 — BUNDLE BOOKING CONFIRMED -->
+<div class="phone-col">
+  <div class="phone-label">03 — BOOKED!</div>
+  <div class="phone" style="background:var(--gray);">
+    <div class="notch" style="background:var(--c-dark);"><div class="ncam"></div><div class="ndot"></div></div>
+    <div id="conf"></div>
+    <div class="s3-bg">
+      <div class="statusbar" style="background:var(--c-dark);color:#fff;">
+        <span>9:41</span><span style="display:flex;gap:4px;">▲ ◆ ■</span>
+      </div>
+      <div class="s3-top">
+        <div class="s3-check">✓</div>
+        <div class="s3-title">Bundle Booked!</div>
+        <div class="s3-sub">Chiang Mai · Apr 25–28 · All confirmed</div>
+      </div>
+      <div class="sc">
+        <div class="s3-card">
+          <div class="s3-card-header">Bundle Summary</div>
+          <div class="s3-row"><span class="s3-row-lbl">✈ Flights (BLR→CNX→BLR)</span><span class="s3-row-val">$164</span></div>
+          <div class="s3-row"><span class="s3-row-lbl">🏨 Nimmana Hostel · 3 nights</span><span class="s3-row-val">$87</span></div>
+          <div class="s3-row"><span class="s3-row-lbl">🚖 Ground transport · 5 rides</span><span class="s3-row-val" style="color:var(--c-cab);">$52</span></div>
+          <div class="s3-row"><span class="s3-row-lbl">🗺 Activities (pre-booked)</span><span class="s3-row-val green">$120</span></div>
+          <div class="s3-row" style="background:rgba(255,107,53,0.04);"><span class="s3-row-lbl" style="font-weight:700;">Total Paid</span><span class="s3-row-val total">$423</span></div>
+        </div>
+
+        <div class="s3-loyalty">
+          <div class="s3-loyalty-icon">⭐</div>
+          <div>
+            <div class="s3-loyalty-val">4,230 AgodaCoins earned</div>
+            <div class="s3-loyalty-sub">Bundle bonus: 2× coins on full-trip bookings</div>
+          </div>
+        </div>
+
+        <div class="s3-expand-card">
+          <div class="s3-expand-title">What TripAgent planned for you</div>
+          <div class="s3-expand-row">
+            <div class="s3-expand-icon" style="background:rgba(255,107,53,0.1);">✈️</div>
+            <div class="s3-expand-text"><strong>Cheapest flight</strong> found across 8 airlines — saved $43 vs next option</div>
+          </div>
+          <div class="s3-expand-row">
+            <div class="s3-expand-icon" style="background:rgba(26,52,88,0.1);">🏨</div>
+            <div class="s3-expand-text"><strong>Top hostel for hikers</strong> — rated 4.7★ by solo travelers, near Doi Suthep</div>
+          </div>
+          <div class="s3-expand-row">
+            <div class="s3-expand-icon" style="background:rgba(139,92,246,0.1);">🚖</div>
+            <div class="s3-expand-text"><strong>All cabs pre-scheduled</strong> — no hailing, no surge pricing, all confirmed</div>
+          </div>
+        </div>
+
+        <div class="s3-actions">
+          <button class="s3-btn outline">📋 Itinerary</button>
+          <button class="s3-btn primary">Plan Next Trip →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN 4 — OPS DASHBOARD -->
+<div class="phone-col">
+  <div class="phone-label">04 — OPS & MONETIZATION</div>
+  <div class="phone" style="background:var(--c-dark);">
+    <div class="notch" style="background:#060d18;"><div class="ncam" style="background:#060d18;border-color:#0B1F3A;"></div><div class="ndot" style="background:#0B1F3A;"></div></div>
+    <div class="s4-bg">
+      <div class="statusbar" style="background:var(--c-dark);color:#fff;">
+        <span>9:41</span><span style="display:flex;gap:4px;">▲ ◆ ■</span>
+      </div>
+      <div class="s4-header">
+        <div class="s4-label">TripAgent · Monetization</div>
+        <div class="s4-title">Bundle Performance</div>
+        <div class="s4-sub">Week of May 19–25, 2026</div>
+      </div>
+      <div class="sc">
+        <div class="s4-kpis">
+          <div class="s4-kpi">
+            <div class="s4-kpi-icon">💰</div>
+            <div class="s4-kpi-val orange">3.4×</div>
+            <div class="s4-kpi-label">Avg booking value vs hotel-only</div>
+            <div class="s4-kpi-delta">$423 bundle vs $112 solo</div>
+          </div>
+          <div class="s4-kpi">
+            <div class="s4-kpi-icon">⏱</div>
+            <div class="s4-kpi-val gold">−45%</div>
+            <div class="s4-kpi-label">Trip planning time</div>
+            <div class="s4-kpi-delta">6 hrs → 1.8 hrs avg</div>
+          </div>
+          <div class="s4-kpi">
+            <div class="s4-kpi-icon">🚖</div>
+            <div class="s4-kpi-val purple">$52</div>
+            <div class="s4-kpi-label">Avg cab GMV per booking</div>
+            <div class="s4-kpi-delta">New revenue vertical · 12% uplift</div>
+          </div>
+          <div class="s4-kpi">
+            <div class="s4-kpi-icon">🔄</div>
+            <div class="s4-kpi-val green">68%</div>
+            <div class="s4-kpi-label">Agent re-use rate</div>
+            <div class="s4-kpi-delta">Users return to plan next trip</div>
+          </div>
+        </div>
+
+        <div class="s4-section">
+          <div class="s4-section-label">Top Agent Destinations</div>
+          <div class="s4-bar-card">
+            <div class="s4-bar-row"><div class="s4-bar-name">Chiang Mai, Thailand 🌿</div><div class="s4-bar-val">$423</div></div>
+            <div class="s4-bar-bg"><div class="s4-bar-fill" style="width:85%;background:linear-gradient(90deg,var(--c-bright),var(--c-accent));"></div></div>
+            <div class="s4-bar-meta"><div class="s4-bar-sub">2,840 bundles this week</div><div class="s4-bar-sub">Avg total</div></div>
+          </div>
+          <div class="s4-bar-card">
+            <div class="s4-bar-row"><div class="s4-bar-name">Bali, Indonesia 🌴</div><div class="s4-bar-val">$387</div></div>
+            <div class="s4-bar-bg"><div class="s4-bar-fill" style="width:77%;background:linear-gradient(90deg,var(--c-bright),var(--c-accent));"></div></div>
+            <div class="s4-bar-meta"><div class="s4-bar-sub">4,110 bundles this week</div><div class="s4-bar-sub">Avg total</div></div>
+          </div>
+          <div class="s4-bar-card">
+            <div class="s4-bar-row"><div class="s4-bar-name">Tokyo, Japan 🗼</div><div class="s4-bar-val">$614</div></div>
+            <div class="s4-bar-bg"><div class="s4-bar-fill" style="width:62%;background:linear-gradient(90deg,var(--c-bright),var(--c-accent));"></div></div>
+            <div class="s4-bar-meta"><div class="s4-bar-sub">1,920 bundles this week</div><div class="s4-bar-sub">Avg total</div></div>
+          </div>
+        </div>
+
+        <div class="s4-cab-section">
+          <div class="s4-cab-title">🚖 Cab Revenue Stream <span class="s4-cab-badge">NEW</span></div>
+          <div class="s4-cab-stat"><span class="s4-cab-stat-lbl">Total cab GMV this week</span><span class="s4-cab-stat-val">$481K</span></div>
+          <div class="s4-cab-stat"><span class="s4-cab-stat-lbl">Commission rate</span><span class="s4-cab-stat-val">18%</span></div>
+          <div class="s4-cab-stat"><span class="s4-cab-stat-lbl">Agoda cab revenue</span><span class="s4-cab-stat-val">$86.6K</span></div>
+          <div class="s4-cab-stat"><span class="s4-cab-stat-lbl">% of total bundle GMV</span><span class="s4-cab-stat-val">12.3%</span></div>
+        </div>
+
+        <div class="s4-insight">
+          <div class="s4-insight-icon">💡</div>
+          <div class="s4-insight-text"><strong>Expansion signal:</strong> 91% of TripAgent users who booked cab transfers rated the experience 5★. Recommend partnering with local cab operators in top 5 Agoda markets (BKK, CMX, DPS, SIN, KUL) to expand ground transport coverage by Q3.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+<script>
+const c=document.getElementById('conf');
+const cols=['#FF6B35','#FFB800','#60A5FA','#4ADE80','#F472B6','#C4B5FD','#34D399'];
+for(let i=0;i<32;i++){
+  const p=document.createElement('div');p.className='cp';
+  const size=4+Math.random()*7;
+  p.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*120-10}%;width:${size}px;height:${size}px;background:${cols[Math.floor(Math.random()*cols.length)]};border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${1.4+Math.random()*1.8}s;animation-delay:${Math.random()*2.4}s;`;
+  c.appendChild(p);
+}
+</script>
+</body>
+</html>
