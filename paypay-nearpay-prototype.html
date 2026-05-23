@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PayPay — NearPay · Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+:root {
+  --c-dark:   #1A0A0A;
+  --c-hero:   #2D1515;
+  --c-bright: #E60012;
+  --c-accent: #FF3347;
+  --c-gold:   #FF6B00;
+  --c-teal:   #00B894;
+  --ink:      #1A1A1A;
+  --muted:    #6B7280;
+  --border:   #E5E7EB;
+  --gray:     #F9FAFB;
+  --lgray:    #FFF8F8;
+  --white:    #FFFFFF;
+}
+body {
+  background: var(--c-dark);
+  font-family: 'Sora', sans-serif;
+  min-height: 100vh;
+  padding: 40px 24px 60px;
+}
+.hdr { text-align: center; margin-bottom: 32px; }
+.hdr-badge {
+  display: inline-block; background: var(--c-bright); color: #fff;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 4px 16px; border-radius: 99px; margin-bottom: 10px;
+}
+.hdr-title { font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 4px; }
+.hdr-sub { font-size: 12px; color: #8B9E9B; }
+
+.proto-wrap { display: flex; gap: 28px; justify-content: center; align-items: flex-start; }
+.phone-col { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.phone-label { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #6B4040; text-align: center; }
+
+/* ── PHONE CHROME ── */
+.phone {
+  width: 355px; background: var(--lgray); border-radius: 46px;
+  box-shadow: 0 40px 100px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.07);
+  overflow: hidden; position: relative; display: flex; flex-direction: column;
+}
+.notch {
+  width: 118px; height: 28px; background: #111;
+  border-radius: 0 0 18px 18px;
+  position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  z-index: 10; display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.nc { width: 10px; height: 10px; background: #222; border-radius: 50%; }
+.ndot { width: 5px; height: 5px; background: #333; border-radius: 50%; }
+.sb {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 20px 4px; margin-top: 28px;
+  font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500;
+}
+.sc { flex: 1; overflow-y: auto; max-height: 724px; scrollbar-width: none; }
+.sc::-webkit-scrollbar { display: none; }
+
+.pay-hdr {
+  background: var(--c-bright); padding: 11px 18px 13px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.pay-logo { font-size: 19px; font-weight: 800; color: #fff; letter-spacing: -0.02em; }
+.pay-icons { display: flex; gap: 14px; font-size: 17px; color: rgba(255,255,255,0.85); }
+
+.track { height: 7px; background: #E8E8E8; border-radius: 99px; overflow: visible; position: relative; }
+.fill { height: 100%; border-radius: 99px; background: var(--c-bright); position: relative; transition: .6s ease; }
+.fill-badge { position: absolute; right: -2px; top: -9px; background: var(--c-bright); color: #fff; font-size: 8px; font-weight: 700; padding: 2px 5px; border-radius: 5px; font-family: 'DM Mono', monospace; }
+
+.bnav { display: flex; background: var(--white); border-top: 1px solid #F0F0F0; padding: 8px 0 18px; }
+.bnav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 9px; color: var(--muted); font-weight: 600; }
+.bnav-icon { font-size: 20px; }
+.bnav-item.on { color: var(--c-bright); }
+
+/* ════════════════════════════════
+   SCREEN 1 — HOME + NOTIFICATION
+   ════════════════════════════════ */
+/* Push notification overlay at top */
+.s1-push {
+  margin: 12px 14px 0;
+  background: var(--white); border-radius: 14px;
+  border: 1.5px solid var(--c-bright);
+  padding: 12px 14px;
+  box-shadow: 0 4px 20px rgba(230,0,18,0.15);
+  display: flex; align-items: flex-start; gap: 10px;
+}
+.s1-push-icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: var(--c-bright); display: flex; align-items: center;
+  justify-content: center; font-size: 18px; flex-shrink: 0;
+}
+.s1-push-body { flex: 1; }
+.s1-push-title { font-size: 12px; font-weight: 700; color: var(--ink); margin-bottom: 2px; }
+.s1-push-sub { font-size: 10px; color: var(--muted); line-height: 1.4; margin-bottom: 6px; }
+.s1-push-cta {
+  display: inline-block; background: var(--c-bright); color: #fff;
+  font-size: 10px; font-weight: 700;
+  padding: 4px 12px; border-radius: 99px;
+}
+.s1-push-time { font-size: 9px; color: var(--muted); flex-shrink: 0; }
+
+/* NearPay home card */
+.s1-np-card {
+  margin: 10px 14px 12px;
+  background: linear-gradient(135deg, #B8000F 0%, #E60012 60%, #FF4D6B 100%);
+  border-radius: 16px; padding: 16px 18px;
+  box-shadow: 0 4px 20px rgba(230,0,18,0.2);
+}
+.s1-np-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: rgba(255,255,255,0.18); color: #fff;
+  font-size: 9px; font-weight: 700; padding: 3px 10px; border-radius: 99px;
+  margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.25);
+}
+.s1-np-dot { width: 5px; height: 5px; border-radius: 50%; background: #7FFF7F; animation: blink 1.2s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.s1-np-title { font-size: 15px; font-weight: 800; color: #fff; margin-bottom: 4px; }
+.s1-np-sub { font-size: 11px; color: rgba(255,255,255,0.82); margin-bottom: 12px; line-height: 1.4; }
+/* Mini merchant row in card */
+.s1-np-merchants { display: flex; flex-direction: column; gap: 6px; }
+.s1-np-m {
+  background: rgba(255,255,255,0.14); border-radius: 10px;
+  padding: 8px 12px; display: flex; align-items: center; gap: 10px;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+.s1-npm-icon { font-size: 18px; }
+.s1-npm-body { flex: 1; }
+.s1-npm-name { font-size: 11px; font-weight: 700; color: #fff; }
+.s1-npm-dist { font-size: 9px; color: rgba(255,255,255,0.75); }
+.s1-npm-bonus {
+  font-size: 9px; font-weight: 700;
+  background: rgba(255,255,255,0.25); color: #fff;
+  padding: 2px 8px; border-radius: 99px;
+}
+.s1-np-more { text-align: center; color: rgba(255,255,255,0.85); font-size: 11px; font-weight: 700; margin-top: 8px; }
+
+.s1-balance {
+  background: var(--white); margin: 0 14px 12px;
+  border-radius: 14px; border: 1px solid var(--border);
+  padding: 14px 16px; display: flex; align-items: center; gap: 14px;
+}
+.s1-bal-left { flex: 1; }
+.s1-bal-lbl { font-size: 10px; color: var(--muted); margin-bottom: 2px; }
+.s1-bal-amt { font-family: 'DM Mono', monospace; font-size: 22px; font-weight: 700; color: var(--ink); }
+.s1-bal-btn {
+  background: var(--c-bright); color: #fff;
+  font-size: 12px; font-weight: 700; padding: 10px 18px;
+  border-radius: 10px;
+}
+
+/* ════════════════════════════════
+   SCREEN 2 — NEARPAY MAP/LIST
+   ════════════════════════════════ */
+.s2-back-hdr {
+  background: var(--c-bright); padding: 11px 18px 13px;
+  display: flex; align-items: center; gap: 10px;
+}
+.s2-back { color: #fff; font-size: 18px; }
+.s2-back-title { font-size: 16px; font-weight: 800; color: #fff; }
+
+/* Map placeholder */
+.s2-map {
+  height: 180px;
+  background: linear-gradient(170deg, #1a1a2e 0%, #16213e 100%);
+  position: relative; overflow: hidden;
+}
+.s2-map-grid {
+  position: absolute; inset: 0;
+  background-image: linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+/* Roads */
+.s2-road-h {
+  position: absolute; left: 0; right: 0;
+  background: rgba(255,255,255,0.08); border-radius: 2px;
+}
+.s2-road-v {
+  position: absolute; top: 0; bottom: 0;
+  background: rgba(255,255,255,0.08); border-radius: 2px;
+}
+/* Map pins */
+.s2-pin {
+  position: absolute;
+  display: flex; flex-direction: column; align-items: center;
+}
+.s2-pin-dot {
+  width: 28px; height: 28px; border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+}
+.s2-pin-inner {
+  transform: rotate(45deg); font-size: 14px;
+}
+.s2-pin-bonus {
+  background: rgba(0,0,0,0.8); color: #fff;
+  font-size: 8px; font-weight: 700; padding: 2px 6px; border-radius: 4px;
+  margin-top: 2px; white-space: nowrap;
+}
+/* User location */
+.s2-user-pin {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+  width: 18px; height: 18px; background: var(--c-bright);
+  border-radius: 50%; border: 3px solid #fff;
+  box-shadow: 0 0 0 6px rgba(230,0,18,0.2);
+}
+/* Map label */
+.s2-map-lbl {
+  position: absolute; bottom: 8px; right: 10px;
+  font-size: 9px; color: rgba(255,255,255,0.5);
+  font-family: 'DM Mono', monospace;
+}
+
+/* Filter bar */
+.s2-filter {
+  padding: 10px 14px; background: var(--white);
+  display: flex; gap: 7px; border-bottom: 1px solid var(--border);
+  overflow-x: auto; scrollbar-width: none;
+}
+.s2-filter::-webkit-scrollbar { display: none; }
+.s2-f-chip {
+  padding: 5px 12px; border-radius: 99px;
+  font-size: 10px; font-weight: 700; white-space: nowrap;
+  border: 1.5px solid var(--border); color: var(--muted);
+  flex-shrink: 0;
+}
+.s2-f-chip.on {
+  background: var(--c-bright); color: #fff; border-color: var(--c-bright);
+}
+
+/* Merchant list */
+.s2-list-hdr {
+  padding: 12px 14px 6px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.s2-list-title { font-size: 12px; font-weight: 700; color: var(--ink); }
+.s2-list-sub { font-size: 10px; color: var(--muted); }
+
+.s2-merchant {
+  background: var(--white); margin: 0 14px 8px;
+  border-radius: 14px; padding: 13px 15px;
+  display: flex; align-items: center; gap: 12px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+}
+.s2-m-pic {
+  width: 46px; height: 46px; border-radius: 13px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px; flex-shrink: 0;
+}
+.s2-m-body { flex: 1; }
+.s2-m-name { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 2px; }
+.s2-m-meta { font-size: 10px; color: var(--muted); margin-bottom: 5px; }
+.s2-m-bonus-row { display: flex; align-items: center; gap: 6px; }
+.s2-m-bonus {
+  font-size: 10px; font-weight: 700;
+  background: rgba(230,0,18,0.08); color: var(--c-bright);
+  padding: 2px 9px; border-radius: 99px;
+}
+.s2-m-tag {
+  font-size: 9px; color: var(--muted);
+  background: var(--gray); padding: 2px 7px; border-radius: 99px;
+}
+.s2-m-right { text-align: right; flex-shrink: 0; }
+.s2-m-dist { font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 700; color: var(--ink); }
+.s2-m-dist-lbl { font-size: 9px; color: var(--muted); }
+.s2-m-new {
+  display: block; font-size: 8px; font-weight: 700;
+  background: var(--c-bright); color: #fff;
+  padding: 2px 6px; border-radius: 4px; margin-top: 4px; text-align: center;
+}
+
+/* ════════════════════════════════
+   SCREEN 3 — PAY + DISCOVERY
+   ════════════════════════════════ */
+.s3 { background: var(--white); position: relative; }
+.conf-wrap3 { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 5; }
+.cp { position: absolute; animation: cfall linear forwards; }
+@keyframes cfall { 0%{transform:translateY(-10px) rotate(0deg);opacity:1} 100%{transform:translateY(820px) rotate(720deg);opacity:0} }
+
+.s3-scan-receipt {
+  background: var(--gray); padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+  position: relative; z-index: 6;
+}
+.s3-receipt-row { display: flex; justify-content: space-between; margin-bottom: 3px; }
+.s3-receipt-lbl { font-size: 11px; color: var(--muted); }
+.s3-receipt-val { font-size: 11px; font-weight: 700; color: var(--ink); }
+.s3-receipt-total {
+  display: flex; justify-content: space-between; margin-top: 10px;
+  padding-top: 10px; border-top: 1px dashed var(--border);
+}
+.s3-total-lbl { font-size: 13px; font-weight: 700; color: var(--ink); }
+.s3-total-val {
+  font-family: 'DM Mono', monospace;
+  font-size: 18px; font-weight: 700; color: var(--ink);
+}
+.s3-bonus-applied {
+  background: rgba(230,0,18,0.06); border: 1px solid rgba(230,0,18,0.15);
+  border-radius: 8px; padding: 7px 12px; margin-top: 10px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.s3-bonus-lbl { font-size: 10px; color: var(--c-bright); font-weight: 600; }
+.s3-bonus-val {
+  font-family: 'DM Mono', monospace;
+  font-size: 13px; font-weight: 700; color: var(--c-bright);
+}
+
+.s3-body {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 24px 20px 20px; position: relative; z-index: 6;
+}
+.s3-check {
+  width: 68px; height: 68px; border-radius: 50%;
+  background: linear-gradient(135deg, #B8000F, #E60012);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 30px; margin-bottom: 12px;
+  box-shadow: 0 6px 24px rgba(230,0,18,0.32);
+}
+.s3-paid { font-size: 18px; font-weight: 800; color: var(--ink); margin-bottom: 2px; }
+.s3-store { font-size: 11px; color: var(--muted); margin-bottom: 16px; }
+
+/* Discovery card */
+.s3-discovery {
+  background: linear-gradient(135deg, #00796B, #00B894);
+  border-radius: 16px; padding: 16px 18px; width: 100%;
+  margin-bottom: 14px;
+  box-shadow: 0 6px 24px rgba(0,184,148,0.25);
+}
+.s3-disc-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: rgba(255,255,255,0.2); color: #fff;
+  font-size: 9px; font-weight: 700; padding: 3px 10px; border-radius: 99px;
+  margin-bottom: 8px;
+}
+.s3-disc-title { font-size: 16px; font-weight: 800; color: #fff; margin-bottom: 4px; }
+.s3-disc-sub { font-size: 11px; color: rgba(255,255,255,0.85); margin-bottom: 12px; }
+.s3-disc-row { display: flex; gap: 8px; }
+.s3-disc-stat {
+  flex: 1; background: rgba(255,255,255,0.15);
+  border-radius: 10px; padding: 10px 8px; text-align: center;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+.s3-disc-val {
+  font-family: 'DM Mono', monospace;
+  font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 2px;
+}
+.s3-disc-lbl { font-size: 9px; color: rgba(255,255,255,0.78); }
+
+/* Saved merchant */
+.s3-saved {
+  background: var(--gray); border-radius: 12px;
+  padding: 12px 14px; width: 100%; margin-bottom: 12px;
+  display: flex; align-items: center; gap: 10px;
+}
+.s3-saved-icon { font-size: 24px; }
+.s3-saved-body { flex: 1; }
+.s3-saved-title { font-size: 11px; font-weight: 700; color: var(--ink); }
+.s3-saved-sub { font-size: 10px; color: var(--muted); }
+.s3-saved-save { font-size: 10px; color: var(--c-bright); font-weight: 700; }
+
+.s3-cta {
+  background: var(--c-bright); color: #fff;
+  font-size: 13px; font-weight: 700;
+  padding: 13px 0; border-radius: 99px; width: 100%;
+  text-align: center; box-shadow: 0 4px 16px rgba(230,0,18,0.28);
+}
+.s3-sec { font-size: 10px; color: var(--muted); text-align: center; margin-top: 8px; }
+
+/* ════════════════════════════════
+   SCREEN 4 — MERCHANT OPS
+   ════════════════════════════════ */
+.s4-hdr {
+  background: var(--c-dark); padding: 11px 16px 13px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.s4-h-title { font-size: 13px; font-weight: 800; color: #fff; }
+.s4-h-sub { font-size: 9px; color: #8B9E9B; }
+.s4-h-badge {
+  font-size: 9px; font-weight: 700;
+  background: rgba(230,0,18,0.2); color: var(--c-bright);
+  padding: 3px 10px; border-radius: 99px;
+  border: 1px solid rgba(230,0,18,0.3);
+}
+.s4-kpi {
+  display: grid; grid-template-columns: repeat(3,1fr); gap: 6px; padding: 10px;
+}
+.s4-k {
+  background: var(--white); border-radius: 10px; padding: 10px 8px; text-align: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.s4-kv {
+  font-family: 'DM Mono', monospace;
+  font-size: 14px; font-weight: 700; color: var(--ink); margin-bottom: 2px;
+}
+.s4-kl { font-size: 8px; color: var(--muted); line-height: 1.3; }
+.kv-red { color: var(--c-bright); }
+.kv-grn { color: #22C55E; }
+.kv-org { color: var(--c-gold); }
+
+.s4-panel {
+  background: var(--white); border-radius: 12px;
+  margin: 0 10px 8px; padding: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.s4-p-title {
+  font-size: 10px; font-weight: 700; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px;
+}
+.s4-funnel-row {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
+}
+.s4-funnel-lbl { font-size: 10px; color: var(--ink); width: 100px; flex-shrink: 0; }
+.s4-funnel-bar-wrap { flex: 1; height: 7px; background: #EBEBEB; border-radius: 99px; overflow: hidden; }
+.s4-funnel-bar { height: 100%; border-radius: 99px; }
+.s4-funnel-val { font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 700; width: 34px; text-align: right; }
+
+/* Merchant campaign table */
+.s4-camp-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 0; border-bottom: 1px solid #F5F5F5;
+}
+.s4-camp-icon { font-size: 18px; flex-shrink: 0; }
+.s4-camp-body { flex: 1; }
+.s4-camp-name { font-size: 11px; font-weight: 700; color: var(--ink); }
+.s4-camp-sub { font-size: 9px; color: var(--muted); }
+.s4-camp-right { text-align: right; flex-shrink: 0; }
+.s4-camp-conv { font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 700; color: var(--c-bright); }
+.s4-camp-sub2 { font-size: 9px; color: var(--muted); }
+
+.s4-insight {
+  background: rgba(230,0,18,0.05); border: 1px solid rgba(230,0,18,0.15);
+  border-radius: 8px; padding: 10px 12px; margin: 0 10px 10px;
+}
+.s4-insight-lbl { font-size: 10px; font-weight: 700; color: var(--c-bright); margin-bottom: 4px; }
+.s4-insight-txt { font-size: 10px; color: var(--ink); line-height: 1.5; }
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-badge">PayPay · Discovery Platform</div>
+  <div class="hdr-title">NearPay — Interactive Prototype</div>
+  <div class="hdr-sub">Contextual merchant discovery · 4 screens · Ajay Avaghade</div>
+</div>
+
+<div class="proto-wrap">
+
+  <!-- ══ PHONE 1 — HOME + PUSH ══ -->
+  <div class="phone-col">
+    <div class="phone-label">01 — Home + Push</div>
+    <div class="phone" style="background:var(--lgray);">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="sb" style="background:var(--lgray); color:var(--ink);">
+        <span>9:41</span>
+        <span>▲▲▲ 100%</span>
+      </div>
+      <div class="sc">
+        <!-- Push notification -->
+        <div class="s1-push" style="margin-top:12px;">
+          <div class="s1-push-icon">📍</div>
+          <div class="s1-push-body">
+            <div class="s1-push-title">3 PayPay stores within 200m</div>
+            <div class="s1-push-sub">Ueno Cafe · FamilyMart · Sushiro — Discovery bonus available at 2 of them!</div>
+            <div class="s1-push-cta">See on map →</div>
+          </div>
+          <div class="s1-push-time">now</div>
+        </div>
+        <!-- NearPay card -->
+        <div class="s1-np-card">
+          <div class="s1-np-badge">
+            <div class="s1-np-dot"></div>
+            NearPay · 3 stores detected
+          </div>
+          <div class="s1-np-title">PayPay stores near you</div>
+          <div class="s1-np-sub">200m radius · lunch time bonus active · earn Discovery Points</div>
+          <div class="s1-np-merchants">
+            <div class="s1-np-m">
+              <div class="s1-npm-icon">☕</div>
+              <div class="s1-npm-body">
+                <div class="s1-npm-name">Ueno Cafe</div>
+                <div class="s1-npm-dist">80m · New to you</div>
+              </div>
+              <div class="s1-npm-bonus">+5% first visit</div>
+            </div>
+            <div class="s1-np-m">
+              <div class="s1-npm-icon">🍣</div>
+              <div class="s1-npm-body">
+                <div class="s1-npm-name">Sushiro Express</div>
+                <div class="s1-npm-dist">160m · New to you</div>
+              </div>
+              <div class="s1-npm-bonus">+3% first visit</div>
+            </div>
+            <div class="s1-np-m">
+              <div class="s1-npm-icon">🏪</div>
+              <div class="s1-npm-body">
+                <div class="s1-npm-name">FamilyMart</div>
+                <div class="s1-npm-dist">190m · Visited before</div>
+              </div>
+              <div class="s1-npm-bonus">+1% regular</div>
+            </div>
+          </div>
+          <div class="s1-np-more">View full map + details →</div>
+        </div>
+        <!-- Balance -->
+        <div class="s1-balance">
+          <div class="s1-bal-left">
+            <div class="s1-bal-lbl">PayPay Balance</div>
+            <div class="s1-bal-amt">¥12,430</div>
+          </div>
+          <div class="s1-bal-btn">💳 Scan & Pay</div>
+        </div>
+        <div class="bnav">
+          <div class="bnav-item on"><div class="bnav-icon">🏠</div>Home</div>
+          <div class="bnav-item"><div class="bnav-icon">📍</div>NearPay</div>
+          <div class="bnav-item"><div class="bnav-icon">📊</div>History</div>
+          <div class="bnav-item"><div class="bnav-icon">👤</div>Profile</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PHONE 2 — MAP/LIST ══ -->
+  <div class="phone-col">
+    <div class="phone-label">02 — NearPay Map</div>
+    <div class="phone" style="background:#F5F5F5;">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="sb" style="background:var(--c-bright); color:#fff;">
+        <span>9:41</span>
+        <span>▲▲▲ 100%</span>
+      </div>
+      <div class="sc">
+        <div class="s2-back-hdr">
+          <div class="s2-back">‹</div>
+          <div class="s2-back-title">NearPay · 3 stores nearby</div>
+        </div>
+        <!-- Map -->
+        <div class="s2-map">
+          <div class="s2-map-grid"></div>
+          <!-- Roads -->
+          <div class="s2-road-h" style="top:48%; height:8px;"></div>
+          <div class="s2-road-h" style="top:72%; height:5px;"></div>
+          <div class="s2-road-v" style="left:35%; width:7px;"></div>
+          <div class="s2-road-v" style="left:65%; width:5px;"></div>
+          <!-- Pins -->
+          <div class="s2-pin" style="top:28%; left:28%;">
+            <div class="s2-pin-dot" style="background:var(--c-bright);"><div class="s2-pin-inner">☕</div></div>
+            <div class="s2-pin-bonus">+5% new</div>
+          </div>
+          <div class="s2-pin" style="top:55%; left:62%;">
+            <div class="s2-pin-dot" style="background:var(--c-bright);"><div class="s2-pin-inner">🍣</div></div>
+            <div class="s2-pin-bonus">+3% new</div>
+          </div>
+          <div class="s2-pin" style="top:20%; left:68%;">
+            <div class="s2-pin-dot" style="background:#6B7280;"><div class="s2-pin-inner">🏪</div></div>
+            <div class="s2-pin-bonus">+1%</div>
+          </div>
+          <!-- User -->
+          <div class="s2-user-pin"></div>
+          <div class="s2-map-lbl">You are here</div>
+        </div>
+        <!-- Filter chips -->
+        <div class="s2-filter">
+          <div class="s2-f-chip on">All (3)</div>
+          <div class="s2-f-chip">New to me</div>
+          <div class="s2-f-chip">Food</div>
+          <div class="s2-f-chip">Cafe</div>
+          <div class="s2-f-chip">Convenience</div>
+        </div>
+        <!-- List header -->
+        <div class="s2-list-hdr">
+          <div class="s2-list-title">Nearby PayPay Stores</div>
+          <div class="s2-list-sub">Sorted by distance</div>
+        </div>
+        <!-- Merchants -->
+        <div class="s2-merchant" style="border:1.5px solid var(--c-bright);">
+          <div class="s2-m-pic" style="background:#FFF3E0;">☕</div>
+          <div class="s2-m-body">
+            <div class="s2-m-name">Ueno Cafe</div>
+            <div class="s2-m-meta">Coffee · Sandwiches · Open now</div>
+            <div class="s2-m-bonus-row">
+              <div class="s2-m-bonus">+5% First Visit Bonus</div>
+              <div class="s2-m-tag">Merchant funded</div>
+            </div>
+          </div>
+          <div class="s2-m-right">
+            <div class="s2-m-dist">80m</div>
+            <div class="s2-m-dist-lbl">away</div>
+            <div class="s2-m-new">NEW</div>
+          </div>
+        </div>
+        <div class="s2-merchant">
+          <div class="s2-m-pic" style="background:#FFF0F0;">🍣</div>
+          <div class="s2-m-body">
+            <div class="s2-m-name">Sushiro Express</div>
+            <div class="s2-m-meta">Sushi · Ramen · Open now</div>
+            <div class="s2-m-bonus-row">
+              <div class="s2-m-bonus">+3% First Visit Bonus</div>
+              <div class="s2-m-tag">Merchant funded</div>
+            </div>
+          </div>
+          <div class="s2-m-right">
+            <div class="s2-m-dist">160m</div>
+            <div class="s2-m-dist-lbl">away</div>
+            <div class="s2-m-new">NEW</div>
+          </div>
+        </div>
+        <div class="s2-merchant" style="opacity:0.75;">
+          <div class="s2-m-pic" style="background:#F0F0F0;">🏪</div>
+          <div class="s2-m-body">
+            <div class="s2-m-name">FamilyMart</div>
+            <div class="s2-m-meta">Convenience · ATM · Open 24h</div>
+            <div class="s2-m-bonus-row">
+              <div class="s2-m-bonus" style="background:#F0F0F0; color:var(--muted);">+1% Regular</div>
+            </div>
+          </div>
+          <div class="s2-m-right">
+            <div class="s2-m-dist">190m</div>
+            <div class="s2-m-dist-lbl">away</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PHONE 3 — PAY + DISCOVERY ══ -->
+  <div class="phone-col">
+    <div class="phone-label">03 — Discovery Earned</div>
+    <div class="phone" style="background:var(--white); position:relative;">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="sb" style="background:var(--white); color:var(--ink);">
+        <span>9:41</span>
+        <span>▲▲▲ 100%</span>
+      </div>
+      <div class="sc" style="position:relative;">
+        <div class="conf-wrap3" id="conf3"></div>
+        <!-- Receipt -->
+        <div class="s3-scan-receipt">
+          <div class="s3-receipt-row"><div class="s3-receipt-lbl">Store</div><div class="s3-receipt-val">Ueno Cafe</div></div>
+          <div class="s3-receipt-row"><div class="s3-receipt-lbl">Item</div><div class="s3-receipt-val">Latte + Croissant</div></div>
+          <div class="s3-receipt-row"><div class="s3-receipt-lbl">Payment</div><div class="s3-receipt-val">PayPay Balance</div></div>
+          <div class="s3-receipt-total">
+            <div class="s3-total-lbl">Total Paid</div>
+            <div class="s3-total-val">¥820</div>
+          </div>
+          <div class="s3-bonus-applied">
+            <div class="s3-bonus-lbl">🎉 First Visit Bonus (5%) applied</div>
+            <div class="s3-bonus-val">+¥41 back</div>
+          </div>
+        </div>
+        <div class="s3-body">
+          <div class="s3-check">✓</div>
+          <div class="s3-paid">Payment Complete!</div>
+          <div class="s3-store">Ueno Cafe · ¥820</div>
+          <!-- Discovery card -->
+          <div class="s3-discovery">
+            <div class="s3-disc-badge">🗺️ NearPay Discovery</div>
+            <div class="s3-disc-title">New store discovered!</div>
+            <div class="s3-disc-sub">Ueno Cafe added to your PayPay Map · Discovery Points earned</div>
+            <div class="s3-disc-row">
+              <div class="s3-disc-stat">
+                <div class="s3-disc-val">+41</div>
+                <div class="s3-disc-lbl">Bonus Points earned</div>
+              </div>
+              <div class="s3-disc-stat">
+                <div class="s3-disc-val">8</div>
+                <div class="s3-disc-lbl">Stores discovered</div>
+              </div>
+              <div class="s3-disc-stat">
+                <div class="s3-disc-val">🏅</div>
+                <div class="s3-disc-lbl">Explorer badge</div>
+              </div>
+            </div>
+          </div>
+          <!-- Saved -->
+          <div class="s3-saved">
+            <div class="s3-saved-icon">☕</div>
+            <div class="s3-saved-body">
+              <div class="s3-saved-title">Ueno Cafe saved to your map</div>
+              <div class="s3-saved-sub">You will see it in NearPay next time you are nearby</div>
+            </div>
+            <div class="s3-saved-save">Saved ✓</div>
+          </div>
+          <div class="s3-cta">Find More Stores Near Me →</div>
+          <div class="s3-sec">2 more new stores within 200m · Sushiro has +3% bonus</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PHONE 4 — MERCHANT OPS ══ -->
+  <div class="phone-col">
+    <div class="phone-label">04 — Merchant Ops</div>
+    <div class="phone" style="background:#F0F0F0;">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="sb" style="background:var(--c-dark); color:#8B9E9B;">
+        <span>9:41</span>
+        <span>▲▲▲ 100%</span>
+      </div>
+      <div class="sc">
+        <div class="s4-hdr">
+          <div>
+            <div class="s4-h-title">NearPay Merchant Ops</div>
+            <div class="s4-h-sub">Campaign performance · Live</div>
+          </div>
+          <div class="s4-h-badge">● LIVE</div>
+        </div>
+        <!-- KPIs -->
+        <div class="s4-kpi">
+          <div class="s4-k">
+            <div class="s4-kv kv-red">+27%</div>
+            <div class="s4-kl">Txn frequency NearPay users</div>
+          </div>
+          <div class="s4-k">
+            <div class="s4-kv kv-grn">34%</div>
+            <div class="s4-kl">Merchants in active campaign</div>
+          </div>
+          <div class="s4-k">
+            <div class="s4-kv kv-org">¥840</div>
+            <div class="s4-kl">Avg ARPU lift per month</div>
+          </div>
+        </div>
+        <!-- Conversion funnel -->
+        <div class="s4-panel">
+          <div class="s4-p-title">Discovery Funnel</div>
+          <div class="s4-funnel-row">
+            <div class="s4-funnel-lbl">Push delivered</div>
+            <div class="s4-funnel-bar-wrap"><div class="s4-funnel-bar" style="width:100%; background:var(--c-bright);"></div></div>
+            <div class="s4-funnel-val" style="color:var(--c-bright);">100%</div>
+          </div>
+          <div class="s4-funnel-row">
+            <div class="s4-funnel-lbl">Push opened</div>
+            <div class="s4-funnel-bar-wrap"><div class="s4-funnel-bar" style="width:48%; background:var(--c-bright);"></div></div>
+            <div class="s4-funnel-val" style="color:var(--c-bright);">48%</div>
+          </div>
+          <div class="s4-funnel-row">
+            <div class="s4-funnel-lbl">Map viewed</div>
+            <div class="s4-funnel-bar-wrap"><div class="s4-funnel-bar" style="width:34%; background:var(--c-gold);"></div></div>
+            <div class="s4-funnel-val" style="color:var(--c-gold);">34%</div>
+          </div>
+          <div class="s4-funnel-row">
+            <div class="s4-funnel-lbl">Merchant tapped</div>
+            <div class="s4-funnel-bar-wrap"><div class="s4-funnel-bar" style="width:21%; background:var(--c-gold);"></div></div>
+            <div class="s4-funnel-val" style="color:var(--c-gold);">21%</div>
+          </div>
+          <div class="s4-funnel-row">
+            <div class="s4-funnel-lbl">Payment made</div>
+            <div class="s4-funnel-bar-wrap"><div class="s4-funnel-bar" style="width:14%; background:var(--c-teal);"></div></div>
+            <div class="s4-funnel-val" style="color:var(--c-teal);">14%</div>
+          </div>
+        </div>
+        <!-- Top merchant campaigns -->
+        <div class="s4-panel">
+          <div class="s4-p-title">Top Merchant Campaigns</div>
+          <div class="s4-camp-row">
+            <div class="s4-camp-icon">☕</div>
+            <div class="s4-camp-body">
+              <div class="s4-camp-name">Ueno Cafe</div>
+              <div class="s4-camp-sub">+5% · ¥500 budget/day</div>
+            </div>
+            <div class="s4-camp-right">
+              <div class="s4-camp-conv">38%</div>
+              <div class="s4-camp-sub2">conversion</div>
+            </div>
+          </div>
+          <div class="s4-camp-row">
+            <div class="s4-camp-icon">🍣</div>
+            <div class="s4-camp-body">
+              <div class="s4-camp-name">Sushiro Express</div>
+              <div class="s4-camp-sub">+3% · ¥800 budget/day</div>
+            </div>
+            <div class="s4-camp-right">
+              <div class="s4-camp-conv">29%</div>
+              <div class="s4-camp-sub2">conversion</div>
+            </div>
+          </div>
+          <div class="s4-camp-row">
+            <div class="s4-camp-icon">🍜</div>
+            <div class="s4-camp-body">
+              <div class="s4-camp-name">Ichiran Ramen</div>
+              <div class="s4-camp-sub">+4% · ¥1,200 budget/day</div>
+            </div>
+            <div class="s4-camp-right">
+              <div class="s4-camp-conv">44%</div>
+              <div class="s4-camp-sub2">conversion</div>
+            </div>
+          </div>
+        </div>
+        <!-- Insight -->
+        <div class="s4-insight">
+          <div class="s4-insight-lbl">Key insight from this week</div>
+          <div class="s4-insight-txt">Users who discover 3+ new stores in their first NearPay session have 2.8x higher 30-day retention than single-store discoverers. Prompt multi-discovery in the onboarding flow.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- proto-wrap -->
+
+<script>
+// Confetti — Screen 3
+const c3 = document.getElementById('conf3');
+const cols = ['#E60012','#FF3347','#FF6B00','#FFD700','#ffffff','#00B894','#FF9999'];
+for(let i=0;i<36;i++){
+  const p = document.createElement('div');
+  p.className = 'cp';
+  const sz = 4 + Math.random()*8;
+  p.style.cssText = 'left:'+Math.random()*100+'%;top:'+(Math.random()*120-10)+'%;width:'+sz+'px;height:'+sz+'px;background:'+cols[Math.floor(Math.random()*cols.length)]+';border-radius:'+(Math.random()>.5?'50%':'2px')+';animation-duration:'+(1.4+Math.random()*2)+'s;animation-delay:'+(Math.random()*2.5)+'s;';
+  c3.appendChild(p);
+}
+</script>
+</body>
+</html>

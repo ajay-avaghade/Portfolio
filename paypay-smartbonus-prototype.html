@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PayPay — SmartBonus · Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+:root {
+  --c-dark:   #1A0A0A;
+  --c-hero:   #2D1515;
+  --c-bright: #E60012;
+  --c-accent: #FF3347;
+  --c-gold:   #FF6B00;
+  --ink:      #1A1A1A;
+  --muted:    #6B7280;
+  --border:   #E5E7EB;
+  --gray:     #F9FAFB;
+  --lgray:    #FFF8F8;
+  --white:    #FFFFFF;
+}
+body {
+  background: var(--c-dark);
+  font-family: 'Sora', sans-serif;
+  min-height: 100vh;
+  padding: 40px 24px 60px;
+}
+.hdr { text-align: center; margin-bottom: 32px; }
+.hdr-badge {
+  display: inline-block;
+  background: var(--c-bright);
+  color: #fff;
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 4px 16px; border-radius: 99px; margin-bottom: 10px;
+}
+.hdr-title { font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 4px; }
+.hdr-sub { font-size: 12px; color: #8B9E9B; }
+
+.proto-wrap {
+  display: flex; gap: 28px;
+  justify-content: center; align-items: flex-start;
+}
+.phone-col { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.phone-label {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; color: #6B4040; text-align: center;
+}
+
+/* ── PHONE CHROME ── */
+.phone {
+  width: 355px;
+  background: var(--lgray);
+  border-radius: 46px;
+  box-shadow: 0 40px 100px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.07);
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+.notch {
+  width: 118px; height: 28px;
+  background: #111;
+  border-radius: 0 0 18px 18px;
+  position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  z-index: 10;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.nc { width: 10px; height: 10px; background: #222; border-radius: 50%; }
+.ndot { width: 5px; height: 5px; background: #333; border-radius: 50%; }
+
+.sb {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 20px 4px; margin-top: 28px;
+  font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500;
+}
+.sc {
+  flex: 1; overflow-y: auto; max-height: 724px; scrollbar-width: none;
+}
+.sc::-webkit-scrollbar { display: none; }
+
+/* ── PAY HEADER ── */
+.pay-hdr {
+  background: var(--c-bright);
+  padding: 11px 18px 13px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.pay-logo { font-size: 19px; font-weight: 800; color: #fff; letter-spacing: -0.02em; }
+.pay-icons { display: flex; gap: 14px; font-size: 17px; color: rgba(255,255,255,0.85); }
+
+/* ── PROGRESS BARS ── */
+.track { height: 7px; background: #E8E8E8; border-radius: 99px; overflow: visible; position: relative; }
+.fill { height: 100%; border-radius: 99px; background: var(--c-bright); position: relative; transition: .6s ease; }
+.fill-badge {
+  position: absolute; right: -2px; top: -9px;
+  background: var(--c-bright); color: #fff;
+  font-size: 8px; font-weight: 700; padding: 2px 5px; border-radius: 5px;
+  font-family: 'DM Mono', monospace; white-space: nowrap;
+}
+
+/* ── BOTTOM NAV ── */
+.bnav {
+  display: flex; background: var(--white);
+  border-top: 1px solid #F0F0F0; padding: 8px 0 18px;
+}
+.bnav-item {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; gap: 2px;
+  font-size: 9px; color: var(--muted); font-weight: 600;
+}
+.bnav-icon { font-size: 20px; }
+.bnav-item.on { color: var(--c-bright); }
+
+/* ════════════════════════════════
+   SCREEN 1 — HOME
+   ════════════════════════════════ */
+.s1 { background: var(--lgray); }
+
+.s1-balance {
+  background: linear-gradient(140deg, #B8000F 0%, #E60012 55%, #FF3347 100%);
+  margin: 14px; border-radius: 18px; padding: 18px 20px 16px;
+}
+.s1-bal-lbl { font-size: 10px; color: rgba(255,255,255,0.75); margin-bottom: 2px; }
+.s1-bal-amt {
+  font-family: 'DM Mono', monospace;
+  font-size: 28px; font-weight: 700; color: #fff; margin-bottom: 2px;
+}
+.s1-bal-sub { font-size: 10px; color: rgba(255,255,255,0.7); }
+.s1-bal-actions {
+  display: flex; gap: 10px; margin-top: 14px;
+}
+.s1-bal-btn {
+  flex: 1; background: rgba(255,255,255,0.18); color: #fff;
+  font-size: 11px; font-weight: 700; padding: 8px 0;
+  border-radius: 10px; text-align: center;
+  border: 1px solid rgba(255,255,255,0.25);
+}
+
+/* SmartBonus banner */
+.s1-sb-card {
+  margin: 0 14px 12px;
+  background: var(--white); border-radius: 14px;
+  border: 1.5px solid var(--c-bright);
+  padding: 13px 15px;
+  display: flex; align-items: center; gap: 13px;
+  box-shadow: 0 2px 16px rgba(230,0,18,0.12);
+}
+.s1-rate-orb {
+  width: 50px; height: 50px; border-radius: 50%;
+  background: var(--c-bright);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(230,0,18,0.35);
+}
+.s1-rate-num {
+  font-family: 'DM Mono', monospace;
+  font-size: 16px; font-weight: 700; color: #fff; line-height: 1;
+}
+.s1-rate-pct { font-size: 8px; color: rgba(255,255,255,0.85); font-weight: 600; }
+.s1-sb-body { flex: 1; }
+.s1-sb-title { font-size: 12px; font-weight: 700; color: var(--ink); margin-bottom: 2px; }
+.s1-sb-sub { font-size: 10px; color: var(--muted); line-height: 1.4; margin-bottom: 5px; }
+.s1-sb-tag {
+  font-size: 9px; font-weight: 700;
+  background: rgba(230,0,18,0.08); color: var(--c-bright);
+  padding: 2px 8px; border-radius: 99px; display: inline-block;
+}
+.s1-sb-arrow { font-size: 16px; color: var(--c-bright); flex-shrink: 0; }
+
+/* MissionBoard widget */
+.s1-mb-card {
+  margin: 0 14px 12px;
+  background: var(--white); border-radius: 14px;
+  border: 1px solid var(--border); padding: 13px 15px;
+}
+.s1-mb-hdr {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 10px;
+}
+.s1-mb-title { font-size: 12px; font-weight: 700; color: var(--ink); }
+.s1-mb-badge {
+  font-size: 9px; font-weight: 700;
+  background: #FFF3E0; color: var(--c-gold);
+  padding: 2px 8px; border-radius: 99px;
+}
+.s1-mb-progress-row {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 10px;
+}
+.s1-mb-ring-wrap { position: relative; width: 46px; height: 46px; flex-shrink: 0; }
+.s1-mb-ring { width: 46px; height: 46px; transform: rotate(-90deg); }
+.s1-rb { fill: none; stroke: #F0F0F0; stroke-width: 5; }
+.s1-rf { fill: none; stroke: var(--c-bright); stroke-width: 5; stroke-linecap: round; stroke-dasharray: 109; stroke-dashoffset: 37; }
+.s1-rnum {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 700; color: var(--ink);
+}
+.s1-mb-info { flex: 1; }
+.s1-mb-info-title { font-size: 11px; font-weight: 700; color: var(--ink); margin-bottom: 2px; }
+.s1-mb-info-sub { font-size: 10px; color: var(--muted); margin-bottom: 3px; }
+.s1-mb-unlock { font-size: 10px; font-weight: 700; color: var(--c-bright); }
+
+.s1-mini-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 5px 0; border-top: 1px solid #F5F5F5;
+}
+.s1-mi-dot {
+  width: 18px; height: 18px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; flex-shrink: 0;
+}
+.mi-done { background: #F0FFF4; color: #22C55E; font-size: 11px; }
+.mi-active { background: #FFF3E0; color: var(--c-gold); font-size: 8px; }
+.s1-mi-text { flex: 1; font-size: 10px; color: var(--ink); }
+.s1-mi-text.done { color: var(--muted); text-decoration: line-through; }
+.s1-mi-pts {
+  font-family: 'DM Mono', monospace; font-size: 10px;
+  color: var(--c-bright); font-weight: 600;
+}
+.s1-mb-footer {
+  text-align: center; font-size: 11px; font-weight: 700;
+  color: var(--c-bright); margin-top: 8px; padding-top: 8px;
+  border-top: 1px solid #F5F5F5;
+}
+
+/* Quick actions */
+.s1-ql { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin: 0 14px 8px; }
+.s1-qgrid {
+  display: grid; grid-template-columns: repeat(4,1fr); gap: 8px;
+  margin: 0 14px 14px;
+}
+.s1-qi {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+}
+.s1-qi-icon {
+  width: 46px; height: 46px; background: var(--white);
+  border-radius: 14px; display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.s1-qi-lbl { font-size: 9px; color: var(--muted); text-align: center; }
+
+/* ════════════════════════════════
+   SCREEN 2 — SMARTBONUS HUB
+   ════════════════════════════════ */
+.s2 { background: #F5F5F5; }
+.s2-back-hdr {
+  background: var(--c-bright);
+  padding: 11px 18px 13px;
+  display: flex; align-items: center; gap: 10px;
+}
+.s2-back { color: #fff; font-size: 18px; }
+.s2-back-title { font-size: 16px; font-weight: 800; color: #fff; }
+
+.s2-rate-hero {
+  background: linear-gradient(160deg, #B8000F 0%, #E60012 100%);
+  padding: 22px 20px 26px; text-align: center;
+}
+.s2-rate-lbl {
+  font-size: 10px; color: rgba(255,255,255,0.75);
+  text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px;
+}
+.s2-rate-big {
+  font-family: 'DM Mono', monospace;
+  font-size: 60px; font-weight: 700; color: #fff; line-height: 1; margin-bottom: 3px;
+}
+.s2-rate-sub { font-size: 11px; color: rgba(255,255,255,0.75); margin-bottom: 12px; }
+.s2-unlock-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(255,255,255,0.15);
+  color: #fff; font-size: 10px; font-weight: 700;
+  padding: 5px 14px; border-radius: 99px;
+  border: 1px solid rgba(255,255,255,0.25);
+}
+
+.s2-sec { padding: 14px 14px 0; }
+.s2-sec-lbl {
+  font-size: 10px; font-weight: 700; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px;
+}
+.s2-factor {
+  background: var(--white); border-radius: 11px;
+  padding: 11px 14px; margin-bottom: 7px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+.s2-f-row {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 6px;
+}
+.s2-f-name { font-size: 11px; font-weight: 600; color: var(--ink); }
+.s2-f-val {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px; font-weight: 700; color: var(--c-bright);
+}
+.s2-mini-track { height: 5px; background: #EBEBEB; border-radius: 99px; overflow: hidden; }
+.s2-mini-fill { height: 100%; border-radius: 99px; background: var(--c-bright); }
+
+/* Mission list */
+.s2-mission {
+  background: var(--white); border-radius: 11px;
+  padding: 11px 14px; margin-bottom: 7px;
+  display: flex; align-items: center; gap: 11px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+.s2-m-icon {
+  width: 34px; height: 34px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px; flex-shrink: 0;
+}
+.m-done-bg  { background: #F0FFF4; }
+.m-active-bg{ background: #FFF3E0; }
+.m-lock-bg  { background: #F5F5F5; }
+.s2-m-body { flex: 1; }
+.s2-m-title { font-size: 11px; font-weight: 700; color: var(--ink); margin-bottom: 1px; }
+.m-striked  { text-decoration: line-through; color: var(--muted); }
+.s2-m-sub { font-size: 9px; color: var(--muted); }
+.s2-m-right { text-align: right; flex-shrink: 0; }
+.s2-m-pts { font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 700; }
+.pts-done   { color: #22C55E; }
+.pts-active { color: var(--c-bright); }
+.pts-lock   { color: var(--muted); }
+
+/* Step tier bar */
+.s2-tier {
+  background: var(--white); border-radius: 11px;
+  padding: 13px 14px; margin: 0 14px 14px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+.s2-tier-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+.s2-tier-lbl { font-size: 11px; font-weight: 700; color: var(--ink); }
+.s2-tier-val { font-size: 10px; color: var(--c-bright); font-weight: 700; }
+.s2-tier-sub { font-size: 9px; color: var(--muted); margin-top: 5px; }
+
+/* ════════════════════════════════
+   SCREEN 3 — MISSION COMPLETE
+   ════════════════════════════════ */
+.s3 { background: var(--white); position: relative; }
+.conf-wrap { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 5; }
+.cp { position: absolute; animation: cfall linear forwards; }
+@keyframes cfall { 0%{transform:translateY(-10px) rotate(0deg);opacity:1} 100%{transform:translateY(820px) rotate(720deg);opacity:0} }
+
+.s3-body {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 32px 22px 22px; position: relative; z-index: 6;
+}
+.s3-ring {
+  width: 76px; height: 76px; border-radius: 50%;
+  background: linear-gradient(135deg, #B8000F, #E60012);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 34px; margin-bottom: 14px;
+  box-shadow: 0 8px 28px rgba(230,0,18,0.32);
+}
+.s3-title { font-size: 21px; font-weight: 800; color: var(--ink); margin-bottom: 3px; text-align: center; }
+.s3-mission-nm { font-size: 12px; color: var(--muted); margin-bottom: 18px; text-align: center; }
+
+.s3-rate-card {
+  background: linear-gradient(135deg, #B8000F, #E60012, #FF3347);
+  border-radius: 18px; padding: 18px 22px; width: 100%;
+  margin-bottom: 14px; text-align: center;
+  box-shadow: 0 8px 30px rgba(230,0,18,0.28);
+}
+.s3-card-lbl { font-size: 10px; color: rgba(255,255,255,0.78); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; }
+.s3-rate-row {
+  display: flex; align-items: center;
+  justify-content: center; gap: 12px; margin-bottom: 5px;
+}
+.s3-old {
+  font-family: 'DM Mono', monospace;
+  font-size: 24px; color: rgba(255,255,255,0.4); text-decoration: line-through;
+}
+.s3-arrow { color: rgba(255,255,255,0.65); font-size: 16px; }
+.s3-new {
+  font-family: 'DM Mono', monospace;
+  font-size: 50px; font-weight: 700; color: #fff; line-height: 1;
+}
+.s3-validity { font-size: 10px; color: rgba(255,255,255,0.78); }
+
+.s3-stats { display: flex; gap: 8px; width: 100%; margin-bottom: 14px; }
+.s3-stat {
+  flex: 1; background: var(--gray); border-radius: 12px;
+  padding: 11px 8px; text-align: center;
+}
+.s3-stat-val {
+  font-family: 'DM Mono', monospace;
+  font-size: 17px; font-weight: 700; color: var(--ink); margin-bottom: 2px;
+}
+.s3-stat-lbl { font-size: 9px; color: var(--muted); line-height: 1.3; }
+
+.s3-tier-up {
+  background: #FFF8E1; border: 1.5px solid var(--c-gold);
+  border-radius: 12px; padding: 11px 14px; width: 100%;
+  display: flex; align-items: center; gap: 10px; margin-bottom: 18px;
+}
+.s3-ti { font-size: 22px; }
+.s3-tb { flex: 1; }
+.s3-tb-title { font-size: 11px; font-weight: 700; color: var(--ink); }
+.s3-tb-sub { font-size: 9px; color: var(--muted); }
+.s3-cta {
+  background: var(--c-bright); color: #fff;
+  font-size: 14px; font-weight: 700;
+  padding: 14px 0; border-radius: 99px; width: 100%;
+  text-align: center; box-shadow: 0 4px 18px rgba(230,0,18,0.3);
+}
+.s3-sec { font-size: 11px; color: var(--muted); text-align: center; margin-top: 10px; }
+
+/* ════════════════════════════════
+   SCREEN 4 — OPS DASHBOARD
+   ════════════════════════════════ */
+.s4 { background: #F0F0F0; }
+.s4-hdr {
+  background: var(--c-dark);
+  padding: 11px 16px 13px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.s4-h-left {}
+.s4-h-title { font-size: 13px; font-weight: 800; color: #fff; }
+.s4-h-sub { font-size: 9px; color: #8B9E9B; }
+.s4-h-badge {
+  font-size: 9px; font-weight: 700;
+  background: rgba(230,0,18,0.2); color: var(--c-bright);
+  padding: 3px 10px; border-radius: 99px;
+  border: 1px solid rgba(230,0,18,0.3);
+}
+
+.s4-kpi {
+  display: grid; grid-template-columns: repeat(3,1fr);
+  gap: 6px; padding: 10px;
+}
+.s4-k {
+  background: var(--white); border-radius: 10px;
+  padding: 10px 8px; text-align: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.s4-kv {
+  font-family: 'DM Mono', monospace;
+  font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 2px;
+}
+.s4-kl { font-size: 8px; color: var(--muted); line-height: 1.3; }
+.kv-red { color: var(--c-bright); }
+.kv-grn { color: #22C55E; }
+.kv-org { color: var(--c-gold); }
+
+.s4-tabs {
+  display: flex; margin: 0 10px 10px;
+  background: var(--white); border-radius: 10px;
+  padding: 3px; box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.s4-tab {
+  flex: 1; padding: 7px; text-align: center;
+  font-size: 10px; font-weight: 700;
+  color: var(--muted); border-radius: 8px;
+}
+.s4-tab.on { background: var(--c-bright); color: #fff; }
+
+.s4-panel {
+  background: var(--white); border-radius: 12px;
+  margin: 0 10px 8px; padding: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.s4-p-title {
+  font-size: 10px; font-weight: 700; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px;
+}
+.s4-seg-row {
+  display: flex; align-items: center; gap: 7px; margin-bottom: 7px;
+}
+.s4-seg-lbl { font-size: 10px; color: var(--ink); width: 85px; flex-shrink: 0; }
+.s4-seg-bar-wrap { flex: 1; height: 6px; background: #EBEBEB; border-radius: 99px; overflow: hidden; }
+.s4-seg-bar { height: 100%; border-radius: 99px; }
+.s4-seg-val {
+  font-family: 'DM Mono', monospace; font-size: 10px;
+  color: var(--c-bright); font-weight: 700; width: 34px; text-align: right;
+}
+.s4-roi {
+  background: rgba(230,0,18,0.05); border: 1px solid rgba(230,0,18,0.15);
+  border-radius: 8px; padding: 9px 12px; margin-top: 10px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.s4-roi-lbl { font-size: 10px; color: var(--ink); font-weight: 600; }
+.s4-roi-val {
+  font-family: 'DM Mono', monospace;
+  font-size: 18px; font-weight: 700; color: var(--c-bright);
+}
+
+/* Mission completion bars */
+.s4-m-row {
+  display: flex; align-items: center; gap: 7px; margin-bottom: 8px;
+}
+.s4-m-lbl { font-size: 9px; color: var(--ink); width: 90px; flex-shrink: 0; line-height: 1.3; }
+.s4-m-bar-wrap { flex: 1; height: 6px; background: #EBEBEB; border-radius: 99px; overflow: hidden; }
+.s4-m-bar { height: 100%; border-radius: 99px; }
+.s4-m-pct {
+  font-family: 'DM Mono', monospace; font-size: 10px;
+  font-weight: 700; width: 28px; text-align: right;
+}
+
+.s4-nudge {
+  background: #FFF8E1; border: 1.5px solid var(--c-gold);
+  border-radius: 10px; padding: 10px 12px;
+  margin: 0 10px 10px;
+}
+.s4-nudge-title { font-size: 10px; font-weight: 700; color: var(--c-gold); margin-bottom: 7px; }
+.s4-nudge-row {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 4px;
+}
+.s4-nudge-lbl { font-size: 10px; color: var(--ink); }
+.s4-nudge-cnt {
+  font-family: 'DM Mono', monospace;
+  font-size: 12px; font-weight: 700; color: var(--ink);
+}
+.s4-nudge-cta {
+  display: block; background: var(--c-gold); color: #fff;
+  font-size: 11px; font-weight: 700;
+  text-align: center; padding: 8px; border-radius: 7px; margin-top: 8px;
+}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="hdr">
+  <div class="hdr-badge">PayPay · Growth Platform</div>
+  <div class="hdr-title">SmartBonus — Interactive Prototype</div>
+  <div class="hdr-sub">Personalized bonus rates + MissionBoard · 4 screens · Ajay Avaghade</div>
+</div>
+
+<div class="proto-wrap">
+
+  <!-- ══ PHONE 1 — HOME ══ -->
+  <div class="phone-col">
+    <div class="phone-label">01 — Home</div>
+    <div class="phone" style="background:var(--lgray);">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="sb" style="background:var(--lgray); color:var(--ink);">
+        <span style="font-size:11px;">9:41</span>
+        <span>▲▲▲ 100%</span>
+      </div>
+      <div class="sc">
+        <!-- PayPay header -->
+        <div class="pay-hdr">
+          <div class="pay-logo">PayPay</div>
+          <div class="pay-icons"><span>🔔</span><span>☰</span></div>
+        </div>
+        <!-- Balance card -->
+        <div class="s1-balance">
+          <div class="s1-bal-lbl">PayPay Balance</div>
+          <div class="s1-bal-amt">¥12,430</div>
+          <div class="s1-bal-sub">PayPay Points: ¥1,240</div>
+          <div class="s1-bal-actions">
+            <div class="s1-bal-btn">💳 Pay</div>
+            <div class="s1-bal-btn">➕ Add</div>
+            <div class="s1-bal-btn">➡ Send</div>
+          </div>
+        </div>
+        <!-- SmartBonus card -->
+        <div class="s1-sb-card">
+          <div class="s1-rate-orb">
+            <div class="s1-rate-num">3%</div>
+            <div class="s1-rate-pct">BONUS</div>
+          </div>
+          <div class="s1-sb-body">
+            <div class="s1-sb-title">Your SmartBonus Today</div>
+            <div class="s1-sb-sub">Personalized just for you · Complete 2 more missions to unlock 5%</div>
+            <div class="s1-sb-tag">↑ Earn higher rate →</div>
+          </div>
+          <div class="s1-sb-arrow">›</div>
+        </div>
+        <!-- MissionBoard widget -->
+        <div class="s1-mb-card">
+          <div class="s1-mb-hdr">
+            <div class="s1-mb-title">📋 Weekly Missions</div>
+            <div class="s1-mb-badge">Tue deadline</div>
+          </div>
+          <div class="s1-mb-progress-row">
+            <div class="s1-mb-ring-wrap">
+              <svg class="s1-mb-ring" viewBox="0 0 46 46">
+                <circle class="s1-rb" cx="23" cy="23" r="17.5"/>
+                <circle class="s1-rf" cx="23" cy="23" r="17.5"/>
+              </svg>
+              <div class="s1-rnum">3/5</div>
+            </div>
+            <div class="s1-mb-info">
+              <div class="s1-mb-info-title">3 of 5 missions done</div>
+              <div class="s1-mb-info-sub">Complete 2 more this week</div>
+              <div class="s1-mb-unlock">Complete all 5 → unlock 5% ✨</div>
+            </div>
+          </div>
+          <!-- Mini missions -->
+          <div class="s1-mini-item">
+            <div class="s1-mi-dot mi-done">✓</div>
+            <div class="s1-mi-text done">First transaction of the day</div>
+            <div class="s1-mi-pts">+1pt</div>
+          </div>
+          <div class="s1-mini-item">
+            <div class="s1-mi-dot mi-done">✓</div>
+            <div class="s1-mi-text done">Vending machine payment</div>
+            <div class="s1-mi-pts">+1pt</div>
+          </div>
+          <div class="s1-mini-item">
+            <div class="s1-mi-dot mi-active">●</div>
+            <div class="s1-mi-text">New restaurant category</div>
+            <div class="s1-mi-pts">+1pt</div>
+          </div>
+          <div class="s1-mb-footer">View all missions & unlock 5% →</div>
+        </div>
+        <!-- Quick actions -->
+        <div class="s1-ql">Quick Pay</div>
+        <div class="s1-qgrid">
+          <div class="s1-qi"><div class="s1-qi-icon">🏪</div><div class="s1-qi-lbl">Store</div></div>
+          <div class="s1-qi"><div class="s1-qi-icon">🍱</div><div class="s1-qi-lbl">Food</div></div>
+          <div class="s1-qi"><div class="s1-qi-icon">🚃</div><div class="s1-qi-lbl">Transit</div></div>
+          <div class="s1-qi"><div class="s1-qi-icon">🛒</div><div class="s1-qi-lbl">Online</div></div>
+        </div>
+        <div class="bnav">
+          <div class="bnav-item on"><div class="bnav-icon">🏠</div>Home</div>
+          <div class="bnav-item"><div class="bnav-icon">📋</div>Missions</div>
+          <div class="bnav-item"><div class="bnav-icon">📊</div>History</div>
+          <div class="bnav-item"><div class="bnav-icon">👤</div>Profile</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PHONE 2 — SMARTBONUS HUB ══ -->
+  <div class="phone-col">
+    <div class="phone-label">02 — SmartBonus Hub</div>
+    <div class="phone" style="background:#F5F5F5;">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="sb" style="background:var(--c-bright); color:#fff;">
+        <span>9:41</span>
+        <span>▲▲▲ 100%</span>
+      </div>
+      <div class="sc">
+        <div class="s2-back-hdr">
+          <div class="s2-back">‹</div>
+          <div class="s2-back-title">SmartBonus</div>
+        </div>
+        <!-- Rate hero -->
+        <div class="s2-rate-hero">
+          <div class="s2-rate-lbl">Your bonus rate today</div>
+          <div class="s2-rate-big">3%</div>
+          <div class="s2-rate-sub">Applied on every PayPay transaction today</div>
+          <div class="s2-unlock-chip">✨ Complete 2 missions → unlock 5%</div>
+        </div>
+        <!-- Score factors -->
+        <div class="s2-sec">
+          <div class="s2-sec-lbl">Why you got 3%</div>
+          <div class="s2-factor">
+            <div class="s2-f-row">
+              <div class="s2-f-name">Transaction frequency</div>
+              <div class="s2-f-val">Good · 14/mo</div>
+            </div>
+            <div class="s2-mini-track"><div class="s2-mini-fill" style="width:68%"></div></div>
+          </div>
+          <div class="s2-factor">
+            <div class="s2-f-row">
+              <div class="s2-f-name">Category variety</div>
+              <div class="s2-f-val">Growing · 4 cats</div>
+            </div>
+            <div class="s2-mini-track"><div class="s2-mini-fill" style="width:45%"></div></div>
+          </div>
+          <div class="s2-factor">
+            <div class="s2-f-row">
+              <div class="s2-f-name">Recency score</div>
+              <div class="s2-f-val">Active · 2 days</div>
+            </div>
+            <div class="s2-mini-track"><div class="s2-mini-fill" style="width:80%"></div></div>
+          </div>
+        </div>
+        <!-- Mission list -->
+        <div class="s2-sec" style="margin-top:14px;">
+          <div class="s2-sec-lbl">Complete missions → unlock 5%</div>
+          <div class="s2-mission">
+            <div class="s2-m-icon m-done-bg">✅</div>
+            <div class="s2-m-body">
+              <div class="s2-m-title m-striked">First transaction of the day</div>
+              <div class="s2-m-sub">Completed 09:12 AM</div>
+            </div>
+            <div class="s2-m-right"><div class="s2-m-pts pts-done">✓ +1pt</div></div>
+          </div>
+          <div class="s2-mission">
+            <div class="s2-m-icon m-done-bg">✅</div>
+            <div class="s2-m-body">
+              <div class="s2-m-title m-striked">Vending machine payment</div>
+              <div class="s2-m-sub">Completed yesterday</div>
+            </div>
+            <div class="s2-m-right"><div class="s2-m-pts pts-done">✓ +1pt</div></div>
+          </div>
+          <div class="s2-mission" style="border:1.5px solid var(--c-gold); background:#FFFBF5;">
+            <div class="s2-m-icon m-active-bg">🍜</div>
+            <div class="s2-m-body">
+              <div class="s2-m-title">New restaurant category</div>
+              <div class="s2-m-sub" style="color:var(--c-gold); font-weight:700;">Try ramen, soba, or izakaya</div>
+            </div>
+            <div class="s2-m-right"><div class="s2-m-pts pts-active">+1pt</div></div>
+          </div>
+          <div class="s2-mission">
+            <div class="s2-m-icon m-active-bg">☀️</div>
+            <div class="s2-m-body">
+              <div class="s2-m-title">3 transactions before noon</div>
+              <div class="s2-m-sub">2 of 3 done today</div>
+            </div>
+            <div class="s2-m-right"><div class="s2-m-pts pts-active">+1pt</div></div>
+          </div>
+          <div class="s2-mission" style="opacity:0.55;">
+            <div class="s2-m-icon m-lock-bg">🔒</div>
+            <div class="s2-m-body">
+              <div class="s2-m-title">Weekend payment streak</div>
+              <div class="s2-m-sub">Unlocks after 4 missions done</div>
+            </div>
+            <div class="s2-m-right"><div class="s2-m-pts pts-lock">+2pt</div></div>
+          </div>
+        </div>
+        <!-- Step tier -->
+        <div class="s2-tier">
+          <div class="s2-tier-row">
+            <div class="s2-tier-lbl">PayPay Step Progress</div>
+            <div class="s2-tier-val">Silver → Gold</div>
+          </div>
+          <div class="track"><div class="fill" style="width:62%"><span class="fill-badge">62%</span></div></div>
+          <div class="s2-tier-sub">18 of 30 transactions this month · Complete all missions for a 2× Step bonus</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PHONE 3 — MISSION COMPLETE ══ -->
+  <div class="phone-col">
+    <div class="phone-label">03 — Rate Unlocked</div>
+    <div class="phone" style="background:#fff; position:relative;">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="sb" style="background:#fff; color:var(--ink);">
+        <span>9:41</span>
+        <span>▲▲▲ 100%</span>
+      </div>
+      <div class="sc" style="position:relative;">
+        <!-- Confetti -->
+        <div class="conf-wrap" id="conf"></div>
+        <!-- Back nav -->
+        <div style="background:var(--white); padding:10px 16px; display:flex; align-items:center; gap:8px; border-bottom:1px solid #F0F0F0; position:relative; z-index:6;">
+          <span style="font-size:16px; color:var(--c-bright);">‹</span>
+          <span style="font-size:13px; font-weight:700; color:var(--ink);">Mission Complete!</span>
+        </div>
+        <div class="s3-body">
+          <div class="s3-ring">✓</div>
+          <div class="s3-title">Mission Unlocked!</div>
+          <div class="s3-mission-nm">New Restaurant Category · Vending Machine Pro</div>
+          <!-- Rate card -->
+          <div class="s3-rate-card">
+            <div class="s3-card-lbl">Your bonus rate upgraded to</div>
+            <div class="s3-rate-row">
+              <div class="s3-old">3%</div>
+              <div class="s3-arrow">→</div>
+              <div class="s3-new">5%</div>
+            </div>
+            <div class="s3-validity">Valid for your next 10 transactions today</div>
+          </div>
+          <!-- Stats -->
+          <div class="s3-stats">
+            <div class="s3-stat">
+              <div class="s3-stat-val">5/5</div>
+              <div class="s3-stat-lbl">Missions complete</div>
+            </div>
+            <div class="s3-stat">
+              <div class="s3-stat-val">+¥620</div>
+              <div class="s3-stat-lbl">Bonus earned today</div>
+            </div>
+            <div class="s3-stat">
+              <div class="s3-stat-val">3wk</div>
+              <div class="s3-stat-lbl">Current streak</div>
+            </div>
+          </div>
+          <!-- Tier upgrade -->
+          <div class="s3-tier-up">
+            <div class="s3-ti">🏆</div>
+            <div class="s3-tb">
+              <div class="s3-tb-title">PayPay Step Gold unlocked!</div>
+              <div class="s3-tb-sub">Transactions this month qualify for +1.5% base bonus rate</div>
+            </div>
+          </div>
+          <div class="s3-cta">Use Your 5% Bonus Now →</div>
+          <div class="s3-sec">Bonus applies automatically on your next PayPay scan</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PHONE 4 — OPS DASHBOARD ══ -->
+  <div class="phone-col">
+    <div class="phone-label">04 — Ops Dashboard</div>
+    <div class="phone" style="background:#F0F0F0;">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="sb" style="background:var(--c-dark); color:#8B9E9B;">
+        <span>9:41</span>
+        <span>▲▲▲ 100%</span>
+      </div>
+      <div class="sc">
+        <div class="s4-hdr">
+          <div class="s4-h-left">
+            <div class="s4-h-title">SmartBonus Ops</div>
+            <div class="s4-h-sub">Campaign + Mission Analytics · Live</div>
+          </div>
+          <div class="s4-h-badge">● LIVE</div>
+        </div>
+        <!-- KPIs -->
+        <div class="s4-kpi">
+          <div class="s4-k">
+            <div class="s4-kv kv-red">−29%</div>
+            <div class="s4-kl">Campaign Burn vs Blanket</div>
+          </div>
+          <div class="s4-k">
+            <div class="s4-kv kv-grn">+23%</div>
+            <div class="s4-kl">Weekly Active Payers</div>
+          </div>
+          <div class="s4-k">
+            <div class="s4-kv kv-org">3.1×</div>
+            <div class="s4-kl">Incremental GMV per ¥ spent</div>
+          </div>
+        </div>
+        <!-- Tabs -->
+        <div class="s4-tabs">
+          <div class="s4-tab on">Campaign Efficiency</div>
+          <div class="s4-tab">Missions</div>
+        </div>
+        <!-- Campaign panel -->
+        <div class="s4-panel">
+          <div class="s4-p-title">Bonus Rate by Segment</div>
+          <div class="s4-seg-row">
+            <div class="s4-seg-lbl">Power Users</div>
+            <div class="s4-seg-bar-wrap"><div class="s4-seg-bar" style="width:20%; background:var(--c-bright);"></div></div>
+            <div class="s4-seg-val">0.5%</div>
+          </div>
+          <div class="s4-seg-row">
+            <div class="s4-seg-lbl">Regular (14/mo)</div>
+            <div class="s4-seg-bar-wrap"><div class="s4-seg-bar" style="width:45%; background:var(--c-bright);"></div></div>
+            <div class="s4-seg-val">3.0%</div>
+          </div>
+          <div class="s4-seg-row">
+            <div class="s4-seg-lbl">At-risk (lapsing)</div>
+            <div class="s4-seg-bar-wrap"><div class="s4-seg-bar" style="width:75%; background:var(--c-accent);"></div></div>
+            <div class="s4-seg-val">7.5%</div>
+          </div>
+          <div class="s4-seg-row">
+            <div class="s4-seg-lbl">Dormant (&gt;30d)</div>
+            <div class="s4-seg-bar-wrap"><div class="s4-seg-bar" style="width:100%; background:var(--c-accent);"></div></div>
+            <div class="s4-seg-val">12%</div>
+          </div>
+          <div class="s4-roi">
+            <div class="s4-roi-lbl">ROI vs blanket campaign</div>
+            <div class="s4-roi-val">3.1×</div>
+          </div>
+        </div>
+        <!-- Mission panel -->
+        <div class="s4-panel">
+          <div class="s4-p-title">Mission Completion Rates</div>
+          <div class="s4-m-row">
+            <div class="s4-m-lbl">First txn of the day</div>
+            <div class="s4-m-bar-wrap"><div class="s4-m-bar" style="width:89%; background:#22C55E;"></div></div>
+            <div class="s4-m-pct" style="color:#22C55E;">89%</div>
+          </div>
+          <div class="s4-m-row">
+            <div class="s4-m-lbl">Vending machine</div>
+            <div class="s4-m-bar-wrap"><div class="s4-m-bar" style="width:71%; background:#22C55E;"></div></div>
+            <div class="s4-m-pct" style="color:#22C55E;">71%</div>
+          </div>
+          <div class="s4-m-row">
+            <div class="s4-m-lbl">New restaurant cat.</div>
+            <div class="s4-m-bar-wrap"><div class="s4-m-bar" style="width:44%; background:var(--c-bright);"></div></div>
+            <div class="s4-m-pct" style="color:var(--c-bright);">44%</div>
+          </div>
+          <div class="s4-m-row">
+            <div class="s4-m-lbl">3 txns before noon</div>
+            <div class="s4-m-bar-wrap"><div class="s4-m-bar" style="width:38%; background:var(--c-gold);"></div></div>
+            <div class="s4-m-pct" style="color:var(--c-gold);">38%</div>
+          </div>
+          <div class="s4-m-row">
+            <div class="s4-m-lbl">Weekend streak</div>
+            <div class="s4-m-bar-wrap"><div class="s4-m-bar" style="width:22%; background:var(--c-gold);"></div></div>
+            <div class="s4-m-pct" style="color:var(--c-gold);">22%</div>
+          </div>
+        </div>
+        <!-- Nudge queue -->
+        <div class="s4-nudge">
+          <div class="s4-nudge-title">⚡ Nudge Queue — Stuck Users</div>
+          <div class="s4-nudge-row">
+            <div class="s4-nudge-lbl">At 40% mission progress</div>
+            <div class="s4-nudge-cnt">48,200</div>
+          </div>
+          <div class="s4-nudge-row">
+            <div class="s4-nudge-lbl">Weekend mission not started</div>
+            <div class="s4-nudge-cnt">31,700</div>
+          </div>
+          <div class="s4-nudge-row">
+            <div class="s4-nudge-lbl">Step tier 1 txn away</div>
+            <div class="s4-nudge-cnt">12,400</div>
+          </div>
+          <div class="s4-nudge-cta">Send Nudge Campaign →</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- proto-wrap -->
+
+<script>
+// Confetti — Screen 3
+const c = document.getElementById('conf');
+const cols = ['#E60012','#FF3347','#FF6B00','#FFD700','#ffffff','#FF9999','#FFB347'];
+for(let i=0;i<36;i++){
+  const p = document.createElement('div');
+  p.className = 'cp';
+  const sz = 4 + Math.random()*8;
+  p.style.cssText = 'left:'+Math.random()*100+'%;top:'+(Math.random()*120-10)+'%;width:'+sz+'px;height:'+sz+'px;background:'+cols[Math.floor(Math.random()*cols.length)]+';border-radius:'+(Math.random()>.5?'50%':'2px')+';animation-duration:'+(1.4+Math.random()*2)+'s;animation-delay:'+(Math.random()*2.5)+'s;';
+  c.appendChild(p);
+}
+</script>
+</body>
+</html>
