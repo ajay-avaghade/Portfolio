@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Navi CategoryLeap — Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --c-dark: #071A12;
+  --c-hero: #0E2A1C;
+  --c-bright: #00C853;
+  --c-accent: #22C55E;
+  --orange: #FF6B35;
+  --gold: #FFB800;
+  --blue: #3B82F6;
+  --ink: #0f172a;
+  --muted: #64748b;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Sora', sans-serif;
+  background: #020c07;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px;
+}
+.header-strip {
+  color: #FFB800;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.12em;
+  text-transform: uppercase; margin-bottom: 36px; opacity: 0.7;
+}
+.prototype-row {
+  display: flex; gap: 32px; align-items: flex-start; justify-content: center; flex-wrap: nowrap;
+}
+.phone-wrap { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.phone-label {
+  font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 500;
+  color: #FFB800; letter-spacing: 0.08em; text-transform: uppercase;
+}
+.phone {
+  width: 375px; height: 812px;
+  background: var(--c-dark); border-radius: 46px;
+  box-shadow: 0 40px 100px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.08);
+  overflow: hidden; position: relative; display: flex; flex-direction: column;
+}
+.notch {
+  width: 118px; height: 28px; background: #000;
+  border-radius: 0 0 16px 16px;
+  position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  z-index: 10; display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.nc { width: 10px; height: 10px; border-radius: 50%; background: #1a1a1a; }
+.ndot { width: 5px; height: 5px; border-radius: 50%; background: #2a2a2a; }
+.sbar {
+  height: 44px; display: flex; align-items: flex-end; justify-content: space-between;
+  padding: 0 20px 6px; font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 500;
+  color: #94a3b8; flex-shrink: 0;
+}
+.sc {
+  flex: 1; overflow-y: auto; overflow-x: hidden; max-height: 724px; scrollbar-width: none;
+}
+.sc::-webkit-scrollbar { display: none; }
+
+.sec-lbl {
+  padding: 8px 20px 5px; font-size: 9px; font-weight: 600; color: #475569;
+  font-family: 'DM Mono', monospace; letter-spacing: 0.08em; text-transform: uppercase;
+}
+.track { height: 8px; background: rgba(255,255,255,0.1); border-radius: 99px; overflow: visible; position: relative; }
+.fill { height: 100%; border-radius: 99px; position: relative; transition: .6s ease; }
+.fill-badge { position: absolute; right: -2px; top: -9px; color: #fff; font-size: 9px; font-weight: 700; padding: 2px 5px; border-radius: 6px; }
+
+.conf-wrap { position: absolute; inset: 0; pointer-events: none; overflow: hidden; border-radius: 46px; z-index: 19; }
+.cp { position: absolute; animation: fall linear forwards; }
+@keyframes fall {
+  0%   { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(900px) rotate(720deg); opacity: 0; }
+}
+
+/* =================== S1 — NAVI HOME + PORTFOLIO SCORE =================== */
+.s1 { background: var(--c-dark); }
+.s1 .sbar { background: var(--c-dark); }
+
+.s1-hdr {
+  padding: 12px 20px 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.s1-mark {
+  width: 26px; height: 26px; background: var(--c-bright); border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 800; color: #fff;
+}
+.s1-brand-name { font-size: 13px; font-weight: 700; color: #fff; margin-left: 8px; }
+.s1-notif {
+  width: 30px; height: 30px; border-radius: 8px;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+  display: flex; align-items: center; justify-content: center; font-size: 14px;
+}
+
+/* Portfolio Score Banner */
+.s1-score-banner {
+  margin: 12px 20px;
+  background: linear-gradient(135deg, rgba(255,184,0,0.15) 0%, rgba(0,200,83,0.1) 100%);
+  border: 1px solid rgba(255,184,0,0.35);
+  border-radius: 14px; padding: 14px 16px;
+}
+.s1-score-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.s1-score-label { font-size: 9px; font-weight: 700; color: #FFB800; letter-spacing: 0.06em; text-transform: uppercase; }
+.s1-score-tier {
+  background: rgba(255,184,0,0.2); border: 1px solid rgba(255,184,0,0.4);
+  border-radius: 20px; padding: 2px 10px;
+  font-size: 9px; font-weight: 700; color: #FFB800;
+  font-family: 'DM Mono', monospace;
+}
+.s1-score-num-row { display: flex; align-items: baseline; gap: 6px; margin-bottom: 8px; }
+.s1-score-big { font-family: 'DM Mono', monospace; font-size: 34px; font-weight: 700; color: #FFB800; line-height: 1; }
+.s1-score-denom { font-size: 14px; color: #64748b; }
+.s1-score-sub { font-size: 9px; color: #94a3b8; margin-bottom: 10px; }
+.s1-score-progress { margin-bottom: 6px; }
+.s1-score-progress-label {
+  display: flex; justify-content: space-between;
+  font-size: 8px; color: #64748b; margin-bottom: 4px;
+  font-family: 'DM Mono', monospace;
+}
+.s1-score-bar { height: 6px; background: rgba(255,255,255,0.1); border-radius: 99px; overflow: hidden; }
+.s1-score-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, #FFB800, #00C853); }
+
+/* Category pillars mini */
+.s1-pillars { display: flex; gap: 8px; margin-top: 8px; }
+.s1-pillar {
+  flex: 1; border-radius: 9px; padding: 7px 8px;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+}
+.s1-pillar-ico { font-size: 14px; }
+.s1-pillar-name { font-size: 8px; font-weight: 600; }
+.s1-pillar-status { font-size: 7.5px; font-family: 'DM Mono', monospace; }
+
+/* CTA banner */
+.s1-cta-card {
+  margin: 0 20px 12px;
+  background: rgba(0,200,83,0.1); border: 1px solid rgba(0,200,83,0.28);
+  border-radius: 11px; padding: 11px 14px;
+  display: flex; align-items: center; gap: 10px;
+}
+.s1-cta-ico { font-size: 18px; flex-shrink: 0; }
+.s1-cta-info { flex: 1; }
+.s1-cta-title { font-size: 10px; font-weight: 700; color: var(--c-bright); margin-bottom: 2px; }
+.s1-cta-sub { font-size: 8.5px; color: #64748b; line-height: 1.4; }
+.s1-cta-arrow { font-size: 14px; color: var(--c-bright); }
+
+/* Recent transactions */
+.s1-txn {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 20px; border-top: 1px solid rgba(255,255,255,0.05);
+}
+.s1-txn-ico {
+  width: 32px; height: 32px; border-radius: 9px;
+  display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0;
+}
+.s1-txn-info { flex: 1; }
+.s1-txn-name { font-size: 10px; font-weight: 600; color: #e2e8f0; }
+.s1-txn-detail { font-size: 8px; color: #64748b; margin-top: 1px; }
+.s1-txn-amt { font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 700; }
+
+/* =================== S2 — MILESTONE TRACKER =================== */
+.s2 { background: var(--c-hero); }
+.s2 .sbar { background: var(--c-hero); }
+
+.s2-hdr { padding: 12px 20px 10px; border-bottom: 1px solid rgba(255,255,255,0.07); }
+.s2-back { font-size: 9px; color: #FFB800; font-family: 'DM Mono', monospace; margin-bottom: 4px; }
+.s2-title { font-size: 14px; font-weight: 700; color: #fff; }
+.s2-sub { font-size: 9px; color: #64748b; margin-top: 2px; }
+
+/* Score progress in tracker */
+.s2-score-bar-wrap { padding: 10px 20px; }
+.s2-score-bar-label {
+  display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;
+}
+.s2-score-bar-left { font-size: 10px; font-weight: 700; color: #FFB800; }
+.s2-score-bar-right { font-size: 9px; color: #64748b; font-family: 'DM Mono', monospace; }
+.s2-tier-track { height: 10px; background: rgba(255,255,255,0.08); border-radius: 99px; position: relative; overflow: hidden; }
+.s2-tier-fill { height: 100%; background: linear-gradient(90deg, #FFB800, #00C853); border-radius: 99px; }
+.s2-tier-labels {
+  display: flex; justify-content: space-between;
+  font-size: 7.5px; color: #475569; font-family: 'DM Mono', monospace; margin-top: 4px;
+}
+
+/* Pillar blocks */
+.s2-pillar {
+  margin: 8px 20px;
+  border-radius: 12px; overflow: hidden;
+}
+.s2-pillar-hdr {
+  padding: 10px 14px;
+  display: flex; align-items: center; gap: 10px;
+}
+.s2-pillar-ico { font-size: 16px; flex-shrink: 0; }
+.s2-pillar-info { flex: 1; }
+.s2-pillar-name { font-size: 11px; font-weight: 700; color: #fff; }
+.s2-pillar-progress { font-size: 8.5px; margin-top: 1px; font-family: 'DM Mono', monospace; }
+.s2-pillar-badge {
+  font-size: 9px; font-weight: 700; padding: 3px 9px;
+  border-radius: 20px; font-family: 'DM Mono', monospace; flex-shrink: 0;
+}
+.s2-milestones { padding: 4px 14px 12px; display: flex; flex-direction: column; gap: 6px; }
+.s2-ms {
+  display: flex; align-items: flex-start; gap: 9px;
+  padding: 8px 10px; border-radius: 8px;
+}
+.s2-ms-check {
+  width: 18px; height: 18px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; flex-shrink: 0; margin-top: 1px;
+}
+.s2-ms-body { flex: 1; }
+.s2-ms-title { font-size: 10px; font-weight: 600; line-height: 1.3; }
+.s2-ms-sub { font-size: 8.5px; margin-top: 1px; line-height: 1.4; }
+
+/* =================== S3 — MILESTONE ACHIEVED (CONFETTI) =================== */
+.s3 { background: var(--c-dark); }
+.s3 .sbar { background: var(--c-dark); }
+
+.s3-inner {
+  padding: 28px 22px;
+  display: flex; flex-direction: column; align-items: center;
+}
+.s3-badge-ring {
+  width: 80px; height: 80px; border-radius: 50%;
+  background: rgba(255,184,0,0.15); border: 3px solid #FFB800;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 34px; margin-bottom: 16px;
+}
+.s3-tier-tag {
+  background: linear-gradient(135deg, #FFB800, #FF6B35);
+  border-radius: 20px; padding: 4px 16px;
+  font-size: 12px; font-weight: 800; color: #fff;
+  margin-bottom: 12px; letter-spacing: 0.04em;
+}
+.s3-title { font-size: 22px; font-weight: 800; color: #fff; text-align: center; margin-bottom: 6px; }
+.s3-sub { font-size: 11px; color: #94a3b8; text-align: center; line-height: 1.5; margin-bottom: 20px; }
+
+/* Category badges */
+.s3-categories { display: flex; gap: 8px; margin-bottom: 20px; }
+.s3-cat-badge {
+  flex: 1; border-radius: 10px; padding: 10px 8px;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+}
+.s3-cat-ico { font-size: 18px; }
+.s3-cat-name { font-size: 9px; font-weight: 700; }
+.s3-cat-status { font-size: 8px; }
+
+/* CLTV projection */
+.s3-cltv-card {
+  width: 100%;
+  background: rgba(0,200,83,0.1); border: 1px solid rgba(0,200,83,0.28);
+  border-radius: 12px; padding: 14px 16px; margin-bottom: 14px;
+}
+.s3-cltv-label { font-size: 9px; color: #64748b; font-family: 'DM Mono', monospace; margin-bottom: 6px; }
+.s3-cltv-row { display: flex; align-items: center; justify-content: space-between; }
+.s3-cltv-from { font-family: 'DM Mono', monospace; font-size: 14px; color: #64748b; text-decoration: line-through; }
+.s3-cltv-arrow { font-size: 16px; color: #94a3b8; }
+.s3-cltv-to { font-family: 'DM Mono', monospace; font-size: 22px; font-weight: 700; color: var(--c-bright); }
+
+/* Benefits */
+.s3-benefits { width: 100%; display: flex; flex-direction: column; gap: 7px; margin-bottom: 14px; }
+.s3-benefit {
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px; padding: 9px 13px;
+  display: flex; align-items: center; gap: 10px;
+}
+.s3-benefit-ico { font-size: 14px; }
+.s3-benefit-text { font-size: 10px; color: #e2e8f0; flex: 1; }
+.s3-benefit-val { font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 700; color: #FFB800; }
+
+.s3-next-cta {
+  width: 100%; background: var(--c-bright); border: none; border-radius: 12px;
+  padding: 13px; font-family: 'Sora', sans-serif; font-size: 12px; font-weight: 700; color: #fff;
+  cursor: default; text-align: center;
+}
+
+/* =================== S4 — OPS CLTV DASHBOARD =================== */
+.s4 { background: var(--c-hero); }
+.s4 .sbar { background: var(--c-hero); }
+
+.s4-hdr { padding: 12px 20px 10px; border-bottom: 1px solid rgba(255,255,255,0.07); }
+.s4-title { font-size: 14px; font-weight: 700; color: #fff; }
+.s4-sub { font-size: 9px; color: #64748b; margin-top: 2px; }
+
+.s4-kpis { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; padding: 12px 20px 10px; }
+.s4-kpi { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 10px 8px; text-align: center; }
+.s4-kpi-val { font-family: 'DM Mono', monospace; font-size: 14px; font-weight: 700; }
+.s4-kpi-lbl { font-size: 7.5px; color: #64748b; margin-top: 3px; line-height: 1.3; }
+
+/* CLTV cohorts */
+.s4-cohort-list { padding: 0 20px 12px; }
+.s4-cohort {
+  padding: 10px 12px; border-radius: 10px; margin-bottom: 7px;
+}
+.s4-cohort-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.s4-cohort-name { font-size: 11px; font-weight: 700; color: #fff; }
+.s4-cohort-cltv { font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 700; }
+.s4-cohort-users { font-size: 8px; color: #64748b; margin-bottom: 5px; }
+
+/* Milestone funnel */
+.s4-funnel-list { padding: 0 20px 12px; }
+.s4-funnel-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.s4-funnel-lbl { font-size: 9.5px; color: #e2e8f0; width: 120px; flex-shrink: 0; }
+.s4-funnel-bar { flex: 1; height: 10px; background: rgba(255,255,255,0.07); border-radius: 99px; overflow: hidden; }
+.s4-funnel-fill { height: 100%; border-radius: 99px; }
+.s4-funnel-pct { font-family: 'DM Mono', monospace; font-size: 9px; font-weight: 700; width: 34px; text-align: right; flex-shrink: 0; }
+
+/* Drop-off insight */
+.s4-drop-box {
+  margin: 0 20px 10px;
+  background: rgba(255,107,53,0.08); border: 1px solid rgba(255,107,53,0.22);
+  border-radius: 11px; padding: 12px 14px;
+}
+.s4-drop-title { font-size: 10px; font-weight: 700; color: #FF6B35; margin-bottom: 5px; }
+.s4-drop-text { font-size: 8.5px; color: #94a3b8; line-height: 1.5; }
+
+.s4-action-box {
+  margin: 0 20px 14px;
+  background: rgba(0,200,83,0.08); border: 1px solid rgba(0,200,83,0.2);
+  border-radius: 11px; padding: 12px 14px;
+}
+.s4-action-title { font-size: 10px; font-weight: 700; color: var(--c-bright); margin-bottom: 4px; }
+.s4-action-text { font-size: 8.5px; color: #94a3b8; line-height: 1.5; }
+</style>
+</head>
+<body>
+
+<div class="header-strip">Navi — CategoryLeap &nbsp;·&nbsp; Cross-Category Milestone &amp; CLTV Engine &nbsp;·&nbsp; Interactive Prototype</div>
+
+<div class="prototype-row">
+
+  <!-- ===== PHONE 1: NAVI HOME + PORTFOLIO SCORE ===== -->
+  <div class="phone-wrap">
+    <div class="phone-label">01 — NAVI HOME</div>
+    <div class="phone s1">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="sbar"><span>9:41</span><span>▲▲▲ ⬡ 100%</span></div>
+      <div class="sc">
+
+        <div class="s1-hdr">
+          <div style="display:flex;align-items:center;">
+            <div class="s1-mark">N</div>
+            <div class="s1-brand-name">Navi</div>
+          </div>
+          <div class="s1-notif">🔔</div>
+        </div>
+
+        <!-- Portfolio Score Banner -->
+        <div class="s1-score-banner">
+          <div class="s1-score-top">
+            <div class="s1-score-label">Financial Portfolio Score</div>
+            <div class="s1-score-tier">🥉 Bronze</div>
+          </div>
+          <div class="s1-score-num-row">
+            <div class="s1-score-big">47</div>
+            <div class="s1-score-denom">/ 100</div>
+          </div>
+          <div class="s1-score-sub">Complete 2 more milestones to unlock Silver tier benefits</div>
+          <div class="s1-score-progress">
+            <div class="s1-score-progress-label">
+              <span>Bronze</span><span>Silver · 65pts</span><span>Gold · 80pts</span>
+            </div>
+            <div class="s1-score-bar"><div class="s1-score-fill" style="width:47%;"></div></div>
+          </div>
+
+          <div class="s1-pillars">
+            <div class="s1-pillar" style="background:rgba(0,200,83,0.12);border:1px solid rgba(0,200,83,0.25);">
+              <div class="s1-pillar-ico">📱</div>
+              <div class="s1-pillar-name" style="color:#00C853;">UPI</div>
+              <div class="s1-pillar-status" style="color:#00C853;">3/3 ✓</div>
+            </div>
+            <div class="s1-pillar" style="background:rgba(255,107,53,0.1);border:1px solid rgba(255,107,53,0.25);">
+              <div class="s1-pillar-ico">💼</div>
+              <div class="s1-pillar-name" style="color:#FF6B35;">Loans</div>
+              <div class="s1-pillar-status" style="color:#FF6B35;">1/3 ⚡</div>
+            </div>
+            <div class="s1-pillar" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);">
+              <div class="s1-pillar-ico">🛡️</div>
+              <div class="s1-pillar-name" style="color:#64748b;">Insurance</div>
+              <div class="s1-pillar-status" style="color:#64748b;">0/3 ○</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CTA card -->
+        <div class="s1-cta-card">
+          <div class="s1-cta-ico">💼</div>
+          <div class="s1-cta-info">
+            <div class="s1-cta-title">Next: Complete Loans milestone 2</div>
+            <div class="s1-cta-sub">Apply for a loan product — unlocks Silver tier + processing fee waiver worth ₹1,999</div>
+          </div>
+          <div class="s1-cta-arrow">›</div>
+        </div>
+
+        <div class="sec-lbl">Recent UPI Activity</div>
+        <div class="s1-txn">
+          <div class="s1-txn-ico" style="background:rgba(255,107,53,0.12);">🍕</div>
+          <div class="s1-txn-info">
+            <div class="s1-txn-name">Swiggy</div>
+            <div class="s1-txn-detail">UPI · 2 hrs ago</div>
+          </div>
+          <div class="s1-txn-amt" style="color:#EF4444;">−₹340</div>
+        </div>
+        <div class="s1-txn">
+          <div class="s1-txn-ico" style="background:rgba(0,200,83,0.12);">💰</div>
+          <div class="s1-txn-info">
+            <div class="s1-txn-name">Salary Credit</div>
+            <div class="s1-txn-detail">UPI · Yesterday</div>
+          </div>
+          <div class="s1-txn-amt" style="color:#00C853;">+₹68,400</div>
+        </div>
+        <div class="s1-txn">
+          <div class="s1-txn-ico" style="background:rgba(59,130,246,0.12);">🏠</div>
+          <div class="s1-txn-info">
+            <div class="s1-txn-name">Rent Payment</div>
+            <div class="s1-txn-detail">UPI · 2 days ago</div>
+          </div>
+          <div class="s1-txn-amt" style="color:#EF4444;">−₹18,000</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PHONE 2: MILESTONE TRACKER ===== -->
+  <div class="phone-wrap">
+    <div class="phone-label">02 — MILESTONE TRACKER</div>
+    <div class="phone s2">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="sbar"><span>9:41</span><span>▲▲▲ ⬡ 100%</span></div>
+      <div class="sc">
+
+        <div class="s2-hdr">
+          <div class="s2-back">‹ Financial Portfolio</div>
+          <div class="s2-title">CategoryLeap Milestones</div>
+          <div class="s2-sub">Complete across all 3 pillars to maximise your score</div>
+        </div>
+
+        <!-- Tier progress bar -->
+        <div class="s2-score-bar-wrap">
+          <div class="s2-score-bar-label">
+            <span class="s2-score-bar-left">Score: 47 / 100</span>
+            <span class="s2-score-bar-right">Silver at 65pts</span>
+          </div>
+          <div class="s2-tier-track">
+            <div class="s2-tier-fill" style="width:47%;"></div>
+          </div>
+          <div class="s2-tier-labels">
+            <span>Bronze</span><span>Silver</span><span>Gold</span><span>Platinum</span>
+          </div>
+        </div>
+
+        <!-- UPI Pillar — Complete -->
+        <div class="s2-pillar" style="background:rgba(0,200,83,0.08);border:1px solid rgba(0,200,83,0.2);">
+          <div class="s2-pillar-hdr" style="background:rgba(0,200,83,0.12);">
+            <div class="s2-pillar-ico">📱</div>
+            <div class="s2-pillar-info">
+              <div class="s2-pillar-name">UPI Pillar</div>
+              <div class="s2-pillar-progress" style="color:#00C853;">3 of 3 milestones complete</div>
+            </div>
+            <div class="s2-pillar-badge" style="background:rgba(0,200,83,0.2);color:#00C853;border:1px solid rgba(0,200,83,0.3);">✓ Done</div>
+          </div>
+          <div class="s2-milestones">
+            <div class="s2-ms" style="background:rgba(0,200,83,0.08);">
+              <div class="s2-ms-check" style="background:#00C853;">✓</div>
+              <div class="s2-ms-body">
+                <div class="s2-ms-title" style="color:#e2e8f0;">Pay 10+ unique merchants</div>
+                <div class="s2-ms-sub" style="color:#64748b;">18 merchants this month · +8 pts</div>
+              </div>
+            </div>
+            <div class="s2-ms" style="background:rgba(0,200,83,0.08);">
+              <div class="s2-ms-check" style="background:#00C853;">✓</div>
+              <div class="s2-ms-body">
+                <div class="s2-ms-title" style="color:#e2e8f0;">Pay 3 different bill categories</div>
+                <div class="s2-ms-sub" style="color:#64748b;">Rent, electricity, broadband · +7 pts</div>
+              </div>
+            </div>
+            <div class="s2-ms" style="background:rgba(0,200,83,0.08);">
+              <div class="s2-ms-check" style="background:#00C853;">✓</div>
+              <div class="s2-ms-body">
+                <div class="s2-ms-title" style="color:#e2e8f0;">Send to 5 unique contacts</div>
+                <div class="s2-ms-sub" style="color:#64748b;">7 contacts · +7 pts</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Loans Pillar — In Progress -->
+        <div class="s2-pillar" style="background:rgba(255,107,53,0.06);border:1px solid rgba(255,107,53,0.2);">
+          <div class="s2-pillar-hdr" style="background:rgba(255,107,53,0.1);">
+            <div class="s2-pillar-ico">💼</div>
+            <div class="s2-pillar-info">
+              <div class="s2-pillar-name">Loans Pillar</div>
+              <div class="s2-pillar-progress" style="color:#FF6B35;">1 of 3 milestones complete</div>
+            </div>
+            <div class="s2-pillar-badge" style="background:rgba(255,107,53,0.15);color:#FF6B35;border:1px solid rgba(255,107,53,0.3);">⚡ Active</div>
+          </div>
+          <div class="s2-milestones">
+            <div class="s2-ms" style="background:rgba(0,200,83,0.06);">
+              <div class="s2-ms-check" style="background:#00C853;">✓</div>
+              <div class="s2-ms-body">
+                <div class="s2-ms-title" style="color:#e2e8f0;">Check loan eligibility</div>
+                <div class="s2-ms-sub" style="color:#64748b;">Completed 3 days ago · +7 pts</div>
+              </div>
+            </div>
+            <div class="s2-ms" style="background:rgba(255,184,0,0.06);">
+              <div class="s2-ms-check" style="background:#FFB800;color:#000;">→</div>
+              <div class="s2-ms-body">
+                <div class="s2-ms-title" style="color:#FFB800;">Apply for a loan product</div>
+                <div class="s2-ms-sub" style="color:#94a3b8;">Next step — unlocks Silver tier · +10 pts</div>
+              </div>
+            </div>
+            <div class="s2-ms" style="background:rgba(255,255,255,0.02);">
+              <div class="s2-ms-check" style="background:rgba(255,255,255,0.1);color:#64748b;">○</div>
+              <div class="s2-ms-body">
+                <div class="s2-ms-title" style="color:#64748b;">Complete 3 EMI payments</div>
+                <div class="s2-ms-sub" style="color:#475569;">Locked until step 2 complete</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Insurance Pillar — Locked -->
+        <div class="s2-pillar" style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);">
+          <div class="s2-pillar-hdr" style="background:rgba(255,255,255,0.04);">
+            <div class="s2-pillar-ico">🛡️</div>
+            <div class="s2-pillar-info">
+              <div class="s2-pillar-name">Insurance Pillar</div>
+              <div class="s2-pillar-progress" style="color:#64748b;">0 of 3 milestones — not started</div>
+            </div>
+            <div class="s2-pillar-badge" style="background:rgba(255,255,255,0.06);color:#64748b;border:1px solid rgba(255,255,255,0.1);">○ Pending</div>
+          </div>
+          <div class="s2-milestones">
+            <div class="s2-ms">
+              <div class="s2-ms-check" style="background:rgba(255,255,255,0.08);color:#64748b;">○</div>
+              <div class="s2-ms-body">
+                <div class="s2-ms-title" style="color:#64748b;">Get a term insurance quote</div>
+                <div class="s2-ms-sub" style="color:#475569;">Start your protection journey · +8 pts</div>
+              </div>
+            </div>
+            <div class="s2-ms">
+              <div class="s2-ms-check" style="background:rgba(255,255,255,0.08);color:#64748b;">○</div>
+              <div class="s2-ms-body">
+                <div class="s2-ms-title" style="color:#64748b;">Purchase a health insurance plan</div>
+                <div class="s2-ms-sub" style="color:#475569;">+10 pts · Gold tier eligible</div>
+              </div>
+            </div>
+            <div class="s2-ms">
+              <div class="s2-ms-check" style="background:rgba(255,255,255,0.08);color:#64748b;">○</div>
+              <div class="s2-ms-body">
+                <div class="s2-ms-title" style="color:#64748b;">Pay first insurance premium on time</div>
+                <div class="s2-ms-sub" style="color:#475569;">+10 pts · completes 3-pillar portfolio</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PHONE 3: MILESTONE ACHIEVED ===== -->
+  <div class="phone-wrap">
+    <div class="phone-label">03 — SILVER TIER UNLOCKED</div>
+    <div class="phone s3">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="sbar"><span>9:41</span><span>▲▲▲ ⬡ 100%</span></div>
+      <div class="conf-wrap" id="conf3"></div>
+      <div class="sc">
+
+        <div class="s3-inner">
+          <div class="s3-badge-ring">🥈</div>
+          <div class="s3-tier-tag">SILVER TIER UNLOCKED</div>
+          <div class="s3-title">You made the leap!</div>
+          <div class="s3-sub">UPI + Loans active. You are now a 2-category Navi user — unlocking a full suite of tier benefits.</div>
+
+          <!-- Category badges -->
+          <div class="s3-categories">
+            <div class="s3-cat-badge" style="background:rgba(0,200,83,0.12);border:1px solid rgba(0,200,83,0.3);">
+              <div class="s3-cat-ico">📱</div>
+              <div class="s3-cat-name" style="color:#00C853;">UPI</div>
+              <div class="s3-cat-status" style="color:#00C853;">✓ Complete</div>
+            </div>
+            <div class="s3-cat-badge" style="background:rgba(255,184,0,0.12);border:1px solid rgba(255,184,0,0.3);">
+              <div class="s3-cat-ico">💼</div>
+              <div class="s3-cat-name" style="color:#FFB800;">Loans</div>
+              <div class="s3-cat-status" style="color:#FFB800;">✓ Active</div>
+            </div>
+            <div class="s3-cat-badge" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);">
+              <div class="s3-cat-ico">🛡️</div>
+              <div class="s3-cat-name" style="color:#64748b;">Insurance</div>
+              <div class="s3-cat-status" style="color:#64748b;">○ Next up</div>
+            </div>
+          </div>
+
+          <!-- CLTV projection -->
+          <div class="s3-cltv-card">
+            <div class="s3-cltv-label">Projected annual CLTV</div>
+            <div class="s3-cltv-row">
+              <div class="s3-cltv-from">₹18.4K</div>
+              <div class="s3-cltv-arrow">→</div>
+              <div class="s3-cltv-to">₹31,200</div>
+            </div>
+          </div>
+
+          <!-- Benefits -->
+          <div class="s3-benefits">
+            <div class="s3-benefit">
+              <div class="s3-benefit-ico">💳</div>
+              <div class="s3-benefit-text">Processing fee waiver on next loan</div>
+              <div class="s3-benefit-val">₹1,999</div>
+            </div>
+            <div class="s3-benefit">
+              <div class="s3-benefit-ico">⚡</div>
+              <div class="s3-benefit-text">Priority loan processing</div>
+              <div class="s3-benefit-val">24 hrs</div>
+            </div>
+            <div class="s3-benefit">
+              <div class="s3-benefit-ico">🎯</div>
+              <div class="s3-benefit-text">Early access to new Navi features</div>
+              <div class="s3-benefit-val">Exclusive</div>
+            </div>
+          </div>
+
+          <div class="s3-next-cta">Start Insurance journey → Unlock Gold 🥇</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PHONE 4: OPS CLTV DASHBOARD ===== -->
+  <div class="phone-wrap">
+    <div class="phone-label">04 — OPS CLTV DASHBOARD</div>
+    <div class="phone s4">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="sbar"><span>9:41</span><span>▲▲▲ ⬡ 100%</span></div>
+      <div class="sc">
+
+        <div class="s4-hdr">
+          <div class="s4-title">CategoryLeap Ops</div>
+          <div class="s4-sub">CLTV by category cohort · 14.2M active users</div>
+        </div>
+
+        <div class="s4-kpis">
+          <div class="s4-kpi">
+            <div class="s4-kpi-val" style="color:#FFB800;">1.8×</div>
+            <div class="s4-kpi-lbl">Avg CLTV lift 1→2 categories</div>
+          </div>
+          <div class="s4-kpi">
+            <div class="s4-kpi-val" style="color:#00C853;">3.7×</div>
+            <div class="s4-kpi-lbl">Avg CLTV lift 1→3 categories</div>
+          </div>
+          <div class="s4-kpi">
+            <div class="s4-kpi-val" style="color:#FF6B35;">34%</div>
+            <div class="s4-kpi-lbl">Users on 2+ categories</div>
+          </div>
+        </div>
+
+        <div class="sec-lbl">CLTV by Category Cohort</div>
+        <div class="s4-cohort-list">
+
+          <div class="s4-cohort" style="background:rgba(0,200,83,0.08);border:1px solid rgba(0,200,83,0.18);">
+            <div class="s4-cohort-top">
+              <div class="s4-cohort-name">🥇 3 Categories (Gold/Plat)</div>
+              <div class="s4-cohort-cltv" style="color:#00C853;">₹61,200/yr</div>
+            </div>
+            <div class="s4-cohort-users">27% of users · UPI + Loans + Insurance active</div>
+            <div class="track"><div class="fill" style="width:100%;background:#00C853;"><span class="fill-badge" style="background:#00C853;">3.7×</span></div></div>
+          </div>
+
+          <div class="s4-cohort" style="background:rgba(255,184,0,0.08);border:1px solid rgba(255,184,0,0.18);">
+            <div class="s4-cohort-top">
+              <div class="s4-cohort-name">🥈 2 Categories (Silver)</div>
+              <div class="s4-cohort-cltv" style="color:#FFB800;">₹24,600/yr</div>
+            </div>
+            <div class="s4-cohort-users">31% of users · 2 pillars active</div>
+            <div class="track"><div class="fill" style="width:54%;background:#FFB800;"><span class="fill-badge" style="background:#FFB800;">1.8×</span></div></div>
+          </div>
+
+          <div class="s4-cohort" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);">
+            <div class="s4-cohort-top">
+              <div class="s4-cohort-name">🥉 1 Category (Bronze)</div>
+              <div class="s4-cohort-cltv" style="color:#64748b;">₹8,400/yr</div>
+            </div>
+            <div class="s4-cohort-users">42% of users · UPI only · High opportunity</div>
+            <div class="track"><div class="fill" style="width:14%;background:#64748b;"><span class="fill-badge" style="background:#64748b;">base</span></div></div>
+          </div>
+
+        </div>
+
+        <div class="sec-lbl">Milestone Completion Funnel</div>
+        <div class="s4-funnel-list">
+          <div class="s4-funnel-row">
+            <div class="s4-funnel-lbl">UPI Pillar complete</div>
+            <div class="s4-funnel-bar"><div class="s4-funnel-fill" style="width:100%;background:#00C853;"></div></div>
+            <div class="s4-funnel-pct" style="color:#00C853;">100%</div>
+          </div>
+          <div class="s4-funnel-row">
+            <div class="s4-funnel-lbl">Loans milestone 1</div>
+            <div class="s4-funnel-bar"><div class="s4-funnel-fill" style="width:72%;background:#FFB800;"></div></div>
+            <div class="s4-funnel-pct" style="color:#FFB800;">72%</div>
+          </div>
+          <div class="s4-funnel-row">
+            <div class="s4-funnel-lbl">Loans milestone 2</div>
+            <div class="s4-funnel-bar"><div class="s4-funnel-fill" style="width:48%;background:#FF6B35;"></div></div>
+            <div class="s4-funnel-pct" style="color:#FF6B35;">48%</div>
+          </div>
+          <div class="s4-funnel-row">
+            <div class="s4-funnel-lbl">Loans pillar complete</div>
+            <div class="s4-funnel-bar"><div class="s4-funnel-fill" style="width:34%;background:#FF6B35;"></div></div>
+            <div class="s4-funnel-pct" style="color:#FF6B35;">34%</div>
+          </div>
+          <div class="s4-funnel-row">
+            <div class="s4-funnel-lbl">Insurance pillar complete</div>
+            <div class="s4-funnel-bar"><div class="s4-funnel-fill" style="width:27%;background:#64748b;"></div></div>
+            <div class="s4-funnel-pct" style="color:#94a3b8;">27%</div>
+          </div>
+        </div>
+
+        <div class="s4-drop-box">
+          <div class="s4-drop-title">⚠ Biggest Drop-off: Loans M1 → M2</div>
+          <div class="s4-drop-text">72% complete eligibility check but only 48% apply for a product — 24pp gap at the decision point. GrowthOS Aspiration variant + ₹200 cashback offer drives 34% higher completion at this step.</div>
+        </div>
+
+        <div class="s4-action-box">
+          <div class="s4-action-title">⚡ Recommended Action</div>
+          <div class="s4-action-text">Send GrowthOS Insurance recommendation to 4.1M users who completed Loans pillar — estimated 38% conversion to Insurance milestone 1, lifting portfolio CLTV by +₹12.4K per converted user.</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div><!-- /prototype-row -->
+
+<script>
+// Auto-trigger confetti on Screen 3 (the achievement screen)
+window.addEventListener('load', function() {
+  var c = document.getElementById('conf3');
+  var cols = ['#00C853','#FFB800','#FF6B35','#60A5FA','#FBBF24','#F472B6','#34D399'];
+  for (var i = 0; i < 32; i++) {
+    var p = document.createElement('div');
+    p.className = 'cp';
+    var size = 4 + Math.random() * 7;
+    p.style.cssText = 'left:' + (Math.random() * 100) + '%;top:' + (Math.random() * 120 - 10) + '%;width:' + size + 'px;height:' + size + 'px;background:' + cols[Math.floor(Math.random() * cols.length)] + ';border-radius:' + (Math.random() > 0.5 ? '50%' : '2px') + ';animation-duration:' + (1.4 + Math.random() * 1.8) + 's;animation-delay:' + (Math.random() * 2.4) + 's;';
+    c.appendChild(p);
+  }
+});
+</script>
+</body>
+</html>

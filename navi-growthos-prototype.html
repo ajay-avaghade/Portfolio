@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Navi GrowthOS — Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --c-dark: #071A12;
+  --c-hero: #0E2A1C;
+  --c-bright: #00C853;
+  --c-accent: #22C55E;
+  --orange: #FF6B35;
+  --gold: #FFB800;
+  --red: #EF4444;
+  --ink: #0f172a;
+  --muted: #64748b;
+  --white: #ffffff;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Sora', sans-serif;
+  background: #020c07;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px;
+}
+.header-strip {
+  color: #00C853;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 36px;
+  opacity: 0.7;
+}
+.prototype-row {
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+  justify-content: center;
+  flex-wrap: nowrap;
+}
+.phone-wrap { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.phone-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  font-weight: 500;
+  color: #00C853;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.phone {
+  width: 375px;
+  height: 812px;
+  background: var(--c-dark);
+  border-radius: 46px;
+  box-shadow: 0 40px 100px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.08);
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+.notch {
+  width: 118px; height: 28px;
+  background: #000;
+  border-radius: 0 0 16px 16px;
+  position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  z-index: 10;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.nc { width: 10px; height: 10px; border-radius: 50%; background: #1a1a1a; }
+.ndot { width: 5px; height: 5px; border-radius: 50%; background: #2a2a2a; }
+.sbar {
+  height: 44px;
+  display: flex; align-items: flex-end; justify-content: space-between;
+  padding: 0 20px 6px;
+  font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 500;
+  color: #94a3b8; flex-shrink: 0;
+}
+.sc {
+  flex: 1;
+  overflow-y: auto; overflow-x: hidden;
+  max-height: 724px;
+  scrollbar-width: none;
+}
+.sc::-webkit-scrollbar { display: none; }
+
+/* Shared */
+.sec-lbl {
+  padding: 8px 20px 5px;
+  font-size: 9px; font-weight: 600; color: #475569;
+  font-family: 'DM Mono', monospace; letter-spacing: 0.08em; text-transform: uppercase;
+}
+.track { height: 6px; background: rgba(255,255,255,0.1); border-radius: 99px; overflow: visible; position: relative; }
+.fill { height: 100%; border-radius: 99px; position: relative; transition: .6s ease; }
+.fill-badge { position: absolute; right: -2px; top: -9px; color: #fff; font-size: 9px; font-weight: 700; padding: 2px 5px; border-radius: 6px; }
+
+.conf-wrap { position: absolute; inset: 0; pointer-events: none; overflow: hidden; border-radius: 46px; z-index: 19; }
+.cp { position: absolute; animation: fall linear forwards; }
+@keyframes fall {
+  0%   { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(900px) rotate(720deg); opacity: 0; }
+}
+
+/* =================== S1 — CDP UNIFIED PROFILE =================== */
+.s1 { background: var(--c-dark); }
+.s1 .sbar { background: var(--c-dark); }
+
+.s1-hdr {
+  padding: 14px 20px 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.s1-brand { display: flex; align-items: center; gap: 8px; }
+.s1-mark {
+  width: 26px; height: 26px; background: var(--c-bright); border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 800; color: #fff;
+}
+.s1-brand-name { font-size: 13px; font-weight: 700; color: #fff; }
+.s1-brand-sub { font-size: 8px; color: var(--c-bright); font-family: 'DM Mono', monospace; }
+.s1-user-chip {
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 20px; padding: 4px 10px;
+}
+.s1-avatar {
+  width: 20px; height: 20px; border-radius: 50%; background: var(--c-bright);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 700; color: #fff;
+}
+.s1-uname { font-size: 9px; color: #e2e8f0; font-weight: 600; }
+
+/* CLTV band */
+.s1-cltv-band {
+  margin: 12px 20px;
+  background: rgba(0,200,83,0.1); border: 1px solid rgba(0,200,83,0.25);
+  border-radius: 14px; padding: 14px 16px;
+  display: flex; align-items: center; gap: 14px;
+}
+.s1-ring {
+  width: 62px; height: 62px; flex-shrink: 0;
+  border-radius: 50%; border: 4px solid var(--c-bright);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  background: rgba(0,200,83,0.08);
+}
+.s1-ring-num { font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 700; color: var(--c-bright); line-height: 1; }
+.s1-ring-lbl { font-size: 7px; color: #64748b; }
+.s1-cltv-info { flex: 1; }
+.s1-cltv-title { font-size: 11px; font-weight: 700; color: #e2e8f0; margin-bottom: 3px; }
+.s1-cltv-sub { font-size: 8.5px; color: #64748b; line-height: 1.4; }
+.s1-potential {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: rgba(0,200,83,0.15); border-radius: 6px;
+  padding: 2px 8px; font-size: 9px; font-weight: 700;
+  color: var(--c-bright); margin-top: 5px; font-family: 'DM Mono', monospace;
+}
+
+/* Products */
+.s1-prod-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 8px; padding: 0 20px 12px;
+}
+.s1-prod {
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 11px; padding: 10px 12px;
+}
+.s1-prod-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; }
+.s1-prod-name { font-size: 10px; font-weight: 600; color: #e2e8f0; }
+.s1-prod-status { font-size: 9px; font-family: 'DM Mono', monospace; }
+.s1-prop-lbl { font-size: 7.5px; color: #64748b; margin-bottom: 3px; }
+.s1-prop-bar { height: 5px; background: rgba(255,255,255,0.1); border-radius: 99px; overflow: hidden; }
+.s1-prop-fill { height: 100%; border-radius: 99px; }
+
+/* NBO chip */
+.s1-nbo {
+  margin: 0 20px 12px;
+  background: rgba(0,200,83,0.12); border: 1px solid rgba(0,200,83,0.3);
+  border-radius: 10px; padding: 10px 14px;
+  display: flex; align-items: center; gap: 10px;
+}
+.s1-nbo-ico { font-size: 18px; flex-shrink: 0; }
+.s1-nbo-info { flex: 1; }
+.s1-nbo-title { font-size: 10px; font-weight: 700; color: var(--c-bright); margin-bottom: 2px; }
+.s1-nbo-sub { font-size: 8.5px; color: #64748b; }
+.s1-nbo-arr { font-size: 14px; color: var(--c-bright); }
+
+/* Signal feed */
+.s1-signal {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 8px 20px; border-top: 1px solid rgba(255,255,255,0.05);
+}
+.s1-sig-dot { width: 7px; height: 7px; border-radius: 50%; margin-top: 4px; flex-shrink: 0; }
+.s1-sig-text { font-size: 8.5px; color: #94a3b8; line-height: 1.4; flex: 1; }
+.s1-sig-time { font-size: 7.5px; color: #475569; font-family: 'DM Mono', monospace; white-space: nowrap; }
+
+/* =================== S2 — CRM BUILDER =================== */
+.s2 { background: var(--c-hero); }
+.s2 .sbar { background: var(--c-hero); }
+
+.s2-hdr { padding: 14px 20px 10px; border-bottom: 1px solid rgba(255,255,255,0.07); }
+.s2-title { font-size: 14px; font-weight: 700; color: #fff; }
+.s2-sub { font-size: 9px; color: #64748b; margin-top: 2px; }
+
+.s2-seg {
+  margin: 10px 20px 8px;
+  background: rgba(0,200,83,0.1); border: 1px solid rgba(0,200,83,0.25);
+  border-radius: 9px; padding: 8px 12px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.s2-seg-label { font-size: 9px; font-weight: 600; color: var(--c-bright); }
+.s2-seg-count { font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 700; color: var(--c-bright); }
+
+.s2-row {
+  padding: 6px 20px;
+  display: flex; align-items: center; gap: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.s2-row-key { font-size: 9px; color: #64748b; width: 80px; flex-shrink: 0; }
+.s2-row-val {
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 6px; padding: 3px 10px;
+  font-size: 9.5px; font-weight: 600; color: #e2e8f0;
+}
+
+/* Story variants */
+.s2-variants { padding: 6px 20px 10px; display: flex; flex-direction: column; gap: 7px; }
+.s2-vcard {
+  border-radius: 10px; padding: 10px 12px;
+  border: 1.5px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.03);
+  display: flex; align-items: flex-start; gap: 10px;
+}
+.s2-vcard.sel { background: rgba(0,200,83,0.1); border-color: rgba(0,200,83,0.4); }
+.s2-radio {
+  width: 16px; height: 16px; border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.3);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 2px;
+}
+.s2-radio.sel { border-color: var(--c-bright); }
+.s2-radio-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--c-bright); }
+.s2-vbody { flex: 1; }
+.s2-vtype { font-size: 8px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; margin-bottom: 2px; }
+.s2-vcopy { font-size: 10px; color: #e2e8f0; font-weight: 600; margin-bottom: 2px; }
+.s2-vsub { font-size: 8.5px; color: #64748b; line-height: 1.4; }
+
+/* Preview card */
+.s2-preview {
+  margin: 0 20px 12px;
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 11px; padding: 10px 12px;
+}
+.s2-prev-lbl { font-size: 8px; color: #475569; font-family: 'DM Mono', monospace; margin-bottom: 7px; letter-spacing: 0.05em; text-transform: uppercase; }
+.s2-prev-card {
+  background: rgba(0,200,83,0.1); border: 1px solid rgba(0,200,83,0.25);
+  border-radius: 9px; padding: 10px 12px;
+}
+.s2-prev-top { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.s2-prev-ico { font-size: 16px; }
+.s2-prev-title { font-size: 11px; font-weight: 700; color: #fff; }
+.s2-prev-body { font-size: 8.5px; color: #94a3b8; line-height: 1.4; margin-bottom: 8px; }
+.s2-prev-cta {
+  background: var(--c-bright); border-radius: 7px;
+  padding: 6px 14px; font-size: 10px; font-weight: 700; color: #fff;
+  display: inline-block;
+}
+
+/* =================== S3 — OFFER CALIBRATION =================== */
+.s3 { background: var(--c-dark); position: relative; }
+.s3 .sbar { background: var(--c-dark); }
+
+.s3-hdr { padding: 14px 20px 10px; border-bottom: 1px solid rgba(255,255,255,0.07); }
+.s3-title { font-size: 14px; font-weight: 700; color: #fff; }
+.s3-sub { font-size: 9px; color: #64748b; margin-top: 2px; }
+
+.s3-band {
+  margin: 10px 20px 8px;
+  border-radius: 11px; padding: 12px 14px;
+}
+.s3-band-top {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 7px;
+}
+.s3-band-name { font-size: 11px; font-weight: 700; color: #fff; }
+.s3-band-count { font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 700; }
+.s3-band-offer { font-size: 8.5px; color: #94a3b8; margin-bottom: 6px; }
+.s3-band-cvr {
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 8px; color: #64748b; font-family: 'DM Mono', monospace; margin-top: 5px;
+}
+
+.s3-math-box {
+  margin: 4px 20px 10px;
+  background: rgba(0,200,83,0.1); border: 1px solid rgba(0,200,83,0.25);
+  border-radius: 11px; padding: 12px 14px;
+}
+.s3-math-row {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px;
+}
+.s3-math-key { font-size: 9px; color: #94a3b8; }
+.s3-math-val { font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 700; }
+.s3-math-divider { border: none; border-top: 1px solid rgba(255,255,255,0.08); margin: 6px 0; }
+.s3-math-total { font-size: 10px; font-weight: 700; color: var(--c-bright); }
+.s3-math-total-val { font-family: 'DM Mono', monospace; font-size: 16px; font-weight: 700; color: var(--c-bright); }
+
+.s3-cta {
+  margin: 0 20px 14px;
+  background: var(--c-bright); border: none; border-radius: 12px;
+  padding: 13px; width: calc(100% - 40px);
+  font-family: 'Sora', sans-serif; font-size: 12px; font-weight: 700; color: #fff;
+  cursor: pointer; text-align: center;
+}
+
+/* Success overlay */
+.s3-overlay {
+  position: absolute; inset: 0;
+  background: rgba(7,26,18,0.97); backdrop-filter: blur(8px);
+  display: none; flex-direction: column; align-items: center; justify-content: center;
+  padding: 32px; z-index: 20; border-radius: 46px;
+}
+.s3-overlay.show { display: flex; }
+.s3-ov-ico { font-size: 40px; margin-bottom: 14px; }
+.s3-ov-title { font-size: 20px; font-weight: 800; color: var(--c-bright); text-align: center; margin-bottom: 8px; }
+.s3-ov-sub { font-size: 10.5px; color: #94a3b8; text-align: center; line-height: 1.5; margin-bottom: 22px; }
+.s3-ov-pills { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+.s3-ov-pill {
+  background: rgba(0,200,83,0.1); border: 1px solid rgba(0,200,83,0.25);
+  border-radius: 10px; padding: 10px 14px;
+  display: flex; align-items: center; gap: 10px;
+}
+.s3-ov-pill-ico { font-size: 14px; }
+.s3-ov-pill-txt { font-size: 10px; color: #94a3b8; }
+.s3-ov-pill-val { font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 700; color: var(--c-bright); margin-left: auto; }
+
+/* =================== S4 — ANALYTICS =================== */
+.s4 { background: var(--c-hero); }
+.s4 .sbar { background: var(--c-hero); }
+
+.s4-hdr { padding: 14px 20px 10px; border-bottom: 1px solid rgba(255,255,255,0.07); }
+.s4-title { font-size: 14px; font-weight: 700; color: #fff; }
+.s4-sub { font-size: 9px; color: #64748b; margin-top: 2px; }
+
+.s4-kpis { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; padding: 12px 20px 10px; }
+.s4-kpi { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 10px 8px; text-align: center; }
+.s4-kpi-val { font-family: 'DM Mono', monospace; font-size: 15px; font-weight: 700; color: var(--c-bright); }
+.s4-kpi-lbl { font-size: 7.5px; color: #64748b; margin-top: 3px; line-height: 1.3; }
+
+.s4-var-list { padding: 0 20px 12px; }
+.s4-var-row { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.s4-var-name { font-size: 10px; color: #e2e8f0; font-weight: 600; width: 78px; flex-shrink: 0; }
+.s4-var-bar-wrap { flex: 1; background: rgba(255,255,255,0.07); border-radius: 99px; height: 8px; overflow: hidden; }
+.s4-var-bar-fill { height: 100%; border-radius: 99px; }
+.s4-var-pct { font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 700; width: 32px; text-align: right; flex-shrink: 0; }
+
+.s4-budget-box {
+  margin: 0 20px 10px;
+  background: rgba(255,107,53,0.08); border: 1px solid rgba(255,107,53,0.22);
+  border-radius: 11px; padding: 12px 14px;
+}
+.s4-budget-title { font-size: 10px; font-weight: 700; color: var(--orange); margin-bottom: 8px; }
+.s4-budget-row { display: flex; justify-content: space-between; margin-bottom: 5px; }
+.s4-budget-key { font-size: 9px; color: #94a3b8; }
+.s4-budget-val { font-family: 'DM Mono', monospace; font-size: 10.5px; font-weight: 700; }
+
+.s4-cltv-box {
+  margin: 0 20px 14px;
+  background: rgba(0,200,83,0.07); border: 1px solid rgba(0,200,83,0.18);
+  border-radius: 11px; padding: 12px 14px;
+}
+.s4-cltv-title { font-size: 10px; font-weight: 700; color: var(--c-bright); margin-bottom: 8px; }
+.s4-cohort-row { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
+.s4-cohort-lbl { font-size: 8.5px; color: #94a3b8; width: 96px; flex-shrink: 0; }
+.s4-cohort-bar { flex: 1; height: 10px; background: rgba(255,255,255,0.07); border-radius: 99px; overflow: hidden; }
+.s4-cohort-fill { height: 100%; border-radius: 99px; }
+.s4-cohort-val { font-family: 'DM Mono', monospace; font-size: 9px; font-weight: 700; width: 50px; text-align: right; flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<div class="header-strip">Navi — GrowthOS &nbsp;·&nbsp; MarTech Intelligence &amp; CLTV Engine &nbsp;·&nbsp; Interactive Prototype</div>
+
+<div class="prototype-row">
+
+  <!-- ===== PHONE 1: CDP UNIFIED PROFILE ===== -->
+  <div class="phone-wrap">
+    <div class="phone-label">01 — CDP UNIFIED PROFILE</div>
+    <div class="phone s1">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="sbar"><span>9:41</span><span>▲▲▲ ⬡ 100%</span></div>
+      <div class="sc">
+
+        <div class="s1-hdr">
+          <div class="s1-brand">
+            <div class="s1-mark">N</div>
+            <div>
+              <div class="s1-brand-name">GrowthOS</div>
+              <div class="s1-brand-sub">CDP · by Navi</div>
+            </div>
+          </div>
+          <div class="s1-user-chip">
+            <div class="s1-avatar">RK</div>
+            <div class="s1-uname">Rahul Kumar</div>
+          </div>
+        </div>
+
+        <!-- CLTV Ring -->
+        <div class="s1-cltv-band">
+          <div class="s1-ring">
+            <div class="s1-ring-num">₹18.4K</div>
+            <div class="s1-ring-lbl">CLTV / yr</div>
+          </div>
+          <div class="s1-cltv-info">
+            <div class="s1-cltv-title">Customer Lifetime Value</div>
+            <div class="s1-cltv-sub">Active since Mar 2023 · UPI primary user · 1 product held</div>
+            <div class="s1-potential">↑ ₹47.2K potential · 3 products gap</div>
+          </div>
+        </div>
+
+        <!-- Products -->
+        <div class="sec-lbl">Product Holdings &amp; Propensity</div>
+        <div class="s1-prod-grid">
+          <div class="s1-prod">
+            <div class="s1-prod-top">
+              <span class="s1-prod-name">UPI</span>
+              <span class="s1-prod-status" style="color:#00C853;">✓ Active</span>
+            </div>
+            <div class="s1-prop-lbl">Engagement score</div>
+            <div class="s1-prop-bar"><div class="s1-prop-fill" style="width:91%;background:#00C853;"></div></div>
+          </div>
+          <div class="s1-prod">
+            <div class="s1-prod-top">
+              <span class="s1-prod-name">Insurance</span>
+              <span class="s1-prod-status" style="color:#FFB800;">78% fit</span>
+            </div>
+            <div class="s1-prop-lbl">Propensity to convert</div>
+            <div class="s1-prop-bar"><div class="s1-prop-fill" style="width:78%;background:#FFB800;"></div></div>
+          </div>
+          <div class="s1-prod">
+            <div class="s1-prod-top">
+              <span class="s1-prod-name">Loans</span>
+              <span class="s1-prod-status" style="color:#FF6B35;">62% fit</span>
+            </div>
+            <div class="s1-prop-lbl">Propensity to convert</div>
+            <div class="s1-prop-bar"><div class="s1-prop-fill" style="width:62%;background:#FF6B35;"></div></div>
+          </div>
+          <div class="s1-prod">
+            <div class="s1-prod-top">
+              <span class="s1-prod-name">Mutual Fund</span>
+              <span class="s1-prod-status" style="color:#64748b;">44% fit</span>
+            </div>
+            <div class="s1-prop-lbl">Propensity to convert</div>
+            <div class="s1-prop-bar"><div class="s1-prop-fill" style="width:44%;background:#64748b;"></div></div>
+          </div>
+        </div>
+
+        <!-- NBO -->
+        <div class="s1-nbo">
+          <div class="s1-nbo-ico">🛡️</div>
+          <div class="s1-nbo-info">
+            <div class="s1-nbo-title">Next Best Product: Term Insurance</div>
+            <div class="s1-nbo-sub">Aspiration variant · ₹200 cashback offer · Home feed placement</div>
+          </div>
+          <div class="s1-nbo-arr">›</div>
+        </div>
+
+        <!-- Signal feed -->
+        <div class="sec-lbl">Behavioral Signal Feed</div>
+        <div class="s1-signal">
+          <div class="s1-sig-dot" style="background:#00C853;"></div>
+          <div class="s1-sig-text">UPI transaction volume up 34% this month — 62 payments across 18 merchants</div>
+          <div class="s1-sig-time">2h ago</div>
+        </div>
+        <div class="s1-signal">
+          <div class="s1-sig-dot" style="background:#FFB800;"></div>
+          <div class="s1-sig-text">Searched "term life insurance" in Navi app — high insurance intent signal</div>
+          <div class="s1-sig-time">1d ago</div>
+        </div>
+        <div class="s1-signal">
+          <div class="s1-sig-dot" style="background:#FF6B35;"></div>
+          <div class="s1-sig-text">Monthly UPI inflow ₹68,400 — income proxy suggests mid-income bracket</div>
+          <div class="s1-sig-time">3d ago</div>
+        </div>
+        <div class="s1-signal">
+          <div class="s1-sig-dot" style="background:#00C853;"></div>
+          <div class="s1-sig-text">Paid rent, electricity, and broadband — consistent bill-payment behaviour</div>
+          <div class="s1-sig-time">5d ago</div>
+        </div>
+        <div class="s1-signal">
+          <div class="s1-sig-dot" style="background:#64748b;"></div>
+          <div class="s1-sig-text">No loan or insurance product held — single-product user, high CLTV gap</div>
+          <div class="s1-sig-time">7d ago</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PHONE 2: CRM BUILDER ===== -->
+  <div class="phone-wrap">
+    <div class="phone-label">02 — CRM BUILDER</div>
+    <div class="phone s2">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="sbar"><span>9:41</span><span>▲▲▲ ⬡ 100%</span></div>
+      <div class="sc">
+
+        <div class="s2-hdr">
+          <div class="s2-title">GrowthOS CRM Builder</div>
+          <div class="s2-sub">Recommendation campaign · Insurance upsell</div>
+        </div>
+
+        <div class="s2-seg">
+          <div class="s2-seg-label">Insurance intent · propensity 0.4–0.7</div>
+          <div class="s2-seg-count">1.8M users</div>
+        </div>
+
+        <div class="s2-row">
+          <div class="s2-row-key">Product</div>
+          <div class="s2-row-val">Term Insurance</div>
+        </div>
+        <div class="s2-row">
+          <div class="s2-row-key">Placement</div>
+          <div class="s2-row-val">Home feed + Post-UPI</div>
+        </div>
+        <div class="s2-row">
+          <div class="s2-row-key">Offer</div>
+          <div class="s2-row-val" style="color:#FFB800;">₹200 cashback · auto-calibrated</div>
+        </div>
+
+        <div class="sec-lbl" style="margin-top:6px;">Story Variant — Select Narrative</div>
+        <div class="s2-variants">
+
+          <div class="s2-vcard sel">
+            <div class="s2-radio sel"><div class="s2-radio-dot"></div></div>
+            <div class="s2-vbody">
+              <div class="s2-vtype" style="color:#00C853;">Aspiration</div>
+              <div class="s2-vcopy">Protect everything you have built</div>
+              <div class="s2-vsub">For users with growing income and no protection — drives hope, not fear. Highest CVR for mid-propensity users.</div>
+            </div>
+          </div>
+
+          <div class="s2-vcard">
+            <div class="s2-radio"></div>
+            <div class="s2-vbody">
+              <div class="s2-vtype" style="color:#FF6B35;">Fear</div>
+              <div class="s2-vcopy">Your family has a financial gap right now</div>
+              <div class="s2-vsub">For users with dependents and life-event signals. High urgency — use for low-propensity recovery campaigns.</div>
+            </div>
+          </div>
+
+          <div class="s2-vcard">
+            <div class="s2-radio"></div>
+            <div class="s2-vbody">
+              <div class="s2-vtype" style="color:#64748b;">Social Proof</div>
+              <div class="s2-vcopy">8M+ Navi users have secured their family</div>
+              <div class="s2-vsub">For broad acquisition — best for new user cohorts with no strong signal yet.</div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="s2-preview">
+          <div class="s2-prev-lbl">Consumer card preview</div>
+          <div class="s2-prev-card">
+            <div class="s2-prev-top">
+              <div class="s2-prev-ico">🛡️</div>
+              <div class="s2-prev-title">Protect everything you have built</div>
+            </div>
+            <div class="s2-prev-body">Start a term plan from ₹420/month. Get ₹200 cashback on your first premium — offer valid for 48 hours.</div>
+            <div class="s2-prev-cta">Get Protected →</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PHONE 3: OFFER CALIBRATION ===== -->
+  <div class="phone-wrap">
+    <div class="phone-label">03 — OFFER CALIBRATION</div>
+    <div class="phone s3">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="sbar"><span>9:41</span><span>▲▲▲ ⬡ 100%</span></div>
+      <div class="sc">
+
+        <div class="s3-hdr">
+          <div class="s3-title">Offer Calibration Engine</div>
+          <div class="s3-sub">Minimum offer per propensity band · Insurance campaign</div>
+        </div>
+
+        <!-- HIGH band -->
+        <div class="s3-band" style="background:rgba(0,200,83,0.1);border:1px solid rgba(0,200,83,0.25);">
+          <div class="s3-band-top">
+            <div class="s3-band-name">🟢 HIGH propensity</div>
+            <div class="s3-band-count" style="color:#00C853;">2.1M users</div>
+          </div>
+          <div class="s3-band-offer">Propensity &gt;0.70 · Convert naturally — no offer required</div>
+          <div class="track" style="background:rgba(0,200,83,0.15);">
+            <div class="fill" style="width:100%;background:#00C853;">
+              <span class="fill-badge" style="background:#00C853;">No offer</span>
+            </div>
+          </div>
+          <div class="s3-band-cvr"><span>Est. CVR: 34%</span><span>Offer cost: ₹0</span></div>
+        </div>
+
+        <!-- MED band -->
+        <div class="s3-band" style="background:rgba(255,184,0,0.1);border:1px solid rgba(255,184,0,0.25);">
+          <div class="s3-band-top">
+            <div class="s3-band-name">🟡 MED propensity</div>
+            <div class="s3-band-count" style="color:#FFB800;">1.8M users</div>
+          </div>
+          <div class="s3-band-offer">Propensity 0.40–0.70 · ₹200 cashback tips conversion</div>
+          <div class="track" style="background:rgba(255,184,0,0.15);">
+            <div class="fill" style="width:72%;background:#FFB800;">
+              <span class="fill-badge" style="background:#FFB800;">₹200</span>
+            </div>
+          </div>
+          <div class="s3-band-cvr"><span>Est. CVR: 28%</span><span>Offer cost: ₹36 Cr</span></div>
+        </div>
+
+        <!-- LOW band -->
+        <div class="s3-band" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.22);">
+          <div class="s3-band-top">
+            <div class="s3-band-name">🔴 LOW propensity</div>
+            <div class="s3-band-count" style="color:#EF4444;">3.2M users</div>
+          </div>
+          <div class="s3-band-offer">Propensity &lt;0.40 · Suppressed — offer would not drive conversion</div>
+          <div class="track" style="background:rgba(239,68,68,0.12);">
+            <div class="fill" style="width:22%;background:#EF4444;">
+              <span class="fill-badge" style="background:#EF4444;">Suppress</span>
+            </div>
+          </div>
+          <div class="s3-band-cvr"><span>Est. CVR: 4%</span><span>Saved: ₹64 Cr</span></div>
+        </div>
+
+        <!-- Budget math -->
+        <div class="s3-math-box">
+          <div class="s3-math-row">
+            <div class="s3-math-key">Flat offer to all 7.1M users</div>
+            <div class="s3-math-val" style="color:#EF4444;">₹142 Cr</div>
+          </div>
+          <div class="s3-math-row">
+            <div class="s3-math-key">Calibrated offer (MED band only)</div>
+            <div class="s3-math-val" style="color:#00C853;">₹36 Cr</div>
+          </div>
+          <div class="s3-math-divider"></div>
+          <div class="s3-math-row">
+            <div class="s3-math-total">Marketing budget protected</div>
+            <div class="s3-math-total-val">₹106 Cr</div>
+          </div>
+        </div>
+
+        <button class="s3-cta" onclick="launchCampaign()">🚀 Launch Calibrated Campaign</button>
+
+      </div>
+
+      <!-- SUCCESS OVERLAY -->
+      <div class="s3-overlay" id="s3overlay">
+        <div class="conf-wrap" id="conf3"></div>
+        <div class="s3-ov-ico">🎯</div>
+        <div class="s3-ov-title">Campaign Live</div>
+        <div class="s3-ov-sub">1.8M users targeted with calibrated ₹200 cashback offer. GrowthOS is tracking conversions in real time.</div>
+        <div class="s3-ov-pills">
+          <div class="s3-ov-pill">
+            <div class="s3-ov-pill-ico">🧑‍🤝‍🧑</div>
+            <div class="s3-ov-pill-txt">Users targeted</div>
+            <div class="s3-ov-pill-val">1.8M</div>
+          </div>
+          <div class="s3-ov-pill">
+            <div class="s3-ov-pill-ico">💰</div>
+            <div class="s3-ov-pill-txt">Budget used</div>
+            <div class="s3-ov-pill-val">₹36 Cr</div>
+          </div>
+          <div class="s3-ov-pill">
+            <div class="s3-ov-pill-ico">🛡️</div>
+            <div class="s3-ov-pill-txt">Budget protected</div>
+            <div class="s3-ov-pill-val">₹106 Cr</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== PHONE 4: ANALYTICS ===== -->
+  <div class="phone-wrap">
+    <div class="phone-label">04 — CAMPAIGN ANALYTICS</div>
+    <div class="phone s4">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="sbar"><span>9:41</span><span>▲▲▲ ⬡ 100%</span></div>
+      <div class="sc">
+
+        <div class="s4-hdr">
+          <div class="s4-title">GrowthOS Analytics</div>
+          <div class="s4-sub">Insurance campaign · Day 14 · Live</div>
+        </div>
+
+        <div class="s4-kpis">
+          <div class="s4-kpi">
+            <div class="s4-kpi-val">28.4%</div>
+            <div class="s4-kpi-lbl">Conversion rate</div>
+          </div>
+          <div class="s4-kpi">
+            <div class="s4-kpi-val">₹180</div>
+            <div class="s4-kpi-lbl">Cost per conversion</div>
+          </div>
+          <div class="s4-kpi">
+            <div class="s4-kpi-val" style="color:#FFB800;">+₹8.2K</div>
+            <div class="s4-kpi-lbl">CLTV uplift / user</div>
+          </div>
+        </div>
+
+        <div class="sec-lbl">Story Variant Performance</div>
+        <div class="s4-var-list">
+          <div class="s4-var-row">
+            <div class="s4-var-name">Aspiration</div>
+            <div class="s4-var-bar-wrap"><div class="s4-var-bar-fill" style="width:100%;background:#00C853;"></div></div>
+            <div class="s4-var-pct" style="color:#00C853;">31%</div>
+          </div>
+          <div class="s4-var-row">
+            <div class="s4-var-name">Fear</div>
+            <div class="s4-var-bar-wrap"><div class="s4-var-bar-fill" style="width:90%;background:#FF6B35;"></div></div>
+            <div class="s4-var-pct" style="color:#FF6B35;">28%</div>
+          </div>
+          <div class="s4-var-row">
+            <div class="s4-var-name">Social Proof</div>
+            <div class="s4-var-bar-wrap"><div class="s4-var-bar-fill" style="width:77%;background:#64748b;"></div></div>
+            <div class="s4-var-pct" style="color:#94a3b8;">24%</div>
+          </div>
+        </div>
+
+        <div class="sec-lbl">Budget Efficiency</div>
+        <div class="s4-budget-box">
+          <div class="s4-budget-title">⚡ Calibration Savings vs Flat Offer</div>
+          <div class="s4-budget-row">
+            <div class="s4-budget-key">Without calibration (flat ₹200 to all)</div>
+            <div class="s4-budget-val" style="color:#EF4444;">₹142 Cr</div>
+          </div>
+          <div class="s4-budget-row">
+            <div class="s4-budget-key">With GrowthOS calibration</div>
+            <div class="s4-budget-val" style="color:#00C853;">₹36 Cr</div>
+          </div>
+          <div class="s4-budget-row" style="margin-top:6px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.08);">
+            <div class="s4-budget-key" style="font-weight:700;color:#fff;">Budget saved this campaign</div>
+            <div class="s4-budget-val" style="color:#FFB800;font-size:14px;">₹106 Cr</div>
+          </div>
+        </div>
+
+        <div class="sec-lbl">CLTV Uplift by Cohort</div>
+        <div class="s4-cltv-box">
+          <div class="s4-cltv-title">GrowthOS-touched vs control</div>
+          <div class="s4-cohort-row">
+            <div class="s4-cohort-lbl">Converted users</div>
+            <div class="s4-cohort-bar"><div class="s4-cohort-fill" style="width:100%;background:#00C853;"></div></div>
+            <div class="s4-cohort-val" style="color:#00C853;">₹26.6K</div>
+          </div>
+          <div class="s4-cohort-row">
+            <div class="s4-cohort-lbl">GrowthOS touched</div>
+            <div class="s4-cohort-bar"><div class="s4-cohort-fill" style="width:72%;background:#FFB800;"></div></div>
+            <div class="s4-cohort-val" style="color:#FFB800;">₹19.2K</div>
+          </div>
+          <div class="s4-cohort-row">
+            <div class="s4-cohort-lbl">Control group</div>
+            <div class="s4-cohort-bar"><div class="s4-cohort-fill" style="width:40%;background:#64748b;"></div></div>
+            <div class="s4-cohort-val" style="color:#94a3b8;">₹10.7K</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div><!-- /prototype-row -->
+
+<script>
+function launchCampaign() {
+  var overlay = document.getElementById('s3overlay');
+  overlay.classList.add('show');
+  var c = document.getElementById('conf3');
+  var cols = ['#00C853','#FF6B35','#FFB800','#60A5FA','#FBBF24','#F472B6','#34D399'];
+  for (var i = 0; i < 32; i++) {
+    var p = document.createElement('div');
+    p.className = 'cp';
+    var size = 4 + Math.random() * 7;
+    p.style.cssText = 'left:' + (Math.random() * 100) + '%;top:' + (Math.random() * 120 - 10) + '%;width:' + size + 'px;height:' + size + 'px;background:' + cols[Math.floor(Math.random() * cols.length)] + ';border-radius:' + (Math.random() > 0.5 ? '50%' : '2px') + ';animation-duration:' + (1.4 + Math.random() * 1.8) + 's;animation-delay:' + (Math.random() * 2.4) + 's;';
+    c.appendChild(p);
+  }
+}
+</script>
+</body>
+</html>
