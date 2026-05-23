@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1700">
+<title>J.P. Morgan — ClearPath · CEEMEA Correspondent KYC · Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --c-dark:   #0A1E3D;
+  --c-hero:   #0F2A54;
+  --c-gold:   #C9A227;
+  --c-teal:   #0D9488;
+  --c-amber:  #D97706;
+  --c-red:    #DC2626;
+  --ink:      #0f172a;
+  --muted:    #64748b;
+  --border:   #e2e8f0;
+  --gray:     #f1f5f9;
+  --success:  #16A34A;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: linear-gradient(135deg, #060E1E 0%, #0A1E3D 50%, #071428 100%);
+  min-height: 100vh;
+  font-family: 'Sora', sans-serif;
+  padding: 40px 32px 60px;
+}
+
+.header-strip {
+  text-align: center;
+  margin-bottom: 40px;
+}
+.header-strip .co-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 99px;
+  padding: 6px 18px 6px 10px;
+  margin-bottom: 16px;
+}
+.co-logo {
+  width: 28px; height: 28px;
+  background: var(--c-gold);
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 800; color: var(--c-dark);
+}
+.co-badge span { font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.7); letter-spacing: .06em; }
+.header-strip h1 {
+  font-size: 26px; font-weight: 800; color: #fff;
+  letter-spacing: -.02em; margin-bottom: 6px;
+}
+.header-strip h1 em { font-style: normal; color: var(--c-gold); }
+.header-strip p { font-size: 13px; color: rgba(255,255,255,0.45); font-weight: 400; }
+
+.proto-wrap {
+  display: flex;
+  gap: 32px;
+  justify-content: center;
+  align-items: flex-start;
+}
+.phone-col { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.phone-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.35);
+}
+
+.phone {
+  width: 375px;
+  background: #fff;
+  border-radius: 46px;
+  box-shadow: 0 40px 100px rgba(0,0,0,0.55), 0 0 0 1.5px rgba(255,255,255,0.08);
+  overflow: hidden;
+}
+
+.notch {
+  width: 118px; height: 28px;
+  background: var(--c-dark);
+  border-radius: 0 0 16px 16px;
+  margin: 0 auto;
+  display: flex; align-items: center; justify-content: center;
+  gap: 6px; position: relative; z-index: 10;
+}
+.nc { width: 10px; height: 10px; background: #1e293b; border-radius: 50%; }
+.ndot { width: 5px; height: 5px; background: #334155; border-radius: 50%; }
+
+.sb {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2px 18px 6px;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.sc {
+  overflow-y: auto;
+  max-height: 724px;
+  scrollbar-width: none;
+}
+.sc::-webkit-scrollbar { display: none; }
+
+/* ══════════════════════════════════════════
+   SCREEN 1 — Correspondent Bank Portal
+═══════════════════════════════════════════ */
+.s1-header {
+  background: var(--c-hero);
+  padding: 14px 18px 20px;
+}
+.s1-nav {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 12px;
+}
+.jpm-badge-sm {
+  display: flex; align-items: center; gap: 7px;
+}
+.jpm-logo-sm {
+  width: 24px; height: 24px;
+  background: var(--c-gold);
+  border-radius: 5px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 8.5px; font-weight: 800; color: var(--c-dark);
+}
+.jpm-lbl { font-size: 12px; font-weight: 700; color: #fff; }
+.jpm-sub { font-size: 9px; color: rgba(255,255,255,0.4); }
+.s1-greeting { font-size: 16px; font-weight: 800; color: #fff; margin-bottom: 3px; }
+.s1-greeting-sub { font-size: 10.5px; color: rgba(255,255,255,0.5); margin-bottom: 14px; }
+
+.renewal-banner {
+  background: rgba(201,162,39,0.15);
+  border: 1px solid rgba(201,162,39,0.35);
+  border-radius: 10px;
+  padding: 10px 13px;
+  display: flex; align-items: center; gap: 10px;
+}
+.rb-icon { font-size: 20px; }
+.rb-right { flex: 1; }
+.rb-title { font-size: 11px; font-weight: 700; color: var(--c-gold); margin-bottom: 2px; }
+.rb-sub { font-size: 9.5px; color: rgba(255,255,255,0.5); }
+.rb-days {
+  font-family: 'DM Mono', monospace;
+  font-size: 20px; font-weight: 500; color: var(--c-gold);
+}
+
+.s1-body { background: var(--gray); padding: 14px; }
+
+/* Status tracker */
+.status-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 1px 8px rgba(0,0,0,0.06);
+}
+.status-card-title {
+  font-size: 12px; font-weight: 800; color: var(--ink);
+  margin-bottom: 12px;
+}
+
+.doc-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--border);
+}
+.doc-row:last-child { border-bottom: none; }
+.doc-status {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; flex-shrink: 0;
+}
+.doc-status.done { background: rgba(22,163,74,0.12); color: var(--success); }
+.doc-status.pend { background: rgba(201,162,39,0.12); color: var(--c-gold); }
+.doc-status.miss { background: rgba(220,38,38,0.1); color: var(--c-red); }
+.doc-name { flex: 1; font-size: 11.5px; font-weight: 600; color: var(--ink); }
+.doc-tag {
+  font-size: 9px; font-weight: 700;
+  border-radius: 99px; padding: 2px 8px;
+}
+.doc-tag.done { background: rgba(22,163,74,0.1); color: var(--success); }
+.doc-tag.pend { background: rgba(201,162,39,0.1); color: var(--c-amber); }
+.doc-tag.miss { background: rgba(220,38,38,0.08); color: var(--c-red); }
+
+/* Progress card */
+.progress-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 14px 16px;
+  box-shadow: 0 1px 8px rgba(0,0,0,0.06);
+}
+.prog-top {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-bottom: 10px;
+}
+.prog-title { font-size: 12px; font-weight: 800; color: var(--ink); }
+.prog-pct {
+  font-family: 'DM Mono', monospace;
+  font-size: 22px; font-weight: 500; color: var(--c-gold);
+}
+.track {
+  height: 8px;
+  background: var(--border);
+  border-radius: 99px;
+  overflow: visible;
+  position: relative;
+  margin-bottom: 14px;
+}
+.fill {
+  height: 100%;
+  border-radius: 99px;
+  background: var(--c-gold);
+  position: relative;
+  transition: .6s ease;
+}
+.fill-badge {
+  position: absolute;
+  right: -2px; top: -9px;
+  background: var(--c-gold);
+  color: #fff;
+  font-size: 9px; font-weight: 700;
+  padding: 2px 5px; border-radius: 6px;
+}
+.phase-dots {
+  display: flex; justify-content: space-between;
+}
+.phase-dot {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+}
+.pdot {
+  width: 8px; height: 8px; border-radius: 50%;
+}
+.pdot.done { background: var(--c-gold); }
+.pdot.active { background: var(--c-teal); }
+.pdot.wait { background: var(--border); }
+.plbl { font-size: 8px; color: var(--muted); }
+
+.action-btn {
+  width: 100%;
+  background: var(--c-dark);
+  color: #fff;
+  border: none; border-radius: 10px;
+  padding: 12px;
+  font-family: 'Sora', sans-serif;
+  font-size: 13px; font-weight: 700;
+  cursor: pointer; margin-top: 12px;
+}
+
+/* ══════════════════════════════════════════
+   SCREEN 2 — OCR Auto-fill Form
+═══════════════════════════════════════════ */
+.s2-header {
+  background: var(--c-hero);
+  padding: 14px 18px 18px;
+}
+.s2-nav {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+}
+.back-btn {
+  width: 28px; height: 28px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; color: #fff;
+}
+.s2-nav-title { font-size: 14px; font-weight: 700; color: #fff; }
+.s2-step-row {
+  display: flex; align-items: center; gap: 6px;
+}
+.s2-step {
+  display: flex; align-items: center; gap: 5px;
+}
+.sdot {
+  width: 20px; height: 20px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 700;
+}
+.sdot.done { background: var(--c-teal); color: #fff; }
+.sdot.active { background: var(--c-gold); color: var(--c-dark); }
+.sdot.wait { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.4); }
+.slbl { font-size: 9px; font-weight: 600; color: rgba(255,255,255,0.6); }
+.s2-step-sep { flex: 1; height: 1px; background: rgba(255,255,255,0.15); }
+
+.s2-body { background: var(--gray); padding: 14px; }
+
+/* OCR upload */
+.ocr-zone {
+  background: #fff;
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 1px 8px rgba(0,0,0,0.06);
+}
+.ocr-header {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 12px;
+}
+.ocr-icon-box {
+  width: 34px; height: 34px;
+  background: rgba(13,148,136,0.1);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+}
+.ocr-title { font-size: 13px; font-weight: 800; color: var(--ink); }
+.ocr-sub { font-size: 9.5px; color: var(--muted); }
+.ocr-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: rgba(13,148,136,0.08);
+  border: 1px solid rgba(13,148,136,0.25);
+  border-radius: 99px;
+  padding: 4px 10px;
+  font-size: 9.5px; font-weight: 700; color: var(--c-teal);
+  margin-bottom: 12px;
+}
+
+.pre-fill-label {
+  font-size: 9px; font-weight: 700;
+  color: var(--muted); letter-spacing: .08em; text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.field-row {
+  margin-bottom: 10px;
+}
+.field-lbl { font-size: 9.5px; color: var(--muted); margin-bottom: 4px; }
+.field-val {
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-size: 12.5px; font-weight: 600; color: var(--ink);
+  border: 1.5px solid var(--border);
+  background: #fff;
+  position: relative;
+}
+.field-val.prefilled {
+  background: rgba(13,148,136,0.05);
+  border-color: rgba(13,148,136,0.3);
+}
+.field-val.prefilled::after {
+  content: '✦ pre-filled';
+  position: absolute; right: 10px; top: 50%;
+  transform: translateY(-50%);
+  font-size: 8.5px; font-weight: 700;
+  color: var(--c-teal);
+}
+.field-empty {
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-size: 12.5px; color: var(--muted);
+  border: 1.5px dashed rgba(220,38,38,0.35);
+  background: rgba(220,38,38,0.03);
+}
+
+/* Compliance section */
+.comp-zone {
+  background: #fff;
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 1px 8px rgba(0,0,0,0.06);
+}
+.comp-title { font-size: 12px; font-weight: 800; color: var(--ink); margin-bottom: 10px; }
+.juris-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+.juris-row:last-child { border-bottom: none; }
+.juris-flag { font-size: 18px; }
+.juris-name { flex: 1; font-size: 11.5px; font-weight: 600; color: var(--ink); }
+.juris-status {
+  font-size: 9.5px; font-weight: 700;
+  border-radius: 99px; padding: 2px 9px;
+}
+.juris-status.done { background: rgba(22,163,74,0.1); color: var(--success); }
+.juris-status.pend { background: rgba(201,162,39,0.1); color: var(--c-amber); }
+.juris-status.wait { background: rgba(100,116,139,0.1); color: var(--muted); }
+
+/* ══════════════════════════════════════════
+   SCREEN 3 — Relationship Activated (Success)
+═══════════════════════════════════════════ */
+.s3-wrap { background: var(--c-dark); min-height: 760px; position: relative; overflow: hidden; }
+.s3-orb {
+  position: absolute; top: -60px; left: 50%;
+  transform: translateX(-50%);
+  width: 280px; height: 280px;
+  background: radial-gradient(circle, rgba(13,148,136,0.3) 0%, transparent 70%);
+  border-radius: 50%;
+}
+#conf2 {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none; overflow: hidden;
+}
+.cp { position: absolute; animation: fall linear forwards; }
+@keyframes fall {
+  0% { transform: translateY(-20px) rotate(0deg); opacity:1; }
+  100% { transform: translateY(820px) rotate(360deg); opacity:0; }
+}
+
+.s3-inner { padding: 24px 18px; position: relative; z-index: 2; }
+.s3-shield {
+  width: 64px; height: 64px;
+  background: linear-gradient(135deg, var(--c-teal), #065F46);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px; margin: 0 auto 12px;
+  box-shadow: 0 8px 30px rgba(13,148,136,0.4);
+}
+.s3-heading { font-size: 20px; font-weight: 800; color: #fff; text-align: center; margin-bottom: 4px; }
+.s3-sub { font-size: 11px; color: rgba(255,255,255,0.45); text-align: center; margin-bottom: 20px; }
+
+.activated-card {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+.act-lbl {
+  font-size: 9px; font-weight: 700;
+  color: rgba(255,255,255,0.4); letter-spacing: .1em;
+  text-transform: uppercase; margin-bottom: 10px;
+}
+.act-bank { font-size: 17px; font-weight: 800; color: #fff; margin-bottom: 2px; }
+.act-country { font-size: 10.5px; color: rgba(255,255,255,0.4); margin-bottom: 14px; }
+.act-row {
+  display: flex; justify-content: space-between;
+  border-top: 1px solid rgba(255,255,255,0.07);
+  padding-top: 8px; margin-top: 4px;
+}
+.act-row-lbl { font-size: 10px; color: rgba(255,255,255,0.4); }
+.act-row-val { font-size: 11px; font-weight: 700; color: #fff; }
+.act-row-val.gold { color: var(--c-gold); }
+.act-row-val.teal { color: #2DD4BF; }
+
+.time-card {
+  background: rgba(13,148,136,0.1);
+  border: 1px solid rgba(13,148,136,0.25);
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+}
+.time-lbl {
+  font-size: 9px; font-weight: 700;
+  color: rgba(255,255,255,0.4); letter-spacing: .1em;
+  text-transform: uppercase; margin-bottom: 10px;
+}
+.time-compare {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 8px;
+}
+.time-before {
+  flex: 1;
+  background: rgba(220,38,38,0.1);
+  border: 1px solid rgba(220,38,38,0.2);
+  border-radius: 8px; padding: 8px 10px; text-align: center;
+}
+.time-after {
+  flex: 1;
+  background: rgba(13,148,136,0.15);
+  border: 1px solid rgba(13,148,136,0.3);
+  border-radius: 8px; padding: 8px 10px; text-align: center;
+}
+.time-val { font-family: 'DM Mono', monospace; font-size: 20px; font-weight: 500; }
+.time-val.red { color: #F87171; }
+.time-val.teal { color: #2DD4BF; }
+.time-sub { font-size: 9px; color: rgba(255,255,255,0.4); }
+.time-arrow { font-size: 16px; color: rgba(255,255,255,0.4); }
+.time-insight {
+  font-size: 10.5px; color: rgba(255,255,255,0.55); line-height: 1.5; text-align: center;
+}
+.time-insight strong { color: #2DD4BF; }
+
+.s3-actions { display: flex; gap: 8px; }
+.s3-btn {
+  flex: 1; padding: 12px;
+  border-radius: 10px;
+  font-family: 'Sora', sans-serif;
+  font-size: 12px; font-weight: 700; text-align: center; cursor: pointer;
+}
+.s3-btn.primary { background: var(--c-teal); color: #fff; border: none; }
+.s3-btn.outline { background: transparent; color: rgba(255,255,255,0.6); border: 1px solid rgba(255,255,255,0.15); }
+
+/* ══════════════════════════════════════════
+   SCREEN 4 — J.P. Morgan Compliance Dashboard
+═══════════════════════════════════════════ */
+.s4-wrap { background: #050F1F; min-height: 820px; }
+.s4-header {
+  background: #050F1F;
+  padding: 14px 18px 18px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.s4-nav {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 12px;
+}
+.s4-title { font-size: 13px; font-weight: 700; color: #fff; }
+.s4-live {
+  background: rgba(13,148,136,0.15);
+  border: 1px solid rgba(13,148,136,0.3);
+  border-radius: 99px;
+  padding: 3px 10px;
+  font-size: 9px; font-weight: 700; color: #2DD4BF;
+}
+.s4-kpi-row {
+  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;
+}
+.s4-kpi {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 10px; padding: 10px;
+}
+.s4-kpi-val {
+  font-family: 'DM Mono', monospace;
+  font-size: 17px; font-weight: 500; color: #fff;
+  margin-bottom: 2px; line-height: 1;
+}
+.s4-kpi-val.teal { color: #2DD4BF; }
+.s4-kpi-val.gold { color: var(--c-gold); }
+.s4-kpi-val.red { color: #F87171; }
+.s4-kpi-lbl { font-size: 8.5px; color: rgba(255,255,255,0.35); line-height: 1.3; }
+.s4-kpi-delta { font-size: 9px; font-weight: 700; margin-top: 4px; }
+.s4-kpi-delta.good { color: #4ADE80; }
+.s4-kpi-delta.bad { color: #F87171; }
+
+.s4-body { background: #080F20; padding: 14px; }
+.s4-sec-lbl {
+  font-size: 9.5px; font-weight: 700;
+  color: rgba(255,255,255,0.35);
+  letter-spacing: .1em; text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+/* Relationship cards */
+.rel-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+}
+.rel-top {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 8px;
+}
+.rel-bank { font-size: 12.5px; font-weight: 700; color: #fff; }
+.rel-country { font-size: 9.5px; color: rgba(255,255,255,0.4); }
+.rel-badge {
+  font-size: 9px; font-weight: 700;
+  border-radius: 99px; padding: 2px 9px;
+}
+.rel-badge.active { background: rgba(13,148,136,0.15); color: #2DD4BF; border: 1px solid rgba(13,148,136,0.3); }
+.rel-badge.review { background: rgba(201,162,39,0.12); color: var(--c-gold); border: 1px solid rgba(201,162,39,0.3); }
+.rel-badge.atrisk { background: rgba(220,38,38,0.1); color: #F87171; border: 1px solid rgba(220,38,38,0.25); }
+
+.rel-progress-row {
+  display: flex; align-items: center; gap: 8px;
+}
+.rel-prog-track {
+  flex: 1; height: 5px; background: rgba(255,255,255,0.08);
+  border-radius: 99px; overflow: hidden;
+}
+.rel-prog-fill { height: 100%; border-radius: 99px; }
+.rel-prog-pct {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px; color: rgba(255,255,255,0.5); white-space: nowrap;
+}
+.rel-days {
+  font-size: 9px; color: rgba(255,255,255,0.35);
+  margin-top: 4px;
+}
+
+/* Health score panel */
+.health-panel {
+  background: rgba(201,162,39,0.08);
+  border: 1px solid rgba(201,162,39,0.2);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-top: 14px;
+}
+.health-lbl {
+  font-size: 9px; font-weight: 700;
+  color: var(--c-gold); letter-spacing: .08em;
+  text-transform: uppercase; margin-bottom: 8px;
+}
+.health-row {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 6px;
+}
+.health-name { font-size: 10.5px; color: rgba(255,255,255,0.6); }
+.health-score {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px; font-weight: 500;
+}
+.health-score.hi { color: #4ADE80; }
+.health-score.mid { color: var(--c-gold); }
+.health-score.lo { color: #F87171; }
+
+.derisk-box {
+  background: rgba(220,38,38,0.06);
+  border: 1px solid rgba(220,38,38,0.2);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-top: 10px;
+  font-size: 10px; color: rgba(255,255,255,0.55); line-height: 1.55;
+}
+.derisk-box strong { color: #F87171; }
+</style>
+</head>
+<body>
+
+<!-- ── Header ── -->
+<div class="header-strip">
+  <div class="co-badge">
+    <div class="co-logo">JPM</div>
+    <span>J.P. Morgan · CEEMEA Correspondent Banking</span>
+  </div>
+  <h1>ClearPath — <em>KYC Refresh Acceleration</em></h1>
+  <p>6–9 months → 6 weeks · Self-serve portal · Parallel compliance review · Interactive Prototype by Ajay Avaghade</p>
+</div>
+
+<!-- ── Phones ── -->
+<div class="proto-wrap">
+
+  <!-- ══ PHONE 1 ══ -->
+  <div class="phone-col">
+    <div class="phone-label">01 — Correspondent Bank Portal</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="sb" style="background:var(--c-hero);">
+        <span class="sb-time" style="color:rgba(255,255,255,0.8);">09:14</span>
+        <span class="sb-icons" style="color:rgba(255,255,255,0.6);">▲▲▲ 100%</span>
+      </div>
+      <div class="sc">
+        <div class="s1-header">
+          <div class="s1-nav">
+            <div class="jpm-badge-sm">
+              <div class="jpm-logo-sm">JPM</div>
+              <div>
+                <div class="jpm-lbl">ClearPath</div>
+                <div class="jpm-sub">KYC Renewal Portal</div>
+              </div>
+            </div>
+            <span style="font-size:18px;">🔔</span>
+          </div>
+          <div class="s1-greeting">Good morning,<br>Arab African Int'l Bank</div>
+          <div class="s1-greeting-sub">Cairo, Egypt · SWIFT: ARAIEGCX</div>
+          <div class="renewal-banner">
+            <div class="rb-icon">⚠️</div>
+            <div class="rb-right">
+              <div class="rb-title">KYC Renewal Required</div>
+              <div class="rb-sub">Relationship at risk if not completed</div>
+            </div>
+            <div class="rb-days">47d</div>
+          </div>
+        </div>
+
+        <div class="s1-body">
+          <!-- Doc status -->
+          <div class="status-card">
+            <div class="status-card-title">Document Submission Status</div>
+
+            <div class="doc-row">
+              <div class="doc-status done">✓</div>
+              <div class="doc-name">Central Bank License</div>
+              <div class="doc-tag done">Uploaded</div>
+            </div>
+            <div class="doc-row">
+              <div class="doc-status done">✓</div>
+              <div class="doc-name">Audited Financials 2025</div>
+              <div class="doc-tag done">Uploaded</div>
+            </div>
+            <div class="doc-row">
+              <div class="doc-status done">✓</div>
+              <div class="doc-name">Ownership Structure</div>
+              <div class="doc-tag done">Uploaded</div>
+            </div>
+            <div class="doc-row">
+              <div class="doc-status pend">⏳</div>
+              <div class="doc-name">AML Policy Statement</div>
+              <div class="doc-tag pend">In Review</div>
+            </div>
+            <div class="doc-row">
+              <div class="doc-status miss">!</div>
+              <div class="doc-name">UBO Declaration Form</div>
+              <div class="doc-tag miss">Required</div>
+            </div>
+          </div>
+
+          <!-- Progress -->
+          <div class="progress-card">
+            <div class="prog-top">
+              <div class="prog-title">Completion Progress</div>
+              <div class="prog-pct">68%</div>
+            </div>
+            <div class="track">
+              <div class="fill" style="width:68%;">
+                <span class="fill-badge">68%</span>
+              </div>
+            </div>
+            <div class="phase-dots">
+              <div class="phase-dot">
+                <div class="pdot done"></div>
+                <div class="plbl">Docs</div>
+              </div>
+              <div class="phase-dot">
+                <div class="pdot active"></div>
+                <div class="plbl">Review</div>
+              </div>
+              <div class="phase-dot">
+                <div class="pdot wait"></div>
+                <div class="plbl">Compliance</div>
+              </div>
+              <div class="phase-dot">
+                <div class="pdot wait"></div>
+                <div class="plbl">Activated</div>
+              </div>
+            </div>
+            <button class="action-btn">Upload UBO Declaration →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PHONE 2 ══ -->
+  <div class="phone-col">
+    <div class="phone-label">02 — OCR Auto-fill Form</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="sb" style="background:var(--c-hero);">
+        <span class="sb-time" style="color:rgba(255,255,255,0.8);">09:17</span>
+        <span class="sb-icons" style="color:rgba(255,255,255,0.6);">▲▲▲ 100%</span>
+      </div>
+      <div class="sc">
+        <div class="s2-header">
+          <div class="s2-nav">
+            <div class="back-btn">←</div>
+            <div class="s2-nav-title">UBO Declaration</div>
+          </div>
+          <!-- Step indicator -->
+          <div class="s2-step-row">
+            <div class="s2-step">
+              <div class="sdot done">✓</div>
+              <div class="slbl">Upload</div>
+            </div>
+            <div class="s2-step-sep"></div>
+            <div class="s2-step">
+              <div class="sdot active">2</div>
+              <div class="slbl">Details</div>
+            </div>
+            <div class="s2-step-sep"></div>
+            <div class="s2-step">
+              <div class="sdot wait">3</div>
+              <div class="slbl">Review</div>
+            </div>
+            <div class="s2-step-sep"></div>
+            <div class="s2-step">
+              <div class="sdot wait">4</div>
+              <div class="slbl">Sign</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="s2-body">
+          <!-- OCR Card -->
+          <div class="ocr-zone">
+            <div class="ocr-header">
+              <div class="ocr-icon-box">📄</div>
+              <div>
+                <div class="ocr-title">Smart Auto-fill</div>
+                <div class="ocr-sub">Data extracted from your uploaded documents</div>
+              </div>
+            </div>
+            <div class="ocr-chip">✦ 8 fields pre-filled from prior submission</div>
+            <div class="pre-fill-label">Entity Details</div>
+
+            <div class="field-row">
+              <div class="field-lbl">Legal Entity Name</div>
+              <div class="field-val prefilled">Arab African Int'l Bank S.A.E.</div>
+            </div>
+            <div class="field-row">
+              <div class="field-lbl">Registration Number</div>
+              <div class="field-val prefilled" style="font-family:'DM Mono',monospace;">EG-CAI-1964-00112</div>
+            </div>
+            <div class="field-row">
+              <div class="field-lbl">Jurisdiction</div>
+              <div class="field-val prefilled">Egypt · Central Bank regulated</div>
+            </div>
+            <div class="field-row">
+              <div class="field-lbl">UBO Full Name</div>
+              <div class="field-empty">Required — enter UBO details</div>
+            </div>
+            <div class="field-row">
+              <div class="field-lbl">UBO Ownership %</div>
+              <div class="field-empty">Required — % holding</div>
+            </div>
+          </div>
+
+          <!-- Parallel compliance -->
+          <div class="comp-zone">
+            <div class="comp-title">Parallel Compliance Review</div>
+            <div class="juris-row">
+              <div class="juris-flag">🇬🇧</div>
+              <div class="juris-name">UK FCA / FATF</div>
+              <div class="juris-status done">✓ Complete</div>
+            </div>
+            <div class="juris-row">
+              <div class="juris-flag">🇦🇪</div>
+              <div class="juris-name">UAE CBUAE</div>
+              <div class="juris-status done">✓ Complete</div>
+            </div>
+            <div class="juris-row">
+              <div class="juris-flag">🇪🇬</div>
+              <div class="juris-name">Egypt CBE / AML</div>
+              <div class="juris-status pend">⏳ In review</div>
+            </div>
+            <div class="juris-row">
+              <div class="juris-flag">🇺🇸</div>
+              <div class="juris-name">US OFAC / FinCEN</div>
+              <div class="juris-status wait">Queued</div>
+            </div>
+            <button class="action-btn">Submit UBO &amp; Continue →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PHONE 3 ══ -->
+  <div class="phone-col">
+    <div class="phone-label">03 — Relationship Activated</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="sb" style="background:var(--c-dark);">
+        <span class="sb-time" style="color:rgba(255,255,255,0.8);">11:22</span>
+        <span class="sb-icons" style="color:rgba(255,255,255,0.6);">▲▲▲ 100%</span>
+      </div>
+      <div class="sc">
+        <div class="s3-wrap">
+          <div class="s3-orb"></div>
+          <div id="conf2"></div>
+          <div class="s3-inner">
+            <div class="s3-shield">✓</div>
+            <div class="s3-heading">Relationship Activated</div>
+            <div class="s3-sub">Full compliance clearance received</div>
+
+            <!-- Activated card -->
+            <div class="activated-card">
+              <div class="act-lbl">Correspondent Relationship</div>
+              <div class="act-bank">Arab African Int'l Bank</div>
+              <div class="act-country">🇪🇬 Cairo, Egypt · SWIFT: ARAIEGCX</div>
+              <div class="act-row">
+                <div class="act-row-lbl">KYC Status</div>
+                <div class="act-row-val teal">✓ Fully cleared</div>
+              </div>
+              <div class="act-row">
+                <div class="act-row-lbl">Valid until</div>
+                <div class="act-row-val">May 2028</div>
+              </div>
+              <div class="act-row">
+                <div class="act-row-lbl">Annual payment volume</div>
+                <div class="act-row-val gold">USD 840M</div>
+              </div>
+              <div class="act-row">
+                <div class="act-row-lbl">Jurisdictions cleared</div>
+                <div class="act-row-val">4 / 4</div>
+              </div>
+            </div>
+
+            <!-- Time comparison -->
+            <div class="time-card">
+              <div class="time-lbl">Time to Clearance</div>
+              <div class="time-compare">
+                <div class="time-before">
+                  <div class="time-val red">~7 mo</div>
+                  <div class="time-sub">Previous cycle</div>
+                </div>
+                <div class="time-arrow">→</div>
+                <div class="time-after">
+                  <div class="time-val teal">38 days</div>
+                  <div class="time-sub">ClearPath</div>
+                </div>
+              </div>
+              <div class="time-insight">
+                Parallel review across 4 jurisdictions cut processing time by <strong>81%</strong> vs. sequential review
+              </div>
+            </div>
+
+            <div class="s3-actions">
+              <div class="s3-btn outline">Download Cert</div>
+              <div class="s3-btn primary">View Dashboard</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PHONE 4 ══ -->
+  <div class="phone-col">
+    <div class="phone-label">04 — J.P. Morgan Compliance Dashboard</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="sb" style="background:#050F1F;">
+        <span class="sb-time" style="color:rgba(255,255,255,0.75);">11:25</span>
+        <span class="sb-icons" style="color:rgba(255,255,255,0.5);">▲▲▲ 99%</span>
+      </div>
+      <div class="sc">
+        <div class="s4-wrap">
+          <div class="s4-header">
+            <div class="s4-nav">
+              <div class="s4-title">ClearPath · Compliance Ops</div>
+              <div class="s4-live">● LIVE</div>
+            </div>
+            <div class="s4-kpi-row">
+              <div class="s4-kpi">
+                <div class="s4-kpi-val teal">38d</div>
+                <div class="s4-kpi-lbl">Avg. clearance time</div>
+                <div class="s4-kpi-delta good">↓ from 7 months</div>
+              </div>
+              <div class="s4-kpi">
+                <div class="s4-kpi-val gold">−40%</div>
+                <div class="s4-kpi-lbl">Relationship churn</div>
+                <div class="s4-kpi-delta good">↑ relationships saved</div>
+              </div>
+              <div class="s4-kpi">
+                <div class="s4-kpi-val red">7</div>
+                <div class="s4-kpi-lbl">At-risk renewals</div>
+                <div class="s4-kpi-delta bad">Action needed</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="s4-body">
+            <div class="s4-sec-lbl">Active Renewals · CEEMEA Pipeline</div>
+
+            <!-- Rel cards -->
+            <div class="rel-card">
+              <div class="rel-top">
+                <div>
+                  <div class="rel-bank">Arab African Int'l Bank</div>
+                  <div class="rel-country">🇪🇬 Egypt · $840M annual flow</div>
+                </div>
+                <div class="rel-badge active">Activated</div>
+              </div>
+              <div class="rel-progress-row">
+                <div class="rel-prog-track">
+                  <div class="rel-prog-fill" style="width:100%;background:var(--c-teal);"></div>
+                </div>
+                <div class="rel-prog-pct">100%</div>
+              </div>
+              <div class="rel-days">Cleared 38 days · Valid to May 2028</div>
+            </div>
+
+            <div class="rel-card">
+              <div class="rel-top">
+                <div>
+                  <div class="rel-bank">First National Bank</div>
+                  <div class="rel-country">🇳🇬 Nigeria · $320M annual flow</div>
+                </div>
+                <div class="rel-badge review">In Review</div>
+              </div>
+              <div class="rel-progress-row">
+                <div class="rel-prog-track">
+                  <div class="rel-prog-fill" style="width:72%;background:var(--c-gold);"></div>
+                </div>
+                <div class="rel-prog-pct">72%</div>
+              </div>
+              <div class="rel-days">Day 26 of process · Est. 12 days remaining</div>
+            </div>
+
+            <div class="rel-card">
+              <div class="rel-top">
+                <div>
+                  <div class="rel-bank">Banque Misr</div>
+                  <div class="rel-country">🇪🇬 Egypt · $180M annual flow</div>
+                </div>
+                <div class="rel-badge atrisk">At Risk</div>
+              </div>
+              <div class="rel-progress-row">
+                <div class="rel-prog-track">
+                  <div class="rel-prog-fill" style="width:31%;background:#F87171;"></div>
+                </div>
+                <div class="rel-prog-pct">31%</div>
+              </div>
+              <div class="rel-days">Expiry in 14 days · UBO docs overdue</div>
+            </div>
+
+            <!-- Health score -->
+            <div class="health-panel">
+              <div class="health-lbl">Relationship Health Score · CEEMEA</div>
+              <div class="health-row">
+                <div class="health-name">Egypt corridor</div>
+                <div class="health-score hi">87/100</div>
+              </div>
+              <div class="health-row">
+                <div class="health-name">Nigeria corridor</div>
+                <div class="health-score mid">61/100</div>
+              </div>
+              <div class="health-row">
+                <div class="health-name">Kenya corridor</div>
+                <div class="health-score mid">54/100</div>
+              </div>
+              <div class="health-row">
+                <div class="health-name">Pakistan corridor</div>
+                <div class="health-score lo">28/100</div>
+              </div>
+            </div>
+
+            <div class="derisk-box">
+              <strong>De-risking alert:</strong> Pakistan corridor score below threshold. 3 relationships flagged for senior review — <strong>$240M annual payment volume at risk</strong> if not cleared in 30 days.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end proto-wrap -->
+
+<script>
+// Confetti on Screen 3
+const c = document.getElementById('conf2');
+const cols = ['#0D9488','#C9A227','#38BDF8','#4ADE80','#FBBF24','#A78BFA','#2DD4BF'];
+for(let i=0;i<36;i++){
+  const p = document.createElement('div');
+  p.className='cp';
+  const size = 4+Math.random()*7;
+  p.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*120-10}%;width:${size}px;height:${size}px;background:${cols[Math.floor(Math.random()*cols.length)]};border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${1.4+Math.random()*1.8}s;animation-delay:${Math.random()*2.4}s;`;
+  c.appendChild(p);
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1700">
+<title>J.P. Morgan — PayIQ · CEEMEA Payment Intelligence · Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --c-dark:   #0A1E3D;
+  --c-hero:   #0F2A54;
+  --c-bright: #2563EB;
+  --c-accent: #3B82F6;
+  --c-gold:   #C9A227;
+  --c-teal:   #0D9488;
+  --ink:      #0f172a;
+  --muted:    #64748b;
+  --border:   #e2e8f0;
+  --gray:     #f1f5f9;
+  --success:  #16A34A;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: linear-gradient(135deg, #060E1E 0%, #0A1E3D 50%, #071428 100%);
+  min-height: 100vh;
+  font-family: 'Sora', sans-serif;
+  padding: 40px 32px 60px;
+}
+
+/* ── Header strip ── */
+.header-strip {
+  text-align: center;
+  margin-bottom: 40px;
+}
+.header-strip .co-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 99px;
+  padding: 6px 18px 6px 10px;
+  margin-bottom: 16px;
+}
+.co-logo {
+  width: 28px; height: 28px;
+  background: var(--c-bright);
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 800; color: #fff;
+}
+.co-badge span { font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.7); letter-spacing: .06em; }
+.header-strip h1 {
+  font-size: 26px; font-weight: 800; color: #fff;
+  letter-spacing: -.02em; margin-bottom: 6px;
+}
+.header-strip h1 em { font-style: normal; color: var(--c-gold); }
+.header-strip p { font-size: 13px; color: rgba(255,255,255,0.45); font-weight: 400; }
+
+/* ── Prototype wrapper ── */
+.proto-wrap {
+  display: flex;
+  gap: 32px;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+/* ── Phone column ── */
+.phone-col { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.phone-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.35);
+}
+
+/* ── Phone shell ── */
+.phone {
+  width: 375px;
+  background: var(--c-dark);
+  border-radius: 46px;
+  box-shadow: 0 40px 100px rgba(0,0,0,0.55), 0 0 0 1.5px rgba(255,255,255,0.08);
+  overflow: hidden;
+  position: relative;
+}
+
+/* ── Notch ── */
+.notch {
+  width: 118px; height: 28px;
+  background: var(--c-dark);
+  border-radius: 0 0 16px 16px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  position: relative;
+  z-index: 10;
+}
+.nc { width: 10px; height: 10px; background: #1e293b; border-radius: 50%; }
+.ndot { width: 5px; height: 5px; background: #334155; border-radius: 50%; }
+
+/* ── Status bar ── */
+.sb {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2px 18px 6px;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  font-weight: 500;
+}
+.sb-time { color: rgba(255,255,255,0.8); }
+.sb-icons { color: rgba(255,255,255,0.6); letter-spacing: .04em; }
+
+/* ── Screen container ── */
+.sc {
+  overflow-y: auto;
+  max-height: 724px;
+  scrollbar-width: none;
+}
+.sc::-webkit-scrollbar { display: none; }
+
+/* ══════════════════════════════════════════
+   SCREEN 1 — Payment Initiation + Rail Rec
+═══════════════════════════════════════════ */
+.s1-top {
+  background: var(--c-hero);
+  padding: 14px 18px 18px;
+}
+.s1-nav {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 14px;
+}
+.s1-nav-logo {
+  display: flex; align-items: center; gap: 8px;
+}
+.s1-jpm-badge {
+  width: 26px; height: 26px;
+  background: var(--c-bright);
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 800; color: #fff; letter-spacing: -.02em;
+}
+.s1-nav-title { font-size: 13px; font-weight: 700; color: #fff; }
+.s1-nav-sub { font-size: 9px; color: rgba(255,255,255,0.45); font-weight: 400; }
+.s1-bell {
+  width: 30px; height: 30px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px;
+}
+.s1-heading { font-size: 17px; font-weight: 800; color: #fff; margin-bottom: 3px; }
+.s1-sub { font-size: 10.5px; color: rgba(255,255,255,0.45); }
+
+.s1-body { background: var(--gray); padding: 16px; }
+
+/* Form card */
+.form-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 14px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+.form-row { margin-bottom: 12px; }
+.form-lbl {
+  font-size: 9.5px; font-weight: 700;
+  color: var(--muted); letter-spacing: .08em;
+  text-transform: uppercase; margin-bottom: 5px;
+}
+.form-val {
+  font-size: 13.5px; font-weight: 700; color: var(--ink);
+  padding: 9px 12px;
+  background: var(--gray);
+  border-radius: 8px;
+  border: 1.5px solid var(--border);
+}
+.form-val.big {
+  font-family: 'DM Mono', monospace;
+  font-size: 20px; font-weight: 500;
+  color: var(--c-dark);
+}
+.form-val.hl { border-color: var(--c-bright); background: rgba(37,99,235,0.04); }
+.urgency-row {
+  display: flex; gap: 8px;
+}
+.urgency-chip {
+  flex: 1; text-align: center;
+  padding: 8px 0;
+  border-radius: 8px;
+  font-size: 12px; font-weight: 700;
+  border: 1.5px solid var(--border);
+  color: var(--muted); cursor: pointer;
+}
+.urgency-chip.active {
+  background: var(--c-dark); color: #fff;
+  border-color: var(--c-dark);
+}
+
+/* PayIQ recommendation */
+.rec-card {
+  background: linear-gradient(135deg, #0A1E3D 0%, #0F2A54 100%);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 14px;
+  position: relative;
+  overflow: hidden;
+}
+.rec-card::before {
+  content: '';
+  position: absolute;
+  top: -30px; right: -30px;
+  width: 120px; height: 120px;
+  background: rgba(37,99,235,0.15);
+  border-radius: 50%;
+}
+.rec-eyebrow {
+  display: flex; align-items: center; gap: 6px;
+  margin-bottom: 10px;
+}
+.rec-chip {
+  background: rgba(201,162,39,0.2);
+  border: 1px solid rgba(201,162,39,0.4);
+  border-radius: 99px;
+  padding: 2px 10px;
+  font-size: 9px; font-weight: 700;
+  color: var(--c-gold); letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.rec-model { font-size: 9px; color: rgba(255,255,255,0.4); font-weight: 400; }
+
+.rec-rail-name {
+  font-size: 22px; font-weight: 800; color: #fff;
+  margin-bottom: 2px; letter-spacing: -.01em;
+}
+.rec-rail-desc { font-size: 10px; color: rgba(255,255,255,0.5); margin-bottom: 12px; }
+
+.rec-stats {
+  display: flex; gap: 8px;
+}
+.rec-stat {
+  flex: 1;
+  background: rgba(255,255,255,0.07);
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+.rec-stat-val {
+  font-family: 'DM Mono', monospace;
+  font-size: 15px; font-weight: 500; color: #fff;
+  margin-bottom: 2px;
+}
+.rec-stat-val.gold { color: var(--c-gold); }
+.rec-stat-lbl { font-size: 9px; color: rgba(255,255,255,0.4); }
+
+.compare-link {
+  display: block; text-align: center;
+  font-size: 11px; font-weight: 600;
+  color: var(--c-bright); margin-bottom: 12px;
+  text-decoration: none;
+}
+
+.btn-confirm {
+  width: 100%;
+  background: var(--c-bright);
+  color: #fff;
+  border: none; border-radius: 12px;
+  padding: 14px;
+  font-family: 'Sora', sans-serif;
+  font-size: 14px; font-weight: 700;
+  letter-spacing: .01em; cursor: pointer;
+}
+
+/* ══════════════════════════════════════════
+   SCREEN 2 — Rail Comparison Matrix
+═══════════════════════════════════════════ */
+.s2-top {
+  background: var(--c-hero);
+  padding: 14px 18px 18px;
+}
+.s2-nav {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 14px;
+}
+.back-btn {
+  width: 28px; height: 28px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; color: #fff;
+}
+.s2-nav-title { font-size: 14px; font-weight: 700; color: #fff; }
+.s2-payment-pill {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  padding: 10px 14px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.s2-pill-left { }
+.s2-pill-lbl { font-size: 9px; color: rgba(255,255,255,0.4); margin-bottom: 2px; }
+.s2-pill-val { font-size: 13px; font-weight: 700; color: #fff; }
+.s2-pill-sep { width: 1px; background: rgba(255,255,255,0.15); align-self: stretch; }
+.s2-pill-right { text-align: right; }
+
+.s2-body { background: var(--gray); padding: 14px; }
+
+.matrix-header {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr 1fr;
+  gap: 4px;
+  padding: 0 0 8px;
+}
+.mh-lbl {
+  font-size: 9px; font-weight: 700;
+  color: var(--muted); letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.mh-lbl:first-child { grid-column: 1; }
+
+.rail-row {
+  background: #fff;
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr 1fr;
+  gap: 4px;
+  align-items: center;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+  border: 1.5px solid transparent;
+}
+.rail-row.best {
+  border-color: var(--c-bright);
+  background: rgba(37,99,235,0.04);
+}
+.rail-row.disabled { opacity: .45; }
+.rail-name-col { }
+.rail-badge {
+  display: flex; align-items: center; gap: 6px;
+  margin-bottom: 4px;
+}
+.rail-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+}
+.rail-name { font-size: 13px; font-weight: 700; color: var(--ink); }
+.rec-tag {
+  font-size: 8.5px; font-weight: 700;
+  background: var(--c-bright); color: #fff;
+  border-radius: 99px; padding: 1px 7px;
+}
+.rail-sub { font-size: 9.5px; color: var(--muted); }
+.rail-cell { font-size: 12px; font-weight: 700; color: var(--ink); }
+.rail-cell.green { color: var(--success); }
+.rail-cell.gold { color: var(--c-gold); }
+.rail-cell.muted { color: var(--muted); font-weight: 400; font-size: 11px; }
+.rail-cell-sub { font-size: 9px; color: var(--muted); font-weight: 400; }
+
+.cutoff-banner {
+  background: rgba(201,162,39,0.12);
+  border: 1px solid rgba(201,162,39,0.3);
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 14px;
+}
+.cutoff-icon { font-size: 16px; }
+.cutoff-text { font-size: 10.5px; color: #92400e; font-weight: 600; line-height: 1.4; }
+.cutoff-text strong { color: var(--c-gold); }
+
+/* ══════════════════════════════════════════
+   SCREEN 3 — Payment Confirmed (gpi Tracker)
+═══════════════════════════════════════════ */
+.s3-wrap { background: var(--c-dark); min-height: 760px; position: relative; overflow: hidden; }
+.conf-orb {
+  position: absolute;
+  top: -60px; left: 50%;
+  transform: translateX(-50%);
+  width: 260px; height: 260px;
+  background: radial-gradient(circle, rgba(37,99,235,0.25) 0%, transparent 70%);
+  border-radius: 50%;
+}
+#conf {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.cp {
+  position: absolute;
+  animation: fall linear forwards;
+}
+@keyframes fall {
+  0% { transform: translateY(-20px) rotate(0deg); opacity:1; }
+  100% { transform: translateY(820px) rotate(360deg); opacity:0; }
+}
+
+.s3-inner { padding: 24px 18px; position: relative; z-index: 2; }
+.s3-check {
+  width: 64px; height: 64px;
+  background: linear-gradient(135deg, var(--c-bright), #1D4ED8);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px;
+  margin: 0 auto 12px;
+  box-shadow: 0 8px 30px rgba(37,99,235,0.4);
+}
+.s3-heading { font-size: 20px; font-weight: 800; color: #fff; text-align: center; margin-bottom: 4px; }
+.s3-sub { font-size: 11px; color: rgba(255,255,255,0.45); text-align: center; margin-bottom: 20px; }
+
+.gpi-card {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+}
+.gpi-label {
+  font-size: 9px; font-weight: 700;
+  color: rgba(255,255,255,0.4);
+  letter-spacing: .1em; text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.gpi-amount {
+  font-family: 'DM Mono', monospace;
+  font-size: 28px; font-weight: 500;
+  color: #fff; margin-bottom: 2px;
+}
+.gpi-fx { font-size: 10.5px; color: rgba(255,255,255,0.4); margin-bottom: 12px; }
+.gpi-row {
+  display: flex; justify-content: space-between;
+  border-top: 1px solid rgba(255,255,255,0.07);
+  padding-top: 8px; margin-top: 6px;
+}
+.gpi-row-lbl { font-size: 10px; color: rgba(255,255,255,0.4); }
+.gpi-row-val { font-size: 10.5px; font-weight: 700; color: #fff; }
+.gpi-row-val.gold { color: var(--c-gold); }
+.gpi-row-val.green { color: #4ADE80; }
+
+.tracker-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+}
+.tracker-label {
+  font-size: 9px; font-weight: 700;
+  color: rgba(255,255,255,0.4);
+  letter-spacing: .1em; text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.tracker-step {
+  display: flex; align-items: flex-start; gap: 12px;
+  margin-bottom: 14px;
+  position: relative;
+}
+.tracker-step:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 13px; top: 26px;
+  width: 1.5px; height: calc(100% + 2px);
+  background: rgba(255,255,255,0.1);
+}
+.step-dot {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+.step-dot.done { background: rgba(74,222,128,0.2); color: #4ADE80; border: 1.5px solid rgba(74,222,128,0.4); }
+.step-dot.active { background: rgba(37,99,235,0.25); color: var(--c-accent); border: 1.5px solid rgba(37,99,235,0.5); }
+.step-title { font-size: 12px; font-weight: 700; color: #fff; margin-bottom: 2px; }
+.step-meta {
+  font-family: 'DM Mono', monospace;
+  font-size: 9.5px; color: rgba(255,255,255,0.4);
+}
+
+.s3-uetr {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.uetr-lbl { font-size: 9px; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: .08em; }
+.uetr-val {
+  font-family: 'DM Mono', monospace;
+  font-size: 9.5px; color: rgba(255,255,255,0.5);
+}
+
+.s3-actions { display: flex; gap: 8px; }
+.s3-btn {
+  flex: 1; padding: 12px;
+  border-radius: 10px;
+  font-family: 'Sora', sans-serif;
+  font-size: 12px; font-weight: 700;
+  text-align: center; cursor: pointer;
+}
+.s3-btn.primary { background: var(--c-bright); color: #fff; border: none; }
+.s3-btn.outline { background: transparent; color: rgba(255,255,255,0.6); border: 1px solid rgba(255,255,255,0.15); }
+
+/* ══════════════════════════════════════════
+   SCREEN 4 — RM / Ops Dashboard
+═══════════════════════════════════════════ */
+.s4-top {
+  background: #050F1F;
+  padding: 14px 18px 18px;
+}
+.s4-nav {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 14px;
+}
+.s4-title { font-size: 13px; font-weight: 700; color: #fff; }
+.s4-badge {
+  background: rgba(37,99,235,0.2);
+  border: 1px solid rgba(37,99,235,0.35);
+  border-radius: 99px;
+  padding: 3px 10px;
+  font-size: 9px; font-weight: 700; color: var(--c-accent);
+}
+.s4-date { font-size: 9.5px; color: rgba(255,255,255,0.35); margin-bottom: 12px; }
+.s4-kpi-row {
+  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
+.s4-kpi {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  padding: 10px 10px;
+}
+.s4-kpi-val {
+  font-family: 'DM Mono', monospace;
+  font-size: 17px; font-weight: 500; color: #fff;
+  margin-bottom: 2px;
+  line-height: 1;
+}
+.s4-kpi-val.blue { color: var(--c-accent); }
+.s4-kpi-val.gold { color: var(--c-gold); }
+.s4-kpi-val.green { color: #4ADE80; }
+.s4-kpi-lbl { font-size: 8.5px; color: rgba(255,255,255,0.35); line-height: 1.3; }
+.s4-kpi-delta {
+  font-size: 9px; font-weight: 700;
+  margin-top: 4px;
+}
+.s4-kpi-delta.up { color: #4ADE80; }
+.s4-kpi-delta.down { color: #F87171; }
+
+.s4-body { background: #080F20; padding: 14px; }
+
+.s4-section-lbl {
+  font-size: 9.5px; font-weight: 700;
+  color: rgba(255,255,255,0.35);
+  letter-spacing: .1em; text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+/* Exception queue */
+.exc-item {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 10px;
+  padding: 11px 13px;
+  margin-bottom: 7px;
+  display: flex; align-items: center; gap: 10px;
+}
+.exc-icon {
+  width: 30px; height: 30px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; flex-shrink: 0;
+}
+.exc-icon.warn { background: rgba(251,191,36,0.15); }
+.exc-icon.err { background: rgba(248,113,113,0.15); }
+.exc-right { flex: 1; }
+.exc-client { font-size: 11.5px; font-weight: 700; color: #fff; margin-bottom: 2px; }
+.exc-detail { font-size: 9.5px; color: rgba(255,255,255,0.4); }
+.exc-amt {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px; font-weight: 500;
+  color: rgba(255,255,255,0.6);
+}
+
+/* Rail utilisation bars */
+.rail-util {
+  margin-bottom: 8px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px;
+  padding: 10px 13px;
+}
+.rail-util-top {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 6px;
+}
+.rail-util-name { font-size: 11.5px; font-weight: 700; color: #fff; }
+.rail-util-pct {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.6);
+}
+.util-track {
+  height: 5px; background: rgba(255,255,255,0.08);
+  border-radius: 99px; overflow: hidden;
+}
+.util-fill { height: 100%; border-radius: 99px; }
+.s4-insight {
+  background: rgba(37,99,235,0.1);
+  border: 1px solid rgba(37,99,235,0.25);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-top: 14px;
+}
+.s4-insight-lbl {
+  font-size: 9px; font-weight: 700;
+  color: var(--c-accent); letter-spacing: .08em;
+  text-transform: uppercase; margin-bottom: 6px;
+}
+.s4-insight-text {
+  font-size: 10.5px; color: rgba(255,255,255,0.65); line-height: 1.55;
+}
+.s4-insight-text strong { color: #fff; }
+</style>
+</head>
+<body>
+
+<!-- ── Header ── -->
+<div class="header-strip">
+  <div class="co-badge">
+    <div class="co-logo">JPM</div>
+    <span>J.P. Morgan · Commercial &amp; Investment Bank</span>
+  </div>
+  <h1>PayIQ — <em>CEEMEA Payment Intelligence</em></h1>
+  <p>Smart rail routing before · Real-time gpi visibility after · Interactive Prototype by Ajay Avaghade</p>
+</div>
+
+<!-- ── Phones ── -->
+<div class="proto-wrap">
+
+  <!-- ══ PHONE 1 ══ -->
+  <div class="phone-col">
+    <div class="phone-label">01 — Payment Initiation + Rail Recommender</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="sb" style="background:var(--c-hero);">
+        <span class="sb-time" style="color:rgba(255,255,255,0.8);">11:38</span>
+        <span class="sb-icons" style="color:rgba(255,255,255,0.6);">▲▲▲ 100%</span>
+      </div>
+      <div class="sc">
+        <!-- Top bar -->
+        <div class="s1-top">
+          <div class="s1-nav">
+            <div class="s1-nav-logo">
+              <div class="s1-jpm-badge">JPM</div>
+              <div>
+                <div class="s1-nav-title">ACCESS Payments</div>
+                <div class="s1-nav-sub">CEEMEA · Corporate</div>
+              </div>
+            </div>
+            <div class="s1-bell">🔔</div>
+          </div>
+          <div class="s1-heading">New Payment</div>
+          <div class="s1-sub">PayIQ will recommend the optimal rail</div>
+        </div>
+
+        <!-- Body -->
+        <div class="s1-body">
+          <!-- Form -->
+          <div class="form-card">
+            <div class="form-row">
+              <div class="form-lbl">Beneficiary</div>
+              <div class="form-val">Al Rajhi Bank — Riyadh, SA</div>
+            </div>
+            <div class="form-row">
+              <div class="form-lbl">Amount</div>
+              <div class="form-val big hl">USD 2,400,000</div>
+            </div>
+            <div class="form-row">
+              <div class="form-lbl">Value Date</div>
+              <div class="urgency-row">
+                <div class="urgency-chip active">Today</div>
+                <div class="urgency-chip">Next Day</div>
+                <div class="urgency-chip">Standard</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PayIQ Recommendation -->
+          <div class="rec-card">
+            <div class="rec-eyebrow">
+              <div class="rec-chip">⚡ PayIQ Recommends</div>
+              <div class="rec-model">ML confidence: 97.4%</div>
+            </div>
+            <div class="rec-rail-name">SARIE</div>
+            <div class="rec-rail-desc">Saudi Arabia Real-Time Payments Network</div>
+            <div class="rec-stats">
+              <div class="rec-stat">
+                <div class="rec-stat-val">~2 hrs</div>
+                <div class="rec-stat-lbl">Arrival</div>
+              </div>
+              <div class="rec-stat">
+                <div class="rec-stat-val gold">−USD 4,800</div>
+                <div class="rec-stat-lbl">vs SWIFT</div>
+              </div>
+              <div class="rec-stat">
+                <div class="rec-stat-val">99.1%</div>
+                <div class="rec-stat-lbl">Certainty</div>
+              </div>
+            </div>
+          </div>
+
+          <a class="compare-link" href="#">Compare all rails →</a>
+
+          <button class="btn-confirm">Confirm with SARIE →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PHONE 2 ══ -->
+  <div class="phone-col">
+    <div class="phone-label">02 — Rail Comparison Matrix</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="sb" style="background:var(--c-hero);">
+        <span class="sb-time" style="color:rgba(255,255,255,0.8);">11:39</span>
+        <span class="sb-icons" style="color:rgba(255,255,255,0.6);">▲▲▲ 100%</span>
+      </div>
+      <div class="sc">
+        <div class="s2-top">
+          <div class="s2-nav">
+            <div class="back-btn">←</div>
+            <div class="s2-nav-title">Choose Payment Rail</div>
+          </div>
+          <div class="s2-payment-pill">
+            <div class="s2-pill-left">
+              <div class="s2-pill-lbl">Payment to</div>
+              <div class="s2-pill-val">Al Rajhi Bank, SA</div>
+            </div>
+            <div class="s2-pill-sep"></div>
+            <div class="s2-pill-right">
+              <div class="s2-pill-lbl">Amount</div>
+              <div class="s2-pill-val" style="font-family:'DM Mono',monospace;">USD 2.4M</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="s2-body">
+          <!-- Matrix headers -->
+          <div class="matrix-header">
+            <div class="mh-lbl">Rail</div>
+            <div class="mh-lbl">Speed</div>
+            <div class="mh-lbl">Fee</div>
+            <div class="mh-lbl">STP %</div>
+          </div>
+
+          <!-- Row 1: SARIE — RECOMMENDED -->
+          <div class="rail-row best">
+            <div class="rail-name-col">
+              <div class="rail-badge">
+                <div class="rail-dot" style="background:#2563EB;"></div>
+                <div class="rail-name">SARIE</div>
+                <div class="rec-tag">Best</div>
+              </div>
+              <div class="rail-sub">SA Real-Time</div>
+            </div>
+            <div>
+              <div class="rail-cell green">~2 hrs</div>
+              <div class="rail-cell-sub">Real-time</div>
+            </div>
+            <div>
+              <div class="rail-cell">USD 320</div>
+              <div class="rail-cell-sub">Flat</div>
+            </div>
+            <div>
+              <div class="rail-cell green">99.1%</div>
+            </div>
+          </div>
+
+          <!-- Row 2: SWIFT -->
+          <div class="rail-row">
+            <div class="rail-name-col">
+              <div class="rail-badge">
+                <div class="rail-dot" style="background:#94A3B8;"></div>
+                <div class="rail-name">SWIFT</div>
+              </div>
+              <div class="rail-sub">Correspondent</div>
+            </div>
+            <div>
+              <div class="rail-cell" style="color:#DC2626;">1–2 days</div>
+              <div class="rail-cell-sub">Standard</div>
+            </div>
+            <div>
+              <div class="rail-cell" style="color:#DC2626;">USD 5,120</div>
+              <div class="rail-cell-sub">+ corr. fees</div>
+            </div>
+            <div>
+              <div class="rail-cell">97.4%</div>
+            </div>
+          </div>
+
+          <!-- Row 3: SA RTGS -->
+          <div class="rail-row">
+            <div class="rail-name-col">
+              <div class="rail-badge">
+                <div class="rail-dot" style="background:#C9A227;"></div>
+                <div class="rail-name">SA-RTGS</div>
+              </div>
+              <div class="rail-sub">Local High-Value</div>
+            </div>
+            <div>
+              <div class="rail-cell">Next day</div>
+              <div class="rail-cell-sub">Batch</div>
+            </div>
+            <div>
+              <div class="rail-cell">USD 890</div>
+              <div class="rail-cell-sub">Fixed</div>
+            </div>
+            <div>
+              <div class="rail-cell">98.2%</div>
+            </div>
+          </div>
+
+          <!-- Row 4: AANI (N/A) -->
+          <div class="rail-row disabled">
+            <div class="rail-name-col">
+              <div class="rail-badge">
+                <div class="rail-dot" style="background:#475569;"></div>
+                <div class="rail-name">AANI</div>
+              </div>
+              <div class="rail-sub">UAE only · N/A</div>
+            </div>
+            <div><div class="rail-cell muted">—</div></div>
+            <div><div class="rail-cell muted">—</div></div>
+            <div><div class="rail-cell muted">—</div></div>
+          </div>
+
+          <!-- Cut-off warning -->
+          <div class="cutoff-banner">
+            <div class="cutoff-icon">⏱</div>
+            <div class="cutoff-text">
+              SARIE cut-off: <strong>4:30 PM GST</strong><br>
+              2h 14min remaining — submit now to guarantee same-day
+            </div>
+          </div>
+
+          <button class="btn-confirm">Confirm: SARIE — USD 320 →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PHONE 3 ══ -->
+  <div class="phone-col">
+    <div class="phone-label">03 — Payment Confirmed · gpi Delivered</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="sb" style="background:var(--c-dark);">
+        <span class="sb-time" style="color:rgba(255,255,255,0.8);">14:02</span>
+        <span class="sb-icons" style="color:rgba(255,255,255,0.6);">▲▲▲ 99%</span>
+      </div>
+      <div class="sc">
+        <div class="s3-wrap">
+          <div class="conf-orb"></div>
+          <div id="conf"></div>
+          <div class="s3-inner">
+            <div class="s3-check">✓</div>
+            <div class="s3-heading">Payment Delivered</div>
+            <div class="s3-sub">Confirmed via SARIE · gpi ref received</div>
+
+            <!-- Amount card -->
+            <div class="gpi-card">
+              <div class="gpi-label">Payment Summary</div>
+              <div class="gpi-amount">USD 2,400,000</div>
+              <div class="gpi-fx">≈ SAR 9,003,600 @ 3.7515</div>
+              <div class="gpi-row">
+                <div class="gpi-row-lbl">Beneficiary</div>
+                <div class="gpi-row-val">Al Rajhi Bank, SA</div>
+              </div>
+              <div class="gpi-row">
+                <div class="gpi-row-lbl">Rail used</div>
+                <div class="gpi-row-val">SARIE</div>
+              </div>
+              <div class="gpi-row">
+                <div class="gpi-row-lbl">Total time</div>
+                <div class="gpi-row-val green">2h 24min</div>
+              </div>
+              <div class="gpi-row">
+                <div class="gpi-row-lbl">Saved vs SWIFT</div>
+                <div class="gpi-row-val gold">USD 4,800</div>
+              </div>
+            </div>
+
+            <!-- gpi Tracker -->
+            <div class="tracker-card">
+              <div class="tracker-label">SWIFT gpi Tracker</div>
+
+              <div class="tracker-step">
+                <div class="step-dot done">✓</div>
+                <div>
+                  <div class="step-title">Initiated — J.P. Morgan Dubai</div>
+                  <div class="step-meta">11:38 AM GST · UETR confirmed</div>
+                </div>
+              </div>
+              <div class="tracker-step">
+                <div class="step-dot done">✓</div>
+                <div>
+                  <div class="step-title">Routed — SARIE Network</div>
+                  <div class="step-meta">11:39 AM GST · ISO 20022 pacs.008</div>
+                </div>
+              </div>
+              <div class="tracker-step">
+                <div class="step-dot done">✓</div>
+                <div>
+                  <div class="step-title">Processing — Saudi Payments Hub</div>
+                  <div class="step-meta">11:44 AM GST · In-queue</div>
+                </div>
+              </div>
+              <div class="tracker-step" style="margin-bottom:0;">
+                <div class="step-dot done">✓</div>
+                <div>
+                  <div class="step-title">Delivered — Al Rajhi Bank</div>
+                  <div class="step-meta">2:02 PM GST · Credited to account</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- UETR -->
+            <div class="s3-uetr">
+              <div class="uetr-lbl">UETR</div>
+              <div class="uetr-val">a4e2b1c9-3f07-4d82-9e...</div>
+            </div>
+
+            <div class="s3-actions">
+              <div class="s3-btn outline">Download</div>
+              <div class="s3-btn primary">New Payment</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PHONE 4 ══ -->
+  <div class="phone-col">
+    <div class="phone-label">04 — RM / Ops Dashboard</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="sb" style="background:#050F1F;">
+        <span class="sb-time" style="color:rgba(255,255,255,0.75);">14:05</span>
+        <span class="sb-icons" style="color:rgba(255,255,255,0.5);">▲▲▲ 98%</span>
+      </div>
+      <div class="sc">
+        <div class="s4-top">
+          <div class="s4-nav">
+            <div class="s4-title">PayIQ Dashboard · CEEMEA</div>
+            <div class="s4-badge">LIVE</div>
+          </div>
+          <div class="s4-date">Today · 23 May 2026 · 12 active clients</div>
+          <div class="s4-kpi-row">
+            <div class="s4-kpi">
+              <div class="s4-kpi-val blue">847</div>
+              <div class="s4-kpi-lbl">PayIQ queries resolved</div>
+              <div class="s4-kpi-delta up">↓ 65% RM time</div>
+            </div>
+            <div class="s4-kpi">
+              <div class="s4-kpi-val gold">$2.1M</div>
+              <div class="s4-kpi-lbl">Rail savings (May)</div>
+              <div class="s4-kpi-delta up">↑ vs SWIFT default</div>
+            </div>
+            <div class="s4-kpi">
+              <div class="s4-kpi-val green">1.2%</div>
+              <div class="s4-kpi-lbl">Exception rate</div>
+              <div class="s4-kpi-delta up">↓ from 4.8%</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="s4-body">
+          <!-- Exception queue -->
+          <div class="s4-section-lbl">Exception Queue · 3 Pending</div>
+
+          <div class="exc-item">
+            <div class="exc-icon warn">⚠️</div>
+            <div class="exc-right">
+              <div class="exc-client">Emirates NBD · Cairo</div>
+              <div class="exc-detail">EGP local rail — beneficiary BIC mismatch</div>
+            </div>
+            <div class="exc-amt">$840K</div>
+          </div>
+          <div class="exc-item">
+            <div class="exc-icon err">🚫</div>
+            <div class="exc-right">
+              <div class="exc-client">Olam Group · Nairobi</div>
+              <div class="exc-detail">KEPSS cut-off missed — re-route via SWIFT</div>
+            </div>
+            <div class="exc-amt">$220K</div>
+          </div>
+          <div class="exc-item">
+            <div class="exc-icon warn">⏱</div>
+            <div class="exc-right">
+              <div class="exc-client">Majid Al Futtaim · UAE</div>
+              <div class="exc-detail">AANI — approaching cut-off in 18 min</div>
+            </div>
+            <div class="exc-amt">$3.2M</div>
+          </div>
+
+          <!-- Rail utilisation -->
+          <div class="s4-section-lbl" style="margin-top:14px;">Rail Utilisation · May 2026</div>
+
+          <div class="rail-util">
+            <div class="rail-util-top">
+              <div class="rail-util-name">SARIE (Saudi)</div>
+              <div class="rail-util-pct">34%</div>
+            </div>
+            <div class="util-track"><div class="util-fill" style="width:34%;background:var(--c-bright);"></div></div>
+          </div>
+          <div class="rail-util">
+            <div class="rail-util-top">
+              <div class="rail-util-name">AANI (UAE)</div>
+              <div class="rail-util-pct">28%</div>
+            </div>
+            <div class="util-track"><div class="util-fill" style="width:28%;background:var(--c-gold);"></div></div>
+          </div>
+          <div class="rail-util">
+            <div class="rail-util-top">
+              <div class="rail-util-name">SWIFT Correspondent</div>
+              <div class="rail-util-pct">21%</div>
+            </div>
+            <div class="util-track"><div class="util-fill" style="width:21%;background:#64748b;"></div></div>
+          </div>
+          <div class="rail-util">
+            <div class="rail-util-top">
+              <div class="rail-util-name">Local RTGS (Egypt + KE)</div>
+              <div class="rail-util-pct">17%</div>
+            </div>
+            <div class="util-track"><div class="util-fill" style="width:17%;background:var(--c-teal);"></div></div>
+          </div>
+
+          <!-- Insight box -->
+          <div class="s4-insight">
+            <div class="s4-insight-lbl">PayIQ Insight</div>
+            <div class="s4-insight-text">
+              SWIFT usage dropped from <strong>68% → 21%</strong> since PayIQ launch. Clients routed via SARIE + AANI save an average of <strong>USD 3,200 per transaction</strong> with 2× faster delivery — zero RM intervention required.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end proto-wrap -->
+
+<script>
+// Confetti on Screen 3
+const c = document.getElementById('conf');
+const cols = ['#2563EB','#C9A227','#60A5FA','#FBBF24','#4ADE80','#A78BFA','#38BDF8'];
+for(let i=0;i<36;i++){
+  const p = document.createElement('div');
+  p.className='cp';
+  const size = 4+Math.random()*7;
+  p.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*120-10}%;width:${size}px;height:${size}px;background:${cols[Math.floor(Math.random()*cols.length)]};border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${1.4+Math.random()*1.8}s;animation-delay:${Math.random()*2.4}s;`;
+  c.appendChild(p);
+}
+</script>
+
+</body>
+</html>
