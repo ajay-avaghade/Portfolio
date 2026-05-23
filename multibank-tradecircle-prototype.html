@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>MultiBank — TradeCircle · Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --c-dark:#0B1A2E;
+  --c-hero:#162840;
+  --c-bright:#00D4AA;
+  --c-gold:#F5A623;
+  --c-green:#22C55E;
+  --c-red:#EF4444;
+  --c-purple:#A78BFA;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  font-family:'Sora',sans-serif;
+  background:#04090f;
+  min-height:100vh;
+  padding:40px 24px 60px;
+  display:flex;flex-direction:column;align-items:center;
+}
+.hdr{font-family:'DM Mono',monospace;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#2a4a6a;margin-bottom:6px;text-align:center;}
+.hdr span{color:var(--c-gold);}
+.sub{font-size:11px;color:#1a3050;margin-bottom:40px;font-family:'DM Mono',monospace;text-align:center;letter-spacing:.06em;}
+.row{display:flex;gap:32px;align-items:flex-start;justify-content:center;}
+.pwrap{display:flex;flex-direction:column;align-items:center;gap:10px;}
+.plbl{font-family:'DM Mono',monospace;font-size:10px;color:#2a5070;letter-spacing:.1em;text-transform:uppercase;}
+.phone{width:375px;height:812px;background:var(--c-dark);border-radius:46px;box-shadow:0 40px 100px rgba(0,0,0,0.7),0 0 0 1px rgba(255,255,255,0.05);overflow:hidden;display:flex;flex-direction:column;position:relative;}
+.notch{width:118px;height:28px;background:#000;border-radius:0 0 16px 16px;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:6px;flex-shrink:0;}
+.nc{width:10px;height:10px;border-radius:50%;background:#111;}
+.ndot{width:5px;height:5px;border-radius:50%;background:#1a1a2e;}
+.sb{display:flex;justify-content:space-between;align-items:center;padding:4px 20px 6px;font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.35);flex-shrink:0;}
+.sc{flex:1;overflow-y:auto;scrollbar-width:none;max-height:724px;}
+.sc::-webkit-scrollbar{display:none;}
+
+.track{height:8px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:visible;position:relative;}
+.fill{height:100%;border-radius:99px;background:var(--c-bright);position:relative;transition:.6s ease;}
+.fill-badge{position:absolute;right:-2px;top:-9px;background:var(--c-bright);color:#0B1A2E;font-size:9px;font-weight:700;padding:2px 5px;border-radius:6px;font-family:'DM Mono',monospace;}
+
+/* ── SCREEN 1 — Home with TradeCircle ── */
+.s1-top{background:linear-gradient(180deg,#0d2040 0%,var(--c-dark) 100%);padding:16px 20px 20px;}
+.s1-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+.s1-logo{font-size:16px;font-weight:800;color:#fff;}
+.s1-logo em{color:var(--c-bright);font-style:normal;}
+.s1-bell{width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,0.07);display:flex;align-items:center;justify-content:center;font-size:16px;}
+.s1-lbl{font-size:10px;color:rgba(255,255,255,0.4);margin-bottom:4px;letter-spacing:.06em;text-transform:uppercase;}
+.s1-balance{font-size:28px;font-weight:800;color:#fff;font-family:'DM Mono',monospace;margin-bottom:6px;}
+.s1-pnl{display:inline-flex;align-items:center;background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.25);border-radius:20px;padding:3px 12px;}
+.s1-pnl-v{font-size:11px;font-weight:700;color:var(--c-green);font-family:'DM Mono',monospace;}
+
+/* TradeCircle card */
+.s1-tc-card{
+  margin:16px 20px 0;
+  background:linear-gradient(135deg,rgba(245,166,35,0.12),rgba(245,166,35,0.04));
+  border:1px solid rgba(245,166,35,0.35);border-radius:16px;padding:16px 18px;
+}
+.s1-tc-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.s1-tc-tag{font-size:10px;font-weight:700;color:var(--c-gold);letter-spacing:.06em;}
+.s1-tc-badge{font-size:9px;color:rgba(245,166,35,0.5);font-family:'DM Mono',monospace;background:rgba(245,166,35,0.1);padding:2px 8px;border-radius:20px;}
+.s1-tc-week{font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:4px;}
+.s1-tc-pct{font-size:36px;font-weight:800;color:var(--c-gold);font-family:'DM Mono',monospace;line-height:1;margin-bottom:4px;}
+.s1-tc-inst{font-size:11px;color:rgba(255,255,255,0.45);}
+.s1-tc-inst em{color:var(--c-bright);font-style:normal;font-weight:700;}
+.s1-tc-members{
+  margin-top:12px;padding-top:12px;border-top:1px solid rgba(245,166,35,0.15);
+  display:flex;justify-content:space-between;align-items:center;
+}
+.s1-tc-mbr-txt{font-size:11px;color:rgba(255,255,255,0.4);}
+.s1-tc-mbr-txt strong{color:#fff;}
+.s1-tc-share-btn{
+  background:var(--c-gold);border:none;border-radius:10px;padding:8px 14px;
+  font-size:11px;font-weight:700;color:#0B1A2E;font-family:'Sora',sans-serif;cursor:pointer;
+}
+.s1-tc-rewrule{font-size:10px;color:rgba(255,255,255,0.3);margin-top:10px;text-align:center;line-height:1.5;}
+.s1-tc-rewrule em{color:var(--c-gold);font-style:normal;}
+
+.s1-sec{padding:16px 20px 8px;font-size:11px;font-weight:700;color:rgba(255,255,255,0.35);letter-spacing:.08em;text-transform:uppercase;}
+.s1-mkt{margin:0 20px 10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;}
+.s1-mkt-sym{font-size:13px;font-weight:700;color:#fff;margin-bottom:2px;}
+.s1-mkt-nm{font-size:10px;color:rgba(255,255,255,0.35);}
+.s1-mkt-pr{font-size:13px;font-weight:700;color:#fff;font-family:'DM Mono',monospace;margin-bottom:2px;text-align:right;}
+.s1-mkt-ch{font-size:10px;font-weight:700;font-family:'DM Mono',monospace;text-align:right;}
+.s1-mkt-ch.up{color:var(--c-green);}
+.s1-mkt-ch.dn{color:var(--c-red);}
+
+.s1-nav{height:62px;background:rgba(11,26,46,0.97);border-top:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-around;flex-shrink:0;padding-bottom:6px;}
+.s1-ni{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:9px;color:rgba(255,255,255,0.3);}
+.s1-ni.on{color:var(--c-gold);}
+.s1-ni .ic{font-size:19px;}
+
+/* ── SCREEN 2 — Performance Share Card ── */
+.s2-bg{
+  min-height:100%;
+  background:linear-gradient(160deg,#0d2040 0%,#1a1030 50%,#0d1a10 100%);
+  padding:20px;display:flex;flex-direction:column;align-items:center;
+}
+.s2-label{font-size:10px;color:rgba(255,255,255,0.35);letter-spacing:.1em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:16px;margin-top:8px;}
+
+/* The share card itself */
+.s2-card{
+  width:100%;
+  background:linear-gradient(145deg,#0f2a1a 0%,#0d1e2a 60%,#1a0f2a 100%);
+  border:1px solid rgba(245,166,35,0.4);border-radius:24px;
+  padding:24px;margin-bottom:16px;
+  position:relative;overflow:hidden;
+}
+.s2-card::before{
+  content:'';position:absolute;top:-40px;right:-40px;
+  width:140px;height:140px;border-radius:50%;
+  background:radial-gradient(circle,rgba(245,166,35,0.12),transparent 70%);
+}
+.s2-card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+.s2-card-logo{font-size:13px;font-weight:800;color:#fff;}
+.s2-card-logo em{color:var(--c-bright);font-style:normal;}
+.s2-card-badge{background:rgba(245,166,35,0.15);border:1px solid rgba(245,166,35,0.4);border-radius:20px;padding:3px 10px;font-size:10px;font-weight:700;color:var(--c-gold);}
+
+.s2-username{font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:6px;font-family:'DM Mono',monospace;}
+.s2-username em{color:var(--c-bright);font-style:normal;}
+.s2-week-lbl{font-size:10px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;}
+.s2-return{font-size:52px;font-weight:800;color:var(--c-gold);font-family:'DM Mono',monospace;line-height:1;margin-bottom:12px;}
+
+.s2-tags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+.s2-tag{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:4px 10px;font-size:10px;color:rgba(255,255,255,0.65);}
+.s2-tag.bright{border-color:rgba(0,212,170,0.4);color:var(--c-bright);background:rgba(0,212,170,0.08);}
+.s2-tag.gold{border-color:rgba(245,166,35,0.4);color:var(--c-gold);background:rgba(245,166,35,0.08);}
+
+.s2-divider{border:none;border-top:1px solid rgba(255,255,255,0.08);margin:16px 0;}
+
+.s2-join-row{display:flex;justify-content:space-between;align-items:center;}
+.s2-join-txt{font-size:12px;color:rgba(255,255,255,0.5);}
+.s2-join-txt strong{color:#fff;display:block;font-size:14px;margin-bottom:2px;}
+.s2-join-code{font-family:'DM Mono',monospace;font-size:13px;color:var(--c-gold);font-weight:700;background:rgba(245,166,35,0.08);border:1px solid rgba(245,166,35,0.3);border-radius:8px;padding:6px 10px;}
+
+.s2-footer{font-size:10px;color:rgba(255,255,255,0.25);text-align:center;margin-top:8px;font-family:'DM Mono',monospace;}
+
+.s2-share-row{display:flex;gap:10px;width:100%;margin-bottom:12px;}
+.s2-share-btn{flex:1;padding:14px;border-radius:12px;border:none;font-size:12px;font-weight:700;font-family:'Sora',sans-serif;cursor:pointer;}
+.s2-share-btn.primary{background:var(--c-gold);color:#0B1A2E;}
+.s2-share-btn.secondary{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.7);}
+
+.s2-note{font-size:10px;color:rgba(255,255,255,0.25);text-align:center;line-height:1.5;font-family:'DM Mono',monospace;}
+
+/* ── SCREEN 3 — Friend Onboarding ── */
+.s3-bg{min-height:100%;background:linear-gradient(180deg,#0a2820 0%,var(--c-dark) 60%);padding:0;}
+.s3-hero{background:linear-gradient(135deg,#0a2820,#162840);padding:24px 20px 28px;text-align:center;}
+.s3-invite-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(245,166,35,0.12);border:1px solid rgba(245,166,35,0.3);border-radius:20px;padding:4px 14px;font-size:10px;font-weight:700;color:var(--c-gold);margin-bottom:16px;font-family:'DM Mono',monospace;letter-spacing:.06em;}
+.s3-invite-head{font-size:16px;font-weight:800;color:#fff;line-height:1.4;margin-bottom:6px;}
+.s3-invite-head em{color:var(--c-bright);font-style:normal;}
+.s3-invite-sub{font-size:11px;color:rgba(255,255,255,0.45);line-height:1.5;}
+
+.s3-perf-mini{margin:16px 20px;background:rgba(255,255,255,0.04);border:1px solid rgba(245,166,35,0.25);border-radius:14px;padding:14px 16px;}
+.s3-perf-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.s3-perf-user{font-size:12px;font-weight:700;color:#fff;}
+.s3-perf-user em{color:var(--c-bright);font-style:normal;}
+.s3-perf-wk{font-size:10px;color:rgba(255,255,255,0.35);}
+.s3-perf-ret{font-size:24px;font-weight:800;color:var(--c-gold);font-family:'DM Mono',monospace;margin-bottom:4px;}
+.s3-perf-tags{display:flex;gap:6px;}
+.s3-ptag{font-size:9px;background:rgba(0,212,170,0.1);border:1px solid rgba(0,212,170,0.25);color:var(--c-bright);border-radius:20px;padding:2px 8px;}
+
+.s3-reward-box{margin:0 20px 16px;background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.25);border-radius:14px;padding:14px 16px;}
+.s3-rw-title{font-size:11px;font-weight:700;color:var(--c-green);margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em;}
+.s3-rw-row{display:flex;align-items:flex-start;gap:10px;padding:6px 0;}
+.s3-rw-ico{font-size:16px;flex-shrink:0;margin-top:1px;}
+.s3-rw-txt{font-size:11px;color:rgba(255,255,255,0.65);line-height:1.5;}
+.s3-rw-txt strong{color:#fff;}
+
+.s3-copy-card{margin:0 20px 16px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:14px 16px;}
+.s3-copy-lbl{font-size:10px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;}
+.s3-copy-name{font-size:13px;font-weight:700;color:#fff;margin-bottom:4px;}
+.s3-copy-why{font-size:11px;color:rgba(255,255,255,0.4);line-height:1.5;}
+.s3-copy-why em{color:var(--c-bright);font-style:normal;font-weight:700;}
+
+.s3-cta{margin:0 20px 10px;padding:16px;border-radius:14px;background:var(--c-gold);border:none;font-size:14px;font-weight:700;color:#0B1A2E;width:calc(100% - 40px);font-family:'Sora',sans-serif;cursor:pointer;display:block;}
+.s3-cta2{margin:0 20px 20px;padding:14px;border-radius:14px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);font-size:13px;font-weight:600;color:rgba(255,255,255,0.6);width:calc(100% - 40px);font-family:'Sora',sans-serif;cursor:pointer;display:block;text-align:center;}
+
+/* Confetti */
+#conf3{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:0;}
+.cp{position:absolute;animation:fall linear infinite;}
+@keyframes fall{0%{transform:translateY(-20px) rotate(0deg);opacity:1;}100%{transform:translateY(900px) rotate(720deg);opacity:0;}}
+
+/* ── SCREEN 4 — Viral Ops Dashboard ── */
+.s4-top{background:var(--c-hero);padding:14px 20px 16px;border-bottom:1px solid rgba(255,255,255,0.06);}
+.s4-title{font-size:15px;font-weight:800;color:#fff;margin-bottom:2px;}
+.s4-tsub{font-size:10px;color:rgba(255,255,255,0.35);font-family:'DM Mono',monospace;}
+.s4-kpis{display:flex;gap:8px;padding:14px 20px 0;}
+.s4-kpi{flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:10px 8px;text-align:center;}
+.s4-kv{font-size:15px;font-weight:800;color:var(--c-gold);font-family:'DM Mono',monospace;margin-bottom:3px;}
+.s4-kl{font-size:9px;color:rgba(255,255,255,0.4);line-height:1.3;}
+
+.s4-vc-block{margin:14px 20px 0;background:rgba(245,166,35,0.06);border:1px solid rgba(245,166,35,0.25);border-radius:14px;padding:14px 16px;}
+.s4-vc-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.s4-vc-lbl{font-size:11px;font-weight:700;color:var(--c-gold);}
+.s4-vc-val{font-size:22px;font-weight:800;color:var(--c-gold);font-family:'DM Mono',monospace;}
+.s4-vc-sub{font-size:10px;color:rgba(255,255,255,0.35);margin-top:6px;}
+.s4-vc-sub em{color:var(--c-bright);font-style:normal;font-weight:700;}
+
+.s4-sec{padding:14px 20px 8px;font-size:11px;font-weight:700;color:rgba(255,255,255,0.4);letter-spacing:.08em;text-transform:uppercase;}
+.s4-fr{margin:0 20px 8px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:12px 14px;}
+.s4-ft{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.s4-fl{font-size:11px;color:rgba(255,255,255,0.65);}
+.s4-fp{font-size:11px;font-weight:700;font-family:'DM Mono',monospace;}
+.s4-fp.hi{color:var(--c-gold);}
+.s4-fp.md{color:var(--c-bright);}
+.s4-fp.lo{color:rgba(255,255,255,0.3);}
+.gfill-gold{background:var(--c-gold);}
+.gfill-bright{background:var(--c-bright);}
+.gfill-dim{background:rgba(255,255,255,0.2);}
+
+.s4-insight{margin:14px 20px 0;background:rgba(0,212,170,0.06);border:1px solid rgba(0,212,170,0.25);border-radius:14px;padding:14px 16px;}
+.s4-ins-title{font-size:11px;font-weight:700;color:var(--c-bright);margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em;}
+.s4-ins-txt{font-size:11px;color:rgba(255,255,255,0.6);line-height:1.6;}
+.s4-ins-txt strong{color:#fff;}
+
+.s4-top-circles{padding:14px 20px 20px;}
+.s4-tc-title{font-size:11px;font-weight:700;color:rgba(255,255,255,0.4);letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px;}
+.s4-tc-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05);}
+.s4-tc-name{font-size:11px;color:rgba(255,255,255,0.7);}
+.s4-tc-members{font-size:10px;color:rgba(255,255,255,0.3);margin-top:2px;}
+.s4-tc-ret{font-size:12px;font-weight:800;color:var(--c-gold);font-family:'DM Mono',monospace;}
+</style>
+</head>
+<body>
+
+<div class="hdr">MultiBank Group — <span>TradeCircle</span> · Interactive Prototype</div>
+<div class="sub">Growth Marketing PM Case Study · Ajay Avaghade</div>
+
+<div class="row">
+
+  <!-- ── PHONE 1 — Home ── -->
+  <div class="pwrap">
+    <div class="plbl">01 — Home + TradeCircle</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="sb"><span>9:41</span><span>●●● 100%</span></div>
+      <div class="sc">
+        <div class="s1-top">
+          <div class="s1-bar">
+            <div class="s1-logo">Multi<em>Bank</em></div>
+            <div class="s1-bell">🔔</div>
+          </div>
+          <div class="s1-lbl">TOTAL PORTFOLIO VALUE</div>
+          <div class="s1-balance">$12,450.00</div>
+          <div class="s1-pnl"><span class="s1-pnl-v">▲ +$234.50 (+1.9%) today</span></div>
+        </div>
+
+        <!-- TradeCircle Feature Card -->
+        <div class="s1-tc-card">
+          <div class="s1-tc-top">
+            <div class="s1-tc-tag">🔵 TRADECIRCLE</div>
+            <div class="s1-tc-badge">THIS WEEK</div>
+          </div>
+          <div class="s1-tc-week">Your return this week</div>
+          <div class="s1-tc-pct">+4.2%</div>
+          <div class="s1-tc-inst">Best trade: <em>XAU/USD</em> · Swing position</div>
+          <div class="s1-tc-members">
+            <div class="s1-tc-mbr-txt"><strong>0 circle members</strong><br><span style="font-size:10px;">Invite your first member</span></div>
+            <button class="s1-tc-share-btn">📤 Share Card</button>
+          </div>
+          <div class="s1-tc-rewrule">Earn <em>spread rebates</em> when your circle members profit — both of you win</div>
+        </div>
+
+        <div class="s1-sec">LIVE MARKETS</div>
+        <div class="s1-mkt">
+          <div><div class="s1-mkt-sym">XAU/USD</div><div class="s1-mkt-nm">Gold Spot</div></div>
+          <div><div class="s1-mkt-pr">2,341.50</div><div class="s1-mkt-ch up">▲ +12.30 (+0.53%)</div></div>
+        </div>
+        <div class="s1-mkt">
+          <div><div class="s1-mkt-sym">EUR/USD</div><div class="s1-mkt-nm">Euro / US Dollar</div></div>
+          <div><div class="s1-mkt-pr">1.08432</div><div class="s1-mkt-ch up">▲ +0.0023 (+0.21%)</div></div>
+        </div>
+        <div class="s1-mkt">
+          <div><div class="s1-mkt-sym">BTC/USD</div><div class="s1-mkt-nm">Bitcoin / US Dollar</div></div>
+          <div><div class="s1-mkt-pr">67,240</div><div class="s1-mkt-ch dn">▼ −$430 (−0.64%)</div></div>
+        </div>
+      </div>
+      <div class="s1-nav">
+        <div class="s1-ni"><span class="ic">📊</span><span>Markets</span></div>
+        <div class="s1-ni"><span class="ic">💹</span><span>Trade</span></div>
+        <div class="s1-ni on"><span class="ic">🔵</span><span>Circle</span></div>
+        <div class="s1-ni"><span class="ic">👤</span><span>Account</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PHONE 2 — Performance Share Card ── -->
+  <div class="pwrap">
+    <div class="plbl">02 — Performance Card</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="sb" style="background:#0d1e2a;"><span style="color:rgba(255,255,255,0.35);">9:41</span><span style="color:rgba(255,255,255,0.35);">●●● 100%</span></div>
+      <div class="sc" style="background:linear-gradient(160deg,#0d2040 0%,#1a1030 50%,#0d1a10 100%);">
+        <div class="s2-bg">
+          <div class="s2-label">YOUR PERFORMANCE CARD</div>
+
+          <div class="s2-card">
+            <div class="s2-card-header">
+              <div class="s2-card-logo">Multi<em>Bank</em></div>
+              <div class="s2-card-badge">TradeCircle</div>
+            </div>
+            <div class="s2-username"><em>@TradeMaster_AK</em></div>
+            <div class="s2-week-lbl">THIS WEEK RETURN</div>
+            <div class="s2-return">+4.2%</div>
+            <div class="s2-tags">
+              <div class="s2-tag bright">XAU/USD</div>
+              <div class="s2-tag gold">Swing Trader</div>
+              <div class="s2-tag">Dubai 🇦🇪</div>
+              <div class="s2-tag">14-mo streak</div>
+            </div>
+            <hr class="s2-divider">
+            <div class="s2-join-row">
+              <div class="s2-join-txt">
+                <strong>Join my trading circle</strong>
+                <span>Earn together when you profit</span>
+              </div>
+              <div class="s2-join-code">CIRCLE-AK42</div>
+            </div>
+          </div>
+          <div class="s2-footer">Returns are % gains · Not financial advice · Capital at risk</div>
+
+          <div class="s2-share-row">
+            <button class="s2-share-btn primary">📤 Share to WhatsApp</button>
+            <button class="s2-share-btn secondary">Copy Link</button>
+          </div>
+          <div class="s2-note">Anonymised — exact dollar P&amp;L never shared. % returns only.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PHONE 3 — Friend Onboarding ── -->
+  <div class="pwrap">
+    <div class="plbl">03 — Friend Joins Circle</div>
+    <div class="phone" style="position:relative;">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="sb" style="background:#0a2820;"><span style="color:rgba(255,255,255,0.35);">9:41</span><span style="color:rgba(255,255,255,0.35);">●●● 100%</span></div>
+      <div id="conf3"></div>
+      <div class="sc" style="background:linear-gradient(180deg,#0a2820 0%,var(--c-dark) 60%);">
+        <div class="s3-bg">
+          <div class="s3-hero">
+            <div class="s3-invite-tag">🔵 CIRCLE INVITE</div>
+            <div class="s3-invite-head">You're joining<br><em>@TradeMaster_AK</em>'s circle</div>
+            <div class="s3-invite-sub">They made +4.2% last week on XAU/USD.<br>You earn rebates every time you profit together.</div>
+          </div>
+
+          <!-- Mini perf card -->
+          <div class="s3-perf-mini">
+            <div class="s3-perf-top">
+              <div class="s3-perf-user"><em>@TradeMaster_AK</em> · Circle Leader</div>
+              <div class="s3-perf-wk">Last 7 days</div>
+            </div>
+            <div class="s3-perf-ret">+4.2%</div>
+            <div class="s3-perf-tags">
+              <div class="s3-ptag">XAU/USD</div>
+              <div class="s3-ptag">Swing Trader</div>
+              <div class="s3-ptag">14-mo active</div>
+            </div>
+          </div>
+
+          <!-- How rewards work -->
+          <div class="s3-reward-box">
+            <div class="s3-rw-title">How TradeCircle Rewards Work</div>
+            <div class="s3-rw-row">
+              <div class="s3-rw-ico">🎯</div>
+              <div class="s3-rw-txt"><strong>You profit → both earn.</strong> Every profitable trade you make earns spread rebates for you and your circle leader.</div>
+            </div>
+            <div class="s3-rw-row">
+              <div class="s3-rw-ico">🔒</div>
+              <div class="s3-rw-txt"><strong>No guilt mechanic.</strong> Rewards only trigger on profitable trades — your leader only earns when you win.</div>
+            </div>
+          </div>
+
+          <!-- Copy-trade suggestion -->
+          <div class="s3-copy-card">
+            <div class="s3-copy-lbl">Suggested First Trade</div>
+            <div class="s3-copy-name">XAU/USD — Gold Spot</div>
+            <div class="s3-copy-why">Matching <em>@TradeMaster_AK</em>'s preferred instrument. You set your own position size and risk level.</div>
+          </div>
+
+          <button class="s3-cta">Create Account &amp; Join Circle</button>
+          <button class="s3-cta2">Already have an account? Sign in</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PHONE 4 — Viral Ops Dashboard ── -->
+  <div class="pwrap">
+    <div class="plbl">04 — Viral Ops Dashboard</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="sb"><span>9:41</span><span>●●● 100%</span></div>
+      <div class="sc">
+        <div class="s4-top">
+          <div class="s4-title">TradeCircle Ops</div>
+          <div class="s4-tsub">VIRAL GROWTH ANALYTICS · LIVE</div>
+        </div>
+        <div class="s4-kpis">
+          <div class="s4-kpi"><div class="s4-kv">1.8×</div><div class="s4-kl">Viral Coefficient</div></div>
+          <div class="s4-kpi"><div class="s4-kv">12.4K</div><div class="s4-kl">Active Circles</div></div>
+          <div class="s4-kpi"><div class="s4-kv">$18</div><div class="s4-kl">CAC via Circle</div></div>
+        </div>
+
+        <!-- Viral coefficient progress -->
+        <div class="s4-vc-block">
+          <div class="s4-vc-top">
+            <div class="s4-vc-lbl">Viral Coefficient</div>
+            <div class="s4-vc-val">1.8×</div>
+          </div>
+          <div class="track">
+            <div class="fill gfill-gold" style="width:72%"><span class="fill-badge" style="background:var(--c-gold);color:#0B1A2E;">72%</span></div>
+          </div>
+          <div class="s4-vc-sub">Target: 2.5×. Circles with week return &gt;5% have <em>3.2× higher conversion</em>.</div>
+        </div>
+
+        <div class="s4-sec">REFERRAL FUNNEL</div>
+        <div class="s4-fr">
+          <div class="s4-ft"><div class="s4-fl">Card Shared</div><div class="s4-fp hi">100%</div></div>
+          <div class="track"><div class="fill gfill-gold" style="width:100%"><span class="fill-badge" style="background:var(--c-gold);color:#0B1A2E;">100%</span></div></div>
+        </div>
+        <div class="s4-fr">
+          <div class="s4-ft"><div class="s4-fl">Link Clicked</div><div class="s4-fp hi">45%</div></div>
+          <div class="track"><div class="fill gfill-gold" style="width:45%"><span class="fill-badge" style="background:var(--c-gold);color:#0B1A2E;">45%</span></div></div>
+        </div>
+        <div class="s4-fr">
+          <div class="s4-ft"><div class="s4-fl">Account Created</div><div class="s4-fp md">28%</div></div>
+          <div class="track"><div class="fill gfill-bright" style="width:28%"><span class="fill-badge">28%</span></div></div>
+        </div>
+        <div class="s4-fr">
+          <div class="s4-ft"><div class="s4-fl">First Trade Placed</div><div class="s4-fp lo">14%</div></div>
+          <div class="track"><div class="fill gfill-dim" style="width:14%"></div></div>
+        </div>
+        <div class="s4-fr">
+          <div class="s4-ft"><div class="s4-fl">Rebate Triggered</div><div class="s4-fp lo">6%</div></div>
+          <div class="track"><div class="fill gfill-dim" style="width:6%"></div></div>
+        </div>
+
+        <!-- Insight -->
+        <div class="s4-insight">
+          <div class="s4-ins-title">⚡ Growth Insight</div>
+          <div class="s4-ins-txt">Circles where the leader returned <strong>+5%+</strong> this week have <strong>3.2× higher</strong> friend-to-account conversion. Promote high-performing weeks in the share card preview.</div>
+        </div>
+
+        <!-- Top circles -->
+        <div class="s4-top-circles">
+          <div class="s4-tc-title">TOP CIRCLES THIS WEEK</div>
+          <div class="s4-tc-row">
+            <div><div class="s4-tc-name">@GoldTrader_M · Dubai</div><div class="s4-tc-members">8 circle members</div></div>
+            <div class="s4-tc-ret">+6.4%</div>
+          </div>
+          <div class="s4-tc-row">
+            <div><div class="s4-tc-name">@FXMaster_S · Singapore</div><div class="s4-tc-members">5 circle members</div></div>
+            <div class="s4-tc-ret">+5.1%</div>
+          </div>
+          <div class="s4-tc-row">
+            <div><div class="s4-tc-name">@TradeMaster_AK · Dubai</div><div class="s4-tc-members">0 members — growing</div></div>
+            <div class="s4-tc-ret">+4.2%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// Confetti for Screen 3 phone
+const c3 = document.getElementById('conf3');
+const cols = ['#00D4AA','#F5A623','#60A5FA','#FBBF24','#F472B6','#22C55E','#A78BFA'];
+for(let i=0;i<28;i++){
+  const p = document.createElement('div');
+  p.className='cp';
+  const size = 4+Math.random()*6;
+  p.style.cssText='left:'+Math.random()*100+'%;top:'+(Math.random()*120-10)+'%;width:'+size+'px;height:'+size+'px;background:'+cols[Math.floor(Math.random()*cols.length)]+';border-radius:'+(Math.random()>.5?'50%':'2px')+';animation-duration:'+(1.6+Math.random()*2)+'s;animation-delay:'+(Math.random()*3)+'s;';
+  c3.appendChild(p);
+}
+</script>
+</body>
+</html>
