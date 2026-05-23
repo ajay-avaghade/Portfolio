@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Adyen RegSense — Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --c-dark: #0D1F12;
+  --c-hero: #102218;
+  --c-teal: #0D9488;
+  --c-teal-light: #14B8A6;
+  --c-bright: #0D9488;
+  --c-accent: #14B8A6;
+  --orange: #F97316;
+  --amber: #F59E0B;
+  --red: #EF4444;
+  --green: #22C55E;
+  --ink: #0f172a;
+  --muted: #64748b;
+  --border: #e2e8f0;
+  --gray: #f1f5f9;
+  --white: #ffffff;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Sora', sans-serif;
+  background: #060e09;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px;
+}
+
+.header-strip {
+  color: #14B8A6;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 36px;
+  opacity: 0.7;
+}
+
+.prototype-row {
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+  justify-content: center;
+  flex-wrap: nowrap;
+}
+
+.phone-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.phone-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  font-weight: 500;
+  color: #14B8A6;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.phone {
+  width: 375px;
+  height: 812px;
+  background: var(--c-dark);
+  border-radius: 46px;
+  box-shadow: 0 40px 100px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.08);
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.notch {
+  width: 118px;
+  height: 28px;
+  background: #000;
+  border-radius: 0 0 16px 16px;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.nc { width: 10px; height: 10px; border-radius: 50%; background: #1a1a1a; }
+.ndot { width: 5px; height: 5px; border-radius: 50%; background: #2a2a2a; }
+
+.sbar {
+  height: 44px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 0 20px 6px;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.sc {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: 724px;
+  scrollbar-width: none;
+}
+.sc::-webkit-scrollbar { display: none; }
+
+/* =================== SCREEN 1 — REGSENSE DASHBOARD =================== */
+.s1 { background: var(--c-dark); color: #fff; }
+.s1 .sbar { color: #94a3b8; background: var(--c-dark); }
+
+.s1-header {
+  padding: 16px 20px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.s1-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.s1-logo-mark {
+  width: 28px; height: 28px;
+  background: var(--c-teal);
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 800;
+  color: #fff;
+}
+.s1-logo-name { font-size: 15px; font-weight: 700; color: #fff; }
+.s1-logo-tag {
+  font-size: 8.5px;
+  color: var(--c-teal-light);
+  font-family: 'DM Mono', monospace;
+  letter-spacing: 0.05em;
+}
+.s1-subtitle { font-size: 9px; color: #64748b; font-family: 'DM Mono', monospace; margin-top: 2px; }
+
+.s1-score-band {
+  margin: 14px 20px;
+  background: rgba(13,148,136,0.12);
+  border: 1px solid rgba(13,148,136,0.3);
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.s1-score-circle {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  border: 3px solid var(--c-teal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+.s1-score-num {
+  font-family: 'DM Mono', monospace;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--c-teal-light);
+  line-height: 1;
+}
+.s1-score-denom { font-family: 'DM Mono', monospace; font-size: 8px; color: #64748b; }
+.s1-score-info { flex: 1; }
+.s1-score-title { font-size: 11px; font-weight: 700; color: #e2e8f0; margin-bottom: 3px; }
+.s1-score-sub { font-size: 9px; color: #64748b; line-height: 1.5; }
+.s1-alert-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(239,68,68,0.15);
+  border: 1px solid rgba(239,68,68,0.4);
+  border-radius: 20px;
+  padding: 3px 8px;
+  font-size: 9px;
+  font-weight: 600;
+  color: #FCA5A5;
+  margin-top: 6px;
+}
+
+.s1-section-label {
+  padding: 10px 20px 6px;
+  font-size: 9px;
+  font-weight: 600;
+  color: #475569;
+  font-family: 'DM Mono', monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.s1-market-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 0 20px 14px;
+}
+
+.s1-market-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+.s1-market-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.s1-market-name { font-size: 10.5px; font-weight: 600; color: #e2e8f0; }
+.s1-market-score { font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 700; }
+.s1-market-bar { height: 4px; background: rgba(255,255,255,0.1); border-radius: 99px; overflow: hidden; }
+.s1-market-fill { height: 100%; border-radius: 99px; }
+.s1-market-status { font-size: 8px; color: #64748b; margin-top: 4px; }
+
+.s1-action-card {
+  margin: 0 20px 14px;
+  background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.25);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.s1-action-icon { font-size: 18px; flex-shrink: 0; }
+.s1-action-text { flex: 1; }
+.s1-action-title { font-size: 11px; font-weight: 700; color: #FCA5A5; margin-bottom: 2px; }
+.s1-action-sub { font-size: 9px; color: #64748b; line-height: 1.4; }
+.s1-action-arrow { font-size: 14px; color: #EF4444; }
+
+/* =================== SCREEN 2 — SCA EXEMPTION OPTIMISER =================== */
+.s2 { background: var(--c-hero); color: #fff; }
+.s2 .sbar { color: #94a3b8; background: var(--c-hero); }
+
+.s2-header {
+  padding: 16px 20px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.s2-back { font-size: 9px; color: var(--c-teal-light); font-family: 'DM Mono', monospace; margin-bottom: 4px; }
+.s2-title { font-size: 15px; font-weight: 700; color: #fff; }
+.s2-sub { font-size: 9px; color: #64748b; margin-top: 2px; }
+
+.s2-uplift-box {
+  margin: 14px 20px;
+  background: rgba(13,148,136,0.15);
+  border: 1px solid rgba(13,148,136,0.35);
+  border-radius: 14px;
+  padding: 14px 16px;
+  text-align: center;
+}
+.s2-uplift-num {
+  font-family: 'DM Mono', monospace;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--c-teal-light);
+}
+.s2-uplift-lbl { font-size: 9px; color: #94a3b8; margin-top: 2px; }
+.s2-uplift-sub { font-size: 8px; color: #475569; margin-top: 4px; }
+
+.s2-exemption-list { padding: 0 20px 14px; }
+
+.s2-exempt-item {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+}
+.s2-exempt-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.s2-exempt-name { font-size: 11px; font-weight: 600; color: #e2e8f0; }
+.s2-exempt-chip {
+  font-size: 8px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 20px;
+  font-family: 'DM Mono', monospace;
+}
+.chip-under { background: rgba(239,68,68,0.2); color: #FCA5A5; border: 1px solid rgba(239,68,68,0.3); }
+.chip-ok { background: rgba(34,197,94,0.15); color: #86EFAC; border: 1px solid rgba(34,197,94,0.3); }
+
+.s2-bar-row { display: flex; flex-direction: column; gap: 4px; }
+.s2-bar-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 8px;
+  color: #64748b;
+  font-family: 'DM Mono', monospace;
+}
+.s2-bar-track {
+  height: 6px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 99px;
+  position: relative;
+}
+.s2-bar-fill { height: 100%; border-radius: 99px; }
+.s2-benchmark-line {
+  position: absolute;
+  top: -2px;
+  height: 10px;
+  width: 2px;
+  background: #F59E0B;
+  border-radius: 1px;
+}
+
+.s2-insight-box {
+  margin: 0 20px 14px;
+  background: rgba(245,158,11,0.1);
+  border: 1px solid rgba(245,158,11,0.3);
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+.s2-insight-title { font-size: 10px; font-weight: 700; color: #FCD34D; margin-bottom: 4px; }
+.s2-insight-text { font-size: 8.5px; color: #94a3b8; line-height: 1.5; }
+
+/* =================== SCREEN 3 — REGULATORY ALERT + RESOLUTION =================== */
+.s3 { background: var(--c-dark); color: #fff; position: relative; }
+.s3 .sbar { color: #94a3b8; background: var(--c-dark); }
+
+.s3-alert-banner {
+  margin: 14px 20px;
+  background: rgba(239,68,68,0.12);
+  border: 1px solid rgba(239,68,68,0.35);
+  border-radius: 14px;
+  padding: 14px 16px;
+}
+.s3-alert-top { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.s3-alert-icon { font-size: 16px; }
+.s3-alert-head { font-size: 13px; font-weight: 700; color: #FCA5A5; }
+.s3-market-flag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 8.5px;
+  color: #94a3b8;
+  margin-bottom: 6px;
+}
+.s3-alert-body { font-size: 9.5px; color: #94a3b8; line-height: 1.5; margin-bottom: 10px; }
+.s3-countdown { display: flex; align-items: center; gap: 6px; }
+.s3-countdown-box {
+  background: rgba(239,68,68,0.2);
+  border: 1px solid rgba(239,68,68,0.4);
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-family: 'DM Mono', monospace;
+  font-size: 18px;
+  font-weight: 700;
+  color: #FCA5A5;
+}
+.s3-countdown-lbl { font-size: 9px; color: #64748b; }
+
+.s3-impact-row { display: flex; gap: 8px; margin: 0 20px 12px; }
+.s3-impact-card {
+  flex: 1;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  padding: 10px 8px;
+  text-align: center;
+}
+.s3-impact-val { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 700; color: #FCA5A5; }
+.s3-impact-lbl { font-size: 7.5px; color: #64748b; margin-top: 2px; line-height: 1.3; }
+
+.s3-action-list { padding: 0 20px 12px; }
+.s3-action-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+}
+.s3-action-num {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: var(--c-teal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+.s3-action-info { flex: 1; }
+.s3-action-title { font-size: 10px; font-weight: 600; color: #e2e8f0; margin-bottom: 2px; }
+.s3-action-desc { font-size: 8.5px; color: #64748b; line-height: 1.4; }
+
+.s3-cta {
+  margin: 4px 20px 14px;
+  background: var(--c-teal);
+  border: none;
+  border-radius: 12px;
+  padding: 13px;
+  width: calc(100% - 40px);
+  font-family: 'Sora', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  cursor: pointer;
+  text-align: center;
+}
+
+/* Success overlay */
+.s3-success {
+  position: absolute;
+  inset: 0;
+  background: rgba(13,31,18,0.96);
+  backdrop-filter: blur(8px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+  z-index: 20;
+  border-radius: 46px;
+}
+.s3-conf { position: absolute; inset: 0; pointer-events: none; border-radius: 46px; overflow: hidden; }
+.cp {
+  position: absolute;
+  animation: fall linear forwards;
+}
+@keyframes fall {
+  0%   { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(900px) rotate(720deg); opacity: 0; }
+}
+.s3-success-icon {
+  width: 64px; height: 64px;
+  background: rgba(13,148,136,0.2);
+  border: 2px solid var(--c-teal);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  margin-bottom: 16px;
+}
+.s3-success-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--c-teal-light);
+  margin-bottom: 8px;
+  text-align: center;
+}
+.s3-success-sub {
+  font-size: 11px;
+  color: #94a3b8;
+  text-align: center;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+.s3-success-pills { display: flex; flex-direction: column; gap: 6px; width: 100%; }
+.s3-success-pill {
+  background: rgba(13,148,136,0.1);
+  border: 1px solid rgba(13,148,136,0.25);
+  border-radius: 10px;
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.s3-pill-icon { font-size: 14px; }
+.s3-pill-text { font-size: 10px; color: #94a3b8; }
+.s3-pill-val {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--c-teal-light);
+  font-weight: 700;
+  margin-left: auto;
+}
+
+/* =================== SCREEN 4 — ADYEN OPS VIEW =================== */
+.s4 { background: var(--c-dark); color: #fff; }
+.s4 .sbar { color: #94a3b8; background: var(--c-dark); }
+
+.s4-header {
+  padding: 16px 20px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.s4-title { font-size: 15px; font-weight: 700; color: #fff; }
+.s4-sub { font-size: 9px; color: #64748b; margin-top: 2px; }
+
+.s4-kpi-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  padding: 12px 20px 10px;
+}
+.s4-kpi-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  padding: 10px 8px;
+  text-align: center;
+}
+.s4-kpi-val {
+  font-family: 'DM Mono', monospace;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--c-teal-light);
+}
+.s4-kpi-lbl { font-size: 7.5px; color: #64748b; margin-top: 3px; line-height: 1.3; }
+
+.s4-section-label {
+  padding: 8px 20px 6px;
+  font-size: 9px;
+  font-weight: 600;
+  color: #475569;
+  font-family: 'DM Mono', monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.s4-merchant-list { padding: 0 20px 12px; }
+.s4-merchant-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 10px;
+  margin-bottom: 6px;
+}
+.s4-merchant-logo {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+.s4-merchant-info { flex: 1; }
+.s4-merchant-name { font-size: 11px; font-weight: 600; color: #e2e8f0; }
+.s4-merchant-detail { font-size: 8.5px; color: #64748b; margin-top: 1px; }
+.s4-health-score { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 700; }
+.s4-health-dot { width: 7px; height: 7px; border-radius: 50%; margin-left: 4px; }
+
+.s4-risk-box {
+  margin: 0 20px 14px;
+  background: rgba(245,158,11,0.1);
+  border: 1px solid rgba(245,158,11,0.3);
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+.s4-risk-title { font-size: 10px; font-weight: 700; color: #FCD34D; margin-bottom: 4px; }
+.s4-risk-text { font-size: 8.5px; color: #94a3b8; line-height: 1.5; }
+</style>
+</head>
+<body>
+
+<div class="header-strip">Adyen — RegSense &nbsp;·&nbsp; PSD3/PSR3 Compliance Intelligence &nbsp;·&nbsp; Interactive Prototype</div>
+
+<div class="prototype-row">
+
+  <!-- ===== PHONE 1: REGSENSE DASHBOARD ===== -->
+  <div class="phone-wrap">
+    <div class="phone-label">01 — REGSENSE DASHBOARD</div>
+    <div class="phone s1">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="sbar">
+        <span>9:41</span>
+        <span>▲▲▲ ⬡ 100%</span>
+      </div>
+      <div class="sc">
+
+        <div class="s1-header">
+          <div class="s1-logo">
+            <div class="s1-logo-mark">RS</div>
+            <div>
+              <div class="s1-logo-name">RegSense</div>
+              <div class="s1-logo-tag">by Adyen · PSD3/PSR3 Intelligence</div>
+            </div>
+          </div>
+          <div class="s1-subtitle">EMEA compliance dashboard · updated 2h ago</div>
+        </div>
+
+        <div class="s1-score-band">
+          <div class="s1-score-circle">
+            <div class="s1-score-num">67</div>
+            <div class="s1-score-denom">/100</div>
+          </div>
+          <div class="s1-score-info">
+            <div class="s1-score-title">Portfolio PSD3 Readiness</div>
+            <div class="s1-score-sub">Across 6 active EU markets · SCA, exemptions, and PSR3 scope included</div>
+            <div class="s1-alert-chip">⚠ 3 markets require action</div>
+          </div>
+        </div>
+
+        <div class="s1-section-label">Markets — PSD3 Readiness Score</div>
+        <div class="s1-market-grid">
+          <div class="s1-market-card">
+            <div class="s1-market-top">
+              <span class="s1-market-name">🇳🇱 Netherlands</span>
+              <span class="s1-market-score" style="color:#22C55E;">91%</span>
+            </div>
+            <div class="s1-market-bar"><div class="s1-market-fill" style="width:91%;background:#22C55E;height:4px;border-radius:99px;"></div></div>
+            <div class="s1-market-status">✓ Compliant</div>
+          </div>
+          <div class="s1-market-card">
+            <div class="s1-market-top">
+              <span class="s1-market-name">🇧🇪 Belgium</span>
+              <span class="s1-market-score" style="color:#22C55E;">83%</span>
+            </div>
+            <div class="s1-market-bar"><div class="s1-market-fill" style="width:83%;background:#22C55E;height:4px;border-radius:99px;"></div></div>
+            <div class="s1-market-status">✓ Compliant</div>
+          </div>
+          <div class="s1-market-card">
+            <div class="s1-market-top">
+              <span class="s1-market-name">🇩🇪 Germany</span>
+              <span class="s1-market-score" style="color:#F59E0B;">72%</span>
+            </div>
+            <div class="s1-market-bar"><div class="s1-market-fill" style="width:72%;background:#F59E0B;height:4px;border-radius:99px;"></div></div>
+            <div class="s1-market-status">⚠ Exemption gaps</div>
+          </div>
+          <div class="s1-market-card">
+            <div class="s1-market-top">
+              <span class="s1-market-name">🇫🇷 France</span>
+              <span class="s1-market-score" style="color:#F59E0B;">58%</span>
+            </div>
+            <div class="s1-market-bar"><div class="s1-market-fill" style="width:58%;background:#F59E0B;height:4px;border-radius:99px;"></div></div>
+            <div class="s1-market-status">⚠ SCA config incomplete</div>
+          </div>
+          <div class="s1-market-card">
+            <div class="s1-market-top">
+              <span class="s1-market-name">🇪🇸 Spain</span>
+              <span class="s1-market-score" style="color:#EF4444;">44%</span>
+            </div>
+            <div class="s1-market-bar"><div class="s1-market-fill" style="width:44%;background:#EF4444;height:4px;border-radius:99px;"></div></div>
+            <div class="s1-market-status">✕ Critical — act now</div>
+          </div>
+          <div class="s1-market-card">
+            <div class="s1-market-top">
+              <span class="s1-market-name">🇵🇱 Poland</span>
+              <span class="s1-market-score" style="color:#EF4444;">39%</span>
+            </div>
+            <div class="s1-market-bar"><div class="s1-market-fill" style="width:39%;background:#EF4444;height:4px;border-radius:99px;"></div></div>
+            <div class="s1-market-status">✕ PSR3 scope missing</div>
+          </div>
+        </div>
+
+        <div class="s1-action-card">
+          <div class="s1-action-icon">🚨</div>
+          <div class="s1-action-text">
+            <div class="s1-action-title">47-Day Deadline — Germany</div>
+            <div class="s1-action-sub">PSD3 MIT consent mandate effective July 10, 2026 · €2.4M exposure if missed</div>
+          </div>
+          <div class="s1-action-arrow">›</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PHONE 2: SCA EXEMPTION OPTIMISER ===== -->
+  <div class="phone-wrap">
+    <div class="phone-label">02 — SCA EXEMPTION OPTIMISER</div>
+    <div class="phone s2">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="sbar">
+        <span>9:41</span>
+        <span>▲▲▲ ⬡ 100%</span>
+      </div>
+      <div class="sc">
+
+        <div class="s2-header">
+          <div class="s2-back">‹ RegSense Dashboard</div>
+          <div class="s2-title">SCA Exemption Optimiser</div>
+          <div class="s2-sub">Your utilisation vs Adyen EMEA benchmark · All markets</div>
+        </div>
+
+        <div class="s2-uplift-box">
+          <div class="s2-uplift-num">+8.3%</div>
+          <div class="s2-uplift-lbl">Estimated approval rate uplift if all gaps closed</div>
+          <div class="s2-uplift-sub">Based on exemption profile vs top-quartile Adyen merchants · €3.1M additional approved GMV / month</div>
+        </div>
+
+        <div class="s2-exemption-list">
+
+          <div class="s2-exempt-item">
+            <div class="s2-exempt-top">
+              <span class="s2-exempt-name">Transaction Risk Analysis (TRA)</span>
+              <span class="s2-exempt-chip chip-under">Under-used</span>
+            </div>
+            <div class="s2-bar-row">
+              <div class="s2-bar-label">
+                <span>Your rate: 34%</span>
+                <span style="color:#F59E0B;">Benchmark: 71%</span>
+              </div>
+              <div class="s2-bar-track">
+                <div class="s2-bar-fill" style="width:34%;background:#EF4444;"></div>
+                <div class="s2-benchmark-line" style="left:71%;"></div>
+              </div>
+            </div>
+            <div style="font-size:8.5px;color:#64748b;margin-top:6px;line-height:1.4;">Gap: 37pp · Enable TRA for transactions under €250 with fraud score &lt;0.4 — estimated +4.1% approval lift</div>
+          </div>
+
+          <div class="s2-exempt-item">
+            <div class="s2-exempt-top">
+              <span class="s2-exempt-name">Low-Value Exemption (&lt;€30)</span>
+              <span class="s2-exempt-chip chip-ok">On Track</span>
+            </div>
+            <div class="s2-bar-row">
+              <div class="s2-bar-label">
+                <span>Your rate: 89%</span>
+                <span style="color:#22C55E;">Benchmark: 85%</span>
+              </div>
+              <div class="s2-bar-track">
+                <div class="s2-bar-fill" style="width:89%;background:#22C55E;"></div>
+                <div class="s2-benchmark-line" style="left:85%;"></div>
+              </div>
+            </div>
+            <div style="font-size:8.5px;color:#64748b;margin-top:6px;line-height:1.4;">✓ Above benchmark · Cumulative cap tracking active and compliant</div>
+          </div>
+
+          <div class="s2-exempt-item">
+            <div class="s2-exempt-top">
+              <span class="s2-exempt-name">Recurring / MIT Exemption</span>
+              <span class="s2-exempt-chip chip-under">Under-used</span>
+            </div>
+            <div class="s2-bar-row">
+              <div class="s2-bar-label">
+                <span>Your rate: 52%</span>
+                <span style="color:#F59E0B;">Benchmark: 78%</span>
+              </div>
+              <div class="s2-bar-track">
+                <div class="s2-bar-fill" style="width:52%;background:#F59E0B;"></div>
+                <div class="s2-benchmark-line" style="left:78%;"></div>
+              </div>
+            </div>
+            <div style="font-size:8.5px;color:#64748b;margin-top:6px;line-height:1.4;">Gap: 26pp · Consent token coverage incomplete in DE/ES — update MIT flows (see active alert)</div>
+          </div>
+
+          <div class="s2-exempt-item">
+            <div class="s2-exempt-top">
+              <span class="s2-exempt-name">Payee Whitelisting</span>
+              <span class="s2-exempt-chip chip-under">Under-used</span>
+            </div>
+            <div class="s2-bar-row">
+              <div class="s2-bar-label">
+                <span>Your rate: 12%</span>
+                <span style="color:#F59E0B;">Benchmark: 45%</span>
+              </div>
+              <div class="s2-bar-track">
+                <div class="s2-bar-fill" style="width:12%;background:#EF4444;"></div>
+                <div class="s2-benchmark-line" style="left:45%;"></div>
+              </div>
+            </div>
+            <div style="font-size:8.5px;color:#64748b;margin-top:6px;line-height:1.4;">Gap: 33pp · Prompt returning customers to whitelist at login — estimated +2.1% frictionless rate</div>
+          </div>
+
+        </div>
+
+        <div class="s2-insight-box">
+          <div class="s2-insight-title">⚡ Adyen Recommendation</div>
+          <div class="s2-insight-text">Fixing TRA + MIT exemptions alone accounts for 75% of your approval gap. Both are configuration changes — no code deploy required. Adyen can enable TRA auto-routing within 24 hours.</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PHONE 3: REGULATORY ALERT + RESOLUTION ===== -->
+  <div class="phone-wrap">
+    <div class="phone-label">03 — REGULATORY ALERT</div>
+    <div class="phone s3">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="sbar">
+        <span>9:41</span>
+        <span>▲▲▲ ⬡ 100%</span>
+      </div>
+      <div class="sc">
+
+        <div style="padding: 12px 20px 6px;">
+          <div style="font-size:9px;color:#14B8A6;font-family:'DM Mono',monospace;">‹ Germany · Regulatory Alerts</div>
+          <div style="font-size:15px;font-weight:700;color:#fff;margin-top:4px;">PSD3 Action Required</div>
+        </div>
+
+        <div class="s3-alert-banner">
+          <div class="s3-alert-top">
+            <div class="s3-alert-icon">🚨</div>
+            <div class="s3-alert-head">MIT Consent Mandate — Germany</div>
+          </div>
+          <div class="s3-market-flag">🇩🇪 Germany · PSD3 Article 76(c) · Effective July 10, 2026</div>
+          <div class="s3-alert-body">Merchant-Initiated Transactions now require explicit, renewed SCA consent every 90 days. Current MIT flows lack compliant consent tokens — liability shifts to merchant on all non-compliant transactions post-deadline.</div>
+          <div class="s3-countdown">
+            <div class="s3-countdown-box">47</div>
+            <div class="s3-countdown-lbl">days to compliance deadline</div>
+          </div>
+        </div>
+
+        <div class="s3-impact-row">
+          <div class="s3-impact-card">
+            <div class="s3-impact-val">€2.4M</div>
+            <div class="s3-impact-lbl">Chargeback exposure if missed</div>
+          </div>
+          <div class="s3-impact-card">
+            <div class="s3-impact-val">38%</div>
+            <div class="s3-impact-lbl">MIT txns non-compliant today</div>
+          </div>
+          <div class="s3-impact-card">
+            <div class="s3-impact-val">€6,800</div>
+            <div class="s3-impact-lbl">Daily exposure accumulating</div>
+          </div>
+        </div>
+
+        <div style="padding:4px 20px 8px;font-size:9px;font-weight:600;color:#475569;font-family:'DM Mono',monospace;letter-spacing:0.08em;text-transform:uppercase;">Recommended Actions</div>
+        <div class="s3-action-list">
+          <div class="s3-action-item">
+            <div class="s3-action-num">1</div>
+            <div class="s3-action-info">
+              <div class="s3-action-title">Update MIT Consent Token Flow</div>
+              <div class="s3-action-desc">Add 90-day SCA consent renewal step to subscription checkout. Adyen SDK v4.2+ supports this natively — no custom build required.</div>
+            </div>
+          </div>
+          <div class="s3-action-item">
+            <div class="s3-action-num">2</div>
+            <div class="s3-action-info">
+              <div class="s3-action-title">Backfill Existing Subscriber Consents</div>
+              <div class="s3-action-desc">Send in-app SCA re-consent nudge to 124K active DE subscribers. Adyen batch API handles token refresh automatically.</div>
+            </div>
+          </div>
+          <div class="s3-action-item">
+            <div class="s3-action-num">3</div>
+            <div class="s3-action-info">
+              <div class="s3-action-title">Enable TRA Fallback for Non-Consenting</div>
+              <div class="s3-action-desc">Route non-re-consenting subscribers via TRA exemption (&lt;€250) to maintain frictionless approval during the migration window.</div>
+            </div>
+          </div>
+        </div>
+
+        <button class="s3-cta" onclick="showSuccess()">✓ Schedule Compliance Update</button>
+
+      </div>
+
+      <!-- SUCCESS OVERLAY -->
+      <div class="s3-success" id="successOverlay" style="display:none;">
+        <div class="s3-conf" id="conf"></div>
+        <div class="s3-success-icon">✅</div>
+        <div class="s3-success-title">Compliance Scheduled</div>
+        <div class="s3-success-sub">Germany PSD3 MIT update scheduled. Adyen will send SDK migration guide and progress tracking link within 2 hours.</div>
+        <div class="s3-success-pills">
+          <div class="s3-success-pill">
+            <div class="s3-pill-icon">📅</div>
+            <div class="s3-pill-text">Compliance target</div>
+            <div class="s3-pill-val">June 28, 2026</div>
+          </div>
+          <div class="s3-success-pill">
+            <div class="s3-pill-icon">🛡️</div>
+            <div class="s3-pill-text">Exposure eliminated</div>
+            <div class="s3-pill-val">€2.4M protected</div>
+          </div>
+          <div class="s3-success-pill">
+            <div class="s3-pill-icon">📊</div>
+            <div class="s3-pill-text">RegSense score after fix</div>
+            <div class="s3-pill-val">91 / 100</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== PHONE 4: ADYEN OPS PORTFOLIO VIEW ===== -->
+  <div class="phone-wrap">
+    <div class="phone-label">04 — ADYEN OPS VIEW</div>
+    <div class="phone s4">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="sbar">
+        <span>9:41</span>
+        <span>▲▲▲ ⬡ 100%</span>
+      </div>
+      <div class="sc">
+
+        <div class="s4-header">
+          <div class="s4-title">RegSense Ops · Portfolio</div>
+          <div class="s4-sub">EMEA merchant compliance health · 847 merchants · live</div>
+        </div>
+
+        <div class="s4-kpi-row">
+          <div class="s4-kpi-card">
+            <div class="s4-kpi-val">847</div>
+            <div class="s4-kpi-lbl">Active EMEA Merchants</div>
+          </div>
+          <div class="s4-kpi-card">
+            <div class="s4-kpi-val" style="color:#EF4444;">213</div>
+            <div class="s4-kpi-lbl">Below 70% Readiness</div>
+          </div>
+          <div class="s4-kpi-card">
+            <div class="s4-kpi-val" style="color:#F59E0B;">€41M</div>
+            <div class="s4-kpi-lbl">GMV at Regulatory Risk</div>
+          </div>
+        </div>
+
+        <div class="s4-section-label">At-Risk — Immediate Action</div>
+        <div class="s4-merchant-list">
+
+          <div class="s4-merchant-row">
+            <div class="s4-merchant-logo" style="background:rgba(255,107,0,0.15);color:#FF6B00;">Z</div>
+            <div class="s4-merchant-info">
+              <div class="s4-merchant-name">Zalando SE</div>
+              <div class="s4-merchant-detail">DE · MIT + TRA gaps · 47 days left</div>
+            </div>
+            <div style="display:flex;align-items:center;">
+              <div class="s4-health-score" style="color:#EF4444;">44</div>
+              <div class="s4-health-dot" style="background:#EF4444;"></div>
+            </div>
+          </div>
+
+          <div class="s4-merchant-row">
+            <div class="s4-merchant-logo" style="background:rgba(0,187,89,0.12);color:#00BB59;">H</div>
+            <div class="s4-merchant-info">
+              <div class="s4-merchant-name">HelloFresh GmbH</div>
+              <div class="s4-merchant-detail">DE/FR · Recurring consent lapse</div>
+            </div>
+            <div style="display:flex;align-items:center;">
+              <div class="s4-health-score" style="color:#EF4444;">51</div>
+              <div class="s4-health-dot" style="background:#EF4444;"></div>
+            </div>
+          </div>
+
+          <div class="s4-merchant-row">
+            <div class="s4-merchant-logo" style="background:rgba(59,130,246,0.15);color:#60A5FA;">B</div>
+            <div class="s4-merchant-info">
+              <div class="s4-merchant-name">Booking.com BV</div>
+              <div class="s4-merchant-detail">ES/PL · PSR3 scope incomplete</div>
+            </div>
+            <div style="display:flex;align-items:center;">
+              <div class="s4-health-score" style="color:#F59E0B;">63</div>
+              <div class="s4-health-dot" style="background:#F59E0B;"></div>
+            </div>
+          </div>
+
+          <div class="s4-merchant-row">
+            <div class="s4-merchant-logo" style="background:rgba(168,85,247,0.15);color:#C084FC;">S</div>
+            <div class="s4-merchant-info">
+              <div class="s4-merchant-name">Spotify AB</div>
+              <div class="s4-merchant-detail">FR/BE · Low-value cap exceeded</div>
+            </div>
+            <div style="display:flex;align-items:center;">
+              <div class="s4-health-score" style="color:#F59E0B;">69</div>
+              <div class="s4-health-dot" style="background:#F59E0B;"></div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="s4-section-label">Healthy Merchants</div>
+        <div class="s4-merchant-list">
+          <div class="s4-merchant-row">
+            <div class="s4-merchant-logo" style="background:rgba(34,197,94,0.12);color:#22C55E;">A</div>
+            <div class="s4-merchant-info">
+              <div class="s4-merchant-name">ASOS PLC</div>
+              <div class="s4-merchant-detail">NL/BE · All exemptions optimised</div>
+            </div>
+            <div style="display:flex;align-items:center;">
+              <div class="s4-health-score" style="color:#22C55E;">94</div>
+              <div class="s4-health-dot" style="background:#22C55E;"></div>
+            </div>
+          </div>
+          <div class="s4-merchant-row">
+            <div class="s4-merchant-logo" style="background:rgba(34,197,94,0.12);color:#22C55E;">P</div>
+            <div class="s4-merchant-info">
+              <div class="s4-merchant-name">Philips N.V.</div>
+              <div class="s4-merchant-detail">NL · Full PSD3 readiness achieved</div>
+            </div>
+            <div style="display:flex;align-items:center;">
+              <div class="s4-health-score" style="color:#22C55E;">98</div>
+              <div class="s4-health-dot" style="background:#22C55E;"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="s4-risk-box">
+          <div class="s4-risk-title">⚡ Adyen Policy Insight</div>
+          <div class="s4-risk-text">213 merchants below 70% readiness represent €41M GMV at regulatory risk. Proactive outreach using RegSense alerts cuts average merchant time-to-compliance from 6 weeks to 11 days — protecting €41M in annual processing volume at risk of chargeback-driven loss.</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div><!-- /prototype-row -->
+
+<script>
+function showSuccess() {
+  var overlay = document.getElementById('successOverlay');
+  overlay.style.display = 'flex';
+  var c = document.getElementById('conf');
+  var cols = ['#0D9488','#14B8A6','#F97316','#60A5FA','#FBBF24','#34D399','#A78BFA'];
+  for (var i = 0; i < 32; i++) {
+    var p = document.createElement('div');
+    p.className = 'cp';
+    var size = 4 + Math.random() * 7;
+    p.style.cssText = 'left:' + (Math.random() * 100) + '%;top:' + (Math.random() * 120 - 10) + '%;width:' + size + 'px;height:' + size + 'px;background:' + cols[Math.floor(Math.random() * cols.length)] + ';border-radius:' + (Math.random() > 0.5 ? '50%' : '2px') + ';animation-duration:' + (1.4 + Math.random() * 1.8) + 's;animation-delay:' + (Math.random() * 2.4) + 's;';
+    c.appendChild(p);
+  }
+}
+</script>
+
+</body>
+</html>

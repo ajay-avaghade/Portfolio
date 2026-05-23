@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1700">
+<title>Adyen — SmartCheckout · Adaptive EMEA LPM Engine · Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --c-dark:   #0D1F12;
+  --c-hero:   #102218;
+  --c-bright: #00BB59;
+  --c-accent: #22C55E;
+  --orange:   #F97316;
+  --ink:      #0f172a;
+  --muted:    #64748b;
+  --border:   #e2e8f0;
+  --gray:     #f1f5f9;
+  --red:      #DC2626;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: linear-gradient(135deg, #060E09 0%, #0D1F12 50%, #061008 100%);
+  min-height: 100vh;
+  font-family: 'Sora', sans-serif;
+  padding: 40px 32px 60px;
+}
+
+.header-strip { text-align:center; margin-bottom:40px; }
+.co-badge {
+  display:inline-flex; align-items:center; gap:10px;
+  background:rgba(0,187,89,0.08); border:1px solid rgba(0,187,89,0.2);
+  border-radius:99px; padding:6px 18px 6px 10px; margin-bottom:16px;
+}
+.co-logo {
+  width:28px; height:28px; background:var(--c-bright);
+  border-radius:6px; display:flex; align-items:center; justify-content:center;
+  font-size:10px; font-weight:800; color:#fff;
+}
+.co-badge span { font-size:12px; font-weight:600; color:rgba(255,255,255,0.7); letter-spacing:.06em; }
+.header-strip h1 { font-size:26px; font-weight:800; color:#fff; letter-spacing:-.02em; margin-bottom:6px; }
+.header-strip h1 em { font-style:normal; color:var(--c-bright); }
+.header-strip p { font-size:13px; color:rgba(255,255,255,0.45); }
+
+.proto-wrap { display:flex; gap:32px; justify-content:center; align-items:flex-start; }
+.phone-col { display:flex; flex-direction:column; align-items:center; gap:14px; }
+.phone-label { font-size:10px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:rgba(255,255,255,0.35); }
+
+.phone {
+  width:375px; border-radius:46px;
+  box-shadow:0 40px 100px rgba(0,0,0,0.55), 0 0 0 1.5px rgba(255,255,255,0.08);
+  overflow:hidden;
+}
+
+.notch {
+  width:118px; height:28px; border-radius:0 0 16px 16px;
+  margin:0 auto; display:flex; align-items:center; justify-content:center;
+  gap:6px; position:relative; z-index:10;
+}
+.nc { width:10px; height:10px; border-radius:50%; }
+.ndot { width:5px; height:5px; border-radius:50%; }
+
+.sb { display:flex; justify-content:space-between; align-items:center; padding:2px 18px 6px; font-family:'DM Mono',monospace; font-size:10px; font-weight:500; }
+
+.sc { overflow-y:auto; max-height:724px; scrollbar-width:none; }
+.sc::-webkit-scrollbar { display:none; }
+
+/* ══════════════════════════════════════════
+   SCREEN 1 — Merchant Dashboard
+═══════════════════════════════════════════ */
+.s1-header { background:var(--c-hero); padding:14px 18px 18px; }
+.s1-nav { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+.adyen-badge {
+  display:flex; align-items:center; gap:7px;
+}
+.adyen-logo {
+  width:26px; height:26px; background:var(--c-bright);
+  border-radius:6px; display:flex; align-items:center; justify-content:center;
+  font-size:9px; font-weight:800; color:#fff;
+}
+.adyen-lbl { font-size:13px; font-weight:700; color:#fff; }
+.adyen-sub { font-size:9px; color:rgba(255,255,255,0.4); }
+.s1-tag {
+  background:rgba(0,187,89,0.15); border:1px solid rgba(0,187,89,0.3);
+  border-radius:99px; padding:3px 10px;
+  font-size:9px; font-weight:700; color:var(--c-bright);
+}
+.s1-heading { font-size:16px; font-weight:800; color:#fff; margin-bottom:3px; }
+.s1-sub { font-size:10px; color:rgba(255,255,255,0.45); }
+
+.s1-body { background:#0A1A0E; padding:14px; }
+
+/* KPI row */
+.kpi-row { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:14px; }
+.kpi-card {
+  background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07);
+  border-radius:10px; padding:10px;
+}
+.kpi-val { font-family:'DM Mono',monospace; font-size:18px; font-weight:500; color:#fff; margin-bottom:2px; line-height:1; }
+.kpi-val.green { color:var(--c-bright); }
+.kpi-val.orange { color:var(--orange); }
+.kpi-val.red { color:#F87171; }
+.kpi-lbl { font-size:8px; color:rgba(255,255,255,0.35); line-height:1.3; }
+.kpi-delta { font-size:8.5px; font-weight:700; margin-top:3px; }
+.kpi-delta.bad { color:#F87171; }
+.kpi-delta.good { color:var(--c-bright); }
+
+/* EMEA conversion table */
+.sec-lbl { font-size:9.5px; font-weight:700; color:rgba(255,255,255,0.35); letter-spacing:.1em; text-transform:uppercase; margin-bottom:10px; }
+
+.market-row {
+  background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06);
+  border-radius:10px; padding:10px 12px; margin-bottom:7px;
+  display:flex; align-items:center; gap:10px;
+}
+.mkt-flag { font-size:18px; }
+.mkt-info { flex:1; }
+.mkt-name { font-size:11.5px; font-weight:700; color:#fff; margin-bottom:2px; }
+.mkt-lpm { font-size:9.5px; color:rgba(255,255,255,0.4); }
+.mkt-conv { text-align:right; }
+.mkt-conv-val { font-family:'DM Mono',monospace; font-size:14px; font-weight:500; }
+.mkt-conv-val.bad { color:#F87171; }
+.mkt-conv-val.ok { color:var(--orange); }
+.mkt-conv-val.good { color:var(--c-bright); }
+.mkt-conv-lbl { font-size:8.5px; color:rgba(255,255,255,0.35); }
+.mkt-bar-wrap { width:60px; }
+.mkt-bar-track { height:4px; background:rgba(255,255,255,0.08); border-radius:99px; margin-bottom:3px; overflow:hidden; }
+.mkt-bar-fill { height:100%; border-radius:99px; }
+
+/* SmartCheckout CTA banner */
+.sc-banner {
+  background:linear-gradient(135deg, rgba(0,187,89,0.15) 0%, rgba(0,187,89,0.05) 100%);
+  border:1px solid rgba(0,187,89,0.3); border-radius:14px;
+  padding:14px 16px; margin-top:14px;
+}
+.sc-banner-top { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+.sc-banner-icon {
+  width:32px; height:32px; background:rgba(0,187,89,0.2);
+  border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:14px;
+}
+.sc-banner-title { font-size:13px; font-weight:800; color:#fff; }
+.sc-banner-sub { font-size:9.5px; color:rgba(255,255,255,0.5); margin-bottom:12px; line-height:1.5; }
+.sc-enable-btn {
+  width:100%; background:var(--c-bright); color:#fff;
+  border:none; border-radius:10px; padding:12px;
+  font-family:'Sora',sans-serif; font-size:13px; font-weight:700; cursor:pointer;
+}
+
+/* ══════════════════════════════════════════
+   SCREEN 2 — SmartCheckout Config
+═══════════════════════════════════════════ */
+.s2-header { background:var(--c-hero); padding:14px 18px 18px; }
+.s2-nav { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+.back-btn {
+  width:28px; height:28px; background:rgba(255,255,255,0.1);
+  border-radius:7px; display:flex; align-items:center; justify-content:center;
+  font-size:12px; color:#fff;
+}
+.s2-title { font-size:14px; font-weight:700; color:#fff; }
+.s2-status-row { display:flex; align-items:center; justify-content:space-between; }
+.s2-status-lbl { font-size:10px; color:rgba(255,255,255,0.5); }
+.toggle {
+  width:38px; height:20px; background:var(--c-bright);
+  border-radius:99px; position:relative; cursor:pointer;
+}
+.toggle::after {
+  content:''; position:absolute; top:3px; right:3px;
+  width:14px; height:14px; background:#fff; border-radius:50%;
+}
+
+.s2-body { background:#0A1A0E; padding:14px; }
+
+.market-selector {
+  background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07);
+  border-radius:12px; padding:12px 14px; margin-bottom:12px;
+}
+.ms-lbl { font-size:9.5px; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:.08em; margin-bottom:8px; }
+.ms-chips { display:flex; flex-wrap:wrap; gap:6px; }
+.ms-chip {
+  padding:5px 12px; border-radius:99px; font-size:10.5px; font-weight:700;
+  border:1.5px solid rgba(255,255,255,0.12); color:rgba(255,255,255,0.5); cursor:pointer;
+}
+.ms-chip.active { background:var(--c-bright); color:#fff; border-color:var(--c-bright); }
+
+/* Method ranking */
+.ranking-card {
+  background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07);
+  border-radius:12px; padding:12px 14px; margin-bottom:12px;
+}
+.ranking-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+.ranking-title { font-size:12px; font-weight:700; color:#fff; }
+.ml-badge {
+  background:rgba(0,187,89,0.15); border:1px solid rgba(0,187,89,0.3);
+  border-radius:99px; padding:2px 8px;
+  font-size:8.5px; font-weight:700; color:var(--c-bright);
+}
+.method-row {
+  display:flex; align-items:center; gap:10px;
+  padding:9px 0; border-bottom:1px solid rgba(255,255,255,0.05);
+}
+.method-row:last-child { border-bottom:none; }
+.method-rank {
+  width:20px; height:20px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:10px; font-weight:700; flex-shrink:0;
+}
+.method-rank.r1 { background:var(--c-bright); color:#fff; }
+.method-rank.r2 { background:rgba(255,255,255,0.1); color:rgba(255,255,255,0.6); }
+.method-rank.r3 { background:rgba(255,255,255,0.07); color:rgba(255,255,255,0.4); }
+.method-rank.r4 { background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.3); }
+.method-name { flex:1; font-size:12px; font-weight:700; color:#fff; }
+.method-conv { font-family:'DM Mono',monospace; font-size:11px; font-weight:500; }
+.method-conv.hi { color:var(--c-bright); }
+.method-conv.mid { color:var(--orange); }
+.method-conv.lo { color:rgba(255,255,255,0.3); }
+.method-bar { width:50px; }
+.method-bar-track { height:4px; background:rgba(255,255,255,0.08); border-radius:99px; overflow:hidden; }
+.method-bar-fill { height:100%; border-radius:99px; background:var(--c-bright); }
+
+/* Confidence */
+.conf-card {
+  background:rgba(0,187,89,0.08); border:1px solid rgba(0,187,89,0.2);
+  border-radius:12px; padding:12px 14px; margin-bottom:12px;
+}
+.conf-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+.conf-title { font-size:11px; font-weight:700; color:#fff; }
+.conf-score { font-family:'DM Mono',monospace; font-size:18px; font-weight:500; color:var(--c-bright); }
+.conf-text { font-size:9.5px; color:rgba(255,255,255,0.5); line-height:1.5; }
+.conf-text strong { color:var(--c-bright); }
+
+.apply-btn {
+  width:100%; background:var(--c-bright); color:#fff;
+  border:none; border-radius:10px; padding:13px;
+  font-family:'Sora',sans-serif; font-size:13px; font-weight:700; cursor:pointer;
+}
+
+/* ══════════════════════════════════════════
+   SCREEN 3 — Adaptive Checkout (Consumer View)
+═══════════════════════════════════════════ */
+.s3-wrap { background:#fff; min-height:780px; position:relative; overflow:hidden; }
+#conf {
+  position:absolute; top:0; left:0; right:0; bottom:0;
+  pointer-events:none; overflow:hidden; z-index:10;
+}
+.cp { position:absolute; animation:fall linear forwards; }
+@keyframes fall {
+  0% { transform:translateY(-20px) rotate(0deg); opacity:1; }
+  100% { transform:translateY(820px) rotate(360deg); opacity:0; }
+}
+
+.s3-merchant-bar {
+  background:var(--c-dark); padding:10px 16px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.s3-merchant-name { font-size:11px; font-weight:700; color:#fff; }
+.s3-secure-badge {
+  display:flex; align-items:center; gap:4px;
+  font-size:9px; color:rgba(255,255,255,0.5);
+}
+
+.s3-locale-banner {
+  background:#EFF6FF; border-bottom:1px solid #BFDBFE;
+  padding:8px 16px; display:flex; align-items:center; gap:8px;
+}
+.s3-locale-flag { font-size:16px; }
+.s3-locale-text { font-size:10px; color:#1D4ED8; font-weight:600; }
+.s3-locale-sub { font-size:9px; color:#3B82F6; }
+
+.s3-body { background:#fff; padding:16px; }
+.s3-section-lbl { font-size:10px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; margin-bottom:10px; }
+
+.pay-method {
+  border:1.5px solid var(--border); border-radius:12px;
+  padding:12px 14px; margin-bottom:8px;
+  display:flex; align-items:center; gap:12px; cursor:pointer;
+}
+.pay-method.selected { border-color:var(--c-bright); background:rgba(0,187,89,0.04); }
+.pay-method.top { border-color:var(--c-bright); }
+.pm-radio {
+  width:18px; height:18px; border-radius:50%;
+  border:2px solid var(--border); flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+}
+.pm-radio.sel { border-color:var(--c-bright); background:var(--c-bright); }
+.pm-radio.sel::after { content:''; width:6px; height:6px; background:#fff; border-radius:50%; }
+.pm-icon { font-size:20px; }
+.pm-info { flex:1; }
+.pm-name { font-size:12.5px; font-weight:700; color:var(--ink); }
+.pm-desc { font-size:9.5px; color:var(--muted); }
+.pm-badge {
+  font-size:8.5px; font-weight:700; border-radius:99px; padding:2px 8px;
+}
+.pm-badge.recommended { background:rgba(0,187,89,0.1); color:#15803D; border:1px solid rgba(0,187,89,0.25); }
+.pm-badge.instant { background:rgba(37,99,235,0.08); color:#1D4ED8; border:1px solid rgba(37,99,235,0.2); }
+
+.order-total {
+  background:var(--gray); border-radius:12px;
+  padding:12px 14px; margin-bottom:14px;
+}
+.ot-row { display:flex; justify-content:space-between; margin-bottom:4px; }
+.ot-lbl { font-size:11px; color:var(--muted); }
+.ot-val { font-size:11px; font-weight:700; color:var(--ink); }
+.ot-total { font-size:13px; font-weight:800; color:var(--ink); }
+
+.pay-btn {
+  width:100%; background:var(--c-bright); color:#fff;
+  border:none; border-radius:12px; padding:14px;
+  font-family:'Sora',sans-serif; font-size:14px; font-weight:700; cursor:pointer;
+}
+
+/* Success overlay */
+.success-overlay {
+  background:linear-gradient(135deg, #052E16 0%, #0D1F12 100%);
+  padding:20px 16px; position:relative; z-index:5;
+}
+.success-check {
+  width:56px; height:56px;
+  background:linear-gradient(135deg, var(--c-bright), #15803D);
+  border-radius:50%; display:flex; align-items:center; justify-content:center;
+  font-size:22px; margin:0 auto 12px;
+  box-shadow:0 8px 24px rgba(0,187,89,0.4);
+}
+.success-heading { font-size:17px; font-weight:800; color:#fff; text-align:center; margin-bottom:4px; }
+.success-sub { font-size:10px; color:rgba(255,255,255,0.5); text-align:center; margin-bottom:14px; }
+.success-details {
+  background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1);
+  border-radius:12px; padding:12px 14px;
+}
+.sd-row { display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.07); }
+.sd-row:last-child { border-bottom:none; }
+.sd-lbl { font-size:10px; color:rgba(255,255,255,0.45); }
+.sd-val { font-size:10.5px; font-weight:700; color:#fff; }
+.sd-val.green { color:var(--c-bright); }
+
+.adyen-powered {
+  display:flex; align-items:center; justify-content:center; gap:6px;
+  padding:8px; font-size:8.5px; color:rgba(255,255,255,0.35);
+}
+.ap-dot { width:8px; height:8px; background:var(--c-bright); border-radius:50%; }
+
+/* ══════════════════════════════════════════
+   SCREEN 4 — Post-Launch Analytics
+═══════════════════════════════════════════ */
+.s4-wrap { background:#080F0A; min-height:820px; }
+.s4-header { background:#050D07; padding:14px 18px 18px; border-bottom:1px solid rgba(255,255,255,0.05); }
+.s4-nav { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+.s4-title { font-size:13px; font-weight:700; color:#fff; }
+.s4-live {
+  background:rgba(0,187,89,0.12); border:1px solid rgba(0,187,89,0.25);
+  border-radius:99px; padding:3px 10px;
+  font-size:9px; font-weight:700; color:var(--c-bright);
+}
+.s4-kpi-row { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
+.s4-kpi { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:10px; }
+.s4-kpi-val { font-family:'DM Mono',monospace; font-size:18px; font-weight:500; color:#fff; margin-bottom:2px; line-height:1; }
+.s4-kpi-val.green { color:var(--c-bright); }
+.s4-kpi-val.orange { color:var(--orange); }
+.s4-kpi-lbl { font-size:8px; color:rgba(255,255,255,0.35); line-height:1.3; }
+.s4-kpi-delta { font-size:8.5px; font-weight:700; margin-top:3px; }
+.s4-kpi-delta.good { color:var(--c-bright); }
+
+.s4-body { background:#080F0A; padding:14px; }
+
+/* Market lift cards */
+.lift-card {
+  background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06);
+  border-radius:12px; padding:12px 14px; margin-bottom:8px;
+}
+.lift-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+.lift-market { display:flex; align-items:center; gap:8px; }
+.lift-flag { font-size:18px; }
+.lift-name { font-size:12px; font-weight:700; color:#fff; }
+.lift-lpm { font-size:9.5px; color:rgba(255,255,255,0.4); }
+.lift-badge {
+  font-size:10px; font-weight:700; color:var(--c-bright);
+  background:rgba(0,187,89,0.12); border:1px solid rgba(0,187,89,0.25);
+  border-radius:99px; padding:2px 9px;
+}
+.lift-bars { display:flex; flex-direction:column; gap:5px; }
+.lift-bar-row { display:flex; align-items:center; gap:8px; }
+.lift-bar-lbl { font-size:9px; color:rgba(255,255,255,0.4); width:42px; flex-shrink:0; }
+.lift-bar-track { flex:1; height:6px; background:rgba(255,255,255,0.08); border-radius:99px; overflow:hidden; }
+.lift-bar-fill { height:100%; border-radius:99px; }
+.lift-bar-val { font-family:'DM Mono',monospace; font-size:9.5px; color:#fff; width:34px; text-align:right; flex-shrink:0; }
+
+/* Adyen ops insight */
+.ops-insight {
+  background:rgba(0,187,89,0.08); border:1px solid rgba(0,187,89,0.2);
+  border-radius:12px; padding:12px 14px; margin-top:12px;
+}
+.oi-lbl { font-size:9px; font-weight:700; color:var(--c-bright); letter-spacing:.08em; text-transform:uppercase; margin-bottom:6px; }
+.oi-text { font-size:10.5px; color:rgba(255,255,255,0.6); line-height:1.55; }
+.oi-text strong { color:#fff; }
+
+.track { height:8px; background:var(--border); border-radius:99px; overflow:visible; position:relative; }
+.fill { height:100%; border-radius:99px; background:var(--c-bright); position:relative; transition:.6s ease; }
+.fill-badge { position:absolute; right:-2px; top:-9px; background:var(--c-bright); color:#fff; font-size:9px; font-weight:700; padding:2px 5px; border-radius:6px; }
+</style>
+</head>
+<body>
+
+<div class="header-strip">
+  <div class="co-badge">
+    <div class="co-logo">A</div>
+    <span>Adyen · EMEA Payments · Product Manager</span>
+  </div>
+  <h1>SmartCheckout — <em>Adaptive EMEA LPM Engine</em></h1>
+  <p>ML-powered payment method ranking · Right LPM, right user, right market · Interactive Prototype by Ajay Avaghade</p>
+</div>
+
+<div class="proto-wrap">
+
+  <!-- ══ PHONE 1 — Merchant Dashboard ══ -->
+  <div class="phone-col">
+    <div class="phone-label">01 — Merchant Dashboard · EMEA Conversion</div>
+    <div class="phone" style="background:var(--c-dark);">
+      <div class="notch" style="background:var(--c-dark);">
+        <div class="nc" style="background:#1a2e1e;"></div>
+        <div class="ndot" style="background:#243828;"></div>
+      </div>
+      <div class="sb" style="background:var(--c-hero);">
+        <span class="sb-time" style="color:rgba(255,255,255,0.8);">10:22</span>
+        <span class="sb-icons" style="color:rgba(255,255,255,0.6);">▲▲▲ 100%</span>
+      </div>
+      <div class="sc">
+        <div class="s1-header">
+          <div class="s1-nav">
+            <div class="adyen-badge">
+              <div class="adyen-logo">A</div>
+              <div>
+                <div class="adyen-lbl">Adyen Dashboard</div>
+                <div class="adyen-sub">EMEA · Payments Analytics</div>
+              </div>
+            </div>
+            <div class="s1-tag">SmartCheckout</div>
+          </div>
+          <div class="s1-heading">EMEA Payment Performance</div>
+          <div class="s1-sub">Checkout conversion by market · Last 30 days</div>
+        </div>
+
+        <div class="s1-body">
+          <div class="kpi-row">
+            <div class="kpi-card">
+              <div class="kpi-val green">72.4%</div>
+              <div class="kpi-lbl">Overall EMEA conversion</div>
+              <div class="kpi-delta bad">↓ 8.2% non-home mkts</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-val orange">€4.2M</div>
+              <div class="kpi-lbl">Est. abandoned GMV</div>
+              <div class="kpi-delta bad">↑ LPM mismatch</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-val red">14</div>
+              <div class="kpi-lbl">Markets below benchmark</div>
+              <div class="kpi-delta bad">Needs attention</div>
+            </div>
+          </div>
+
+          <div class="sec-lbl">Market Performance · Top Opportunities</div>
+
+          <div class="market-row">
+            <div class="mkt-flag">🇳🇱</div>
+            <div class="mkt-info">
+              <div class="mkt-name">Netherlands</div>
+              <div class="mkt-lpm">iDEAL shown 1st · Home market</div>
+            </div>
+            <div class="mkt-conv">
+              <div class="mkt-conv-val good">89%</div>
+              <div class="mkt-conv-lbl">conversion</div>
+            </div>
+          </div>
+
+          <div class="market-row">
+            <div class="mkt-flag">🇩🇪</div>
+            <div class="mkt-info">
+              <div class="mkt-name">Germany</div>
+              <div class="mkt-lpm">iDEAL shown 1st · PayPal expected</div>
+            </div>
+            <div class="mkt-conv">
+              <div class="mkt-conv-val ok">61%</div>
+              <div class="mkt-conv-lbl">conversion</div>
+            </div>
+          </div>
+
+          <div class="market-row">
+            <div class="mkt-flag">🇪🇸</div>
+            <div class="mkt-info">
+              <div class="mkt-name">Spain</div>
+              <div class="mkt-lpm">iDEAL shown 1st · Bizum expected</div>
+            </div>
+            <div class="mkt-conv">
+              <div class="mkt-conv-val bad">54%</div>
+              <div class="mkt-conv-lbl">conversion</div>
+            </div>
+          </div>
+
+          <div class="market-row">
+            <div class="mkt-flag">🇧🇪</div>
+            <div class="mkt-info">
+              <div class="mkt-name">Belgium</div>
+              <div class="mkt-lpm">iDEAL shown 1st · Bancontact expected</div>
+            </div>
+            <div class="mkt-conv">
+              <div class="mkt-conv-val bad">58%</div>
+              <div class="mkt-conv-lbl">conversion</div>
+            </div>
+          </div>
+
+          <div class="sc-banner">
+            <div class="sc-banner-top">
+              <div class="sc-banner-icon">⚡</div>
+              <div class="sc-banner-title">SmartCheckout Available</div>
+            </div>
+            <div class="sc-banner-sub">ML will auto-rank payment methods per user's market — estimated <strong style="color:var(--c-bright);">+€1.8M GMV recovery</strong> for this merchant.</div>
+            <button class="sc-enable-btn">Enable SmartCheckout →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PHONE 2 — SmartCheckout Config ══ -->
+  <div class="phone-col">
+    <div class="phone-label">02 — SmartCheckout Config · ML Rule Setup</div>
+    <div class="phone" style="background:var(--c-dark);">
+      <div class="notch" style="background:var(--c-dark);">
+        <div class="nc" style="background:#1a2e1e;"></div>
+        <div class="ndot" style="background:#243828;"></div>
+      </div>
+      <div class="sb" style="background:var(--c-hero);">
+        <span class="sb-time" style="color:rgba(255,255,255,0.8);">10:25</span>
+        <span class="sb-icons" style="color:rgba(255,255,255,0.6);">▲▲▲ 100%</span>
+      </div>
+      <div class="sc">
+        <div class="s2-header">
+          <div class="s2-nav">
+            <div class="back-btn">←</div>
+            <div class="s2-title">SmartCheckout Setup</div>
+          </div>
+          <div class="s2-status-row">
+            <div class="s2-status-lbl">Adaptive LPM ranking · Active</div>
+            <div class="toggle"></div>
+          </div>
+        </div>
+
+        <div class="s2-body">
+          <div class="market-selector">
+            <div class="ms-lbl">Preview for market</div>
+            <div class="ms-chips">
+              <div class="ms-chip active">🇩🇪 DE</div>
+              <div class="ms-chip">🇪🇸 ES</div>
+              <div class="ms-chip">🇧🇪 BE</div>
+              <div class="ms-chip">🇫🇷 FR</div>
+              <div class="ms-chip">🇵🇱 PL</div>
+            </div>
+          </div>
+
+          <div class="ranking-card">
+            <div class="ranking-header">
+              <div class="ranking-title">Method Ranking · Germany 🇩🇪</div>
+              <div class="ml-badge">ML · 94.2% conf.</div>
+            </div>
+            <div class="method-row">
+              <div class="method-rank r1">1</div>
+              <div class="pm-icon">💳</div>
+              <div class="method-info" style="flex:1;">
+                <div class="method-name">PayPal</div>
+                <div style="font-size:9px;color:rgba(255,255,255,0.4);">DE preferred · 43% users</div>
+              </div>
+              <div class="method-conv hi">87%</div>
+            </div>
+            <div class="method-row">
+              <div class="method-rank r2">2</div>
+              <div class="pm-icon">🏦</div>
+              <div class="method-info" style="flex:1;">
+                <div class="method-name">Giropay</div>
+                <div style="font-size:9px;color:rgba(255,255,255,0.4);">Instant bank transfer</div>
+              </div>
+              <div class="method-conv mid">74%</div>
+            </div>
+            <div class="method-row">
+              <div class="method-rank r3">3</div>
+              <div class="pm-icon">💳</div>
+              <div class="method-info" style="flex:1;">
+                <div class="method-name">Visa / Mastercard</div>
+                <div style="font-size:9px;color:rgba(255,255,255,0.4);">Cross-border fallback</div>
+              </div>
+              <div class="method-conv mid">68%</div>
+            </div>
+            <div class="method-row">
+              <div class="method-rank r4">4</div>
+              <div class="pm-icon">🇳🇱</div>
+              <div class="method-info" style="flex:1;">
+                <div class="method-name">iDEAL</div>
+                <div style="font-size:9px;color:rgba(255,255,255,0.4);">NL native · low DE conv.</div>
+              </div>
+              <div class="method-conv lo">31%</div>
+            </div>
+          </div>
+
+          <div class="conf-card">
+            <div class="conf-top">
+              <div class="conf-title">ML Signals Used</div>
+              <div class="conf-score">94.2%</div>
+            </div>
+            <div class="conf-text">
+              Detected: <strong>🇩🇪 German IP · Chrome · Mobile</strong><br>
+              Amount: €89 · Category: Fashion retail<br>
+              Historical: 12,847 DE transactions this merchant
+            </div>
+          </div>
+
+          <button class="apply-btn">Apply to All DE Traffic →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PHONE 3 — Adaptive Checkout (Consumer) ══ -->
+  <div class="phone-col">
+    <div class="phone-label">03 — Consumer Checkout · Adaptive + Payment Confirmed</div>
+    <div class="phone" style="background:#fff;">
+      <div class="notch" style="background:var(--c-dark);">
+        <div class="nc" style="background:#1e293b;"></div>
+        <div class="ndot" style="background:#334155;"></div>
+      </div>
+      <div class="sb" style="background:var(--c-dark);">
+        <span class="sb-time" style="color:rgba(255,255,255,0.8);">10:31</span>
+        <span class="sb-icons" style="color:rgba(255,255,255,0.6);">▲▲▲ 100%</span>
+      </div>
+      <div class="sc">
+        <div class="s3-wrap">
+          <div id="conf"></div>
+          <div class="s3-merchant-bar">
+            <div class="s3-merchant-name">H&amp;M · Checkout</div>
+            <div class="s3-secure-badge">🔒 Secure · Powered by Adyen</div>
+          </div>
+
+          <div class="s3-locale-banner">
+            <div class="s3-locale-flag">🇩🇪</div>
+            <div>
+              <div class="s3-locale-text">SmartCheckout: German user detected</div>
+              <div class="s3-locale-sub">Payment methods ranked for your market</div>
+            </div>
+          </div>
+
+          <div class="s3-body">
+            <div class="order-total">
+              <div class="ot-row"><div class="ot-lbl">Order total</div><div class="ot-val">€89.00</div></div>
+              <div class="ot-row"><div class="ot-lbl">Delivery</div><div class="ot-val">Free</div></div>
+              <div class="ot-row" style="border-top:1px solid var(--border);padding-top:6px;margin-top:2px;">
+                <div class="ot-total">Total</div><div class="ot-total">€89.00</div>
+              </div>
+            </div>
+
+            <div class="s3-section-lbl">Select payment method</div>
+
+            <div class="pay-method selected top">
+              <div class="pm-radio sel"></div>
+              <div class="pm-icon">💳</div>
+              <div class="pm-info">
+                <div class="pm-name">PayPal</div>
+                <div class="pm-desc">Fast · No card needed</div>
+              </div>
+              <div class="pm-badge recommended">⭐ Best for DE</div>
+            </div>
+
+            <div class="pay-method">
+              <div class="pm-radio"></div>
+              <div class="pm-icon">🏦</div>
+              <div class="pm-info">
+                <div class="pm-name">Giropay</div>
+                <div class="pm-desc">Instant bank transfer</div>
+              </div>
+              <div class="pm-badge instant">Instant</div>
+            </div>
+
+            <div class="pay-method">
+              <div class="pm-radio"></div>
+              <div class="pm-icon">💳</div>
+              <div class="pm-info">
+                <div class="pm-name">Visa / Mastercard</div>
+                <div class="pm-desc">All major cards accepted</div>
+              </div>
+            </div>
+
+            <div class="pay-method" style="opacity:0.45;">
+              <div class="pm-radio"></div>
+              <div class="pm-icon">🇳🇱</div>
+              <div class="pm-info">
+                <div class="pm-name">iDEAL</div>
+                <div class="pm-desc">Netherlands only</div>
+              </div>
+            </div>
+
+            <!-- Success state -->
+            <div class="success-overlay" style="margin:14px -16px -16px; border-radius:0 0 40px 40px;">
+              <div class="success-check">✓</div>
+              <div class="success-heading">Payment Confirmed</div>
+              <div class="success-sub">H&amp;M · Order #DE-2847 · via PayPal</div>
+              <div class="success-details">
+                <div class="sd-row"><div class="sd-lbl">Amount</div><div class="sd-val">€89.00</div></div>
+                <div class="sd-row"><div class="sd-lbl">Method</div><div class="sd-val green">PayPal (DE rank #1)</div></div>
+                <div class="sd-row"><div class="sd-lbl">Settled</div><div class="sd-val green">Instantly</div></div>
+                <div class="sd-row"><div class="sd-lbl">SmartCheckout</div><div class="sd-val green">✓ Optimised</div></div>
+              </div>
+              <div class="adyen-powered">
+                <div class="ap-dot"></div>
+                Powered by Adyen SmartCheckout
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PHONE 4 — Post-Launch Analytics ══ -->
+  <div class="phone-col">
+    <div class="phone-label">04 — Post-Launch Analytics · EMEA Lift</div>
+    <div class="phone" style="background:#080F0A;">
+      <div class="notch" style="background:#050D07;">
+        <div class="nc" style="background:#0d1a0f;"></div>
+        <div class="ndot" style="background:#152218;"></div>
+      </div>
+      <div class="sb" style="background:#050D07;">
+        <span class="sb-time" style="color:rgba(255,255,255,0.75);">10:45</span>
+        <span class="sb-icons" style="color:rgba(255,255,255,0.5);">▲▲▲ 99%</span>
+      </div>
+      <div class="sc">
+        <div class="s4-wrap">
+          <div class="s4-header">
+            <div class="s4-nav">
+              <div class="s4-title">SmartCheckout · 30-day Results</div>
+              <div class="s4-live">● LIVE</div>
+            </div>
+            <div class="s4-kpi-row">
+              <div class="s4-kpi">
+                <div class="s4-kpi-val green">+12.4%</div>
+                <div class="s4-kpi-lbl">Avg. conversion lift</div>
+                <div class="s4-kpi-delta good">Non-home markets</div>
+              </div>
+              <div class="s4-kpi">
+                <div class="s4-kpi-val green">€1.8M</div>
+                <div class="s4-kpi-lbl">GMV recovered (30d)</div>
+                <div class="s4-kpi-delta good">vs baseline</div>
+              </div>
+              <div class="s4-kpi">
+                <div class="s4-kpi-val orange">−18%</div>
+                <div class="s4-kpi-lbl">Checkout abandonment</div>
+                <div class="s4-kpi-delta good">↓ LPM mismatch</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="s4-body">
+            <div class="sec-lbl" style="color:rgba(255,255,255,0.35);">Conversion Lift · Before vs After SmartCheckout</div>
+
+            <div class="lift-card">
+              <div class="lift-top">
+                <div class="lift-market">
+                  <div class="lift-flag">🇩🇪</div>
+                  <div>
+                    <div class="lift-name">Germany</div>
+                    <div class="lift-lpm">iDEAL → PayPal (rank 1)</div>
+                  </div>
+                </div>
+                <div class="lift-badge">+26% conv.</div>
+              </div>
+              <div class="lift-bars">
+                <div class="lift-bar-row">
+                  <div class="lift-bar-lbl" style="color:rgba(255,255,255,0.3);">Before</div>
+                  <div class="lift-bar-track"><div class="lift-bar-fill" style="width:61%;background:rgba(255,255,255,0.2);"></div></div>
+                  <div class="lift-bar-val" style="color:rgba(255,255,255,0.4);">61%</div>
+                </div>
+                <div class="lift-bar-row">
+                  <div class="lift-bar-lbl" style="color:var(--c-bright);">After</div>
+                  <div class="lift-bar-track"><div class="lift-bar-fill" style="width:87%;background:var(--c-bright);"></div></div>
+                  <div class="lift-bar-val">87%</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="lift-card">
+              <div class="lift-top">
+                <div class="lift-market">
+                  <div class="lift-flag">🇪🇸</div>
+                  <div>
+                    <div class="lift-name">Spain</div>
+                    <div class="lift-lpm">iDEAL → Bizum (rank 1)</div>
+                  </div>
+                </div>
+                <div class="lift-badge">+31% conv.</div>
+              </div>
+              <div class="lift-bars">
+                <div class="lift-bar-row">
+                  <div class="lift-bar-lbl" style="color:rgba(255,255,255,0.3);">Before</div>
+                  <div class="lift-bar-track"><div class="lift-bar-fill" style="width:54%;background:rgba(255,255,255,0.2);"></div></div>
+                  <div class="lift-bar-val" style="color:rgba(255,255,255,0.4);">54%</div>
+                </div>
+                <div class="lift-bar-row">
+                  <div class="lift-bar-lbl" style="color:var(--c-bright);">After</div>
+                  <div class="lift-bar-track"><div class="lift-bar-fill" style="width:85%;background:var(--c-bright);"></div></div>
+                  <div class="lift-bar-val">85%</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="lift-card">
+              <div class="lift-top">
+                <div class="lift-market">
+                  <div class="lift-flag">🇧🇪</div>
+                  <div>
+                    <div class="lift-name">Belgium</div>
+                    <div class="lift-lpm">iDEAL → Bancontact (rank 1)</div>
+                  </div>
+                </div>
+                <div class="lift-badge">+22% conv.</div>
+              </div>
+              <div class="lift-bars">
+                <div class="lift-bar-row">
+                  <div class="lift-bar-lbl" style="color:rgba(255,255,255,0.3);">Before</div>
+                  <div class="lift-bar-track"><div class="lift-bar-fill" style="width:58%;background:rgba(255,255,255,0.2);"></div></div>
+                  <div class="lift-bar-val" style="color:rgba(255,255,255,0.4);">58%</div>
+                </div>
+                <div class="lift-bar-row">
+                  <div class="lift-bar-lbl" style="color:var(--c-bright);">After</div>
+                  <div class="lift-bar-track"><div class="lift-bar-fill" style="width:80%;background:var(--c-bright);"></div></div>
+                  <div class="lift-bar-val">80%</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ops-insight">
+              <div class="oi-lbl">Adyen Platform Insight</div>
+              <div class="oi-text">
+                SmartCheckout uses <strong>Adyen's existing conversion data</strong> across 500K+ merchants — zero new data collected. Merchants across the EMEA base sharing SmartCheckout data improve each other's ranking model. The network effect compounds with every merchant that enables it.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const c = document.getElementById('conf');
+const cols = ['#00BB59','#F97316','#22C55E','#FBBF24','#60A5FA','#A78BFA','#4ADE80'];
+for(let i=0;i<36;i++){
+  const p=document.createElement('div');
+  p.className='cp';
+  const size=4+Math.random()*7;
+  p.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*120-10}%;width:${size}px;height:${size}px;background:${cols[Math.floor(Math.random()*cols.length)]};border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${1.4+Math.random()*1.8}s;animation-delay:${Math.random()*2.4}s;`;
+  c.appendChild(p);
+}
+</script>
+
+</body>
+</html>
