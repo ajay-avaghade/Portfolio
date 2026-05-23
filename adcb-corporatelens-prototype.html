@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ADCB — CorporateLens · Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --c-dark:#00302A;
+  --c-hero:#00453C;
+  --c-bright:#00BFA5;
+  --c-gold:#D4A843;
+  --c-green:#22C55E;
+  --c-red:#EF4444;
+  --c-amber:#F59E0B;
+  --ink:#0f172a;
+  --muted:#64748b;
+  --border:#e2e8f0;
+  --gray:#f1f5f9;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  font-family:'Sora',sans-serif;
+  background:#01120f;
+  min-height:100vh;
+  padding:40px 24px 60px;
+  display:flex;flex-direction:column;align-items:center;
+}
+.hdr{font-family:'DM Mono',monospace;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#1a3d38;margin-bottom:6px;text-align:center;}
+.hdr span{color:var(--c-bright);}
+.sub{font-size:11px;color:#112820;margin-bottom:40px;font-family:'DM Mono',monospace;text-align:center;letter-spacing:.06em;}
+.row{display:flex;gap:32px;align-items:flex-start;justify-content:center;}
+.pwrap{display:flex;flex-direction:column;align-items:center;gap:10px;}
+.plbl{font-family:'DM Mono',monospace;font-size:10px;color:#1a4038;letter-spacing:.1em;text-transform:uppercase;}
+.phone{width:375px;height:812px;background:var(--c-dark);border-radius:46px;box-shadow:0 40px 100px rgba(0,0,0,0.7),0 0 0 1px rgba(255,255,255,0.05);overflow:hidden;display:flex;flex-direction:column;position:relative;}
+.notch{width:118px;height:28px;background:#000;border-radius:0 0 16px 16px;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:6px;flex-shrink:0;}
+.nc{width:10px;height:10px;border-radius:50%;background:#111;}
+.ndot{width:5px;height:5px;border-radius:50%;background:#0a1a18;}
+.sb{display:flex;justify-content:space-between;align-items:center;padding:4px 20px 6px;font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.35);flex-shrink:0;}
+.sc{flex:1;overflow-y:auto;scrollbar-width:none;max-height:724px;}
+.sc::-webkit-scrollbar{display:none;}
+
+.track{height:7px;background:rgba(255,255,255,0.1);border-radius:99px;overflow:visible;position:relative;}
+.fill{height:100%;border-radius:99px;background:var(--c-bright);position:relative;transition:.6s ease;}
+.fill-badge{position:absolute;right:-2px;top:-9px;background:var(--c-bright);color:#00302A;font-size:9px;font-weight:700;padding:2px 5px;border-radius:6px;font-family:'DM Mono',monospace;}
+
+/* ── SCREEN 1 — Admin Dashboard ── */
+.s1-topbar{background:linear-gradient(180deg,#003830 0%,var(--c-dark) 100%);padding:14px 20px 18px;}
+.s1-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+.s1-logo{font-size:15px;font-weight:800;color:#fff;letter-spacing:.02em;}
+.s1-logo em{color:var(--c-gold);font-style:normal;}
+.s1-avatar{width:34px;height:34px;border-radius:50%;background:rgba(0,191,165,0.2);border:1px solid rgba(0,191,165,0.4);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--c-bright);}
+.s1-welcome{font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:2px;}
+.s1-company{font-size:14px;font-weight:800;color:#fff;}
+
+.s1-kpi-row{display:flex;gap:8px;padding:14px 20px 0;}
+.s1-kpi{flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:12px 10px;text-align:center;}
+.s1-kv{font-size:14px;font-weight:800;color:var(--c-bright);font-family:'DM Mono',monospace;margin-bottom:3px;}
+.s1-kl{font-size:9px;color:rgba(255,255,255,0.4);line-height:1.3;}
+
+.s1-sec{padding:14px 20px 8px;font-size:11px;font-weight:700;color:rgba(255,255,255,0.35);letter-spacing:.08em;text-transform:uppercase;}
+
+.s1-alert{margin:0 20px 10px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.35);border-radius:12px;padding:11px 14px;display:flex;align-items:center;gap:10px;}
+.s1-alert-ico{font-size:16px;flex-shrink:0;}
+.s1-alert-txt{font-size:11px;color:rgba(255,255,255,0.7);line-height:1.4;}
+.s1-alert-txt strong{color:var(--c-amber);}
+
+.s1-card-row{margin:0 20px 10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:12px 14px;}
+.s1-cr-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.s1-cr-name{font-size:12px;font-weight:700;color:#fff;}
+.s1-cr-dept{font-size:10px;color:rgba(255,255,255,0.35);margin-top:1px;}
+.s1-cr-pct{font-size:12px;font-weight:800;font-family:'DM Mono',monospace;}
+.s1-cr-pct.warn{color:var(--c-amber);}
+.s1-cr-pct.ok{color:var(--c-green);}
+.s1-cr-sub{display:flex;justify-content:space-between;font-size:10px;color:rgba(255,255,255,0.3);margin-top:5px;}
+
+.s1-actions{display:flex;gap:8px;padding:14px 20px 20px;}
+.s1-act-btn{flex:1;padding:13px 8px;border-radius:12px;border:none;font-size:11px;font-weight:700;font-family:'Sora',sans-serif;cursor:pointer;}
+.s1-act-btn.primary{background:var(--c-bright);color:#00302A;}
+.s1-act-btn.outline{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.7);}
+
+/* ── SCREEN 2 — Card Controls ── */
+.s2-top{background:var(--c-hero);padding:14px 20px 14px;border-bottom:1px solid rgba(255,255,255,0.06);}
+.s2-back{color:var(--c-bright);font-size:18px;margin-bottom:10px;}
+.s2-card-info{display:flex;justify-content:space-between;align-items:flex-start;}
+.s2-name{font-size:15px;font-weight:800;color:#fff;}
+.s2-dept{font-size:10px;color:rgba(255,255,255,0.4);margin-top:2px;}
+.s2-card-num{font-size:11px;color:rgba(0,191,165,0.7);font-family:'DM Mono',monospace;margin-top:4px;}
+.s2-status-badge{background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.3);border-radius:20px;padding:4px 10px;font-size:10px;font-weight:700;color:var(--c-green);}
+
+.s2-limit-block{margin:14px 20px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:14px 16px;}
+.s2-limit-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.s2-limit-lbl{font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:.06em;}
+.s2-limit-val{font-size:22px;font-weight:800;color:#fff;font-family:'DM Mono',monospace;}
+.s2-limit-spent{font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:8px;}
+.s2-limit-spent em{color:var(--c-amber);font-style:normal;font-weight:700;}
+.s2-edit-btn{width:100%;margin-top:10px;padding:12px;border-radius:10px;background:var(--c-bright);border:none;font-size:12px;font-weight:700;color:#00302A;font-family:'Sora',sans-serif;cursor:pointer;}
+
+.s2-controls-title{padding:0 20px 8px;font-size:11px;font-weight:700;color:rgba(255,255,255,0.35);letter-spacing:.08em;text-transform:uppercase;}
+.s2-toggle-row{margin:0 20px 8px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;}
+.s2-toggle-left{}
+.s2-toggle-name{font-size:12px;font-weight:600;color:#fff;}
+.s2-toggle-sub{font-size:10px;color:rgba(255,255,255,0.35);margin-top:2px;}
+.s2-toggle{width:40px;height:22px;border-radius:11px;display:flex;align-items:center;padding:2px;flex-shrink:0;}
+.s2-toggle.on{background:var(--c-bright);justify-content:flex-end;}
+.s2-toggle.off{background:rgba(255,255,255,0.12);justify-content:flex-start;}
+.s2-toggle-knob{width:18px;height:18px;border-radius:50%;background:#fff;}
+
+.s2-auths{padding:14px 20px 20px;}
+.s2-auth-title{font-size:11px;font-weight:700;color:rgba(255,255,255,0.35);letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px;}
+.s2-auth-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05);}
+.s2-auth-name{font-size:11px;color:rgba(255,255,255,0.7);}
+.s2-auth-amt{font-size:11px;font-weight:700;color:#fff;font-family:'DM Mono',monospace;}
+.s2-auth-status{font-size:9px;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.3);color:var(--c-amber);padding:2px 8px;border-radius:20px;}
+
+/* ── SCREEN 3 — Limit Updated Success ── */
+#conf{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:0;}
+.cp{position:absolute;animation:fall linear infinite;}
+@keyframes fall{0%{transform:translateY(-20px) rotate(0deg);opacity:1;}100%{transform:translateY(900px) rotate(720deg);opacity:0;}}
+.s3-wrap{position:relative;min-height:100%;padding:20px;display:flex;flex-direction:column;align-items:center;background:linear-gradient(180deg,#003830 0%,var(--c-dark) 65%);}
+.s3-icon{font-size:52px;margin:28px 0 12px;text-align:center;position:relative;z-index:1;}
+.s3-head{font-size:19px;font-weight:800;color:#fff;text-align:center;margin-bottom:4px;position:relative;z-index:1;}
+.s3-sub{font-size:11px;color:rgba(255,255,255,0.45);text-align:center;margin-bottom:22px;position:relative;z-index:1;}
+.s3-card{width:100%;background:linear-gradient(135deg,rgba(0,191,165,0.15),rgba(0,191,165,0.05));border:1px solid rgba(0,191,165,0.4);border-radius:18px;padding:20px;margin-bottom:14px;text-align:center;position:relative;z-index:1;}
+.s3-card-lbl{font-size:10px;color:rgba(0,191,165,0.7);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;}
+.s3-limit-change{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:12px;}
+.s3-old-limit{font-size:20px;font-weight:700;color:rgba(255,255,255,0.35);font-family:'DM Mono',monospace;text-decoration:line-through;}
+.s3-arrow{font-size:18px;color:var(--c-bright);}
+.s3-new-limit{font-size:28px;font-weight:800;color:var(--c-bright);font-family:'DM Mono',monospace;}
+.s3-card-desc{font-size:11px;color:rgba(255,255,255,0.5);}
+.s3-live-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.3);border-radius:20px;padding:5px 14px;margin-top:10px;font-size:10px;color:var(--c-green);font-weight:700;}
+.s3-live-dot{width:6px;height:6px;border-radius:50%;background:var(--c-green);animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+
+.s3-detail{width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:14px 16px;margin-bottom:14px;position:relative;z-index:1;}
+.s3-detail-lbl{font-size:10px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;}
+.s3-detail-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);}
+.s3-detail-row:last-child{border-bottom:none;}
+.s3-dk{font-size:11px;color:rgba(255,255,255,0.5);}
+.s3-dv{font-size:11px;font-weight:700;color:#fff;font-family:'DM Mono',monospace;}
+.s3-dv.green{color:var(--c-green);}
+
+.s3-btn{width:100%;padding:16px;border-radius:14px;background:var(--c-bright);border:none;font-size:14px;font-weight:700;color:#00302A;font-family:'Sora',sans-serif;cursor:pointer;position:relative;z-index:1;}
+
+/* ── SCREEN 4 — Risk & Scheme Ops ── */
+.s4-top{background:var(--c-hero);padding:14px 20px 14px;border-bottom:1px solid rgba(255,255,255,0.06);}
+.s4-title{font-size:15px;font-weight:800;color:#fff;margin-bottom:2px;}
+.s4-tsub{font-size:10px;color:rgba(255,255,255,0.35);font-family:'DM Mono',monospace;}
+.s4-kpis{display:flex;gap:8px;padding:14px 20px 0;}
+.s4-kpi{flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:10px 8px;text-align:center;}
+.s4-kv{font-size:15px;font-weight:800;font-family:'DM Mono',monospace;margin-bottom:3px;}
+.s4-kv.ok{color:var(--c-bright);}
+.s4-kv.warn{color:var(--c-amber);}
+.s4-kl{font-size:9px;color:rgba(255,255,255,0.4);line-height:1.3;}
+
+.s4-sec{padding:14px 20px 8px;font-size:11px;font-weight:700;color:rgba(255,255,255,0.35);letter-spacing:.08em;text-transform:uppercase;}
+.s4-flag-row{margin:0 20px 8px;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.25);border-radius:12px;padding:12px 14px;}
+.s4-flag-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;}
+.s4-flag-name{font-size:12px;font-weight:700;color:#fff;}
+.s4-flag-tag{font-size:9px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:var(--c-red);padding:2px 8px;border-radius:20px;font-weight:700;}
+.s4-flag-detail{font-size:10px;color:rgba(255,255,255,0.45);line-height:1.5;}
+.s4-flag-detail em{color:var(--c-amber);font-style:normal;font-weight:700;}
+
+.s4-scheme-block{margin:14px 20px 0;background:rgba(212,168,67,0.06);border:1px solid rgba(212,168,67,0.3);border-radius:14px;padding:14px 16px;}
+.s4-scheme-title{font-size:11px;font-weight:700;color:var(--c-gold);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;}
+.s4-mandate-row{padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06);}
+.s4-mandate-row:last-child{border-bottom:none;}
+.s4-mandate-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;}
+.s4-mandate-name{font-size:11px;font-weight:700;color:#fff;}
+.s4-mandate-days{font-size:10px;font-family:'DM Mono',monospace;font-weight:700;}
+.s4-mandate-days.urgent{color:var(--c-red);}
+.s4-mandate-days.ok{color:var(--c-green);}
+.s4-mandate-sub{font-size:10px;color:rgba(255,255,255,0.4);}
+
+.s4-compliance{margin:14px 20px 20px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:14px 16px;}
+.s4-comp-title{font-size:11px;font-weight:700;color:rgba(255,255,255,0.35);letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px;}
+.s4-comp-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;}
+.s4-comp-key{font-size:11px;color:rgba(255,255,255,0.6);}
+.s4-comp-val{font-size:11px;font-weight:700;font-family:'DM Mono',monospace;color:var(--c-bright);}
+</style>
+</head>
+<body>
+
+<div class="hdr">ADCB — <span>CorporateLens</span> · Interactive Prototype</div>
+<div class="sub">Corporate Cards PM Case Study · Ajay Avaghade</div>
+
+<div class="row">
+
+  <!-- ── PHONE 1 — Admin Dashboard ── -->
+  <div class="pwrap">
+    <div class="plbl">01 — Admin Dashboard</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="sb"><span>9:41</span><span>●●● 100%</span></div>
+      <div class="sc">
+        <div class="s1-topbar">
+          <div class="s1-bar">
+            <div class="s1-logo"><em>ADCB</em> CorporateLens</div>
+            <div class="s1-avatar">SA</div>
+          </div>
+          <div class="s1-welcome">Good morning, Sarah Al-Mansoori</div>
+          <div class="s1-company">Emaar Properties PJSC</div>
+        </div>
+
+        <div class="s1-kpi-row">
+          <div class="s1-kpi"><div class="s1-kv">AED 847K</div><div class="s1-kl">Monthly Spend</div></div>
+          <div class="s1-kpi"><div class="s1-kv">23</div><div class="s1-kl">Active Cards</div></div>
+          <div class="s1-kpi"><div class="s1-kv">4</div><div class="s1-kl">Near Limit</div></div>
+        </div>
+
+        <div class="s1-sec">ALERTS</div>
+        <div class="s1-alert">
+          <div class="s1-alert-ico">⚠️</div>
+          <div class="s1-alert-txt"><strong>Ahmad Al-Rashidi</strong> at 74% of monthly limit — 6 days remaining in cycle.</div>
+        </div>
+        <div class="s1-alert" style="background:rgba(239,68,68,0.08);border-color:rgba(239,68,68,0.3);">
+          <div class="s1-alert-ico">🚨</div>
+          <div class="s1-alert-txt" style="color:rgba(255,255,255,0.65);"><strong style="color:var(--c-red);">Flagged:</strong> Out-of-country transaction — Laila Hassan, AED 12,340 at non-approved merchant.</div>
+        </div>
+
+        <div class="s1-sec">CARD HOLDERS</div>
+        <div class="s1-card-row">
+          <div class="s1-cr-top"><div><div class="s1-cr-name">Ahmad Al-Rashidi</div><div class="s1-cr-dept">Sales Director</div></div><div class="s1-cr-pct warn">74%</div></div>
+          <div class="track"><div class="fill" style="width:74%;background:var(--c-amber);"><span class="fill-badge" style="background:var(--c-amber);color:#0f172a;">74%</span></div></div>
+          <div class="s1-cr-sub"><span>AED 18,450 spent</span><span>of AED 25,000</span></div>
+        </div>
+        <div class="s1-card-row">
+          <div class="s1-cr-top"><div><div class="s1-cr-name">Fatima Al-Hashimi</div><div class="s1-cr-dept">Procurement Manager</div></div><div class="s1-cr-pct ok">42%</div></div>
+          <div class="track"><div class="fill" style="width:42%"><span class="fill-badge">42%</span></div></div>
+          <div class="s1-cr-sub"><span>AED 10,500 spent</span><span>of AED 25,000</span></div>
+        </div>
+        <div class="s1-card-row">
+          <div class="s1-cr-top"><div><div class="s1-cr-name">Mohammed Al-Zaabi</div><div class="s1-cr-dept">Business Development</div></div><div class="s1-cr-pct ok">28%</div></div>
+          <div class="track"><div class="fill" style="width:28%"><span class="fill-badge">28%</span></div></div>
+          <div class="s1-cr-sub"><span>AED 7,000 spent</span><span>of AED 25,000</span></div>
+        </div>
+
+        <div class="s1-actions">
+          <button class="s1-act-btn primary">+ Issue New Card</button>
+          <button class="s1-act-btn outline">📥 Download MIS</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PHONE 2 — Card Controls ── -->
+  <div class="pwrap">
+    <div class="plbl">02 — Card Controls</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="sb"><span>9:41</span><span>●●● 100%</span></div>
+      <div class="sc">
+        <div class="s2-top">
+          <div class="s2-back">←</div>
+          <div class="s2-card-info">
+            <div>
+              <div class="s2-name">Ahmad Al-Rashidi</div>
+              <div class="s2-dept">Sales Director · Emaar Properties</div>
+              <div class="s2-card-num">Visa Commercial •••• 4821</div>
+            </div>
+            <div class="s2-status-badge">● Active</div>
+          </div>
+        </div>
+
+        <!-- Limit block -->
+        <div class="s2-limit-block">
+          <div class="s2-limit-top">
+            <div class="s2-limit-lbl">Monthly Limit</div>
+            <div class="s2-limit-val">AED 25,000</div>
+          </div>
+          <div class="s2-limit-spent">Spent this cycle: <em>AED 18,450</em> (73.8%) · 6 days left</div>
+          <div class="track">
+            <div class="fill" style="width:74%;background:var(--c-amber);"><span class="fill-badge" style="background:var(--c-amber);color:#0f172a;">74%</span></div>
+          </div>
+          <button class="s2-edit-btn">✏️ Adjust Limit Instantly</button>
+        </div>
+
+        <!-- MCC Controls -->
+        <div class="s2-controls-title">MCC SPEND CONTROLS</div>
+        <div class="s2-toggle-row">
+          <div class="s2-toggle-left"><div class="s2-toggle-name">✈️ Travel &amp; Airlines</div><div class="s2-toggle-sub">Business travel — approved</div></div>
+          <div class="s2-toggle on"><div class="s2-toggle-knob"></div></div>
+        </div>
+        <div class="s2-toggle-row">
+          <div class="s2-toggle-left"><div class="s2-toggle-name">🏨 Hotels &amp; Accommodation</div><div class="s2-toggle-sub">Business stays — approved</div></div>
+          <div class="s2-toggle on"><div class="s2-toggle-knob"></div></div>
+        </div>
+        <div class="s2-toggle-row">
+          <div class="s2-toggle-left"><div class="s2-toggle-name">🍽️ Restaurants</div><div class="s2-toggle-sub">Client entertainment — approved</div></div>
+          <div class="s2-toggle on"><div class="s2-toggle-knob"></div></div>
+        </div>
+        <div class="s2-toggle-row">
+          <div class="s2-toggle-left"><div class="s2-toggle-name">🎰 Entertainment / Gambling</div><div class="s2-toggle-sub">Blocked by policy</div></div>
+          <div class="s2-toggle off"><div class="s2-toggle-knob"></div></div>
+        </div>
+        <div class="s2-toggle-row">
+          <div class="s2-toggle-left"><div class="s2-toggle-name">💵 Cash Advances</div><div class="s2-toggle-sub">Blocked by policy</div></div>
+          <div class="s2-toggle off"><div class="s2-toggle-knob"></div></div>
+        </div>
+
+        <!-- Pending authorisations -->
+        <div class="s2-auths">
+          <div class="s2-auth-title">PENDING AUTHORISATIONS</div>
+          <div class="s2-auth-row">
+            <div><div class="s2-auth-name">Emirates Airlines</div><div style="font-size:10px;color:rgba(255,255,255,0.3);">Dubai → London · Travel</div></div>
+            <div style="text-align:right;"><div class="s2-auth-amt">AED 3,240</div><div class="s2-auth-status">Pending</div></div>
+          </div>
+          <div class="s2-auth-row">
+            <div><div class="s2-auth-name">Ritz-Carlton DIFC</div><div style="font-size:10px;color:rgba(255,255,255,0.3);">2 nights · Accommodation</div></div>
+            <div style="text-align:right;"><div class="s2-auth-amt">AED 2,800</div><div class="s2-auth-status">Pending</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PHONE 3 — Limit Updated Success ── -->
+  <div class="pwrap">
+    <div class="plbl">03 — Limit Updated Live</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="sb" style="background:#003830;"><span style="color:rgba(255,255,255,0.35);">9:41</span><span style="color:rgba(255,255,255,0.35);">●●● 100%</span></div>
+      <div class="sc" style="background:linear-gradient(180deg,#003830 0%,var(--c-dark) 65%);">
+        <div class="s3-wrap">
+          <div id="conf"></div>
+          <div class="s3-icon">✅</div>
+          <div class="s3-head">Limit Updated</div>
+          <div class="s3-sub">Live on Visa network in 8 seconds</div>
+
+          <div class="s3-card">
+            <div class="s3-card-lbl">AHMAD AL-RASHIDI · VISA COMMERCIAL ••••4821</div>
+            <div class="s3-limit-change">
+              <div class="s3-old-limit">AED 25K</div>
+              <div class="s3-arrow">→</div>
+              <div class="s3-new-limit">AED 30K</div>
+            </div>
+            <div class="s3-card-desc">New monthly limit effective immediately</div>
+            <div class="s3-live-badge"><div class="s3-live-dot"></div>Live on Visa authorisation host</div>
+          </div>
+
+          <div class="s3-detail">
+            <div class="s3-detail-lbl">Update Summary</div>
+            <div class="s3-detail-row">
+              <div class="s3-dk">Previous limit</div>
+              <div class="s3-dv">AED 25,000</div>
+            </div>
+            <div class="s3-detail-row">
+              <div class="s3-dk">New limit</div>
+              <div class="s3-dv" style="color:var(--c-bright);">AED 30,000</div>
+            </div>
+            <div class="s3-detail-row">
+              <div class="s3-dk">Available now</div>
+              <div class="s3-dv green">AED 11,550</div>
+            </div>
+            <div class="s3-detail-row">
+              <div class="s3-dk">Processing time</div>
+              <div class="s3-dv">8 seconds</div>
+            </div>
+            <div class="s3-detail-row">
+              <div class="s3-dk">Previously required</div>
+              <div class="s3-dv" style="color:rgba(255,255,255,0.4);text-decoration:line-through;">48 hours</div>
+            </div>
+          </div>
+
+          <button class="s3-btn">Back to Dashboard →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PHONE 4 — Risk & Scheme Ops ── -->
+  <div class="pwrap">
+    <div class="plbl">04 — Risk &amp; Scheme Ops</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="sb"><span>9:41</span><span>●●● 100%</span></div>
+      <div class="sc">
+        <div class="s4-top">
+          <div class="s4-title">CorporateLens Ops</div>
+          <div class="s4-tsub">RISK MONITORING &amp; SCHEME COMPLIANCE</div>
+        </div>
+        <div class="s4-kpis">
+          <div class="s4-kpi"><div class="s4-kv ok">23</div><div class="s4-kl">Active Programs</div></div>
+          <div class="s4-kpi"><div class="s4-kv warn">2</div><div class="s4-kl">Flagged Today</div></div>
+          <div class="s4-kpi"><div class="s4-kv ok">99.2%</div><div class="s4-kl">Scheme Compliance</div></div>
+        </div>
+
+        <div class="s4-sec">FLAGGED TRANSACTIONS</div>
+        <div class="s4-flag-row">
+          <div class="s4-flag-top"><div class="s4-flag-name">Laila Hassan — DIFC Merchant</div><div class="s4-flag-tag">🚨 OUT-OF-COUNTRY</div></div>
+          <div class="s4-flag-detail">AED 12,340 · Non-approved merchant category · <em>Requires review</em></div>
+        </div>
+        <div class="s4-flag-row" style="border-color:rgba(245,158,11,0.3);background:rgba(245,158,11,0.06);">
+          <div class="s4-flag-top"><div class="s4-flag-name">Khalid Al-Nuaimi</div><div class="s4-flag-tag" style="color:var(--c-amber);border-color:rgba(245,158,11,0.4);background:rgba(245,158,11,0.12);">⚠️ OVER LIMIT ATTEMPT</div></div>
+          <div class="s4-flag-detail">Attempted AED 28,450 on AED 25K limit · <em>Auto-declined by Visa host</em></div>
+        </div>
+
+        <div class="s4-scheme-block">
+          <div class="s4-scheme-title">📋 VISA SCHEME MANDATES</div>
+          <div class="s4-mandate-row">
+            <div class="s4-mandate-top"><div class="s4-mandate-name">EMV 3DS 2.3 Upgrade</div><div class="s4-mandate-days urgent">45 days</div></div>
+            <div class="s4-mandate-sub">Mandatory authentication upgrade · UAT in progress</div>
+          </div>
+          <div class="s4-mandate-row">
+            <div class="s4-mandate-top"><div class="s4-mandate-name">Commercial Card Reporting v2</div><div class="s4-mandate-days ok">120 days</div></div>
+            <div class="s4-mandate-sub">Enhanced Level 2/3 data fields · Requirements drafted</div>
+          </div>
+          <div class="s4-mandate-row">
+            <div class="s4-mandate-top"><div class="s4-mandate-name">Tokenisation for CNP</div><div class="s4-mandate-days ok">Compliant</div></div>
+            <div class="s4-mandate-sub">Visa Token Service active · ✓ Complete</div>
+          </div>
+        </div>
+
+        <div class="s4-compliance">
+          <div class="s4-comp-title">SCHEME COMPLIANCE SCORECARD</div>
+          <div class="s4-comp-row"><div class="s4-comp-key">Authorization approval rate</div><div class="s4-comp-val">94.2%</div></div>
+          <div class="s4-comp-row"><div class="s4-comp-key">Dispute ratio (Visa threshold)</div><div class="s4-comp-val">0.08%</div></div>
+          <div class="s4-comp-row"><div class="s4-comp-key">3DS authentication rate</div><div class="s4-comp-val">99.1%</div></div>
+          <div class="s4-comp-row"><div class="s4-comp-key">Chargeback ratio</div><div class="s4-comp-val">0.04%</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const c = document.getElementById('conf');
+const cols = ['#00BFA5','#D4A843','#22C55E','#60A5FA','#A78BFA','#34D399','#FCD34D'];
+for(let i=0;i<20;i++){
+  const p = document.createElement('div');
+  p.className='cp';
+  const size = 4+Math.random()*6;
+  p.style.cssText='left:'+Math.random()*100+'%;top:'+(Math.random()*120-10)+'%;width:'+size+'px;height:'+size+'px;background:'+cols[Math.floor(Math.random()*cols.length)]+';border-radius:'+(Math.random()>.5?'50%':'2px')+';animation-duration:'+(1.6+Math.random()*2)+'s;animation-delay:'+(Math.random()*2.5)+'s;';
+  c.appendChild(p);
+}
+</script>
+</body>
+</html>
