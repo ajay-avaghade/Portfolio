@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Nykaa — AdAgent · Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --purple: #8B5CF6;
+  --purple-light: #A78BFA;
+  --dark: #0D0A1A;
+  --hero: #160F2E;
+  --pink: #FC2779;
+  --green: #10B981;
+  --gold: #F59E0B;
+  --white: #FFFFFF;
+  --muted: #94A3B8;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family:'Sora',sans-serif;
+  background:#08050F;
+  min-height:100vh;
+  display:flex; flex-direction:column; align-items:center;
+  padding:40px 24px 60px;
+}
+.header-strip { color:#8B5CF6; font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; margin-bottom:36px; }
+.prototype-wrap { display:flex; gap:32px; align-items:flex-start; flex-wrap:wrap; justify-content:center; }
+.phone-col { display:flex; flex-direction:column; align-items:center; gap:14px; }
+.phone-label { font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:#8B5CF6; opacity:.7; }
+.phone {
+  width:375px; background:#fff;
+  border-radius:46px;
+  box-shadow:0 40px 100px rgba(0,0,0,0.5), 0 0 0 1px rgba(139,92,246,0.15);
+  overflow:hidden; position:relative; display:flex; flex-direction:column;
+}
+.phone.dark { background:var(--dark); }
+.notch { width:118px; height:28px; background:#fff; border-radius:0 0 16px 16px; position:absolute; top:0; left:50%; transform:translateX(-50%); z-index:10; display:flex; align-items:center; justify-content:center; gap:6px; }
+.phone.dark .notch { background:var(--dark); }
+.nc { width:10px; height:10px; background:rgba(0,0,0,0.1); border-radius:50%; }
+.phone.dark .nc { background:#111418; }
+.ndot { width:5px; height:5px; background:rgba(0,0,0,0.07); border-radius:50%; }
+.phone.dark .ndot { background:#1e2328; }
+.status { display:flex; justify-content:space-between; align-items:center; padding:38px 22px 6px; font-size:10px; font-weight:700; color:rgba(0,0,0,0.4); font-family:'DM Mono',monospace; }
+.phone.dark .status { color:rgba(255,255,255,0.6); }
+.screen { flex:1; overflow-y:auto; max-height:724px; scrollbar-width:none; padding-bottom:20px; }
+.screen::-webkit-scrollbar { display:none; }
+
+/* ── SCREEN 1: GOAL SETUP ── */
+.goal-header { padding:14px 20px 10px; }
+.goal-eyebrow { font-size:10px; font-weight:700; color:var(--purple); text-transform:uppercase; letter-spacing:.07em; margin-bottom:4px; }
+.goal-title { font-size:17px; font-weight:800; color:#1A0A14; line-height:1.25; }
+.goal-sub { font-size:10px; color:#888; margin-top:3px; }
+.product-card {
+  margin:10px 16px;
+  border:1.5px solid #E8D5F0; border-radius:14px;
+  padding:12px; display:flex; align-items:center; gap:10px;
+  background:#FBF5FF;
+}
+.prod-img { width:52px; height:52px; background:linear-gradient(135deg,#EDE9FE,#DDD6FE); border-radius:11px; display:flex; align-items:center; justify-content:center; font-size:24px; flex-shrink:0; }
+.prod-info { flex:1; }
+.prod-brand { font-size:9px; color:#9A7AB8; font-weight:600; text-transform:uppercase; }
+.prod-name { font-size:12px; font-weight:700; color:#1A0A14; }
+.prod-meta { font-size:10px; color:#888; margin-top:2px; }
+.change-link { font-size:10px; color:var(--purple); font-weight:700; }
+.goal-section { padding:10px 20px 6px; font-size:11px; font-weight:700; color:#555; }
+.goal-cards { display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:0 16px; margin-bottom:10px; }
+.goal-card {
+  border:1.5px solid #E8D5F0; border-radius:13px;
+  padding:11px 10px; text-align:center; background:#fff;
+}
+.goal-card.sel { border-color:var(--purple); background:#F5F3FF; }
+.goal-card-icon { font-size:20px; margin-bottom:4px; }
+.goal-card-name { font-size:11px; font-weight:700; color:#1A0A14; }
+.goal-card-sub { font-size:9px; color:#999; margin-top:2px; }
+.budget-section { padding:0 16px 10px; }
+.budget-label { font-size:11px; font-weight:700; color:#555; margin-bottom:8px; }
+.budget-slider-wrap { position:relative; margin-bottom:6px; }
+.budget-track { height:5px; background:#EDE9FE; border-radius:99px; }
+.budget-fill { height:100%; border-radius:99px; background:var(--purple); width:55%; }
+.budget-thumb { position:absolute; left:55%; top:50%; transform:translate(-50%,-50%); width:18px; height:18px; background:var(--purple); border-radius:50%; border:3px solid #fff; box-shadow:0 2px 8px rgba(139,92,246,0.4); }
+.budget-row { display:flex; justify-content:space-between; font-size:9px; color:#999; }
+.budget-selected { text-align:center; margin-bottom:8px; }
+.budget-val { font-size:22px; font-weight:800; color:var(--purple); font-family:'DM Mono',monospace; }
+.budget-lbl { font-size:9px; color:#999; }
+.launch-btn { margin:0 16px; background:var(--purple); border-radius:14px; padding:14px; text-align:center; font-size:13px; font-weight:800; color:#fff; box-shadow:0 4px 20px rgba(139,92,246,0.4); }
+.ai-note { margin:8px 16px 0; background:#F5F3FF; border:1px solid rgba(139,92,246,0.2); border-radius:10px; padding:8px 11px; font-size:9.5px; color:#5B3A8A; line-height:1.45; }
+
+/* ── SCREEN 2: AGENT EXECUTION ── */
+.agent-header { padding:14px 20px 10px; }
+.agent-eyebrow { font-size:10px; font-weight:700; color:var(--purple-light); text-transform:uppercase; letter-spacing:.07em; display:flex; align-items:center; gap:6px; margin-bottom:6px; }
+.agent-pulse { width:7px; height:7px; border-radius:50%; background:var(--purple); animation:pulse 1.2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.25} }
+.agent-title { font-size:16px; font-weight:800; color:#fff; }
+.agent-sub { font-size:10px; color:rgba(255,255,255,0.4); margin-top:2px; }
+.progress-ring-wrap { display:flex; justify-content:center; padding:16px 0 12px; position:relative; }
+.prog-ring-bg { width:110px; height:110px; border-radius:50%; background:rgba(139,92,246,0.1); border:3px solid rgba(139,92,246,0.2); display:flex; align-items:center; justify-content:center; flex-direction:column; }
+.prog-ring-val { font-size:28px; font-weight:800; color:var(--purple); font-family:'DM Mono',monospace; }
+.prog-ring-lbl { font-size:9px; color:rgba(255,255,255,0.4); }
+.step-list { padding:0 16px; }
+.step-row {
+  display:flex; align-items:flex-start; gap:10px;
+  padding:9px 0; border-bottom:1px solid rgba(255,255,255,0.05);
+}
+.step-icon { width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; flex-shrink:0; margin-top:1px; }
+.step-content { flex:1; }
+.step-name { font-size:11px; font-weight:700; }
+.step-detail { font-size:9px; color:rgba(255,255,255,0.4); margin-top:2px; line-height:1.4; }
+.step-time { font-size:9px; color:rgba(255,255,255,0.25); font-family:'DM Mono',monospace; }
+.agent-output {
+  margin:10px 16px;
+  background:rgba(139,92,246,0.08); border:1px solid rgba(139,92,246,0.25);
+  border-radius:13px; padding:12px;
+}
+.ao-title { font-size:10px; font-weight:700; color:var(--purple-light); margin-bottom:8px; }
+.ao-row { display:flex; justify-content:space-between; font-size:10px; margin-bottom:4px; }
+.ao-lbl { color:rgba(255,255,255,0.5); }
+.ao-val { color:#fff; font-weight:700; }
+
+/* ── SCREEN 3: LIVE CAMPAIGN ── */
+.camp-header { padding:14px 20px 10px; }
+.camp-title { font-size:15px; font-weight:800; color:#fff; }
+.camp-sub { font-size:10px; color:rgba(255,255,255,0.4); margin-top:2px; }
+.live-badge { display:inline-flex; align-items:center; gap:5px; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); border-radius:20px; padding:3px 10px; font-size:9px; font-weight:700; color:#10B981; margin-top:6px; }
+.kpi-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:0 16px; margin-bottom:10px; }
+.kpi-card { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:10px 12px; }
+.kpi-val { font-size:22px; font-weight:800; font-family:'DM Mono',monospace; }
+.kpi-lbl { font-size:9px; color:rgba(255,255,255,0.4); margin-top:2px; }
+.kpi-trend { font-size:9px; margin-top:2px; font-weight:600; }
+.opt-log { margin:0 16px; }
+.opt-label { font-size:10px; font-weight:700; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:.07em; margin-bottom:7px; }
+.opt-row {
+  display:flex; align-items:flex-start; gap:8px;
+  padding:8px; border-radius:10px; background:rgba(255,255,255,0.03);
+  margin-bottom:6px; border:1px solid rgba(255,255,255,0.05);
+}
+.opt-icon { font-size:14px; flex-shrink:0; margin-top:1px; }
+.opt-text { font-size:10px; color:rgba(255,255,255,0.7); line-height:1.4; }
+.opt-text strong { color:var(--purple-light); }
+.opt-time { font-size:9px; color:rgba(255,255,255,0.25); font-family:'DM Mono',monospace; }
+.spend-bar { margin:10px 16px; }
+.sb-header { display:flex; justify-content:space-between; font-size:10px; margin-bottom:5px; color:rgba(255,255,255,0.5); }
+.sb-track { height:8px; background:rgba(255,255,255,0.08); border-radius:99px; }
+.sb-fill { height:100%; border-radius:99px; background:linear-gradient(90deg,var(--purple),var(--purple-light)); width:58%; }
+
+/* ── SCREEN 4: WEEKLY REPORT ── */
+.report-header { padding:14px 20px 10px; border-bottom:1px solid #F0E8F8; }
+.report-eyebrow { font-size:10px; font-weight:700; color:var(--purple); text-transform:uppercase; letter-spacing:.07em; margin-bottom:4px; }
+.report-title { font-size:16px; font-weight:800; color:#1A0A14; }
+.report-sub { font-size:10px; color:#888; margin-top:2px; }
+.report-hero {
+  margin:12px 16px;
+  background:linear-gradient(135deg,#F5F3FF,#EDE9FE);
+  border:1px solid rgba(139,92,246,0.2); border-radius:16px;
+  padding:14px;
+}
+.rh-label { font-size:10px; color:#7A5BA8; margin-bottom:4px; }
+.rh-val { font-size:32px; font-weight:800; color:var(--purple); font-family:'DM Mono',monospace; }
+.rh-sub { font-size:10px; color:#7A5BA8; margin-top:3px; }
+.rh-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px; }
+.rh-box { background:rgba(139,92,246,0.08); border-radius:10px; padding:8px 10px; }
+.rh-box-val { font-size:16px; font-weight:800; color:var(--purple); font-family:'DM Mono',monospace; }
+.rh-box-lbl { font-size:9px; color:#7A5BA8; margin-top:1px; }
+.agent-actions { margin:0 16px; }
+.aa-title { font-size:10px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.06em; margin-bottom:8px; }
+.aa-card {
+  border-radius:12px; padding:11px 12px;
+  border:1px solid; margin-bottom:7px;
+}
+.aa-row { display:flex; align-items:flex-start; gap:8px; }
+.aa-icon { font-size:16px; flex-shrink:0; }
+.aa-text { flex:1; }
+.aa-action { font-size:11px; font-weight:700; }
+.aa-detail { font-size:9px; margin-top:2px; line-height:1.4; }
+.aa-impact { font-size:9px; font-weight:700; margin-top:4px; }
+.apply-btn { margin:10px 16px 0; background:var(--purple); border-radius:13px; padding:12px; text-align:center; font-size:12px; font-weight:800; color:#fff; box-shadow:0 4px 16px rgba(139,92,246,0.35); }
+</style>
+</head>
+<body>
+<div class="header-strip">Nykaa — AdAgent · Interactive Prototype</div>
+<div class="prototype-wrap">
+
+  <!-- SCREEN 1: GOAL SETUP -->
+  <div class="phone-col">
+    <div class="phone-label">01 — Campaign Goal</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="status"><span>11:08</span><span>●●● 🔋</span></div>
+      <div class="screen">
+        <div class="goal-header">
+          <div class="goal-eyebrow">✦ AI-Powered</div>
+          <div class="goal-title">What do you want to achieve?</div>
+          <div class="goal-sub">AdAgent handles keywords, bids, and creatives automatically</div>
+        </div>
+        <!-- Product -->
+        <div class="product-card">
+          <div class="prod-img">🧴</div>
+          <div class="prod-info">
+            <div class="prod-brand">Mamaearth</div>
+            <div class="prod-name">Vitamin C Face Serum 30ml</div>
+            <div class="prod-meta">₹499 · 4.2★ · 1,240 reviews</div>
+          </div>
+          <div class="change-link">Change →</div>
+        </div>
+        <!-- Goal cards -->
+        <div class="goal-section">Your campaign goal</div>
+        <div class="goal-cards">
+          <div class="goal-card sel">
+            <div class="goal-card-icon">📈</div>
+            <div class="goal-card-name">Maximize Sales</div>
+            <div class="goal-card-sub">Optimise for conversions</div>
+          </div>
+          <div class="goal-card">
+            <div class="goal-card-icon">👁️</div>
+            <div class="goal-card-name">Boost Visibility</div>
+            <div class="goal-card-sub">More impressions &amp; reach</div>
+          </div>
+          <div class="goal-card">
+            <div class="goal-card-icon">📦</div>
+            <div class="goal-card-name">Clear Stock</div>
+            <div class="goal-card-sub">Move inventory fast</div>
+          </div>
+          <div class="goal-card">
+            <div class="goal-card-icon">🆕</div>
+            <div class="goal-card-name">Launch Product</div>
+            <div class="goal-card-sub">First 30-day awareness</div>
+          </div>
+        </div>
+        <!-- Budget -->
+        <div class="budget-section">
+          <div class="budget-label">Weekly budget</div>
+          <div class="budget-selected">
+            <div class="budget-val">₹5,500</div>
+            <div class="budget-lbl">per week · Agent will optimise spend daily</div>
+          </div>
+          <div class="budget-slider-wrap">
+            <div class="budget-track"><div class="budget-fill"></div></div>
+            <div class="budget-thumb"></div>
+          </div>
+          <div class="budget-row"><span>₹1,000</span><span>₹25,000</span></div>
+        </div>
+        <div class="ai-note">
+          ✦ Based on your product category and goal, AdAgent will auto-select Sponsored Product + Search Boost campaign types, generate 3 headline variants, and set smart bids.
+        </div>
+        <div style="margin-top:10px;"></div>
+        <div class="launch-btn">Launch with AdAgent →</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 2: AGENT EXECUTION -->
+  <div class="phone-col">
+    <div class="phone-label">02 — Agent Executing</div>
+    <div class="phone dark">
+      <div class="notch" style="background:var(--dark);"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="status"><span>11:09</span><span>●●● 🔋</span></div>
+      <div class="screen">
+        <div class="agent-header">
+          <div class="agent-eyebrow"><div class="agent-pulse"></div>AdAgent is building your campaign</div>
+          <div class="agent-title">Mamaearth Vitamin C Serum</div>
+          <div class="agent-sub">Maximize Sales · ₹5,500/week budget</div>
+        </div>
+        <div class="progress-ring-wrap">
+          <div class="prog-ring-bg">
+            <div class="prog-ring-val">80%</div>
+            <div class="prog-ring-lbl">complete</div>
+          </div>
+        </div>
+        <div class="step-list">
+          <div class="step-row">
+            <div class="step-icon" style="background:rgba(16,185,129,0.15);">✓</div>
+            <div class="step-content">
+              <div class="step-name" style="color:#10B981;">Catalog Analysis</div>
+              <div class="step-detail">Scanned 1,240 reviews · category: Vitamin C Serum · competitor set: 14 SKUs</div>
+            </div>
+            <div class="step-time">11:09:02</div>
+          </div>
+          <div class="step-row">
+            <div class="step-icon" style="background:rgba(16,185,129,0.15);">✓</div>
+            <div class="step-content">
+              <div class="step-name" style="color:#10B981;">Keyword Selection</div>
+              <div class="step-detail">38 keywords selected · Top: "vitamin c serum", "glow serum", "dark spot serum"</div>
+            </div>
+            <div class="step-time">11:09:08</div>
+          </div>
+          <div class="step-row">
+            <div class="step-icon" style="background:rgba(16,185,129,0.15);">✓</div>
+            <div class="step-content">
+              <div class="step-name" style="color:#10B981;">Creative Generation</div>
+              <div class="step-detail">3 headline variants generated · "Glow in 2 weeks" selected as primary</div>
+            </div>
+            <div class="step-time">11:09:14</div>
+          </div>
+          <div class="step-row">
+            <div class="step-icon" style="background:rgba(139,92,246,0.25);animation:pulse 1s infinite;">⚙</div>
+            <div class="step-content">
+              <div class="step-name" style="color:var(--purple-light);">Bid Strategy Setting</div>
+              <div class="step-detail">Auto-bidding: Target ROAS 3.5× · Max CPC ₹8.40 · Smart budget pacing enabled…</div>
+            </div>
+            <div class="step-time">11:09:21</div>
+          </div>
+          <div class="step-row" style="opacity:.45;">
+            <div class="step-icon" style="background:rgba(255,255,255,0.05);">⬜</div>
+            <div class="step-content">
+              <div class="step-name" style="color:rgba(255,255,255,0.4);">Campaign Launch</div>
+              <div class="step-detail">Pending — live in ~30 seconds</div>
+            </div>
+            <div class="step-time">—</div>
+          </div>
+        </div>
+        <div class="agent-output">
+          <div class="ao-title">Campaign Structure Preview</div>
+          <div class="ao-row"><span class="ao-lbl">Campaign type</span><span class="ao-val">Sponsored Product + Search Boost</span></div>
+          <div class="ao-row"><span class="ao-lbl">Target audience</span><span class="ao-val">Glow seekers · 22–38 · Tier 1+2</span></div>
+          <div class="ao-row"><span class="ao-lbl">Primary keyword</span><span class="ao-val">"vitamin c serum"</span></div>
+          <div class="ao-row"><span class="ao-lbl">Headline (primary)</span><span class="ao-val">"Glow in 2 weeks — ₹499"</span></div>
+          <div class="ao-row"><span class="ao-lbl">Est. weekly reach</span><span class="ao-val">42,000–58,000</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 3: LIVE CAMPAIGN DASHBOARD -->
+  <div class="phone-col">
+    <div class="phone-label">03 — Live Campaign</div>
+    <div class="phone dark">
+      <div class="notch" style="background:var(--dark);"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="status"><span>14:22</span><span>●●● 🔋</span></div>
+      <div class="screen">
+        <div class="camp-header">
+          <div class="camp-title">Vitamin C Serum Campaign</div>
+          <div class="camp-sub">Mamaearth · Maximize Sales · Day 4 of 7</div>
+          <div class="live-badge"><div class="agent-pulse"></div>Live · Agent optimising</div>
+        </div>
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-val" style="color:var(--purple-light);">₹42,800</div>
+            <div class="kpi-lbl">Attributed sales</div>
+            <div class="kpi-trend" style="color:var(--green);">↑ 18% vs last week</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-val" style="color:var(--green);">3.8×</div>
+            <div class="kpi-lbl">ROAS</div>
+            <div class="kpi-trend" style="color:var(--green);">↑ Above 3.5× target</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-val" style="color:var(--gold);">48,240</div>
+            <div class="kpi-lbl">Impressions</div>
+            <div class="kpi-trend" style="color:rgba(255,255,255,0.4);">Pace on target</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-val" style="color:var(--pink);">₹11,200</div>
+            <div class="kpi-lbl">Spend so far</div>
+            <div class="kpi-trend" style="color:rgba(255,255,255,0.4);">₹5,500 budget/wk</div>
+          </div>
+        </div>
+        <!-- Spend bar -->
+        <div class="spend-bar">
+          <div class="sb-header">
+            <span>Budget used this week</span>
+            <span>58% · ₹3,190 remaining</span>
+          </div>
+          <div class="sb-track"><div class="sb-fill"></div></div>
+        </div>
+        <!-- Optimisation log -->
+        <div class="opt-log">
+          <div class="opt-label">Agent Optimisation Log</div>
+          <div class="opt-row">
+            <div class="opt-icon">⬆</div>
+            <div>
+              <div class="opt-text">Increased bid on <strong>"glow serum"</strong> by 14% — top-converting keyword, below max CPC</div>
+              <div class="opt-time">Today 12:00</div>
+            </div>
+          </div>
+          <div class="opt-row">
+            <div class="opt-icon">⏸</div>
+            <div>
+              <div class="opt-text">Paused keyword <strong>"vitamin c moisturiser"</strong> — 0 conversions in 3 days, draining budget</div>
+              <div class="opt-time">Yesterday 18:00</div>
+            </div>
+          </div>
+          <div class="opt-row">
+            <div class="opt-icon">🔄</div>
+            <div>
+              <div class="opt-text">Switched primary creative to <strong>"Glow in 2 weeks"</strong> — 34% higher CTR vs variant B</div>
+              <div class="opt-time">2 days ago</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 4: WEEKLY REPORT CARD -->
+  <div class="phone-col">
+    <div class="phone-label">04 — Weekly Report</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="status"><span>09:00</span><span>●●● 🔋</span></div>
+      <div class="screen">
+        <div class="report-header">
+          <div class="report-eyebrow">✦ AdAgent Weekly Report</div>
+          <div class="report-title">Week 1 Complete</div>
+          <div class="report-sub">Vitamin C Serum · 18–24 May</div>
+        </div>
+        <!-- Hero metric -->
+        <div class="report-hero">
+          <div class="rh-label">Total attributed sales</div>
+          <div class="rh-val">₹74,400</div>
+          <div class="rh-sub">on ₹19,600 spend · ROAS: 3.8×</div>
+          <div class="rh-grid">
+            <div class="rh-box">
+              <div class="rh-box-val">86,400</div>
+              <div class="rh-box-lbl">Impressions</div>
+            </div>
+            <div class="rh-box">
+              <div class="rh-box-val">2.8%</div>
+              <div class="rh-box-lbl">Click-through rate</div>
+            </div>
+            <div class="rh-box">
+              <div class="rh-box-val">148</div>
+              <div class="rh-box-lbl">Orders attributed</div>
+            </div>
+            <div class="rh-box">
+              <div class="rh-box-val">₹132</div>
+              <div class="rh-box-lbl">Cost per order</div>
+            </div>
+          </div>
+        </div>
+        <!-- Agent next actions -->
+        <div class="agent-actions">
+          <div class="aa-title">Agent recommends for Week 2</div>
+          <div class="aa-card" style="border-color:rgba(139,92,246,0.25);background:#F5F3FF;">
+            <div class="aa-row">
+              <div class="aa-icon">📈</div>
+              <div class="aa-text">
+                <div class="aa-action" style="color:var(--purple);">Increase budget by ₹1,500/week</div>
+                <div class="aa-detail" style="color:#7A5BA8;">"glow serum" is returning ₹5.20 for every ₹1 spent — still room to scale before saturation</div>
+                <div class="aa-impact" style="color:var(--purple);">Est. impact: +₹22,000 weekly sales</div>
+              </div>
+            </div>
+          </div>
+          <div class="aa-card" style="border-color:rgba(16,185,129,0.2);background:#F0FFF8;">
+            <div class="aa-row">
+              <div class="aa-icon">🆕</div>
+              <div class="aa-text">
+                <div class="aa-action" style="color:#10B981;">Add "dark spot removal" keyword cluster</div>
+                <div class="aa-detail" style="color:#2D7A5A;">Trending +42% in your category this week · 3 competitors not yet bidding on it</div>
+                <div class="aa-impact" style="color:#10B981;">Est. impact: +8,000 impressions/week</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="apply-btn">Apply Agent Recommendations →</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

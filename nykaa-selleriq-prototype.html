@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Nykaa — SellerIQ · Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold: #F59E0B;
+  --gold-light: #FCD34D;
+  --dark: #0F0A00;
+  --hero: #1E1400;
+  --pink: #FC2779;
+  --purple: #8B5CF6;
+  --green: #10B981;
+  --red: #EF4444;
+  --white: #FFFFFF;
+  --muted: #94A3B8;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family:'Sora',sans-serif;
+  background:#090600;
+  min-height:100vh;
+  display:flex; flex-direction:column; align-items:center;
+  padding:40px 24px 60px;
+}
+.header-strip { color:#F59E0B; font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; margin-bottom:36px; }
+.prototype-wrap { display:flex; gap:32px; align-items:flex-start; flex-wrap:wrap; justify-content:center; }
+.phone-col { display:flex; flex-direction:column; align-items:center; gap:14px; }
+.phone-label { font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:#F59E0B; opacity:.7; }
+.phone {
+  width:375px; background:var(--dark);
+  border-radius:46px;
+  box-shadow:0 40px 100px rgba(0,0,0,0.6), 0 0 0 1px rgba(245,158,11,0.15);
+  overflow:hidden; position:relative; display:flex; flex-direction:column;
+}
+.phone.light { background:#fff; box-shadow:0 40px 100px rgba(0,0,0,0.4), 0 0 0 1px rgba(245,158,11,0.15); }
+.notch { width:118px; height:28px; background:var(--dark); border-radius:0 0 16px 16px; position:absolute; top:0; left:50%; transform:translateX(-50%); z-index:10; display:flex; align-items:center; justify-content:center; gap:6px; }
+.phone.light .notch { background:#fff; }
+.nc { width:10px; height:10px; background:#111418; border-radius:50%; }
+.phone.light .nc { background:rgba(0,0,0,0.1); }
+.ndot { width:5px; height:5px; background:#1e2328; border-radius:50%; }
+.phone.light .ndot { background:rgba(0,0,0,0.07); }
+.status { display:flex; justify-content:space-between; align-items:center; padding:38px 22px 6px; font-size:10px; font-weight:700; color:rgba(255,255,255,0.6); font-family:'DM Mono',monospace; }
+.phone.light .status { color:rgba(0,0,0,0.4); }
+.screen { flex:1; overflow-y:auto; max-height:724px; scrollbar-width:none; padding-bottom:20px; }
+.screen::-webkit-scrollbar { display:none; }
+
+/* ── SCREEN 1: INSIGHTS HOME ── */
+.dash-header { padding:14px 20px 8px; }
+.dash-title { font-size:15px; font-weight:800; color:#fff; }
+.dash-sub { font-size:10px; color:rgba(255,255,255,0.4); margin-top:2px; }
+.ai-summary {
+  margin:10px 16px;
+  background:linear-gradient(135deg,rgba(245,158,11,0.1),rgba(245,158,11,0.05));
+  border:1px solid rgba(245,158,11,0.3); border-radius:14px; padding:13px;
+}
+.ais-header { display:flex; align-items:center; gap:6px; margin-bottom:8px; }
+.ais-icon { font-size:16px; }
+.ais-label { font-size:10px; font-weight:700; color:var(--gold); text-transform:uppercase; letter-spacing:.06em; }
+.ais-text { font-size:11px; color:rgba(255,255,255,0.8); line-height:1.55; }
+.ais-text strong { color:var(--gold); }
+.kpi-strip { display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; padding:0 16px; margin-bottom:10px; }
+.kpi-mini { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:11px; padding:9px 10px; text-align:center; }
+.kpi-mini-val { font-size:16px; font-weight:800; font-family:'DM Mono',monospace; }
+.kpi-mini-lbl { font-size:8px; color:rgba(255,255,255,0.35); margin-top:2px; }
+.kpi-mini-trend { font-size:8px; font-weight:700; margin-top:1px; }
+.action-cards { padding:0 16px; }
+.ac-label { font-size:10px; font-weight:700; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:.07em; margin-bottom:8px; }
+.action-card {
+  border-radius:13px; padding:12px; margin-bottom:8px;
+  border:1px solid;
+  display:flex; align-items:flex-start; gap:10px;
+}
+.ac-icon { font-size:20px; flex-shrink:0; margin-top:1px; }
+.ac-content { flex:1; }
+.ac-title { font-size:11px; font-weight:700; }
+.ac-desc { font-size:9.5px; line-height:1.45; margin-top:3px; }
+.ac-impact { font-size:9px; font-weight:700; margin-top:5px; }
+.ac-cta { font-size:10px; font-weight:700; text-decoration:underline; margin-top:4px; }
+.alert-strip {
+  margin:0 16px;
+  background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.25);
+  border-radius:12px; padding:10px 12px;
+  display:flex; align-items:center; gap:8px;
+}
+.alert-icon { font-size:18px; flex-shrink:0; }
+.alert-text { font-size:10px; color:rgba(255,255,255,0.75); line-height:1.4; }
+.alert-text strong { color:#EF4444; }
+
+/* ── SCREEN 2: AI Q&A ── */
+.qa-header { padding:14px 20px 10px; border-bottom:1px solid rgba(255,255,255,0.06); }
+.qa-title { font-size:14px; font-weight:800; color:#fff; }
+.qa-sub { font-size:10px; color:rgba(255,255,255,0.4); margin-top:1px; }
+.chat-area { padding:12px 16px; display:flex; flex-direction:column; gap:12px; }
+.user-bubble {
+  align-self:flex-end;
+  background:var(--gold); color:#1A0A00;
+  border-radius:16px 16px 4px 16px;
+  padding:10px 13px; max-width:80%;
+  font-size:11px; font-weight:600; line-height:1.4;
+}
+.ai-bubble-wrap { display:flex; align-items:flex-start; gap:8px; }
+.ai-avatar {
+  width:28px; height:28px; border-radius:50%;
+  background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.3);
+  display:flex; align-items:center; justify-content:center;
+  font-size:14px; flex-shrink:0;
+}
+.ai-bubble {
+  background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1);
+  border-radius:4px 16px 16px 16px;
+  padding:11px 12px; max-width:82%;
+}
+.ai-bubble-text { font-size:11px; color:rgba(255,255,255,0.85); line-height:1.55; }
+.ai-bubble-text strong { color:var(--gold); }
+.insight-chips { display:flex; flex-wrap:wrap; gap:5px; margin-top:8px; }
+.chip {
+  padding:4px 9px; border-radius:20px;
+  font-size:9px; font-weight:700;
+  border:1px solid;
+}
+.data-card {
+  background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08);
+  border-radius:11px; padding:10px 12px; margin-top:8px;
+}
+.dc-row { display:flex; justify-content:space-between; font-size:10px; color:rgba(255,255,255,0.6); margin-bottom:4px; }
+.dc-row strong { color:#fff; }
+.qa-input {
+  margin:10px 16px 0;
+  background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12);
+  border-radius:12px; padding:11px 13px;
+  display:flex; align-items:center; gap:8px;
+}
+.qa-placeholder { font-size:11px; color:rgba(255,255,255,0.3); flex:1; }
+.qa-send { font-size:16px; color:var(--gold); }
+
+/* ── SCREEN 3: ALERT DETAIL ── */
+.alert-header { padding:14px 20px 10px; }
+.alert-back { font-size:10px; color:rgba(255,255,255,0.4); margin-bottom:6px; }
+.alert-title-row { display:flex; align-items:center; gap:8px; margin-bottom:4px; }
+.alert-sev { width:10px; height:10px; border-radius:50%; background:#EF4444; }
+.alert-main-title { font-size:16px; font-weight:800; color:#fff; }
+.alert-time { font-size:10px; color:rgba(255,255,255,0.4); }
+.alert-hero-card {
+  margin:10px 16px;
+  background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.25);
+  border-radius:16px; padding:14px;
+}
+.ahc-product { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+.ahc-img { width:46px; height:46px; background:rgba(239,68,68,0.1); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:22px; }
+.ahc-name { font-size:13px; font-weight:700; color:#fff; }
+.ahc-brand { font-size:10px; color:rgba(255,255,255,0.4); margin-top:1px; }
+.stock-row { display:flex; justify-content:space-between; align-items:flex-end; }
+.stock-left { }
+.stock-val { font-size:32px; font-weight:800; color:#EF4444; font-family:'DM Mono',monospace; }
+.stock-lbl { font-size:10px; color:rgba(255,255,255,0.4); }
+.stock-timer { text-align:right; }
+.stock-days { font-size:22px; font-weight:800; color:#F59E0B; font-family:'DM Mono',monospace; }
+.stock-days-lbl { font-size:9px; color:rgba(255,255,255,0.4); }
+.velocity-card {
+  margin:0 16px 10px;
+  background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08);
+  border-radius:13px; padding:12px;
+}
+.vc-title { font-size:10px; font-weight:700; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:.06em; margin-bottom:8px; }
+.vc-bar-row { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+.vc-day { font-size:9px; color:rgba(255,255,255,0.4); width:28px; }
+.vc-track { flex:1; height:5px; background:rgba(255,255,255,0.08); border-radius:99px; }
+.vc-fill { height:100%; border-radius:99px; background:var(--gold); }
+.vc-val { font-size:9px; color:rgba(255,255,255,0.6); font-family:'DM Mono',monospace; width:32px; text-align:right; }
+.resolution-card {
+  margin:0 16px;
+  background:rgba(16,185,129,0.07); border:1px solid rgba(16,185,129,0.25);
+  border-radius:13px; padding:12px;
+}
+.rc-title { font-size:10px; font-weight:700; color:#10B981; text-transform:uppercase; letter-spacing:.06em; margin-bottom:8px; }
+.rc-step { display:flex; align-items:flex-start; gap:8px; margin-bottom:7px; font-size:10px; color:rgba(255,255,255,0.75); line-height:1.4; }
+.rc-num { width:18px; height:18px; border-radius:50%; background:rgba(16,185,129,0.2); border:1px solid rgba(16,185,129,0.3); display:flex; align-items:center; justify-content:center; font-size:9px; font-weight:800; color:#10B981; flex-shrink:0; }
+.restock-btn { margin:10px 16px 0; background:#10B981; border-radius:13px; padding:12px; text-align:center; font-size:12px; font-weight:800; color:#fff; box-shadow:0 4px 16px rgba(16,185,129,0.35); }
+
+/* ── SCREEN 4: BENCHMARK VIEW ── */
+.bench-header { padding:14px 20px 10px; border-bottom:1px solid #F0E8F0; }
+.bench-title { font-size:15px; font-weight:800; color:#1A0A14; }
+.bench-sub { font-size:10px; color:#888; margin-top:2px; }
+.bench-intro {
+  margin:10px 16px;
+  background:#FFFBF0; border:1px solid rgba(245,158,11,0.2);
+  border-radius:12px; padding:10px 12px;
+  font-size:10px; color:#7A5B00; line-height:1.45;
+}
+.bench-intro strong { color:#B8860B; }
+.bench-row-label { font-size:10px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.06em; padding:0 20px 7px; }
+.bench-metric {
+  margin:0 16px 8px;
+  border-radius:13px; padding:12px 13px;
+  border:1.5px solid;
+}
+.bm-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+.bm-name { font-size:11px; font-weight:700; color:#1A0A14; }
+.bm-status { font-size:9px; font-weight:700; padding:3px 8px; border-radius:10px; }
+.bm-bars { }
+.bm-bar-row { display:flex; align-items:center; gap:8px; margin-bottom:5px; }
+.bm-bar-lbl { font-size:9px; width:50px; color:#666; }
+.bm-bar-track { flex:1; height:7px; background:#f0e8f0; border-radius:99px; overflow:hidden; }
+.bm-bar-fill { height:100%; border-radius:99px; }
+.bm-bar-val { font-size:10px; font-weight:800; font-family:'DM Mono',monospace; width:36px; text-align:right; }
+.bm-gap { font-size:9px; color:#888; margin-top:5px; line-height:1.4; }
+.bm-gap strong { }
+.gap-actions { margin:0 16px; }
+.ga-title { font-size:10px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.06em; margin-bottom:8px; }
+.ga-card {
+  border-radius:12px; padding:10px 12px; margin-bottom:7px;
+  display:flex; align-items:flex-start; gap:8px;
+  border:1px solid;
+}
+.ga-icon { font-size:16px; flex-shrink:0; }
+.ga-content { flex:1; }
+.ga-action { font-size:11px; font-weight:700; }
+.ga-detail { font-size:9px; margin-top:2px; line-height:1.4; color:#666; }
+.ga-impact { font-size:9px; font-weight:700; margin-top:4px; }
+</style>
+</head>
+<body>
+<div class="header-strip">Nykaa — SellerIQ · Interactive Prototype</div>
+<div class="prototype-wrap">
+
+  <!-- SCREEN 1: INSIGHTS HOME -->
+  <div class="phone-col">
+    <div class="phone-label">01 — Insights Home</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="status"><span>09:15</span><span>●●● 🔋</span></div>
+      <div class="screen">
+        <div class="dash-header">
+          <div class="dash-title">SellerIQ — Weekly Brief</div>
+          <div class="dash-sub">Mamaearth · 18–24 May · AI-generated</div>
+        </div>
+        <!-- AI Summary -->
+        <div class="ai-summary">
+          <div class="ais-header">
+            <div class="ais-icon">✦</div>
+            <div class="ais-label">AI Summary</div>
+          </div>
+          <div class="ais-text">Your GMV is down <strong>₹18,400 (−12%) this week</strong>. Root cause: Vitamin C Serum lost page-1 search ranking for "glow serum" on Day 3 — a competitor increased bid by 28%. Your conversion rate (2.3%) is also <strong>below category average (4.1%)</strong> — images likely the gap. 3 actions can recover ₹22,000+ this week.</div>
+        </div>
+        <!-- KPIs -->
+        <div class="kpi-strip">
+          <div class="kpi-mini">
+            <div class="kpi-mini-val" style="color:#EF4444;">₹1.36L</div>
+            <div class="kpi-mini-lbl">GMV this week</div>
+            <div class="kpi-mini-trend" style="color:#EF4444;">↓ 12%</div>
+          </div>
+          <div class="kpi-mini">
+            <div class="kpi-mini-val" style="color:var(--gold);">2.3%</div>
+            <div class="kpi-mini-lbl">Conv. rate</div>
+            <div class="kpi-mini-trend" style="color:rgba(255,255,255,0.35);">vs 4.1% avg</div>
+          </div>
+          <div class="kpi-mini">
+            <div class="kpi-mini-val" style="color:var(--green);">4.2★</div>
+            <div class="kpi-mini-lbl">Avg rating</div>
+            <div class="kpi-mini-trend" style="color:var(--green);">↑ 0.1</div>
+          </div>
+        </div>
+        <!-- Action Cards -->
+        <div class="action-cards">
+          <div class="ac-label">3 Actions · Ranked by impact</div>
+          <div class="action-card" style="border-color:rgba(239,68,68,0.3);background:rgba(239,68,68,0.06);">
+            <div class="ac-icon">🔴</div>
+            <div class="ac-content">
+              <div class="ac-title" style="color:#EF4444;">Restock Vitamin C Serum — 3 days left</div>
+              <div class="ac-desc" style="color:rgba(255,255,255,0.6);">Selling 48 units/day at current velocity. Stock runs out Friday. Top-ranked SKU — stockout = lost ranking.</div>
+              <div class="ac-impact" style="color:#EF4444;">Risk: −₹34,000 GMV if stocked out</div>
+              <div class="ac-cta" style="color:#EF4444;">Place restock order →</div>
+            </div>
+          </div>
+          <div class="action-card" style="border-color:rgba(245,158,11,0.3);background:rgba(245,158,11,0.06);">
+            <div class="ac-icon">📸</div>
+            <div class="ac-content">
+              <div class="ac-title" style="color:var(--gold);">Upgrade product images</div>
+              <div class="ac-desc" style="color:rgba(255,255,255,0.6);">Your conv. rate (2.3%) is 1.8pts below category. Top-sellers use lifestyle + before/after images. You have pack shots only.</div>
+              <div class="ac-impact" style="color:var(--gold);">Est. impact: +₹18,000/month GMV</div>
+              <div class="ac-cta" style="color:var(--gold);">View image guidelines →</div>
+            </div>
+          </div>
+        </div>
+        <!-- Alert strip -->
+        <div class="alert-strip" style="margin-top:10px;">
+          <div class="alert-icon">⚠️</div>
+          <div class="alert-text"><strong>2 SKUs</strong> have return rate spike — Face Wash +8% returns in 72 hrs. Tap to investigate.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 2: AI Q&A -->
+  <div class="phone-col">
+    <div class="phone-label">02 — AI Q&amp;A</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="status"><span>09:28</span><span>●●● 🔋</span></div>
+      <div class="screen">
+        <div class="qa-header">
+          <div class="qa-title">Ask SellerIQ</div>
+          <div class="qa-sub">Ask anything about your store performance</div>
+        </div>
+        <div class="chat-area">
+          <!-- User question -->
+          <div class="user-bubble">Why did my Vitamin C Serum sales drop last week?</div>
+          <!-- AI response -->
+          <div class="ai-bubble-wrap">
+            <div class="ai-avatar">✦</div>
+            <div class="ai-bubble">
+              <div class="ai-bubble-text">
+                Found <strong>3 root causes</strong> for the −34% drop in Vitamin C Serum GMV (₹42,800 → ₹28,200):
+              </div>
+              <div class="data-card" style="margin-top:8px;">
+                <div class="dc-row"><span>① Search ranking</span><strong style="color:#EF4444;">Page 1 → Page 3</strong></div>
+                <div class="dc-row"><span>Keyword: "glow serum"</span><strong style="color:#EF4444;">Lost Day 3</strong></div>
+                <div class="dc-row"><span>Competitor outbid by</span><strong style="color:#F59E0B;">+28% bid increase</strong></div>
+              </div>
+              <div class="ai-bubble-text" style="margin-top:8px;">
+                ② <strong>Return rate spiked +6%</strong> on the 30ml variant — 14 returns mention "sticky texture". May indicate batch quality issue.
+              </div>
+              <div class="ai-bubble-text" style="margin-top:6px;">
+                ③ <strong>Conversion rate fell 1.2pts</strong> — new competitor listing at ₹449 vs your ₹499 is appearing above you on category pages.
+              </div>
+              <div class="insight-chips">
+                <div class="chip" style="border-color:rgba(239,68,68,0.3);color:#EF4444;background:rgba(239,68,68,0.08);">Ranking issue</div>
+                <div class="chip" style="border-color:rgba(245,158,11,0.3);color:var(--gold);background:rgba(245,158,11,0.08);">Return spike</div>
+                <div class="chip" style="border-color:rgba(139,92,246,0.3);color:#8B5CF6;background:rgba(139,92,246,0.08);">Price gap</div>
+              </div>
+            </div>
+          </div>
+          <!-- Follow-up -->
+          <div class="user-bubble">What should I do first?</div>
+          <div class="ai-bubble-wrap">
+            <div class="ai-avatar">✦</div>
+            <div class="ai-bubble">
+              <div class="ai-bubble-text"><strong>Priority 1 (today):</strong> Increase your ad bid on "glow serum" by ~30% to reclaim Page 1 ranking. Budget impact: ~₹800/week extra.</div>
+              <div class="ai-bubble-text" style="margin-top:6px;"><strong>Priority 2 (this week):</strong> Review the 14 returns for the sticky-texture complaint — flag to your brand team. If batch-related, initiate a return resolution before it hits your ratings.</div>
+            </div>
+          </div>
+        </div>
+        <div class="qa-input">
+          <div class="qa-placeholder">Ask about any product, metric, or trend…</div>
+          <div class="qa-send">↑</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 3: PREDICTIVE ALERT DETAIL -->
+  <div class="phone-col">
+    <div class="phone-label">03 — Alert Detail</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="status"><span>09:32</span><span>●●● 🔋</span></div>
+      <div class="screen">
+        <div class="alert-header">
+          <div class="alert-back">← Back to Insights</div>
+          <div class="alert-title-row">
+            <div class="alert-sev"></div>
+            <div class="alert-main-title">Stockout Risk — Critical</div>
+          </div>
+          <div class="alert-time">Detected today at 09:15 · AI-generated prediction</div>
+        </div>
+        <div class="alert-hero-card">
+          <div class="ahc-product">
+            <div class="ahc-img">🧴</div>
+            <div>
+              <div class="ahc-name">Vitamin C Face Serum 30ml</div>
+              <div class="ahc-brand">Mamaearth · SKU: MME-VCS-30</div>
+            </div>
+          </div>
+          <div class="stock-row">
+            <div class="stock-left">
+              <div class="stock-val">144</div>
+              <div class="stock-lbl">units remaining</div>
+            </div>
+            <div class="stock-timer">
+              <div class="stock-days">3</div>
+              <div class="stock-days-lbl">days to stockout</div>
+            </div>
+          </div>
+        </div>
+        <!-- Velocity chart -->
+        <div class="velocity-card">
+          <div class="vc-title">Daily Sales Velocity (last 7 days)</div>
+          <div class="vc-bar-row">
+            <div class="vc-day">Mon</div>
+            <div class="vc-track"><div class="vc-fill" style="width:72%;"></div></div>
+            <div class="vc-val">41 u</div>
+          </div>
+          <div class="vc-bar-row">
+            <div class="vc-day">Tue</div>
+            <div class="vc-track"><div class="vc-fill" style="width:78%;"></div></div>
+            <div class="vc-val">44 u</div>
+          </div>
+          <div class="vc-bar-row">
+            <div class="vc-day">Wed</div>
+            <div class="vc-track"><div class="vc-fill" style="width:82%;"></div></div>
+            <div class="vc-val">47 u</div>
+          </div>
+          <div class="vc-bar-row">
+            <div class="vc-day">Thu</div>
+            <div class="vc-track"><div class="vc-fill" style="width:88%;"></div></div>
+            <div class="vc-val">50 u</div>
+          </div>
+          <div class="vc-bar-row">
+            <div class="vc-day">Fri</div>
+            <div class="vc-track"><div class="vc-fill" style="width:84%;background:#F59E0B;"></div></div>
+            <div class="vc-val">48 u</div>
+          </div>
+          <div class="vc-bar-row">
+            <div class="vc-day">Sat</div>
+            <div class="vc-track"><div class="vc-fill" style="width:92%;background:#EF4444;"></div></div>
+            <div class="vc-val">52 u</div>
+          </div>
+          <div class="vc-bar-row">
+            <div class="vc-day">Sun</div>
+            <div class="vc-track"><div class="vc-fill" style="width:85%;background:#EF4444;"></div></div>
+            <div class="vc-val">48 u</div>
+          </div>
+        </div>
+        <!-- Resolution steps -->
+        <div class="resolution-card">
+          <div class="rc-title">Recommended Resolution</div>
+          <div class="rc-step">
+            <div class="rc-num">1</div>
+            <span>Raise a restock PO for 500 units today — standard lead time 4 days, arrives before stockout</span>
+          </div>
+          <div class="rc-step">
+            <div class="rc-num">2</div>
+            <span>If lead time exceeds 3 days, reduce ad spend by 40% to slow velocity and extend runway</span>
+          </div>
+          <div class="rc-step">
+            <div class="rc-num">3</div>
+            <span>Enable "Notify me" for 200 customers who viewed this SKU — auto-notify on restock for zero lost demand</span>
+          </div>
+        </div>
+        <div class="restock-btn">Raise Restock Order →</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 4: BENCHMARK VIEW -->
+  <div class="phone-col">
+    <div class="phone-label">04 — Benchmark View</div>
+    <div class="phone light">
+      <div class="notch" style="background:#fff;"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="status"><span>09:40</span><span>●●● 🔋</span></div>
+      <div class="screen">
+        <div class="bench-header">
+          <div class="bench-title">How you compare</div>
+          <div class="bench-sub">Vitamin C Serum category · Top-quartile benchmark</div>
+        </div>
+        <div class="bench-intro">
+          SellerIQ compares your KPIs against <strong>top-quartile sellers in your category</strong> — so you know exactly where to close the gap for maximum GMV impact.
+        </div>
+        <div class="bench-row-label">Your metrics vs category leaders</div>
+
+        <!-- Metric 1: Conv Rate -->
+        <div class="bench-metric" style="border-color:rgba(239,68,68,0.3);background:#FFF5F5;">
+          <div class="bm-header">
+            <div class="bm-name">Conversion Rate</div>
+            <div class="bm-status" style="background:rgba(239,68,68,0.1);color:#EF4444;">Below average</div>
+          </div>
+          <div class="bm-bars">
+            <div class="bm-bar-row">
+              <div class="bm-bar-lbl">You</div>
+              <div class="bm-bar-track"><div class="bm-bar-fill" style="width:37%;background:#EF4444;"></div></div>
+              <div class="bm-bar-val" style="color:#EF4444;">2.3%</div>
+            </div>
+            <div class="bm-bar-row">
+              <div class="bm-bar-lbl">Category</div>
+              <div class="bm-bar-track"><div class="bm-bar-fill" style="width:64%;background:#F59E0B;"></div></div>
+              <div class="bm-bar-val" style="color:#7A5B00;">4.1%</div>
+            </div>
+            <div class="bm-bar-row">
+              <div class="bm-bar-lbl">Top 10%</div>
+              <div class="bm-bar-track"><div class="bm-bar-fill" style="width:100%;background:#10B981;"></div></div>
+              <div class="bm-bar-val" style="color:#10B981;">6.4%</div>
+            </div>
+          </div>
+          <div class="bm-gap"><strong style="color:#EF4444;">Gap: −1.8pts</strong> vs category avg. Primary cause: pack-shot-only images. Top sellers use lifestyle + before/after.</div>
+        </div>
+
+        <!-- Metric 2: Rating -->
+        <div class="bench-metric" style="border-color:rgba(16,185,129,0.3);background:#F0FFF8;">
+          <div class="bm-header">
+            <div class="bm-name">Average Rating</div>
+            <div class="bm-status" style="background:rgba(16,185,129,0.1);color:#10B981;">Above average ✓</div>
+          </div>
+          <div class="bm-bars">
+            <div class="bm-bar-row">
+              <div class="bm-bar-lbl">You</div>
+              <div class="bm-bar-track"><div class="bm-bar-fill" style="width:84%;background:#10B981;"></div></div>
+              <div class="bm-bar-val" style="color:#10B981;">4.2★</div>
+            </div>
+            <div class="bm-bar-row">
+              <div class="bm-bar-lbl">Category</div>
+              <div class="bm-bar-track"><div class="bm-bar-fill" style="width:76%;background:#94A3B8;"></div></div>
+              <div class="bm-bar-val" style="color:#666;">3.8★</div>
+            </div>
+          </div>
+          <div class="bm-gap"><strong style="color:#10B981;">Advantage: +0.4★</strong> — protect this by resolving the Face Wash return spike before it hits ratings.</div>
+        </div>
+
+        <!-- Gap actions -->
+        <div class="gap-actions">
+          <div class="ga-title">Close the gap — top 2 actions</div>
+          <div class="ga-card" style="border-color:rgba(245,158,11,0.25);background:#FFFBF0;">
+            <div class="ga-icon">📸</div>
+            <div class="ga-content">
+              <div class="ga-action" style="color:#B8860B;">Add lifestyle images to Vitamin C Serum</div>
+              <div class="ga-detail">Top sellers show skin-on images + before/after. 3 images minimum. Nykaa image studio available — free for registered sellers.</div>
+              <div class="ga-impact" style="color:#F59E0B;">Est. CVR lift: +1.2–1.8pts → +₹18K/month</div>
+            </div>
+          </div>
+          <div class="ga-card" style="border-color:rgba(139,92,246,0.2);background:#F5F3FF;">
+            <div class="ga-icon">💬</div>
+            <div class="ga-content">
+              <div class="ga-action" style="color:#8B5CF6;">Request 50 verified reviews from buyers</div>
+              <div class="ga-detail">Your 1,240 reviews are strong but 60% are from 2022. Fresh reviews signal active product. Use Nykaa Review Request tool.</div>
+              <div class="ga-impact" style="color:#8B5CF6;">Est. ranking signal: +8–12 positions</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

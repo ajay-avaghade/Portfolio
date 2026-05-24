@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Nykaa — QuickStore · Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --pink: #FC2779;
+  --pink-light: #FF6B9D;
+  --dark: #1A0A14;
+  --hero: #2D0F1E;
+  --purple: #8B5CF6;
+  --green: #10B981;
+  --gold: #F59E0B;
+  --white: #FFFFFF;
+  --offwhite: #FFF5F8;
+  --muted: #94A3B8;
+  --ink: #1E0A16;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family:'Sora',sans-serif;
+  background:#120008;
+  min-height:100vh;
+  display:flex; flex-direction:column; align-items:center;
+  padding:40px 24px 60px;
+}
+.header-strip { color:#FC2779; font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; margin-bottom:36px; opacity:.9; }
+.prototype-wrap { display:flex; gap:32px; align-items:flex-start; flex-wrap:wrap; justify-content:center; }
+.phone-col { display:flex; flex-direction:column; align-items:center; gap:14px; }
+.phone-label { font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:#FC2779; opacity:.7; }
+.phone {
+  width:375px; background:#fff;
+  border-radius:46px;
+  box-shadow:0 40px 100px rgba(0,0,0,0.5), 0 0 0 1px rgba(252,39,121,0.15);
+  overflow:hidden; position:relative; display:flex; flex-direction:column;
+}
+.phone.dark { background:var(--dark); }
+.notch { width:118px; height:28px; background:inherit; border-radius:0 0 16px 16px; position:absolute; top:0; left:50%; transform:translateX(-50%); z-index:10; display:flex; align-items:center; justify-content:center; gap:6px; }
+.phone.dark .notch { background:var(--dark); }
+.nc { width:10px; height:10px; background:rgba(0,0,0,0.15); border-radius:50%; }
+.phone.dark .nc { background:#111418; }
+.ndot { width:5px; height:5px; background:rgba(0,0,0,0.1); border-radius:50%; }
+.phone.dark .ndot { background:#1e2328; }
+.status { display:flex; justify-content:space-between; align-items:center; padding:38px 22px 6px; font-size:10px; font-weight:700; color:rgba(0,0,0,0.5); font-family:'DM Mono',monospace; }
+.phone.dark .status { color:rgba(255,255,255,0.6); }
+.screen { flex:1; overflow-y:auto; max-height:724px; scrollbar-width:none; padding-bottom:20px; }
+.screen::-webkit-scrollbar { display:none; }
+
+/* ── SCREEN 1: SETUP WIZARD ── */
+.wizard-header { padding:14px 20px 10px; }
+.wizard-steps { display:flex; align-items:center; gap:6px; margin-bottom:12px; }
+.w-step { width:24px; height:4px; border-radius:99px; }
+.wizard-title { font-size:18px; font-weight:800; color:var(--ink); line-height:1.2; }
+.wizard-sub { font-size:11px; color:#888; margin-top:3px; }
+.store-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:0 16px; }
+.store-card {
+  border-radius:16px; padding:16px 12px;
+  border:2px solid #f0e0e8; background:#fff;
+  display:flex; flex-direction:column; align-items:center; gap:8px;
+  cursor:pointer;
+}
+.store-card.sel { border-color:var(--pink); background:#FFF0F6; }
+.store-icon { font-size:32px; }
+.store-name { font-size:12px; font-weight:700; color:var(--ink); text-align:center; }
+.store-sub { font-size:9px; color:#999; text-align:center; }
+.sel-badge {
+  display:inline-flex; align-items:center; gap:4px;
+  background:var(--pink); color:#fff;
+  font-size:9px; font-weight:700; padding:3px 8px; border-radius:20px;
+}
+.city-section { padding:14px 20px 8px; }
+.city-label { font-size:11px; font-weight:700; color:#555; margin-bottom:8px; }
+.city-row { display:flex; gap:8px; flex-wrap:wrap; }
+.city-pill {
+  padding:6px 12px; border-radius:20px;
+  font-size:10px; font-weight:600;
+  border:1.5px solid #eee; background:#fff; color:#555;
+}
+.city-pill.sel { border-color:var(--pink); background:#FFF0F6; color:var(--pink); }
+.wizard-cta { margin:14px 16px 0; background:var(--pink); border-radius:14px; padding:14px; text-align:center; font-size:13px; font-weight:800; color:#fff; box-shadow:0 4px 20px rgba(252,39,121,0.35); }
+
+/* ── SCREEN 2: SMART SHELF ── */
+.shelf-header { padding:12px 20px 0; }
+.shelf-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+.shelf-title { font-size:15px; font-weight:800; color:var(--ink); }
+.shelf-subtitle { font-size:10px; color:#888; margin-bottom:10px; }
+.peer-banner {
+  margin:0 16px 10px;
+  background:linear-gradient(135deg,#FFF0F6,#FCE7F3);
+  border:1px solid rgba(252,39,121,0.2);
+  border-radius:12px; padding:10px 12px;
+  display:flex; align-items:center; gap:8px;
+}
+.peer-icon { font-size:18px; }
+.peer-text { font-size:10px; color:#7A1040; line-height:1.4; }
+.peer-text strong { color:var(--pink); }
+.sku-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:0 16px; }
+.sku-card {
+  border-radius:14px; padding:12px;
+  border:1.5px solid #f0e0e8; background:#fff;
+}
+.sku-img { width:100%; height:64px; background:linear-gradient(135deg,#FCE7F3,#FFF0F6); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:28px; margin-bottom:8px; }
+.sku-brand { font-size:9px; color:#999; font-weight:600; text-transform:uppercase; }
+.sku-name { font-size:11px; font-weight:700; color:var(--ink); margin:2px 0; line-height:1.3; }
+.sku-bottom { display:flex; justify-content:space-between; align-items:center; margin-top:6px; }
+.sku-price { font-size:12px; font-weight:800; color:var(--ink); font-family:'DM Mono',monospace; }
+.sku-add { width:28px; height:28px; background:var(--pink); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:16px; color:#fff; font-weight:700; }
+.sku-badge { font-size:8px; background:rgba(252,39,121,0.1); color:var(--pink); padding:2px 6px; border-radius:6px; font-weight:700; }
+.view-all { margin:12px 16px 0; border:1.5px solid var(--pink); border-radius:12px; padding:11px; text-align:center; font-size:12px; font-weight:700; color:var(--pink); }
+
+/* ── SCREEN 3: REORDER CART ── */
+.cart-header { padding:12px 20px 8px; border-bottom:1px solid #f0e0e8; }
+.cart-title { font-size:15px; font-weight:800; color:var(--ink); }
+.cart-sub { font-size:10px; color:#888; margin-top:2px; }
+.last-order-banner {
+  margin:10px 16px;
+  background:#FFF0F6; border:1px solid rgba(252,39,121,0.2);
+  border-radius:12px; padding:10px 12px;
+  display:flex; align-items:center; gap:8px;
+}
+.lo-icon { font-size:16px; }
+.lo-text { font-size:10px; color:#7A1040; }
+.lo-text strong { color:var(--pink); }
+.cart-item {
+  display:flex; align-items:center; gap:10px;
+  padding:10px 16px; border-bottom:1px solid #fdf0f5;
+}
+.ci-img { width:44px; height:44px; background:linear-gradient(135deg,#FCE7F3,#FFF0F6); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; }
+.ci-info { flex:1; }
+.ci-brand { font-size:8px; color:#999; text-transform:uppercase; font-weight:600; }
+.ci-name { font-size:11px; font-weight:700; color:var(--ink); }
+.ci-price { font-size:10px; color:var(--pink); font-weight:700; font-family:'DM Mono',monospace; }
+.ci-qty { display:flex; align-items:center; gap:8px; }
+.qty-btn { width:24px; height:24px; border-radius:7px; background:#FFF0F6; border:1px solid rgba(252,39,121,0.2); display:flex; align-items:center; justify-content:center; font-size:14px; color:var(--pink); font-weight:700; }
+.qty-val { font-size:12px; font-weight:800; color:var(--ink); font-family:'DM Mono',monospace; }
+.cart-summary {
+  margin:10px 16px;
+  background:#FFF0F6; border-radius:13px; padding:12px 14px;
+}
+.cs-row { display:flex; justify-content:space-between; font-size:11px; margin-bottom:4px; color:#555; }
+.cs-row.total { font-size:13px; font-weight:800; color:var(--ink); border-top:1px solid rgba(252,39,121,0.15); padding-top:6px; margin-top:4px; }
+.checkout-btn { margin:0 16px; background:var(--pink); border-radius:14px; padding:14px; text-align:center; font-size:13px; font-weight:800; color:#fff; box-shadow:0 4px 20px rgba(252,39,121,0.35); }
+
+/* ── SCREEN 4: BDE DASHBOARD ── */
+.bde-header { padding:14px 20px 10px; }
+.bde-title { font-size:15px; font-weight:800; color:#fff; }
+.bde-sub { font-size:10px; color:rgba(255,255,255,0.4); margin-top:2px; }
+.bde-kpi-row { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:0 16px 12px; }
+.bde-kpi { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:10px 12px; }
+.bde-kpi-val { font-size:22px; font-weight:800; font-family:'DM Mono',monospace; }
+.bde-kpi-lbl { font-size:9px; color:rgba(255,255,255,0.4); margin-top:2px; }
+.section-lbl { font-size:10px; font-weight:700; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:.07em; padding:0 20px 7px; }
+.retailer-row {
+  display:flex; align-items:center; gap:10px;
+  padding:10px 16px; border-bottom:1px solid rgba(255,255,255,0.05);
+}
+.ret-avatar { width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; }
+.ret-info { flex:1; }
+.ret-name { font-size:12px; font-weight:700; color:#fff; }
+.ret-meta { font-size:9px; color:rgba(255,255,255,0.4); margin-top:1px; }
+.ret-status { text-align:right; }
+.ret-status-val { font-size:11px; font-weight:800; }
+.ret-status-lbl { font-size:8px; color:rgba(255,255,255,0.35); }
+.grad-progress {
+  margin:12px 16px 0;
+  background:rgba(255,255,255,0.04); border:1px solid rgba(16,185,129,0.25);
+  border-radius:13px; padding:12px 14px;
+}
+.gp-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+.gp-title { font-size:11px; font-weight:700; color:#10B981; }
+.gp-val { font-size:12px; font-weight:800; color:#10B981; font-family:'DM Mono',monospace; }
+.gp-track { height:6px; background:rgba(255,255,255,0.1); border-radius:99px; }
+.gp-fill { height:100%; border-radius:99px; background:#10B981; width:62%; }
+.gp-hint { font-size:9px; color:rgba(255,255,255,0.35); margin-top:5px; }
+</style>
+</head>
+<body>
+<div class="header-strip">Nykaa — QuickStore · Interactive Prototype</div>
+<div class="prototype-wrap">
+
+  <!-- SCREEN 1: SETUP WIZARD -->
+  <div class="phone-col">
+    <div class="phone-label">01 — Store Setup</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="status"><span>10:22</span><span>●●● 🔋</span></div>
+      <div class="screen">
+        <div class="wizard-header">
+          <div class="wizard-steps">
+            <div class="w-step" style="background:var(--pink);width:48px;"></div>
+            <div class="w-step" style="background:#f0e0e8;flex:1;"></div>
+            <div class="w-step" style="background:#f0e0e8;flex:1;"></div>
+          </div>
+          <div class="wizard-title">What kind of store do you run?</div>
+          <div class="wizard-sub">We'll personalise your product shelf based on your store type</div>
+        </div>
+        <div class="store-grid">
+          <div class="store-card sel">
+            <div class="store-icon">💇‍♀️</div>
+            <div class="store-name">Salon &amp; Parlour</div>
+            <div class="store-sub">Hair, skin &amp; beauty services</div>
+            <div class="sel-badge">✓ Selected</div>
+          </div>
+          <div class="store-card">
+            <div class="store-icon">🛍️</div>
+            <div class="store-name">Beauty Retail</div>
+            <div class="store-sub">Cosmetics &amp; skincare shop</div>
+          </div>
+          <div class="store-card">
+            <div class="store-icon">💊</div>
+            <div class="store-name">Pharmacy</div>
+            <div class="store-sub">Medicines &amp; wellness</div>
+          </div>
+          <div class="store-card">
+            <div class="store-icon">🏪</div>
+            <div class="store-name">Kirana Store</div>
+            <div class="store-sub">General + FMCG retail</div>
+          </div>
+        </div>
+        <div class="city-section">
+          <div class="city-label">Your city</div>
+          <div class="city-row">
+            <div class="city-pill sel">Jaipur</div>
+            <div class="city-pill">Jodhpur</div>
+            <div class="city-pill">Ajmer</div>
+            <div class="city-pill">Kota</div>
+            <div class="city-pill">Other</div>
+          </div>
+        </div>
+        <div style="padding:10px 20px;background:#FFF5F8;margin:10px 16px;border-radius:12px;border:1px solid rgba(252,39,121,0.15);">
+          <div style="font-size:10px;font-weight:700;color:#7A1040;margin-bottom:3px;">📍 Based on 840 salons in Jaipur</div>
+          <div style="font-size:9px;color:#9A5070;line-height:1.4;">We'll show you what salons near you are ordering most — so you never miss a bestseller.</div>
+        </div>
+        <div class="wizard-cta">Set Up My Store →</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 2: SMART SHELF -->
+  <div class="phone-col">
+    <div class="phone-label">02 — Smart Shelf</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="status"><span>10:24</span><span>●●● 🔋</span></div>
+      <div class="screen">
+        <div class="shelf-header">
+          <div class="shelf-top">
+            <div class="shelf-title">Your Salon Shelf</div>
+            <div style="font-size:10px;color:var(--pink);font-weight:700;">View all →</div>
+          </div>
+          <div class="shelf-subtitle">Top picks for salons in Jaipur · Updated weekly</div>
+        </div>
+        <div class="peer-banner">
+          <div class="peer-icon">👥</div>
+          <div class="peer-text">
+            <strong>840 salons in Jaipur</strong> ordered these products this week — curated just for your store type
+          </div>
+        </div>
+        <div class="sku-grid">
+          <div class="sku-card">
+            <div class="sku-img">💆‍♀️</div>
+            <div class="sku-brand">Streax Pro</div>
+            <div class="sku-name">Hair Serum 250ml</div>
+            <div style="margin-bottom:4px;"><span class="sku-badge">🔥 Top seller</span></div>
+            <div class="sku-bottom">
+              <div class="sku-price">₹184</div>
+              <div class="sku-add">+</div>
+            </div>
+          </div>
+          <div class="sku-card" style="border-color:var(--pink);background:#FFF5F8;">
+            <div class="sku-img">🧴</div>
+            <div class="sku-brand">Wella</div>
+            <div class="sku-name">Color Protect Shampoo 1L</div>
+            <div style="margin-bottom:4px;"><span class="sku-badge" style="background:rgba(16,185,129,0.1);color:#10B981;">✓ In cart</span></div>
+            <div class="sku-bottom">
+              <div class="sku-price">₹512</div>
+              <div class="sku-add" style="background:var(--green);">✓</div>
+            </div>
+          </div>
+          <div class="sku-card">
+            <div class="sku-img">💅</div>
+            <div class="sku-brand">OPI</div>
+            <div class="sku-name">Nail Lacquer Set (12pc)</div>
+            <div style="margin-bottom:4px;"><span class="sku-badge" style="background:rgba(245,158,11,0.1);color:#F59E0B;">New arrival</span></div>
+            <div class="sku-bottom">
+              <div class="sku-price">₹1,840</div>
+              <div class="sku-add">+</div>
+            </div>
+          </div>
+          <div class="sku-card">
+            <div class="sku-img">🌿</div>
+            <div class="sku-brand">Biotique</div>
+            <div class="sku-name">Facial Bleach Cream 50g</div>
+            <div style="margin-bottom:4px;"><span class="sku-badge">🔥 Top seller</span></div>
+            <div class="sku-bottom">
+              <div class="sku-price">₹96</div>
+              <div class="sku-add">+</div>
+            </div>
+          </div>
+        </div>
+        <div class="view-all">Browse all 2,400 salon products →</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 3: REORDER CART -->
+  <div class="phone-col">
+    <div class="phone-label">03 — Reorder Cart</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="status"><span>10:31</span><span>●●● 🔋</span></div>
+      <div class="screen">
+        <div class="cart-header">
+          <div class="cart-title">Your Reorder Cart</div>
+          <div class="cart-sub">Pre-filled from your last order · 14 May · Just adjust quantities</div>
+        </div>
+        <div class="last-order-banner">
+          <div class="lo-icon">🔄</div>
+          <div class="lo-text">Last ordered <strong>22 days ago</strong> — most items are likely running low</div>
+        </div>
+        <!-- Items -->
+        <div class="cart-item">
+          <div class="ci-img">🧴</div>
+          <div class="ci-info">
+            <div class="ci-brand">Wella</div>
+            <div class="ci-name">Color Protect Shampoo 1L</div>
+            <div class="ci-price">₹512 × 3 = ₹1,536</div>
+          </div>
+          <div class="ci-qty">
+            <div class="qty-btn">−</div>
+            <div class="qty-val">3</div>
+            <div class="qty-btn">+</div>
+          </div>
+        </div>
+        <div class="cart-item">
+          <div class="ci-img">💆‍♀️</div>
+          <div class="ci-info">
+            <div class="ci-brand">Streax Pro</div>
+            <div class="ci-name">Hair Serum 250ml</div>
+            <div class="ci-price">₹184 × 6 = ₹1,104</div>
+          </div>
+          <div class="ci-qty">
+            <div class="qty-btn">−</div>
+            <div class="qty-val">6</div>
+            <div class="qty-btn">+</div>
+          </div>
+        </div>
+        <div class="cart-item">
+          <div class="ci-img">🌿</div>
+          <div class="ci-info">
+            <div class="ci-brand">Biotique</div>
+            <div class="ci-name">Facial Bleach Cream 50g</div>
+            <div class="ci-price">₹96 × 12 = ₹1,152</div>
+          </div>
+          <div class="ci-qty">
+            <div class="qty-btn">−</div>
+            <div class="qty-val">12</div>
+            <div class="qty-btn">+</div>
+          </div>
+        </div>
+        <div class="cart-item">
+          <div class="ci-img">💅</div>
+          <div class="ci-info">
+            <div class="ci-brand">Lakme</div>
+            <div class="ci-name">True Wear Foundation 30ml</div>
+            <div class="ci-price">₹380 × 4 = ₹1,520</div>
+          </div>
+          <div class="ci-qty">
+            <div class="qty-btn">−</div>
+            <div class="qty-val">4</div>
+            <div class="qty-btn">+</div>
+          </div>
+        </div>
+        <div class="cart-summary">
+          <div class="cs-row"><span>Subtotal (4 items)</span><span>₹5,312</span></div>
+          <div class="cs-row"><span>Delivery</span><span style="color:var(--green);">Free</span></div>
+          <div class="cs-row"><span>Nykaa B2B discount</span><span style="color:var(--pink);">−₹280</span></div>
+          <div class="cs-row total"><span>Total</span><span>₹5,032</span></div>
+        </div>
+        <div class="checkout-btn">Place Order · ₹5,032</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 4: BDE DASHBOARD -->
+  <div class="phone-col">
+    <div class="phone-label">04 — BDE Dashboard</div>
+    <div class="phone dark">
+      <div class="notch" style="background:var(--dark);"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="status"><span>10:45</span><span>●●● 🔋</span></div>
+      <div class="screen">
+        <div class="bde-header">
+          <div class="bde-title">My Retailer Portfolio</div>
+          <div class="bde-sub">Priya Sharma · BDE · Jaipur North Zone</div>
+        </div>
+        <div class="bde-kpi-row">
+          <div class="bde-kpi">
+            <div class="bde-kpi-val" style="color:var(--green);">62%</div>
+            <div class="bde-kpi-lbl">Self-serve rate this month</div>
+          </div>
+          <div class="bde-kpi">
+            <div class="bde-kpi-val" style="color:var(--pink);">18</div>
+            <div class="bde-kpi-lbl">Retailers graduated ✓</div>
+          </div>
+          <div class="bde-kpi">
+            <div class="bde-kpi-val" style="color:var(--gold);">₹4.2L</div>
+            <div class="bde-kpi-lbl">Portfolio GMV</div>
+          </div>
+          <div class="bde-kpi">
+            <div class="bde-kpi-val" style="color:#EF4444;">7</div>
+            <div class="bde-kpi-lbl">Retailers need visit</div>
+          </div>
+        </div>
+        <div class="section-lbl">Priority Retailers Today</div>
+        <div class="retailer-row">
+          <div class="ret-avatar" style="background:rgba(239,68,68,0.15);">💇‍♀️</div>
+          <div class="ret-info">
+            <div class="ret-name">Sunita Beauty Parlour</div>
+            <div class="ret-meta">Last ordered 32 days ago · ₹8,400 avg order</div>
+          </div>
+          <div class="ret-status">
+            <div class="ret-status-val" style="color:#EF4444;">At risk</div>
+            <div class="ret-status-lbl">Needs visit</div>
+          </div>
+        </div>
+        <div class="retailer-row">
+          <div class="ret-avatar" style="background:rgba(245,158,11,0.15);">🏪</div>
+          <div class="ret-info">
+            <div class="ret-name">Meena Cosmetics</div>
+            <div class="ret-meta">Last ordered 18 days ago · 1st self-serve attempt</div>
+          </div>
+          <div class="ret-status">
+            <div class="ret-status-val" style="color:var(--gold);">Nurture</div>
+            <div class="ret-status-lbl">Help via call</div>
+          </div>
+        </div>
+        <div class="retailer-row">
+          <div class="ret-avatar" style="background:rgba(16,185,129,0.15);">💅</div>
+          <div class="ret-info">
+            <div class="ret-name">Ritu Nails &amp; Beauty</div>
+            <div class="ret-meta">Self-serve · 4 orders this month · No BDE needed</div>
+          </div>
+          <div class="ret-status">
+            <div class="ret-status-val" style="color:var(--green);">Graduated ✓</div>
+            <div class="ret-status-lbl">Self-serve</div>
+          </div>
+        </div>
+        <div class="retailer-row">
+          <div class="ret-avatar" style="background:rgba(16,185,129,0.15);">💆‍♀️</div>
+          <div class="ret-info">
+            <div class="ret-name">Parvati Hair Studio</div>
+            <div class="ret-meta">Self-serve · 6 orders this month · Top performer</div>
+          </div>
+          <div class="ret-status">
+            <div class="ret-status-val" style="color:var(--green);">Graduated ✓</div>
+            <div class="ret-status-lbl">Self-serve</div>
+          </div>
+        </div>
+        <div class="grad-progress">
+          <div class="gp-header">
+            <div class="gp-title">Self-Serve Graduation Rate</div>
+            <div class="gp-val">18 / 29 retailers</div>
+          </div>
+          <div class="gp-track"><div class="gp-fill"></div></div>
+          <div class="gp-hint">Target: 80% by month end · +4 retailers needed</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
