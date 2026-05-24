@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>inDrive — Pass · Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --c-dark: #0B0E13;
+  --c-hero: #141810;
+  --c-bright: #B5E033;
+  --orange: #FF6B35;
+  --bronze: #CD7F32;
+  --silver: #94A3B8;
+  --gold: #F59E0B;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family:'Sora',sans-serif;
+  background:#080B10;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:40px 24px 60px;
+}
+.header-strip {
+  color:#FF6B35;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  margin-bottom:36px;
+  opacity:.9;
+}
+.prototype-wrap { display:flex; gap:32px; align-items:flex-start; flex-wrap:wrap; justify-content:center; }
+.phone-col { display:flex; flex-direction:column; align-items:center; gap:14px; }
+.phone-label { font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:#FF6B35; opacity:.75; }
+.phone {
+  width:375px;
+  background:var(--c-dark);
+  border-radius:46px;
+  box-shadow:0 40px 100px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.08);
+  overflow:hidden;
+  position:relative;
+  display:flex;
+  flex-direction:column;
+}
+.notch {
+  width:118px; height:28px;
+  background:var(--c-dark);
+  border-radius:0 0 16px 16px;
+  position:absolute; top:0; left:50%; transform:translateX(-50%);
+  z-index:10;
+  display:flex; align-items:center; justify-content:center; gap:6px;
+}
+.nc { width:10px; height:10px; background:#111418; border-radius:50%; }
+.ndot { width:5px; height:5px; background:#1e2328; border-radius:50%; }
+.status {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:38px 22px 6px;
+  font-size:10px; font-weight:700; color:rgba(255,255,255,0.65);
+  font-family:'DM Mono',monospace;
+}
+.screen {
+  flex:1; overflow-y:auto; max-height:724px; scrollbar-width:none;
+  padding-bottom:20px;
+}
+.screen::-webkit-scrollbar { display:none; }
+
+/* ── SHARED ── */
+.tag {
+  display:inline-flex; align-items:center; gap:5px;
+  font-size:9px; font-weight:700; padding:3px 9px;
+  border-radius:20px;
+}
+.pill-label {
+  font-size:10px; font-weight:700; color:rgba(255,255,255,0.4);
+  text-transform:uppercase; letter-spacing:.07em;
+  padding:0 20px 7px;
+}
+.prog-track { height:7px; background:rgba(255,255,255,0.1); border-radius:99px; overflow:visible; position:relative; }
+.prog-fill { height:100%; border-radius:99px; position:relative; }
+.prog-badge {
+  position:absolute; right:-2px; top:-8px;
+  font-size:8px; font-weight:700; padding:2px 5px; border-radius:6px; color:#fff;
+}
+
+/* ── SCREEN 1: PASS HOME ── */
+.s1-header {
+  padding:14px 20px 0;
+  display:flex; justify-content:space-between; align-items:flex-start;
+}
+.s1-greeting { font-size:11px; color:rgba(255,255,255,0.45); }
+.s1-name { font-size:17px; font-weight:800; color:#fff; margin-top:1px; }
+.pass-badge-wrap {
+  display:flex; align-items:center; gap:5px;
+  background:rgba(245,158,11,0.12); border:1px solid rgba(245,158,11,0.3);
+  border-radius:20px; padding:5px 11px;
+}
+.pass-tier-icon { font-size:14px; }
+.pass-tier-text { font-size:11px; font-weight:800; color:#F59E0B; }
+.credits-card {
+  margin:12px 16px 10px;
+  background:linear-gradient(135deg,#1A1200 0%,#261A00 100%);
+  border:1px solid rgba(245,158,11,0.3);
+  border-radius:18px;
+  padding:16px;
+  position:relative;
+  overflow:hidden;
+}
+.credits-card::before {
+  content:'';
+  position:absolute;
+  right:-20px; top:-20px;
+  width:100px; height:100px;
+  background:radial-gradient(circle,rgba(245,158,11,0.15),transparent 70%);
+}
+.credits-label { font-size:10px; color:rgba(255,255,255,0.45); margin-bottom:4px; }
+.credits-amount { font-size:34px; font-weight:800; color:#F59E0B; font-family:'DM Mono',monospace; }
+.credits-sub { font-size:10px; color:rgba(255,255,255,0.45); margin-top:2px; }
+.credits-row {
+  display:flex; justify-content:space-between; align-items:flex-end;
+  margin-top:12px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.08);
+}
+.credits-stat { text-align:center; }
+.credits-stat-val { font-size:14px; font-weight:800; font-family:'DM Mono',monospace; color:#B5E033; }
+.credits-stat-lbl { font-size:9px; color:rgba(255,255,255,0.4); margin-top:1px; }
+.section-divider { margin:0 16px 8px; height:1px; background:rgba(255,255,255,0.06); }
+.milestone-card {
+  margin:0 16px 8px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:14px;
+  padding:12px 14px;
+}
+.milestone-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+.milestone-title { font-size:12px; font-weight:700; color:#fff; }
+.milestone-pct { font-size:11px; font-weight:800; font-family:'DM Mono',monospace; }
+.milestone-row {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:6px 0;
+  border-bottom:1px solid rgba(255,255,255,0.05);
+  font-size:10px;
+}
+.milestone-row:last-child { border-bottom:none; }
+.ms-left { display:flex; align-items:center; gap:7px; }
+.ms-icon { font-size:14px; }
+.ms-info {}
+.ms-name { color:rgba(255,255,255,0.8); font-weight:600; }
+.ms-sub { color:rgba(255,255,255,0.35); font-size:9px; margin-top:1px; }
+.ms-prog { text-align:right; }
+.ms-val { font-weight:800; font-family:'DM Mono',monospace; }
+.ms-total { color:rgba(255,255,255,0.3); font-size:9px; }
+.upgrade-cta {
+  margin:0 16px;
+  background:rgba(181,224,51,0.07);
+  border:1px solid rgba(181,224,51,0.25);
+  border-radius:13px;
+  padding:11px 13px;
+  display:flex; align-items:center; gap:10px;
+}
+.upgrade-cta-text { font-size:11px; color:rgba(255,255,255,0.75); line-height:1.4; flex:1; }
+.upgrade-cta-text strong { color:#B5E033; }
+.upgrade-arrow { font-size:16px; color:#B5E033; }
+
+/* ── SCREEN 2: ACTIVE RIDE ── */
+.s2-ride-header {
+  padding:14px 20px 10px;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+}
+.s2-ride-status { font-size:10px; color:rgba(255,255,255,0.4); margin-bottom:4px; }
+.s2-ride-title { font-size:16px; font-weight:800; color:#fff; }
+.s2-driver-strip {
+  display:flex; align-items:center; gap:11px;
+  padding:10px 20px;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+}
+.s2-avatar {
+  width:42px; height:42px; border-radius:50%;
+  background:linear-gradient(135deg,#B5E033,#8BC220);
+  display:flex; align-items:center; justify-content:center;
+  font-size:18px; flex-shrink:0;
+}
+.s2-dname { font-size:13px; font-weight:700; color:#fff; }
+.s2-dmeta { font-size:10px; color:rgba(255,255,255,0.4); margin-top:1px; }
+.s2-deta { margin-left:auto; text-align:right; }
+.s2-eta-val { font-size:16px; font-weight:800; color:#B5E033; font-family:'DM Mono',monospace; }
+.s2-eta-lbl { font-size:9px; color:rgba(255,255,255,0.35); }
+.earning-card {
+  margin:12px 16px;
+  background:linear-gradient(135deg,#1A0A00 0%,#211200 100%);
+  border:1px solid rgba(255,107,53,0.3);
+  border-radius:16px;
+  padding:14px;
+  position:relative;
+  overflow:hidden;
+}
+.earning-card::before {
+  content:'';
+  position:absolute;
+  right:-15px; top:-15px;
+  width:80px; height:80px;
+  background:radial-gradient(circle,rgba(255,107,53,0.12),transparent 70%);
+}
+.earning-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+.earning-badge {
+  display:flex; align-items:center; gap:5px;
+  background:rgba(255,107,53,0.15); border:1px solid rgba(255,107,53,0.3);
+  border-radius:20px; padding:4px 10px;
+  font-size:10px; font-weight:700; color:#FF6B35;
+}
+.earning-live { width:5px; height:5px; border-radius:50%; background:#FF6B35; animation:pulse 1s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+.earning-pct { font-size:11px; font-weight:700; color:rgba(255,255,255,0.45); }
+.earning-amounts { display:flex; justify-content:space-between; align-items:flex-end; }
+.earning-this { }
+.earning-this-lbl { font-size:9px; color:rgba(255,255,255,0.4); margin-bottom:3px; }
+.earning-this-val { font-size:28px; font-weight:800; color:#FF6B35; font-family:'DM Mono',monospace; }
+.earning-this-sub { font-size:9px; color:rgba(255,255,255,0.35); margin-top:1px; }
+.earning-total { text-align:right; }
+.earning-total-lbl { font-size:9px; color:rgba(255,255,255,0.4); margin-bottom:3px; }
+.earning-total-val { font-size:18px; font-weight:800; color:#F59E0B; font-family:'DM Mono',monospace; }
+.earning-total-sub { font-size:9px; color:rgba(255,255,255,0.35); margin-top:1px; }
+.ride-detail-grid { margin:0 16px; display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
+.ride-det-box {
+  background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08);
+  border-radius:11px; padding:9px 10px; text-align:center;
+}
+.ride-det-val { font-size:14px; font-weight:800; color:#fff; font-family:'DM Mono',monospace; }
+.ride-det-lbl { font-size:9px; color:rgba(255,255,255,0.35); margin-top:2px; }
+.route-card {
+  margin:8px 16px;
+  background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07);
+  border-radius:13px; padding:11px 13px;
+}
+.route-row2 { display:flex; align-items:center; gap:8px; margin-bottom:4px; }
+.rdot2 { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.rtext2 { font-size:10px; color:rgba(255,255,255,0.75); }
+.rdiv2 { width:2px; height:12px; background:rgba(255,255,255,0.12); margin-left:3px; margin-bottom:4px; }
+.milestone-progress {
+  margin:8px 16px;
+  background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08);
+  border-radius:13px; padding:11px 13px;
+}
+.mp-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+.mp-title { font-size:11px; font-weight:700; color:rgba(255,255,255,0.7); }
+.mp-count { font-size:11px; font-weight:800; color:#F59E0B; font-family:'DM Mono',monospace; }
+.mp-bar-wrap { margin-bottom:5px; }
+.mp-bar-track { height:6px; background:rgba(255,255,255,0.1); border-radius:99px; }
+.mp-bar-fill { height:100%; border-radius:99px; background:#F59E0B; width:80%; }
+.mp-hint { font-size:9px; color:rgba(255,255,255,0.35); }
+.mp-hint strong { color:#F59E0B; }
+
+/* ── SCREEN 3: MILESTONE ACHIEVEMENT ── */
+.confetti-layer { position:absolute; inset:0; pointer-events:none; overflow:hidden; z-index:2; }
+.cp { position:absolute; animation:fall linear infinite; }
+@keyframes fall {
+  0% { transform:translateY(-20px) rotate(0deg); opacity:1; }
+  100% { transform:translateY(900px) rotate(540deg); opacity:0; }
+}
+.s3-hero-wrap {
+  position:relative; z-index:3;
+  display:flex; flex-direction:column; align-items:center;
+  padding:24px 20px 14px;
+}
+.s3-tier-ring {
+  width:80px; height:80px; border-radius:50%;
+  background:rgba(245,158,11,0.12);
+  border:2px solid #F59E0B;
+  display:flex; align-items:center; justify-content:center;
+  font-size:36px;
+  box-shadow:0 0 40px rgba(245,158,11,0.35);
+  margin-bottom:12px;
+}
+.s3-tier-title { font-size:24px; font-weight:800; color:#F59E0B; }
+.s3-tier-sub { font-size:13px; font-weight:600; color:#fff; margin-top:3px; }
+.s3-tier-desc { font-size:11px; color:rgba(255,255,255,0.45); margin-top:4px; text-align:center; }
+.benefits-card {
+  margin:10px 16px;
+  background:rgba(255,255,255,0.04); border:1px solid rgba(245,158,11,0.2);
+  border-radius:16px; padding:13px 14px;
+}
+.benefits-header {
+  font-size:11px; font-weight:700; color:rgba(255,255,255,0.5);
+  text-transform:uppercase; letter-spacing:.06em;
+  margin-bottom:10px;
+}
+.benefit-row {
+  display:flex; align-items:center; gap:10px;
+  padding:7px 0;
+  border-bottom:1px solid rgba(255,255,255,0.05);
+  font-size:11px;
+}
+.benefit-row:last-child { border-bottom:none; }
+.benefit-icon { font-size:16px; width:22px; text-align:center; flex-shrink:0; }
+.benefit-text { color:rgba(255,255,255,0.8); }
+.benefit-val { margin-left:auto; font-weight:700; font-family:'DM Mono',monospace; color:#F59E0B; font-size:11px; }
+.credits-won {
+  margin:0 16px 10px;
+  background:rgba(181,224,51,0.07); border:1px solid rgba(181,224,51,0.2);
+  border-radius:13px; padding:12px 14px;
+  display:flex; align-items:center; gap:10px;
+}
+.cw-icon { font-size:22px; }
+.cw-text { flex:1; }
+.cw-title { font-size:12px; font-weight:700; color:#B5E033; }
+.cw-sub { font-size:10px; color:rgba(255,255,255,0.4); margin-top:2px; }
+.cw-amount { font-size:18px; font-weight:800; color:#B5E033; font-family:'DM Mono',monospace; }
+.s3-cta {
+  margin:0 16px;
+  background:#F59E0B; border-radius:14px;
+  padding:14px; text-align:center;
+  font-size:13px; font-weight:800; color:#0B0E13;
+  box-shadow:0 4px 20px rgba(245,158,11,0.4);
+}
+
+/* ── SCREEN 4: MULTI-VERTICAL TRACKER ── */
+.s4-header { padding:14px 20px 10px; }
+.s4-title { font-size:15px; font-weight:800; color:#fff; }
+.s4-sub { font-size:10px; color:rgba(255,255,255,0.4); margin-top:2px; }
+.challenge-progress {
+  margin:0 16px 10px;
+  background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08);
+  border-radius:14px; padding:12px 14px;
+}
+.cp-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+.cp-title { font-size:12px; font-weight:700; color:#fff; }
+.cp-reward { font-size:10px; color:#FF6B35; font-weight:600; }
+.cp-bar-track { height:6px; background:rgba(255,255,255,0.1); border-radius:99px; margin-bottom:5px; }
+.cp-bar-fill { height:100%; border-radius:99px; background:linear-gradient(90deg,#B5E033,#FF6B35); width:67%; }
+.cp-hint { font-size:9px; color:rgba(255,255,255,0.35); }
+.pillar-card {
+  margin:0 16px 8px;
+  border-radius:14px; padding:13px 14px;
+  border:1px solid;
+}
+.pillar-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+.pillar-left { display:flex; align-items:center; gap:9px; }
+.pillar-icon { font-size:22px; }
+.pillar-name { font-size:13px; font-weight:700; color:#fff; }
+.pillar-sub { font-size:9px; color:rgba(255,255,255,0.4); margin-top:2px; }
+.pillar-status { font-size:11px; font-weight:700; }
+.milestone-list { display:flex; flex-direction:column; gap:5px; }
+.ms-item { display:flex; align-items:center; gap:8px; font-size:10px; color:rgba(255,255,255,0.65); }
+.ms-check { font-size:12px; }
+.locked-overlay {
+  margin:0 16px 8px;
+  border-radius:14px; padding:13px 14px;
+  background:rgba(255,255,255,0.02);
+  border:1px solid rgba(255,255,255,0.06);
+  opacity:.6;
+}
+.explorer-card {
+  margin:0 16px;
+  background:linear-gradient(135deg,#0D1A0A,#111F0E);
+  border:1px solid rgba(181,224,51,0.25);
+  border-radius:14px; padding:13px 14px;
+}
+.ex-header { font-size:11px; font-weight:700; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:.06em; margin-bottom:8px; }
+.ex-benefits { display:flex; flex-direction:column; gap:5px; }
+.ex-ben { display:flex; align-items:center; gap:7px; font-size:10px; color:rgba(255,255,255,0.65); }
+.ex-dot { width:5px; height:5px; border-radius:50%; background:#B5E033; flex-shrink:0; }
+</style>
+</head>
+<body>
+
+<div class="header-strip">inDrive — Pass · Interactive Prototype</div>
+
+<div class="prototype-wrap">
+
+  <!-- ═══ SCREEN 1: PASS HOME ═══ -->
+  <div class="phone-col">
+    <div class="phone-label">01 — Pass Home</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="status"><span>10:14</span><span>●●● ▲ 🔋</span></div>
+      <div class="screen">
+        <div class="s1-header">
+          <div>
+            <div class="s1-greeting">Welcome back,</div>
+            <div class="s1-name">Sarah M.</div>
+          </div>
+          <div class="pass-badge-wrap">
+            <span class="pass-tier-icon">🥈</span>
+            <span class="pass-tier-text">Silver</span>
+          </div>
+        </div>
+        <!-- Credits card -->
+        <div class="credits-card">
+          <div class="credits-label">inDrive Credits</div>
+          <div class="credits-amount">$24.80</div>
+          <div class="credits-sub">Available to spend on any ride, freight, or service</div>
+          <div class="credits-row">
+            <div class="credits-stat">
+              <div class="credits-stat-val">$12.80</div>
+              <div class="credits-stat-lbl">Earned this month</div>
+            </div>
+            <div class="credits-stat">
+              <div class="credits-stat-val">8%</div>
+              <div class="credits-stat-lbl">Current cashback</div>
+            </div>
+            <div class="credits-stat">
+              <div class="credits-stat-val">14</div>
+              <div class="credits-stat-lbl">Rides this month</div>
+            </div>
+          </div>
+        </div>
+        <!-- Ride milestone -->
+        <div class="pill-label">Ride Milestones</div>
+        <div class="milestone-card">
+          <div class="milestone-header">
+            <div class="milestone-title">🏆 Gold Tier — 15 rides</div>
+            <span class="milestone-pct" style="color:#F59E0B;">14/15</span>
+          </div>
+          <div class="prog-track" style="margin-bottom:8px;">
+            <div class="prog-fill" style="width:93%;background:#F59E0B;">
+              <div class="prog-badge" style="background:#F59E0B;">93%</div>
+            </div>
+          </div>
+          <div class="milestone-row">
+            <div class="ms-left"><span class="ms-icon">✅</span><div class="ms-info"><div class="ms-name">Bronze — 5 rides</div><div class="ms-sub">5% back · Unlocked</div></div></div>
+            <div class="ms-prog"><div class="ms-val" style="color:#CD7F32;">Done</div></div>
+          </div>
+          <div class="milestone-row">
+            <div class="ms-left"><span class="ms-icon">✅</span><div class="ms-info"><div class="ms-name">Silver — 10 rides</div><div class="ms-sub">8% back · Unlocked</div></div></div>
+            <div class="ms-prog"><div class="ms-val" style="color:#94A3B8;">Done</div></div>
+          </div>
+          <div class="milestone-row">
+            <div class="ms-left"><span class="ms-icon">🏆</span><div class="ms-info"><div class="ms-name">Gold — 15 rides</div><div class="ms-sub">12% back + priority match</div></div></div>
+            <div class="ms-prog"><div class="ms-val" style="color:#F59E0B;">14/15</div><div class="ms-total">1 ride away!</div></div>
+          </div>
+        </div>
+        <!-- Cross-vertical teaser -->
+        <div class="upgrade-cta">
+          <span style="font-size:20px;">🚛</span>
+          <div class="upgrade-cta-text">Try <strong>inDrive Freight</strong> — book 1 shipment to start your multi-vertical milestone</div>
+          <span class="upgrade-arrow">›</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SCREEN 2: ACTIVE RIDE WITH PASS ═══ -->
+  <div class="phone-col">
+    <div class="phone-label">02 — Active Ride · Earning</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="status"><span>11:32</span><span>●●● ▲ 🔋</span></div>
+      <div class="screen">
+        <div class="s2-ride-header">
+          <div class="s2-ride-status">🟢 Ride in progress</div>
+          <div class="s2-ride-title">On your way to Airport T2</div>
+        </div>
+        <div class="s2-driver-strip">
+          <div class="s2-avatar">👨</div>
+          <div>
+            <div class="s2-dname">Mikhail K.</div>
+            <div class="s2-dmeta">⭐ 4.9 · Toyota Corolla · White · GXH 4421</div>
+          </div>
+          <div class="s2-deta">
+            <div class="s2-eta-val">8:40</div>
+            <div class="s2-eta-lbl">min left</div>
+          </div>
+        </div>
+        <!-- Earning card -->
+        <div class="earning-card">
+          <div class="earning-header">
+            <div class="earning-badge"><div class="earning-live"></div>inDrive Pass · Live</div>
+            <span class="earning-pct">Silver · 8% back</span>
+          </div>
+          <div class="earning-amounts">
+            <div class="earning-this">
+              <div class="earning-this-lbl">Earning this ride</div>
+              <div class="earning-this-val">+$1.31</div>
+              <div class="earning-this-sub">on $16.40 fare</div>
+            </div>
+            <div class="earning-total">
+              <div class="earning-total-lbl">New balance after ride</div>
+              <div class="earning-total-val">$26.11</div>
+              <div class="earning-total-sub">was $24.80</div>
+            </div>
+          </div>
+        </div>
+        <!-- Ride details -->
+        <div class="ride-detail-grid">
+          <div class="ride-det-box">
+            <div class="ride-det-val">$16.40</div>
+            <div class="ride-det-lbl">Agreed fare</div>
+          </div>
+          <div class="ride-det-box">
+            <div class="ride-det-val">14.2</div>
+            <div class="ride-det-lbl">km route</div>
+          </div>
+          <div class="ride-det-box">
+            <div class="ride-det-val">22</div>
+            <div class="ride-det-lbl">min est.</div>
+          </div>
+        </div>
+        <!-- Route -->
+        <div class="route-card">
+          <div class="route-row2">
+            <div class="rdot2" style="background:#B5E033;"></div>
+            <span class="rtext2">Downtown Station, Platform 4</span>
+          </div>
+          <div class="rdiv2"></div>
+          <div class="route-row2">
+            <div class="rdot2" style="background:#FF6B35;"></div>
+            <span class="rtext2">International Airport, Terminal 2</span>
+          </div>
+        </div>
+        <!-- Gold milestone nudge -->
+        <div class="milestone-progress">
+          <div class="mp-header">
+            <div class="mp-title">🏆 Gold Tier Progress</div>
+            <div class="mp-count">15/15 after this ride!</div>
+          </div>
+          <div class="mp-bar-wrap">
+            <div class="mp-bar-track"><div class="mp-bar-fill"></div></div>
+          </div>
+          <div class="mp-hint">Complete this ride → <strong>Gold unlocks: 12% back + priority matching</strong></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SCREEN 3: MILESTONE ACHIEVEMENT ═══ -->
+  <div class="phone-col">
+    <div class="phone-label">03 — Gold Tier Unlocked</div>
+    <div class="phone" style="position:relative;">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="status"><span>11:54</span><span>●●● ▲ 🔋</span></div>
+      <div class="confetti-layer" id="conf"></div>
+      <div class="screen" style="position:relative;z-index:3;">
+        <div class="s3-hero-wrap">
+          <div class="s3-tier-ring">🏆</div>
+          <div class="s3-tier-title">Gold Tier!</div>
+          <div class="s3-tier-sub">15 rides completed</div>
+          <div class="s3-tier-desc">You've unlocked inDrive's Gold benefits.<br>Starts on your next ride.</div>
+        </div>
+        <!-- Credits won -->
+        <div class="credits-won">
+          <div class="cw-icon">💰</div>
+          <div class="cw-text">
+            <div class="cw-title">Credits earned this month</div>
+            <div class="cw-sub">$12.80 from rides + $1.31 from this ride</div>
+          </div>
+          <div class="cw-amount">$14.11</div>
+        </div>
+        <!-- Benefits card -->
+        <div class="benefits-card">
+          <div class="benefits-header">Gold benefits — now active</div>
+          <div class="benefit-row">
+            <span class="benefit-icon">💸</span>
+            <span class="benefit-text">Cashback per ride</span>
+            <span class="benefit-val">12% back</span>
+          </div>
+          <div class="benefit-row">
+            <span class="benefit-icon">⚡</span>
+            <span class="benefit-text">BidBand auto-boost</span>
+            <span class="benefit-val">Band 3 default</span>
+          </div>
+          <div class="benefit-row">
+            <span class="benefit-icon">🚛</span>
+            <span class="benefit-text">Freight — first shipment</span>
+            <span class="benefit-val">Free</span>
+          </div>
+          <div class="benefit-row">
+            <span class="benefit-icon">🎯</span>
+            <span class="benefit-text">Priority driver matching</span>
+            <span class="benefit-val">Enabled</span>
+          </div>
+          <div class="benefit-row">
+            <span class="benefit-icon">🛡️</span>
+            <span class="benefit-text">Pass credits rollover</span>
+            <span class="benefit-val">3 months</span>
+          </div>
+        </div>
+        <div class="s3-cta">View Gold Dashboard</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SCREEN 4: MULTI-VERTICAL TRACKER ═══ -->
+  <div class="phone-col">
+    <div class="phone-label">04 — Multi-Vertical Challenge</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="status"><span>12:01</span><span>●●● ▲ 🔋</span></div>
+      <div class="screen">
+        <div class="s4-header">
+          <div class="s4-title">All-Access Challenge</div>
+          <div class="s4-sub">Use 3 inDrive products → unlock Explorer benefits</div>
+        </div>
+        <!-- Overall progress -->
+        <div class="challenge-progress">
+          <div class="cp-header">
+            <div class="cp-title">Explorer Progress</div>
+            <div class="cp-reward">15% back + Priority matching</div>
+          </div>
+          <div class="cp-bar-track"><div class="cp-bar-fill"></div></div>
+          <div class="cp-hint">2 of 3 product categories used · Complete Freight to unlock</div>
+        </div>
+        <!-- Pillar 1: Rides (complete) -->
+        <div class="pillar-card" style="background:rgba(181,224,51,0.06);border-color:rgba(181,224,51,0.3);">
+          <div class="pillar-header">
+            <div class="pillar-left">
+              <span class="pillar-icon">🚗</span>
+              <div>
+                <div class="pillar-name">inDrive Rides</div>
+                <div class="pillar-sub">15 rides completed · Gold tier</div>
+              </div>
+            </div>
+            <span class="pillar-status" style="color:#B5E033;">✓ Done</span>
+          </div>
+          <div class="milestone-list">
+            <div class="ms-item"><span class="ms-check">✅</span>5 rides — Bronze unlocked</div>
+            <div class="ms-item"><span class="ms-check">✅</span>10 rides — Silver unlocked</div>
+            <div class="ms-item"><span class="ms-check">✅</span>15 rides — Gold unlocked</div>
+          </div>
+        </div>
+        <!-- Pillar 2: Freight (in progress) -->
+        <div class="pillar-card" style="background:rgba(245,158,11,0.06);border-color:rgba(245,158,11,0.25);">
+          <div class="pillar-header">
+            <div class="pillar-left">
+              <span class="pillar-icon">🚛</span>
+              <div>
+                <div class="pillar-name">inDrive Freight</div>
+                <div class="pillar-sub">2 of 5 shipments · In progress</div>
+              </div>
+            </div>
+            <span class="pillar-status" style="color:#F59E0B;">2/5</span>
+          </div>
+          <div class="prog-track" style="margin-bottom:6px;">
+            <div class="prog-fill" style="width:40%;background:#F59E0B;">
+              <div class="prog-badge" style="background:#F59E0B;">40%</div>
+            </div>
+          </div>
+          <div class="milestone-list">
+            <div class="ms-item"><span class="ms-check">✅</span>1st shipment — Freight intro badge</div>
+            <div class="ms-item"><span class="ms-check">✅</span>2nd shipment — 5% freight credit</div>
+            <div class="ms-item"><span class="ms-check" style="opacity:.35;">◯</span>5 shipments — Freight tier unlocked (3 left)</div>
+          </div>
+        </div>
+        <!-- Pillar 3: Services (locked) -->
+        <div class="locked-overlay">
+          <div class="pillar-header">
+            <div class="pillar-left">
+              <span class="pillar-icon">🔧</span>
+              <div>
+                <div class="pillar-name">inDrive Services</div>
+                <div class="pillar-sub">Book a task to start this pillar</div>
+              </div>
+            </div>
+            <span class="pillar-status" style="color:rgba(255,255,255,0.3);">0/3</span>
+          </div>
+          <div style="font-size:10px;color:rgba(255,255,255,0.35);">Complete 3 tasks (cleaning, courier, handyman…)</div>
+        </div>
+        <!-- Explorer unlock card -->
+        <div class="explorer-card">
+          <div class="ex-header">Complete All-Access → Explorer unlocks</div>
+          <div class="ex-benefits">
+            <div class="ex-ben"><div class="ex-dot"></div><span>15% back on every ride, freight, and service</span></div>
+            <div class="ex-ben"><div class="ex-dot"></div><span>Priority BidBand matching across all products</span></div>
+            <div class="ex-ben"><div class="ex-dot"></div><span>Credits usable across all 3 product categories</span></div>
+            <div class="ex-ben"><div class="ex-dot"></div><span>6-month credit rollover (was 3 months)</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const conf = document.getElementById('conf');
+const cols = ['#F59E0B','#B5E033','#FF6B35','#22C55E','#A78BFA','#60A5FA','#FB923C'];
+for(let i=0;i<36;i++){
+  const p=document.createElement('div');
+  p.className='cp';
+  const s=4+Math.random()*8;
+  p.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*110-10}%;width:${s}px;height:${s}px;background:${cols[Math.floor(Math.random()*cols.length)]};border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${1.4+Math.random()*1.8}s;animation-delay:${Math.random()*2.5}s;`;
+  conf.appendChild(p);
+}
+</script>
+</body>
+</html>
