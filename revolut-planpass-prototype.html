@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Revolut — PlanPass · Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --c-dark:#0D0F14; --c-hero:#141822; --c-bright:#0668E1; --c-purple:#7C3AED;
+  --c-gold:#F59E0B; --c-green:#10B981; --orange:#F97316;
+  --ink:#0f172a; --muted:#64748b; --border:#e2e8f0; --gray:#f0f2f7;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#07090e;font-family:'Sora',sans-serif;min-height:100vh;padding:36px 20px 56px;}
+.hdr{text-align:center;margin-bottom:28px;}
+.hdr h1{font-size:20px;font-weight:800;color:var(--c-purple);letter-spacing:-0.3px;}
+.hdr p{font-size:11px;color:#4A6FA5;margin-top:3px;}
+.proto-wrap{display:flex;gap:28px;justify-content:center;align-items:flex-start;}
+.phone-col{display:flex;flex-direction:column;align-items:center;gap:10px;}
+.phone-label{font-family:'DM Mono',monospace;font-size:9.5px;color:#7C3AED;letter-spacing:1px;text-transform:uppercase;text-align:center;}
+.phone{width:375px;background:#fff;border-radius:46px;box-shadow:0 40px 100px rgba(0,0,0,0.5),0 0 0 1px rgba(255,255,255,0.08);overflow:hidden;position:relative;flex-shrink:0;}
+.phone.dark{background:var(--c-dark);}
+.notch{width:118px;height:28px;background:#f0f2f7;border-radius:0 0 16px 16px;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:6px;position:relative;z-index:10;}
+.dark .notch{background:var(--c-dark);}
+.nc{width:12px;height:12px;background:#c8d0df;border-radius:50%;}
+.dark .nc{background:#1e2430;}
+.ndot{width:5px;height:5px;background:#b0bcd0;border-radius:50%;}
+.dark .ndot{background:#2a3445;}
+.sb{display:flex;justify-content:space-between;align-items:center;padding:4px 20px 5px;font-family:'DM Mono',monospace;font-size:10px;color:#94a3b8;}
+.dark .sb{color:rgba(255,255,255,0.4);}
+.sig{display:flex;gap:2px;align-items:flex-end;}
+.sb1{width:3px;height:4px;background:#94a3b8;border-radius:1px;}
+.sb2{width:3px;height:6px;background:#94a3b8;border-radius:1px;}
+.sb3{width:3px;height:8px;background:#94a3b8;border-radius:1px;}
+.sb4{width:3px;height:10px;background:#94a3b8;border-radius:1px;}
+.dark .sb1,.dark .sb2,.dark .sb3,.dark .sb4{background:rgba(255,255,255,0.35);}
+.sc{overflow-y:auto;max-height:724px;scrollbar-width:none;padding-bottom:20px;}
+.sc::-webkit-scrollbar{display:none;}
+
+/* ── CONSUMER TOP BAR ── */
+.con-top{background:#fff;padding:10px 16px 8px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e8ecf4;}
+.rev-logo{font-size:17px;font-weight:800;color:#0D0F14;letter-spacing:-0.5px;}
+.rev-logo span{color:var(--c-bright);}
+.plan-pill{background:linear-gradient(135deg,var(--c-bright),var(--c-purple));color:#fff;font-size:8.5px;font-weight:700;padding:3px 10px;border-radius:20px;}
+
+/* ── BALANCE ── */
+.con-bal{background:#fff;padding:12px 16px 10px;border-bottom:1px solid #e8ecf4;}
+.bal-lbl{font-size:10px;color:#94a3b8;font-weight:500;}
+.bal-amt{font-size:26px;font-weight:800;color:#0D0F14;margin-top:1px;}
+.revpts-row{display:flex;align-items:center;gap:6px;margin-top:4px;}
+.pts-badge{background:linear-gradient(135deg,rgba(6,104,225,0.12),rgba(124,58,237,0.12));border:1px solid rgba(6,104,225,0.25);border-radius:6px;padding:2px 8px;font-size:8.5px;font-weight:700;color:var(--c-purple);font-family:'DM Mono',monospace;}
+
+/* ── PLANPASS FEATURE CARD ── */
+.pp-card{margin:11px 12px;background:linear-gradient(135deg,#f8f0ff,#eff5ff);border:1.5px solid rgba(124,58,237,0.3);border-radius:16px;padding:16px;box-shadow:0 6px 24px rgba(124,58,237,0.12);}
+.pp-tag{background:rgba(124,58,237,0.12);border:1px solid rgba(124,58,237,0.25);color:var(--c-purple);font-size:7.5px;font-weight:700;padding:2px 8px;border-radius:4px;display:inline-block;margin-bottom:9px;letter-spacing:0.5px;text-transform:uppercase;}
+.pp-headline{font-size:16px;font-weight:800;color:#1e1b4b;line-height:1.25;margin-bottom:5px;}
+.pp-sub{font-size:10.5px;color:#6b7280;line-height:1.4;margin-bottom:12px;}
+.pp-stats{display:flex;gap:8px;margin-bottom:12px;}
+.pp-stat{flex:1;background:#fff;border:1px solid rgba(124,58,237,0.15);border-radius:10px;padding:8px 6px;text-align:center;}
+.pp-s-val{font-size:17px;font-weight:800;color:var(--c-purple);font-family:'DM Mono',monospace;}
+.pp-s-lbl{font-size:8px;color:#94a3b8;margin-top:2px;}
+.pp-cta{background:linear-gradient(135deg,var(--c-bright),var(--c-purple));color:#fff;border:none;border-radius:11px;width:100%;padding:12px;font-size:13px;font-weight:700;font-family:'Sora',sans-serif;cursor:pointer;box-shadow:0 4px 16px rgba(124,58,237,0.35);}
+.pp-reward{font-size:9.5px;color:#7C3AED;text-align:center;margin-top:6px;font-weight:600;}
+
+/* active planpasses */
+.ap-sect{padding:8px 12px 0;}
+.ap-hdr{font-size:10px;font-weight:700;color:#334155;margin-bottom:7px;}
+.ap-row{display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px solid #e8ecf4;}
+.ap-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0;}
+.ap-name{font-size:11px;font-weight:700;color:#1e293b;}
+.ap-status{font-size:9px;color:#94a3b8;margin-top:1px;}
+.ap-badge{margin-left:auto;font-size:8px;font-weight:700;padding:2px 7px;border-radius:20px;}
+
+/* quick actions */
+.con-qa{display:flex;gap:7px;padding:8px 12px 0;}
+.qa-b{flex:1;background:#f8f9fc;border:1px solid #e2e8f0;border-radius:10px;padding:8px 5px;text-align:center;}
+.qa-ico{font-size:16px;display:block;margin-bottom:2px;}
+.qa-lbl{font-size:8.5px;font-weight:600;color:#334155;}
+
+/* ── SCREEN 2 — FRIEND RECEIVES ── */
+.fr-hero{background:linear-gradient(160deg,#0D1235,#1a0835,#0D0F14);padding:28px 20px 22px;text-align:center;border-bottom:1px solid rgba(124,58,237,0.2);}
+.fr-from{font-size:10px;color:rgba(255,255,255,0.5);margin-bottom:8px;letter-spacing:0.5px;}
+.fr-avatar-wrap{position:relative;display:inline-block;margin-bottom:10px;}
+.fr-avatar{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--c-bright),var(--c-purple));display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:#fff;margin:0 auto;}
+.fr-gift-icon{position:absolute;bottom:-4px;right:-4px;background:var(--c-gold);border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:11px;border:2px solid #0D1235;}
+.fr-title{font-size:18px;font-weight:800;color:#fff;line-height:1.25;margin-bottom:5px;}
+.fr-sub{font-size:11px;color:rgba(255,255,255,0.55);line-height:1.4;}
+
+.fr-unlocks{padding:12px 14px;}
+.fr-ul-hdr{font-size:9px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:#7C3AED;margin-bottom:9px;}
+.fr-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid #e8ecf4;}
+.fr-item:last-child{border-bottom:none;}
+.fr-item-ico{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.fr-item-name{font-size:11px;font-weight:700;color:#1e293b;}
+.fr-item-desc{font-size:9.5px;color:#64748b;margin-top:1px;line-height:1.3;}
+.fr-item-val{margin-left:auto;text-align:right;}
+.fr-item-amt{font-size:11px;font-weight:800;color:var(--c-green);font-family:'DM Mono',monospace;}
+.fr-item-lbl{font-size:8px;color:#94a3b8;}
+
+.fr-total{background:linear-gradient(135deg,rgba(6,104,225,0.08),rgba(124,58,237,0.08));border:1px solid rgba(124,58,237,0.2);border-radius:10px;padding:10px 14px;margin:0 14px 10px;display:flex;align-items:center;justify-content:space-between;}
+.fr-t-lbl{font-size:10.5px;color:#334155;font-weight:600;}
+.fr-t-val{font-size:18px;font-weight:800;color:var(--c-purple);font-family:'DM Mono',monospace;}
+
+.fr-activate{margin:0 14px 6px;background:linear-gradient(135deg,var(--c-bright),var(--c-purple));color:#fff;border:none;border-radius:12px;width:calc(100% - 0px);padding:13px;font-size:13px;font-weight:700;font-family:'Sora',sans-serif;cursor:pointer;box-shadow:0 4px 20px rgba(124,58,237,0.35);}
+.fr-fine{font-size:9px;color:#94a3b8;text-align:center;padding:0 14px;}
+
+/* ── SCREEN 3 — DAY 25 VALUESTATEMENT ── */
+.vs-hero{background:linear-gradient(160deg,#f8f0ff,#eff5ff,#e8f0ff);padding:20px 16px 16px;border-bottom:1px solid rgba(124,58,237,0.15);}
+.vs-timer{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.vs-t-lbl{font-size:10px;font-weight:700;color:#7C3AED;}
+.vs-t-countdown{display:flex;align-items:center;gap:4px;}
+.vs-t-num{background:var(--c-purple);color:#fff;font-size:13px;font-weight:800;font-family:'DM Mono',monospace;padding:3px 8px;border-radius:6px;}
+.vs-t-sep{font-size:10px;color:#7C3AED;font-weight:700;}
+.vs-title{font-size:17px;font-weight:800;color:#1e1b4b;line-height:1.3;margin-bottom:4px;}
+.vs-sub{font-size:10.5px;color:#6b7280;}
+
+.vs-earned{padding:10px 14px;}
+.vs-e-hdr{font-size:8.5px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:#7C3AED;margin-bottom:8px;}
+.vs-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid #e8ecf4;}
+.vs-row:last-child{border-bottom:none;}
+.vs-r-ico{font-size:16px;margin-right:8px;}
+.vs-r-lbl{font-size:10.5px;color:#334155;font-weight:600;}
+.vs-r-sub{font-size:8.5px;color:#94a3b8;margin-top:1px;}
+.vs-r-val{font-size:13px;font-weight:800;color:var(--c-green);font-family:'DM Mono',monospace;}
+
+.vs-total-box{background:linear-gradient(135deg,#10B981,#059669);border-radius:12px;margin:0 14px 10px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;}
+.vs-tot-lbl{font-size:11px;font-weight:700;color:rgba(255,255,255,0.85);}
+.vs-tot-sub{font-size:9px;color:rgba(255,255,255,0.6);margin-top:2px;}
+.vs-tot-val{font-size:26px;font-weight:800;color:#fff;font-family:'DM Mono',monospace;}
+
+.vs-offer{background:#f8f0ff;border:1.5px solid rgba(124,58,237,0.25);border-radius:12px;margin:0 14px 10px;padding:12px 14px;}
+.vs-o-lbl{font-size:9px;font-weight:700;color:var(--c-purple);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:4px;}
+.vs-o-headline{font-size:13.5px;font-weight:800;color:#1e1b4b;line-height:1.3;margin-bottom:8px;}
+.vs-convert-btn{background:linear-gradient(135deg,var(--c-bright),var(--c-purple));color:#fff;border:none;border-radius:10px;width:100%;padding:12px;font-size:13px;font-weight:700;font-family:'Sora',sans-serif;cursor:pointer;box-shadow:0 4px 16px rgba(124,58,237,0.35);}
+
+/* Success overlay (screen 3) */
+.s3ov{position:absolute;inset:0;background:linear-gradient(160deg,#0D0540,#08022a);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:50;opacity:0;pointer-events:none;transition:opacity 0.35s ease;border-radius:46px;}
+.s3ov.show{opacity:1;pointer-events:auto;}
+.conf3{position:absolute;inset:0;pointer-events:none;border-radius:46px;overflow:hidden;}
+@keyframes cfall{0%{transform:translateY(-20px) rotate(0deg);opacity:1;}100%{transform:translateY(900px) rotate(720deg);opacity:0;}}
+.cp{position:absolute;animation:cfall linear forwards;}
+.s3ov-content{z-index:2;text-align:center;padding:0 28px;}
+.s3ov-emoji{font-size:52px;margin-bottom:10px;}
+.s3ov-title{font-size:22px;font-weight:800;color:#fff;margin-bottom:6px;}
+.s3ov-sub{font-size:11.5px;color:rgba(255,255,255,0.6);line-height:1.4;margin-bottom:18px;}
+.s3ov-reward{background:rgba(124,58,237,0.25);border:1px solid rgba(124,58,237,0.4);border-radius:12px;padding:12px 16px;margin-bottom:14px;}
+.s3ov-r-lbl{font-size:9px;color:rgba(255,255,255,0.5);margin-bottom:3px;}
+.s3ov-r-val{font-size:28px;font-weight:800;color:#fff;font-family:'DM Mono',monospace;}
+.s3ov-r-sub{font-size:9.5px;color:rgba(255,255,255,0.55);margin-top:2px;}
+.s3ov-pts{font-size:12px;font-weight:700;color:var(--c-gold);}
+
+/* ── SCREEN 4 — REFERRER DASHBOARD ── */
+.rd-header{background:var(--c-hero);padding:14px 16px 12px;border-bottom:1px solid rgba(255,255,255,0.06);}
+.rd-title{font-size:15px;font-weight:800;color:#fff;}
+.rd-sub{font-size:9.5px;color:#4A6FA5;margin-top:2px;}
+
+.rd-kpi-row{display:flex;padding:10px 12px;gap:7px;}
+.rd-kpi{flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:8px 6px;text-align:center;}
+.rd-k-val{font-size:20px;font-weight:800;font-family:'DM Mono',monospace;}
+.rd-k-lbl{font-size:7.5px;color:#8899BB;margin-top:2px;}
+
+.rd-pts-card{margin:0 12px 10px;background:linear-gradient(135deg,rgba(124,58,237,0.2),rgba(6,104,225,0.2));border:1px solid rgba(124,58,237,0.35);border-radius:12px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;}
+.rd-p-lbl{font-size:10px;font-weight:700;color:#C8B4FF;}
+.rd-p-sub{font-size:8.5px;color:#8899BB;margin-top:2px;}
+.rd-p-val{font-size:28px;font-weight:800;color:var(--c-gold);font-family:'DM Mono',monospace;}
+.rd-p-unit{font-size:9px;color:#8899BB;}
+
+.rd-friends{padding:0 12px;}
+.rd-f-hdr{font-size:8.5px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:#4A6FA5;margin-bottom:8px;}
+.rd-f-row{display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.06);}
+.rd-f-row:last-child{border-bottom:none;}
+.rd-f-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0;}
+.rd-f-name{font-size:11px;font-weight:700;color:#fff;}
+.rd-f-status{font-size:9px;margin-top:1px;}
+.rd-f-pts{margin-left:auto;font-size:10px;font-weight:700;font-family:'DM Mono',monospace;color:var(--c-gold);}
+
+.rd-funnel{margin:8px 12px 0;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:10px 12px;}
+.rd-f-fhdr{font-size:8px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:#4A6FA5;margin-bottom:7px;}
+.rd-funnel-row{display:flex;align-items:center;gap:7px;margin-bottom:5px;}
+.rd-f-name2{font-size:9.5px;color:#C8D4E8;width:64px;}
+.rd-f-wrap{flex:1;height:7px;background:rgba(255,255,255,0.06);border-radius:99px;}
+.rd-f-fill{height:100%;border-radius:99px;}
+.rd-f-pct{font-size:9.5px;font-family:'DM Mono',monospace;font-weight:600;width:24px;text-align:right;}
+
+.send-btn{margin:10px 12px 0;background:linear-gradient(135deg,var(--c-bright),var(--c-purple));color:#fff;border:none;border-radius:12px;width:calc(100% - 0px);padding:12px;font-size:13px;font-weight:700;font-family:'Sora',sans-serif;cursor:pointer;box-shadow:0 4px 16px rgba(124,58,237,0.4);}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <h1>Revolut — PlanPass · Interactive Prototype</h1>
+  <p>Subscription referral · Gift Premium to a friend · Trust transfer mechanic · 3.2× trial-to-paid conversion</p>
+</div>
+
+<div class="proto-wrap">
+
+<!-- ══════════════════════════════════════════ -->
+<!-- SCREEN 1 — PLANPASS HOME ENTRY -->
+<!-- ══════════════════════════════════════════ -->
+<div class="phone-col">
+  <div class="phone-label">01 — PlanPass Home Entry</div>
+  <div class="phone">
+    <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+    <div class="sb"><span>9:41</span><div class="sig"><div class="sb1"></div><div class="sb2"></div><div class="sb3"></div><div class="sb4"></div></div></div>
+    <div class="sc">
+
+      <div class="con-top">
+        <div class="rev-logo">Re<span>vo</span>lut</div>
+        <div class="plan-pill">✦ PREMIUM</div>
+      </div>
+
+      <div class="con-bal">
+        <div class="bal-lbl">Total balance</div>
+        <div class="bal-amt">£6,284.50</div>
+        <div class="revpts-row">
+          <div class="pts-badge">⬡ 4,820 RevPoints</div>
+          <span style="font-size:8.5px;color:var(--c-green);font-weight:600;">+120 this week</span>
+        </div>
+      </div>
+
+      <!-- PlanPass featured card -->
+      <div class="pp-card">
+        <div class="pp-tag">🎁 New — PlanPass</div>
+        <div class="pp-headline">Gift Premium to a friend.<br>Earn RevPoints when they stay.</div>
+        <div class="pp-sub">Send a 30-day Premium trial to someone you trust. They experience the real thing — you earn 500 RevPoints when they convert to a paid plan.</div>
+        <div class="pp-stats">
+          <div class="pp-stat">
+            <div class="pp-s-val">30</div>
+            <div class="pp-s-lbl">days free trial</div>
+          </div>
+          <div class="pp-stat">
+            <div class="pp-s-val">500</div>
+            <div class="pp-s-lbl">RevPoints earned</div>
+          </div>
+          <div class="pp-stat">
+            <div class="pp-s-val">3.2×</div>
+            <div class="pp-s-lbl">vs app referral</div>
+          </div>
+        </div>
+        <button class="pp-cta">Send a PlanPass →</button>
+        <div class="pp-reward">You earn 500 RevPoints when your friend converts ✓</div>
+      </div>
+
+      <!-- Active PlanPasses -->
+      <div class="ap-sect">
+        <div class="ap-hdr">Your active PlanPasses</div>
+        <div class="ap-row">
+          <div class="ap-avatar" style="background:linear-gradient(135deg,#EC4899,#8B5CF6);">LP</div>
+          <div>
+            <div class="ap-name">Laura Perez</div>
+            <div class="ap-status">Trial active · Day 12 of 30</div>
+          </div>
+          <div class="ap-badge" style="background:rgba(6,104,225,0.1);border:1px solid rgba(6,104,225,0.25);color:var(--c-bright);">In trial</div>
+        </div>
+        <div class="ap-row">
+          <div class="ap-avatar" style="background:linear-gradient(135deg,#F59E0B,#EF4444);">TR</div>
+          <div>
+            <div class="ap-name">Tom Richards</div>
+            <div class="ap-status">✓ Converted · Premium member</div>
+          </div>
+          <div class="ap-badge" style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.25);color:var(--c-green);">+500 pts</div>
+        </div>
+      </div>
+
+      <!-- Quick actions -->
+      <div class="con-qa">
+        <div class="qa-b"><span class="qa-ico">💳</span><span class="qa-lbl">Cards</span></div>
+        <div class="qa-b"><span class="qa-ico">💸</span><span class="qa-lbl">Transfer</span></div>
+        <div class="qa-b"><span class="qa-ico">📈</span><span class="qa-lbl">Invest</span></div>
+        <div class="qa-b"><span class="qa-ico">✈️</span><span class="qa-lbl">Travel</span></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- SCREEN 2 — FRIEND RECEIVES PLANPASS -->
+<!-- ══════════════════════════════════════════ -->
+<div class="phone-col">
+  <div class="phone-label">02 — Friend Receives PlanPass</div>
+  <div class="phone">
+    <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+    <div class="sb"><span>9:41</span><div class="sig"><div class="sb1"></div><div class="sb2"></div><div class="sb3"></div><div class="sb4"></div></div></div>
+    <div class="sc">
+
+      <div class="fr-hero">
+        <div class="fr-from">A gift from James Walsh</div>
+        <div class="fr-avatar-wrap">
+          <div class="fr-avatar">JW</div>
+          <div class="fr-gift-icon">🎁</div>
+        </div>
+        <div class="fr-title">James is giving you<br>30 days of Premium</div>
+        <div class="fr-sub">James has been on Revolut Premium for 14 months. He thinks you'd love it — so he's gifting you a full trial.</div>
+      </div>
+
+      <!-- What unlocks -->
+      <div class="fr-unlocks">
+        <div class="fr-ul-hdr">What unlocks today — free for 30 days</div>
+        <div class="fr-item">
+          <div class="fr-item-ico" style="background:rgba(6,104,225,0.1);">💱</div>
+          <div>
+            <div class="fr-item-name">Unlimited FX exchange</div>
+            <div class="fr-item-desc">No fees on any currency — Standard plan charges 0.5% after £1,000/mo</div>
+          </div>
+          <div class="fr-item-val"><div class="fr-item-amt">£18/mo</div><div class="fr-item-lbl">avg saving</div></div>
+        </div>
+        <div class="fr-item">
+          <div class="fr-item-ico" style="background:rgba(16,185,129,0.1);">💰</div>
+          <div>
+            <div class="fr-item-name">1% cashback on spend</div>
+            <div class="fr-item-desc">On all card purchases, credited as RevPoints monthly</div>
+          </div>
+          <div class="fr-item-val"><div class="fr-item-amt">£8/mo</div><div class="fr-item-lbl">avg earning</div></div>
+        </div>
+        <div class="fr-item">
+          <div class="fr-item-ico" style="background:rgba(245,158,11,0.1);">🛫</div>
+          <div>
+            <div class="fr-item-name">1 free lounge visit</div>
+            <div class="fr-item-desc">Any Priority Pass airport lounge worldwide — this month</div>
+          </div>
+          <div class="fr-item-val"><div class="fr-item-amt">£28</div><div class="fr-item-lbl">value</div></div>
+        </div>
+        <div class="fr-item">
+          <div class="fr-item-ico" style="background:rgba(124,58,237,0.1);">🛡️</div>
+          <div>
+            <div class="fr-item-name">Travel & medical cover</div>
+            <div class="fr-item-desc">Comprehensive insurance on all trips booked during trial</div>
+          </div>
+          <div class="fr-item-val"><div class="fr-item-amt">£12/mo</div><div class="fr-item-lbl">value</div></div>
+        </div>
+      </div>
+
+      <!-- Total value -->
+      <div class="fr-total">
+        <div>
+          <div class="fr-t-lbl">30-day trial worth</div>
+          <div style="font-size:9px;color:#94a3b8;margin-top:1px;">Based on your existing Revolut spend</div>
+        </div>
+        <div class="fr-t-val">£66</div>
+      </div>
+
+      <button class="fr-activate" onclick="this.style.opacity='0.7'">Activate My Free Trial →</button>
+      <div class="fr-fine">No card required · Cancel anytime · James's gift, no strings attached</div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- SCREEN 3 — DAY 25 VALUESTATEMENT -->
+<!-- ══════════════════════════════════════════ -->
+<div class="phone-col">
+  <div class="phone-label">03 — Day 25 ValueStatement</div>
+  <div class="phone" style="position:relative;">
+    <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+    <div class="sb"><span>9:41</span><div class="sig"><div class="sb1"></div><div class="sb2"></div><div class="sb3"></div><div class="sb4"></div></div></div>
+    <div class="sc">
+
+      <div class="vs-hero">
+        <div class="vs-timer">
+          <div class="vs-t-lbl">🎁 Trial ending in</div>
+          <div class="vs-t-countdown">
+            <div class="vs-t-num">5</div>
+            <div class="vs-t-sep">days</div>
+          </div>
+        </div>
+        <div class="vs-title">Your Premium trial earned you £22.60 in 25 days.</div>
+        <div class="vs-sub">Keep Premium at a special price — because James referred you.</div>
+      </div>
+
+      <!-- What they earned -->
+      <div class="vs-earned">
+        <div class="vs-e-hdr">Your trial earnings breakdown</div>
+        <div class="vs-row">
+          <span class="vs-r-ico">💱</span>
+          <div>
+            <div class="vs-r-lbl">FX savings</div>
+            <div class="vs-r-sub">3 overseas transactions — zero fees</div>
+          </div>
+          <div class="vs-r-val">+£14.20</div>
+        </div>
+        <div class="vs-row">
+          <span class="vs-r-ico">💰</span>
+          <div>
+            <div class="vs-r-lbl">Cashback earned</div>
+            <div class="vs-r-sub">1% on £840 card spend this month</div>
+          </div>
+          <div class="vs-r-val">+£8.40</div>
+        </div>
+        <div class="vs-row">
+          <span class="vs-r-ico">🛫</span>
+          <div>
+            <div class="vs-r-lbl">Lounge visit</div>
+            <div class="vs-r-sub">Heathrow T5 — Priority Pass</div>
+          </div>
+          <div class="vs-r-val" style="color:#64748b;">Used ✓</div>
+        </div>
+      </div>
+
+      <div class="vs-total-box">
+        <div><div class="vs-tot-lbl">Total earned in trial</div><div class="vs-tot-sub">vs £0 on Standard plan</div></div>
+        <div class="vs-tot-val">£22.60</div>
+      </div>
+
+      <div class="vs-offer">
+        <div class="vs-o-lbl">🎁 James's referral offer</div>
+        <div class="vs-o-headline">Keep Premium for £4.99 your first month — then £9.99/mo.</div>
+        <button class="vs-convert-btn" onclick="convertPlan()">Convert to Premium →</button>
+      </div>
+
+      <div style="font-size:9px;color:#94a3b8;text-align:center;padding:0 14px 4px;line-height:1.4;">£22.60 earned in 25 days. Premium costs £4.99 this month. Your plan pays for itself 4× over.</div>
+
+    </div>
+
+    <!-- Success overlay -->
+    <div class="s3ov" id="s3ov">
+      <div class="conf3" id="conf3"></div>
+      <div class="s3ov-content">
+        <div class="s3ov-emoji">🎉</div>
+        <div class="s3ov-title">Welcome to Premium!</div>
+        <div class="s3ov-sub">You kept £22.60 in your pocket this month. James just earned 500 RevPoints for referring you.</div>
+        <div class="s3ov-reward">
+          <div class="s3ov-r-lbl">Your plan earns every month</div>
+          <div class="s3ov-r-val">£9.99</div>
+          <div class="s3ov-r-sub">plan cost · typically earned back in FX savings alone</div>
+        </div>
+        <div class="s3ov-pts">⬡ 500 RevPoints added to your account</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- SCREEN 4 — REFERRER DASHBOARD -->
+<!-- ══════════════════════════════════════════ -->
+<div class="phone-col">
+  <div class="phone-label">04 — Referrer Dashboard</div>
+  <div class="phone dark">
+    <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+    <div class="sb"><span>9:41</span><div class="sig"><div class="sb1"></div><div class="sb2"></div><div class="sb3"></div><div class="sb4"></div></div></div>
+    <div class="sc">
+
+      <div class="rd-header">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+          <div style="width:26px;height:26px;background:linear-gradient(135deg,var(--c-bright),var(--c-purple));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;">🎁</div>
+          <div class="rd-title">PlanPass Impact</div>
+        </div>
+        <div class="rd-sub">James Walsh · Premium member · 14 months</div>
+      </div>
+
+      <!-- KPIs -->
+      <div class="rd-kpi-row">
+        <div class="rd-kpi">
+          <div class="rd-k-val" style="color:var(--c-bright);">3</div>
+          <div class="rd-k-lbl">passes sent</div>
+        </div>
+        <div class="rd-kpi">
+          <div class="rd-k-val" style="color:var(--c-gold);">2</div>
+          <div class="rd-k-lbl">trials active</div>
+        </div>
+        <div class="rd-kpi">
+          <div class="rd-k-val" style="color:var(--c-green);">1</div>
+          <div class="rd-k-lbl">converted</div>
+        </div>
+      </div>
+
+      <!-- RevPoints earned -->
+      <div class="rd-pts-card">
+        <div>
+          <div class="rd-p-lbl">RevPoints earned</div>
+          <div class="rd-p-sub">Tom Richards converted · 3 days ago</div>
+        </div>
+        <div>
+          <div class="rd-p-val">500</div>
+          <div class="rd-p-unit">RevPoints</div>
+        </div>
+      </div>
+
+      <!-- Friend status list -->
+      <div class="rd-friends">
+        <div class="rd-f-hdr">Your PlanPass recipients</div>
+        <div class="rd-f-row">
+          <div class="rd-f-avatar" style="background:linear-gradient(135deg,#F59E0B,#EF4444);">TR</div>
+          <div>
+            <div class="rd-f-name">Tom Richards</div>
+            <div class="rd-f-status" style="color:var(--c-green);">✓ Converted to Premium</div>
+          </div>
+          <div class="rd-f-pts">+500 pts</div>
+        </div>
+        <div class="rd-f-row">
+          <div class="rd-f-avatar" style="background:linear-gradient(135deg,#EC4899,#8B5CF6);">LP</div>
+          <div>
+            <div class="rd-f-name">Laura Perez</div>
+            <div class="rd-f-status" style="color:var(--c-bright);">Trial active · Day 12 · £9.40 earned</div>
+          </div>
+          <div class="rd-f-pts" style="color:#4A6FA5;">pending</div>
+        </div>
+        <div class="rd-f-row">
+          <div class="rd-f-avatar" style="background:linear-gradient(135deg,#10B981,#0668E1);">AK</div>
+          <div>
+            <div class="rd-f-name">Arjun Kapoor</div>
+            <div class="rd-f-status" style="color:var(--c-gold);">Trial starts tomorrow · Invited today</div>
+          </div>
+          <div class="rd-f-pts" style="color:#4A6FA5;">pending</div>
+        </div>
+      </div>
+
+      <!-- Funnel -->
+      <div class="rd-funnel">
+        <div class="rd-f-fhdr">Referral funnel</div>
+        <div class="rd-funnel-row">
+          <div class="rd-f-name2" style="font-size:9px;color:#C8D4E8;">Sent</div>
+          <div class="rd-f-wrap"><div class="rd-f-fill" style="width:100%;background:var(--c-bright);"></div></div>
+          <div class="rd-f-pct" style="color:var(--c-bright);">3</div>
+        </div>
+        <div class="rd-funnel-row">
+          <div class="rd-f-name2" style="font-size:9px;color:#C8D4E8;">Activated</div>
+          <div class="rd-f-wrap"><div class="rd-f-fill" style="width:67%;background:var(--c-purple);"></div></div>
+          <div class="rd-f-pct" style="color:var(--c-purple);">2</div>
+        </div>
+        <div class="rd-funnel-row">
+          <div class="rd-f-name2" style="font-size:9px;color:#C8D4E8;">Converted</div>
+          <div class="rd-f-wrap"><div class="rd-f-fill" style="width:33%;background:var(--c-green);"></div></div>
+          <div class="rd-f-pct" style="color:var(--c-green);">1</div>
+        </div>
+        <div style="font-size:8.5px;color:#4A6FA5;margin-top:5px;font-style:italic;">2 friends still in trial — +1,000 RevPoints possible</div>
+      </div>
+
+      <button class="send-btn">Send Another PlanPass →</button>
+
+    </div>
+  </div>
+</div>
+
+</div><!-- proto-wrap -->
+
+<script>
+function convertPlan() {
+  var ov = document.getElementById('s3ov');
+  ov.classList.add('show');
+  var c = document.getElementById('conf3');
+  var cols = ['#0668E1','#7C3AED','#F59E0B','#10B981','#EC4899','#60A5FA','#34D399'];
+  for (var i = 0; i < 36; i++) {
+    var p = document.createElement('div');
+    p.className = 'cp';
+    var size = 4 + Math.random() * 7;
+    p.style.cssText = 'left:' + (Math.random() * 100) + '%;top:' + (Math.random() * 120 - 10) + '%;width:' + size + 'px;height:' + size + 'px;background:' + cols[Math.floor(Math.random() * cols.length)] + ';border-radius:' + (Math.random() > 0.5 ? '50%' : '2px') + ';animation-duration:' + (1.4 + Math.random() * 1.8) + 's;animation-delay:' + (Math.random() * 2.4) + 's;';
+    c.appendChild(p);
+  }
+}
+</script>
+
+</body>
+</html>

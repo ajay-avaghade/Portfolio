@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Revolut — GrowthIQ · Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --c-dark:#0D0F14; --c-hero:#141822; --c-bright:#0668E1; --c-purple:#7C3AED;
+  --c-gold:#F59E0B; --c-green:#10B981; --orange:#F97316;
+  --ink:#0f172a; --muted:#64748b; --border:#e2e8f0; --gray:#f0f2f7;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#07090e;font-family:'Sora',sans-serif;min-height:100vh;padding:36px 20px 56px;}
+.hdr{text-align:center;margin-bottom:28px;}
+.hdr h1{font-size:20px;font-weight:800;color:var(--c-bright);letter-spacing:-0.3px;}
+.hdr p{font-size:11px;color:#4A6FA5;margin-top:3px;}
+.proto-wrap{display:flex;gap:28px;justify-content:center;align-items:flex-start;}
+.phone-col{display:flex;flex-direction:column;align-items:center;gap:10px;}
+.phone-label{font-family:'DM Mono',monospace;font-size:9.5px;color:#4A6FA5;letter-spacing:1px;text-transform:uppercase;text-align:center;}
+.phone{width:375px;background:var(--c-dark);border-radius:46px;box-shadow:0 40px 100px rgba(0,0,0,0.55),0 0 0 1px rgba(255,255,255,0.06);overflow:hidden;position:relative;flex-shrink:0;}
+.phone.light{background:#f0f2f7;}
+.notch{width:118px;height:28px;background:var(--c-dark);border-radius:0 0 16px 16px;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:6px;position:relative;z-index:10;}
+.light .notch{background:#f0f2f7;}
+.nc{width:12px;height:12px;background:#1e2430;border-radius:50%;}
+.light .nc{background:#c8d0df;}
+.ndot{width:5px;height:5px;background:#2a3445;border-radius:50%;}
+.light .ndot{background:#b0bcd0;}
+.sb{display:flex;justify-content:space-between;align-items:center;padding:4px 20px 5px;font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.4);}
+.light .sb{color:#94a3b8;}
+.sig{display:flex;gap:2px;align-items:flex-end;}
+.sb1{width:3px;height:4px;background:rgba(255,255,255,0.35);border-radius:1px;}
+.sb2{width:3px;height:6px;background:rgba(255,255,255,0.35);border-radius:1px;}
+.sb3{width:3px;height:8px;background:rgba(255,255,255,0.35);border-radius:1px;}
+.sb4{width:3px;height:10px;background:rgba(255,255,255,0.35);border-radius:1px;}
+.light .sb1,.light .sb2,.light .sb3,.light .sb4{background:#94a3b8;}
+.sc{overflow-y:auto;max-height:724px;scrollbar-width:none;padding-bottom:20px;}
+.sc::-webkit-scrollbar{display:none;}
+
+/* ── OPS HEADER ── */
+.oh{background:var(--c-hero);padding:11px 16px 9px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;gap:9px;}
+.oh-logo{width:26px;height:26px;background:var(--c-bright);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;}
+.oh-title{font-size:13px;font-weight:700;color:#fff;}
+.oh-sub{font-size:9px;color:#4A6FA5;margin-top:1px;}
+.oh-badge{margin-left:auto;background:rgba(6,104,225,0.15);border:1px solid rgba(6,104,225,0.3);color:var(--c-bright);font-size:8.5px;font-weight:700;padding:2px 7px;border-radius:20px;}
+
+/* ── USER PROFILE ── */
+.up-sect{background:var(--c-hero);padding:12px 16px 10px;border-bottom:1px solid rgba(255,255,255,0.06);}
+.up-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.up-avatar{width:38px;height:38px;background:linear-gradient(135deg,var(--c-bright),var(--c-purple));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff;}
+.up-name{font-size:13px;font-weight:700;color:#fff;}
+.up-meta{font-size:9.5px;color:#4A6FA5;margin-top:1px;}
+.up-plan{display:inline-block;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:5px;padding:1px 7px;font-size:8.5px;font-weight:700;color:#C8D4E8;margin-top:3px;}
+
+/* tier bars */
+.tb-label{font-size:8.5px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:#4A6FA5;margin-bottom:7px;}
+.tb-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
+.tb-name{font-size:9.5px;font-weight:600;color:#8899BB;width:52px;font-family:'DM Mono',monospace;}
+.tb-wrap{flex:1;height:8px;background:rgba(255,255,255,0.06);border-radius:99px;}
+.tb-fill{height:100%;border-radius:99px;}
+.tb-pct{font-family:'DM Mono',monospace;font-size:9.5px;font-weight:600;width:32px;text-align:right;}
+.tb-chip{font-size:7.5px;font-weight:700;padding:1px 5px;border-radius:4px;width:28px;text-align:center;}
+
+/* section cards */
+.sc-card{margin:9px 12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:10px 12px;}
+.sc-lbl{font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#4A6FA5;margin-bottom:7px;}
+.sig-row{display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;}
+.sig-dot{width:7px;height:7px;border-radius:50%;margin-top:3px;flex-shrink:0;}
+.sig-txt{font-size:10.5px;color:#C8D4E8;line-height:1.35;}
+
+/* NBO chip */
+.nbo{background:linear-gradient(135deg,rgba(6,104,225,0.2),rgba(124,58,237,0.2));border:1px solid rgba(6,104,225,0.4);border-radius:10px;padding:10px 12px;margin:0 12px 10px;}
+.nbo-lbl{font-size:7.5px;font-weight:700;color:var(--c-bright);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;}
+.nbo-txt{font-size:11.5px;color:#fff;font-weight:700;}
+.nbo-sub{font-size:9.5px;color:#7CA8D8;margin-top:2px;}
+
+/* ── CAMPAIGN BUILDER ── */
+.seg-banner{background:linear-gradient(135deg,#0D1A2E,#0D1235);padding:12px 16px;border-bottom:1px solid rgba(6,104,225,0.2);}
+.seg-lbl{font-size:7.5px;font-weight:700;color:var(--c-bright);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px;}
+.seg-val{font-size:16px;font-weight:800;color:#fff;}
+.seg-sub{font-size:9.5px;color:#7CA8D8;margin-top:2px;}
+
+.band-row{display:flex;gap:7px;padding:10px 12px;}
+.bc{flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:8px 6px;text-align:center;}
+.bc.active-band{border-color:var(--c-bright);background:rgba(6,104,225,0.12);}
+.bc.supp{opacity:0.45;}
+.bc-val{font-size:15px;font-weight:800;font-family:'DM Mono',monospace;}
+.bc-name{font-size:8px;font-weight:600;color:#8899BB;margin-top:2px;}
+.bc-action{font-size:7.5px;margin-top:4px;}
+
+.vc{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:9px 11px;display:flex;align-items:center;gap:9px;margin-bottom:6px;}
+.vc.sel{border-color:var(--c-bright);background:rgba(6,104,225,0.12);}
+.vc-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.vc-name{font-size:11px;font-weight:700;color:#fff;}
+.vc-desc{font-size:9px;color:#8899BB;margin-top:1px;}
+.sel-chip{margin-left:auto;background:var(--c-bright);color:#fff;font-size:7.5px;font-weight:700;padding:2px 6px;border-radius:4px;white-space:nowrap;}
+
+.offer-row{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:9px 12px;display:flex;align-items:center;justify-content:space-between;}
+.or-label{font-size:10.5px;color:#C8D4E8;font-weight:600;}
+.or-val{font-size:13px;font-weight:800;color:var(--c-gold);font-family:'DM Mono',monospace;}
+
+.launch-btn{margin:12px;background:var(--c-bright);color:#fff;border:none;border-radius:12px;width:calc(100% - 24px);padding:13px;font-size:13px;font-weight:700;font-family:'Sora',sans-serif;cursor:pointer;box-shadow:0 4px 20px rgba(6,104,225,0.4);}
+
+/* success overlay */
+.s2ov{position:absolute;inset:0;background:rgba(6,15,40,0.97);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:50;opacity:0;pointer-events:none;transition:opacity 0.35s ease;border-radius:46px;}
+.s2ov.show{opacity:1;pointer-events:auto;}
+.conf2{position:absolute;inset:0;pointer-events:none;border-radius:46px;overflow:hidden;}
+@keyframes cfall{0%{transform:translateY(-20px) rotate(0deg);opacity:1;}100%{transform:translateY(900px) rotate(720deg);opacity:0;}}
+.cp{position:absolute;animation:cfall linear forwards;}
+.ov-icon{font-size:44px;margin-bottom:10px;}
+.ov-title{font-size:19px;font-weight:800;color:#fff;margin-bottom:5px;}
+.ov-sub{font-size:11px;color:#7CA8D8;text-align:center;padding:0 28px;}
+.ov-stats{display:flex;gap:20px;margin-top:18px;}
+.ov-stat{text-align:center;}
+.ov-s-val{font-size:22px;font-weight:800;color:var(--c-bright);}
+.ov-s-lbl{font-size:8.5px;color:#7CA8D8;margin-top:2px;}
+
+/* ── CONSUMER SCREEN ── */
+.con-top{background:#fff;padding:10px 16px 8px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e8ecf4;}
+.rev-logo{font-size:17px;font-weight:800;color:#0D0F14;letter-spacing:-0.5px;}
+.rev-logo span{color:var(--c-bright);}
+.con-bal{background:#fff;padding:14px 16px 10px;border-bottom:1px solid #e8ecf4;}
+.bal-lbl{font-size:10px;color:#94a3b8;font-weight:500;}
+.bal-amt{font-size:28px;font-weight:800;color:#0D0F14;margin-top:1px;}
+.plan-chip-con{display:inline-block;background:#f0f2f7;border:1px solid #dde3ef;border-radius:6px;padding:2px 8px;font-size:8.5px;font-weight:700;color:#64748b;margin-top:4px;}
+
+.upg-card{margin:11px 12px;background:linear-gradient(135deg,#0D1A3E,#1a0835);border-radius:14px;padding:14px;border:1px solid rgba(6,104,225,0.35);box-shadow:0 8px 28px rgba(6,104,225,0.2);}
+.uc-tag{background:rgba(239,68,68,0.18);border:1px solid rgba(239,68,68,0.3);color:#FCA5A5;font-size:7.5px;font-weight:700;padding:2px 7px;border-radius:4px;display:inline-block;margin-bottom:8px;letter-spacing:0.5px;text-transform:uppercase;}
+.uc-headline{font-size:14px;font-weight:800;color:#fff;line-height:1.3;margin-bottom:8px;}
+.uc-breakdown{background:rgba(255,255,255,0.07);border-radius:8px;padding:8px 10px;margin-bottom:10px;}
+.uc-br-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;}
+.uc-br-row:last-child{margin-bottom:0;border-top:1px solid rgba(255,255,255,0.08);padding-top:5px;}
+.uc-br-lbl{font-size:9.5px;color:#94a3b8;}
+.uc-br-val{font-size:9.5px;font-weight:700;font-family:'DM Mono',monospace;}
+.uc-cta{background:var(--c-bright);color:#fff;border:none;border-radius:10px;width:100%;padding:10px;font-size:12px;font-weight:700;font-family:'Sora',sans-serif;cursor:pointer;box-shadow:0 4px 16px rgba(6,104,225,0.4);}
+.uc-sub{font-size:8.5px;color:#7CA8D8;text-align:center;margin-top:5px;}
+
+.con-qa{display:flex;gap:7px;padding:0 12px;margin-top:6px;}
+.qa-b{flex:1;background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:8px 5px;text-align:center;}
+.qa-ico{font-size:16px;display:block;margin-bottom:2px;}
+.qa-lbl{font-size:8.5px;font-weight:600;color:#334155;}
+
+.txn-sect{padding:10px 12px 0;}
+.txn-hdr{font-size:10px;font-weight:700;color:#334155;margin-bottom:6px;}
+.txn-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #e8ecf4;}
+.txn-ico{width:30px;height:30px;border-radius:9px;background:#f0f2f7;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.txn-name{font-size:10.5px;font-weight:600;color:#1e293b;}
+.txn-sub{font-size:9px;color:#94a3b8;margin-top:1px;}
+.txn-amt{margin-left:auto;font-size:10.5px;font-weight:700;font-family:'DM Mono',monospace;}
+
+/* ── ANALYTICS ── */
+.an-hdr{background:var(--c-hero);padding:11px 16px 9px;border-bottom:1px solid rgba(255,255,255,0.06);}
+.an-title{font-size:14px;font-weight:800;color:#fff;}
+.an-sub{font-size:9.5px;color:#4A6FA5;margin-top:2px;}
+
+.kpi-row{display:flex;padding:9px 12px;gap:7px;}
+.kpi-c{flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:8px 6px;text-align:center;}
+.kpi-v{font-size:19px;font-weight:800;font-family:'DM Mono',monospace;}
+.kpi-l{font-size:8px;color:#8899BB;margin-top:2px;}
+
+.vp-sect{padding:0 12px 8px;}
+.vp-hdr{font-size:8px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:#4A6FA5;margin-bottom:7px;}
+.vp-row{display:flex;align-items:center;gap:7px;margin-bottom:6px;}
+.vp-name{font-size:9.5px;font-weight:600;color:#C8D4E8;width:70px;}
+.vp-wrap{flex:1;height:7px;background:rgba(255,255,255,0.06);border-radius:99px;}
+.vp-fill{height:100%;border-radius:99px;}
+.vp-pct{font-size:10px;font-family:'DM Mono',monospace;font-weight:600;width:28px;text-align:right;}
+
+.bgt-card{margin:0 12px 10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:10px 12px;}
+.bgt-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;}
+.bgt-lbl{font-size:9px;color:#8899BB;}
+.bgt-val{font-size:13px;font-weight:800;font-family:'DM Mono',monospace;}
+.bgt-saved{background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.28);border-radius:8px;padding:7px 10px;margin-top:6px;display:flex;align-items:center;justify-content:space-between;}
+.bgt-s-lbl{font-size:9px;color:var(--c-green);font-weight:700;}
+.bgt-s-val{font-size:16px;font-weight:800;color:var(--c-green);font-family:'DM Mono',monospace;}
+
+.cohort-card{margin:0 12px 10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:10px 12px;}
+.co-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.06);}
+.co-row:last-child{border-bottom:none;}
+.co-lbl{font-size:9.5px;color:#C8D4E8;}
+.co-val{font-size:10.5px;font-weight:700;font-family:'DM Mono',monospace;}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <h1>Revolut — GrowthIQ · Interactive Prototype</h1>
+  <p>Upgrade intelligence layer · CDP propensity scoring · Story variant engine · Offer calibration</p>
+</div>
+
+<div class="proto-wrap">
+
+<!-- ══════════════════════════════════════════ -->
+<!-- SCREEN 1 — CDP USER PROFILE -->
+<!-- ══════════════════════════════════════════ -->
+<div class="phone-col">
+  <div class="phone-label">01 — CDP User Profile</div>
+  <div class="phone">
+    <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+    <div class="sb"><span>9:41</span><div class="sig"><div class="sb1"></div><div class="sb2"></div><div class="sb3"></div><div class="sb4"></div></div></div>
+    <div class="sc">
+
+      <div class="oh">
+        <div class="oh-logo">G</div>
+        <div><div class="oh-title">GrowthIQ</div><div class="oh-sub">CDP User Intelligence</div></div>
+        <div class="oh-badge">LIVE</div>
+      </div>
+
+      <!-- User profile -->
+      <div class="up-sect">
+        <div class="up-row">
+          <div class="up-avatar">SM</div>
+          <div>
+            <div class="up-name">Sarah Mitchell</div>
+            <div class="up-meta">User ID · RV-4482901 · 8 months active</div>
+            <div class="up-plan">STANDARD PLAN</div>
+          </div>
+        </div>
+        <div class="tb-label">Upgrade propensity by tier</div>
+        <div class="tb-row">
+          <div class="tb-name">Plus</div>
+          <div class="tb-wrap"><div class="tb-fill" style="width:45%;background:#7C3AED;"></div></div>
+          <div class="tb-pct" style="color:#7C3AED;">45%</div>
+          <div class="tb-chip" style="background:rgba(124,58,237,0.15);color:#7C3AED;">MED</div>
+        </div>
+        <div class="tb-row">
+          <div class="tb-name">Premium</div>
+          <div class="tb-wrap"><div class="tb-fill" style="width:72%;background:var(--c-bright);"></div></div>
+          <div class="tb-pct" style="color:var(--c-bright);">72%</div>
+          <div class="tb-chip" style="background:rgba(6,104,225,0.15);color:var(--c-bright);">HIGH</div>
+        </div>
+        <div class="tb-row">
+          <div class="tb-name">Metal</div>
+          <div class="tb-wrap"><div class="tb-fill" style="width:28%;background:#4A6FA5;"></div></div>
+          <div class="tb-pct" style="color:#4A6FA5;">28%</div>
+          <div class="tb-chip" style="background:rgba(74,111,165,0.15);color:#4A6FA5;">LOW</div>
+        </div>
+      </div>
+
+      <!-- Behavioural signals -->
+      <div class="sc-card">
+        <div class="sc-lbl">Behavioural signals (last 30 days)</div>
+        <div class="sig-row"><div class="sig-dot" style="background:#EF4444;"></div><div class="sig-txt">Hit free FX limit 3× — £23.40 in avoidable fees paid</div></div>
+        <div class="sig-row"><div class="sig-dot" style="background:#F59E0B;"></div><div class="sig-txt">Viewed Premium feature screen 7× — cashback, lounge access</div></div>
+        <div class="sig-row"><div class="sig-dot" style="background:#EF4444;"></div><div class="sig-txt">Blocked from overseas ATM withdrawal — fee >free limit</div></div>
+        <div class="sig-row"><div class="sig-dot" style="background:#10B981;"></div><div class="sig-txt">2 crypto trades — £340 volume, indicates engaged user</div></div>
+        <div class="sig-row"><div class="sig-dot" style="background:#F59E0B;"></div><div class="sig-txt">Monthly spend £680 — exceeds Premium break-even at £9.99</div></div>
+      </div>
+
+      <!-- Story variant -->
+      <div class="sc-card">
+        <div class="sc-lbl">Auto-selected story variant</div>
+        <div style="display:flex;align-items:center;gap:9px;padding:2px 0;">
+          <div style="width:32px;height:32px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;">⚠️</div>
+          <div>
+            <div style="font-size:11.5px;font-weight:700;color:#FCA5A5;">FEAR variant</div>
+            <div style="font-size:9.5px;color:#8899BB;margin-top:1px;">Triggered by: 3× FX limit hits + blocked ATM</div>
+          </div>
+          <div style="margin-left:auto;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:#FCA5A5;font-size:7.5px;font-weight:700;padding:2px 6px;border-radius:4px;">ACTIVE</div>
+        </div>
+        <div style="margin-top:8px;background:rgba(255,255,255,0.04);border-radius:8px;padding:8px 10px;font-size:10px;color:#C8D4E8;font-style:italic;line-height:1.4;">"Your Standard plan cost you £23 in FX fees last month. Premium covers unlimited FX exchange."</div>
+      </div>
+
+      <!-- Offer band -->
+      <div class="sc-card">
+        <div class="sc-lbl">Offer calibration</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div style="font-size:11px;color:#C8D4E8;font-weight:600;">MED band · Incentive required</div>
+            <div style="font-size:9.5px;color:#8899BB;margin-top:2px;">Minimum effective offer to convert</div>
+          </div>
+          <div style="font-size:18px;font-weight:800;color:var(--c-gold);font-family:'DM Mono',monospace;">1 mo<br><span style="font-size:9px;color:#8899BB;font-weight:500;">free trial</span></div>
+        </div>
+      </div>
+
+      <!-- NBO -->
+      <div class="nbo">
+        <div class="nbo-lbl">Next Best Action</div>
+        <div class="nbo-txt">Premium upgrade — Fear variant · 1 month free</div>
+        <div class="nbo-sub">Estimated CVR: 31% · Offer cost: £9.99 · LTV uplift: +£8.40/mo</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- SCREEN 2 — CAMPAIGN BUILDER -->
+<!-- ══════════════════════════════════════════ -->
+<div class="phone-col">
+  <div class="phone-label">02 — Campaign Builder</div>
+  <div class="phone" style="position:relative;">
+    <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+    <div class="sb"><span>9:41</span><div class="sig"><div class="sb1"></div><div class="sb2"></div><div class="sb3"></div><div class="sb4"></div></div></div>
+    <div class="sc">
+
+      <div class="oh">
+        <div class="oh-logo">G</div>
+        <div><div class="oh-title">GrowthIQ</div><div class="oh-sub">Campaign Builder</div></div>
+        <div class="oh-badge">DRAFT</div>
+      </div>
+
+      <div class="seg-banner">
+        <div class="seg-lbl">Target segment</div>
+        <div class="seg-val">1.82M users</div>
+        <div class="seg-sub">Premium propensity · MED band (0.55–0.74) · Standard plan only</div>
+      </div>
+
+      <!-- Band distribution -->
+      <div style="padding:9px 12px 2px;">
+        <div class="sc-lbl">Propensity band distribution</div>
+      </div>
+      <div class="band-row">
+        <div class="bc" style="border-color:rgba(16,185,129,0.4);background:rgba(16,185,129,0.08);">
+          <div class="bc-val" style="color:var(--c-green);">640K</div>
+          <div class="bc-name">HIGH &gt;0.75</div>
+          <div class="bc-action" style="color:var(--c-green);">No offer</div>
+        </div>
+        <div class="bc active-band">
+          <div class="bc-val" style="color:var(--c-bright);">1.82M</div>
+          <div class="bc-name">MED 0.55–0.74</div>
+          <div class="bc-action" style="color:var(--c-bright);">1 mo free ✓</div>
+        </div>
+        <div class="bc supp">
+          <div class="bc-val" style="color:#4A6FA5;">2.1M</div>
+          <div class="bc-name">LOW &lt;0.55</div>
+          <div class="bc-action" style="color:#4A6FA5;">Suppress</div>
+        </div>
+      </div>
+
+      <!-- Story variant selection -->
+      <div style="padding:8px 12px 6px;">
+        <div class="sc-lbl">Story variant</div>
+        <div class="vc sel">
+          <div class="vc-icon" style="background:rgba(239,68,68,0.15);">⚠️</div>
+          <div><div class="vc-name">Fear</div><div class="vc-desc">Loss framing · FX fees · blocked features</div></div>
+          <div class="sel-chip">SELECTED</div>
+        </div>
+        <div class="vc">
+          <div class="vc-icon" style="background:rgba(6,104,225,0.12);">🚀</div>
+          <div><div class="vc-name">Aspiration</div><div class="vc-desc">Join 12M Premium members</div></div>
+        </div>
+        <div class="vc">
+          <div class="vc-icon" style="background:rgba(16,185,129,0.12);">👥</div>
+          <div><div class="vc-name">Social Proof</div><div class="vc-desc">4 of your contacts upgraded</div></div>
+        </div>
+      </div>
+
+      <!-- Offer config -->
+      <div style="padding:0 12px 8px;">
+        <div class="sc-lbl">Offer configuration</div>
+        <div class="offer-row">
+          <div>
+            <div class="or-label">Minimum effective incentive</div>
+            <div style="font-size:9px;color:#8899BB;margin-top:2px;">Auto-calculated for MED band · CAC-optimised</div>
+          </div>
+          <div class="or-val">1 month<br><span style="font-size:8.5px;font-weight:500;color:#8899BB;">free trial</span></div>
+        </div>
+      </div>
+
+      <!-- Message preview -->
+      <div style="padding:0 12px 8px;">
+        <div class="sc-lbl">Message preview · Fear variant</div>
+        <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:10px;padding:10px 12px;">
+          <div style="font-size:10px;font-weight:700;color:#FCA5A5;margin-bottom:4px;">Your Standard plan cost you £23 last month ⚠️</div>
+          <div style="font-size:9.5px;color:#C8D4E8;line-height:1.4;">You paid £23.40 in FX fees that Premium covers for free. Try Premium free for 30 days and keep more of your money.</div>
+          <div style="margin-top:7px;background:var(--c-bright);border-radius:7px;padding:6px;text-align:center;font-size:10px;font-weight:700;color:#fff;">Try Premium Free →</div>
+        </div>
+      </div>
+
+      <button class="launch-btn" onclick="launchCampaign()">Launch GrowthIQ Campaign →</button>
+
+    </div>
+
+    <!-- Success overlay -->
+    <div class="s2ov" id="s2ov">
+      <div class="conf2" id="conf2"></div>
+      <div class="ov-icon">🚀</div>
+      <div class="ov-title">Campaign Live!</div>
+      <div class="ov-sub">GrowthIQ is targeting 1.82M users with the Fear variant · 1 month free offer</div>
+      <div class="ov-stats">
+        <div class="ov-stat"><div class="ov-s-val">1.82M</div><div class="ov-s-lbl">users targeted</div></div>
+        <div class="ov-stat"><div class="ov-s-val">31%</div><div class="ov-s-lbl">est. CVR</div></div>
+        <div class="ov-stat"><div class="ov-s-val">−34%</div><div class="ov-s-lbl">spend saved</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- SCREEN 3 — CONSUMER UPGRADE NUDGE -->
+<!-- ══════════════════════════════════════════ -->
+<div class="phone-col">
+  <div class="phone-label">03 — Consumer Upgrade Nudge</div>
+  <div class="phone light">
+    <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+    <div class="sb"><span>9:41</span><div class="sig"><div class="sb1"></div><div class="sb2"></div><div class="sb3"></div><div class="sb4"></div></div></div>
+    <div class="sc">
+
+      <div class="con-top">
+        <div class="rev-logo">Re<span>vo</span>lut</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:11px;background:#f0f2f7;border:1px solid #dde3ef;border-radius:5px;padding:2px 7px;font-weight:700;color:#64748b;">STANDARD</span>
+          <span style="font-size:18px;">🔔</span>
+        </div>
+      </div>
+
+      <div class="con-bal">
+        <div class="bal-lbl">Total balance</div>
+        <div class="bal-amt">£2,847.40</div>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:4px;">
+          <span style="font-size:9px;color:#94a3b8;">RevPoints</span>
+          <span style="font-size:9px;font-weight:700;color:#7C3AED;font-family:'DM Mono',monospace;">0 pts</span>
+          <span style="font-size:8px;color:#ef4444;background:rgba(239,68,68,0.1);padding:1px 5px;border-radius:4px;">Standard earns 0 pts</span>
+        </div>
+      </div>
+
+      <!-- GrowthIQ upgrade card — Fear variant -->
+      <div class="upg-card">
+        <div class="uc-tag">⚠️ Your plan cost you money last month</div>
+        <div class="uc-headline">You left £23 on the table.<br>Premium covers it.</div>
+        <div class="uc-breakdown">
+          <div class="uc-br-row">
+            <div class="uc-br-lbl">FX fees paid (Standard)</div>
+            <div class="uc-br-val" style="color:#FCA5A5;">−£23.40</div>
+          </div>
+          <div class="uc-br-row">
+            <div class="uc-br-lbl">FX fees with Premium</div>
+            <div class="uc-br-val" style="color:var(--c-green);">£0.00</div>
+          </div>
+          <div class="uc-br-row">
+            <div class="uc-br-lbl">You would have saved</div>
+            <div class="uc-br-val" style="color:var(--c-bright);">£23.40</div>
+          </div>
+          <div class="uc-br-row">
+            <div class="uc-br-lbl">Premium costs</div>
+            <div class="uc-br-val" style="color:#C8D4E8;">£9.99 / month</div>
+          </div>
+        </div>
+        <button class="uc-cta">Try Premium Free — 1 Month →</button>
+        <div class="uc-sub">Then £9.99/mo · Cancel anytime · No card required for trial</div>
+      </div>
+
+      <!-- Quick actions -->
+      <div class="con-qa">
+        <div class="qa-b"><span class="qa-ico">💳</span><span class="qa-lbl">Cards</span></div>
+        <div class="qa-b"><span class="qa-ico">💸</span><span class="qa-lbl">Transfer</span></div>
+        <div class="qa-b"><span class="qa-ico">📈</span><span class="qa-lbl">Invest</span></div>
+        <div class="qa-b"><span class="qa-ico">₿</span><span class="qa-lbl">Crypto</span></div>
+      </div>
+
+      <!-- Transactions -->
+      <div class="txn-sect">
+        <div class="txn-hdr">Recent transactions</div>
+        <div class="txn-row">
+          <div class="txn-ico">✈️</div>
+          <div><div class="txn-name">Paris trip · FX fee</div><div class="txn-sub">FX conversion · Standard limit</div></div>
+          <div class="txn-amt" style="color:#ef4444;">−£8.20</div>
+        </div>
+        <div class="txn-row">
+          <div class="txn-ico">🛍️</div>
+          <div><div class="txn-name">ZARA online · EUR</div><div class="txn-sub">Foreign currency purchase</div></div>
+          <div class="txn-amt" style="color:#ef4444;">−£6.40</div>
+        </div>
+        <div class="txn-row">
+          <div class="txn-ico">💰</div>
+          <div><div class="txn-name">Salary</div><div class="txn-sub">Acme Ltd · Direct deposit</div></div>
+          <div class="txn-amt" style="color:var(--c-green);">+£3,200</div>
+        </div>
+        <div class="txn-row">
+          <div class="txn-ico">☕</div>
+          <div><div class="txn-name">Pret a Manger</div><div class="txn-sub">Card payment · London</div></div>
+          <div class="txn-amt" style="color:#334155;">−£4.80</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- SCREEN 4 — ANALYTICS DASHBOARD -->
+<!-- ══════════════════════════════════════════ -->
+<div class="phone-col">
+  <div class="phone-label">04 — Analytics Dashboard</div>
+  <div class="phone">
+    <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+    <div class="sb"><span>9:41</span><div class="sig"><div class="sb1"></div><div class="sb2"></div><div class="sb3"></div><div class="sb4"></div></div></div>
+    <div class="sc">
+
+      <div class="an-hdr">
+        <div class="an-title">GrowthIQ Analytics</div>
+        <div class="an-sub">Campaign: Premium · Fear variant · 1 month free · Day 14</div>
+      </div>
+
+      <!-- KPIs -->
+      <div class="kpi-row">
+        <div class="kpi-c">
+          <div class="kpi-v" style="color:var(--c-bright);">24%</div>
+          <div class="kpi-l">MED band CVR</div>
+        </div>
+        <div class="kpi-c">
+          <div class="kpi-v" style="color:var(--c-gold);">£8.40</div>
+          <div class="kpi-l">avg revenue uplift</div>
+        </div>
+        <div class="kpi-c">
+          <div class="kpi-v" style="color:var(--c-green);">−34%</div>
+          <div class="kpi-l">campaign spend</div>
+        </div>
+      </div>
+
+      <!-- Variant performance -->
+      <div class="vp-sect">
+        <div class="vp-hdr">CVR by story variant</div>
+        <div class="vp-row">
+          <div class="vp-name">Fear ⚠️</div>
+          <div class="vp-wrap"><div class="vp-fill" style="width:75%;background:#EF4444;"></div></div>
+          <div class="vp-pct" style="color:#EF4444;">31%</div>
+        </div>
+        <div class="vp-row">
+          <div class="vp-name">Aspiration 🚀</div>
+          <div class="vp-wrap"><div class="vp-fill" style="width:58%;background:var(--c-bright);"></div></div>
+          <div class="vp-pct" style="color:var(--c-bright);">24%</div>
+        </div>
+        <div class="vp-row">
+          <div class="vp-name">Social 👥</div>
+          <div class="vp-wrap"><div class="vp-fill" style="width:46%;background:var(--c-purple);"></div></div>
+          <div class="vp-pct" style="color:var(--c-purple);">19%</div>
+        </div>
+        <div style="font-size:8.5px;color:#4A6FA5;margin-top:4px;font-style:italic;">Fear variant outperforms blanket baseline (11%) by 2.8×</div>
+      </div>
+
+      <!-- Budget compare -->
+      <div class="bgt-card">
+        <div class="sc-lbl">Budget efficiency</div>
+        <div class="bgt-row">
+          <div class="bgt-lbl">Blanket campaign spend</div>
+          <div class="bgt-val" style="color:#EF4444;">£2.84M</div>
+        </div>
+        <div class="bgt-row">
+          <div class="bgt-lbl">GrowthIQ calibrated spend</div>
+          <div class="bgt-val" style="color:var(--c-bright);">£1.82M</div>
+        </div>
+        <div class="bgt-saved">
+          <div class="bgt-s-lbl">💰 Budget saved this campaign</div>
+          <div class="bgt-s-val">£1.02M</div>
+        </div>
+      </div>
+
+      <!-- Cohort performance -->
+      <div class="cohort-card">
+        <div class="sc-lbl">Upgrade rate by propensity band</div>
+        <div class="co-row">
+          <div class="co-lbl">HIGH band · no offer</div>
+          <div class="co-val" style="color:var(--c-green);">38%</div>
+        </div>
+        <div class="co-row">
+          <div class="co-lbl">MED band · 1 month free</div>
+          <div class="co-val" style="color:var(--c-bright);">24%</div>
+        </div>
+        <div class="co-row">
+          <div class="co-lbl">LOW band · suppressed</div>
+          <div class="co-val" style="color:#4A6FA5;">—</div>
+        </div>
+        <div class="co-row">
+          <div class="co-lbl">Blanket baseline (prev. campaign)</div>
+          <div class="co-val" style="color:#8899BB;">11%</div>
+        </div>
+      </div>
+
+      <div style="margin:0 12px 8px;background:rgba(6,104,225,0.1);border:1px solid rgba(6,104,225,0.25);border-radius:10px;padding:9px 11px;">
+        <div style="font-size:9px;font-weight:700;color:var(--c-bright);margin-bottom:3px;">NEXT ACTION · GrowthIQ RECOMMENDATION</div>
+        <div style="font-size:10px;color:#C8D4E8;line-height:1.4;">HIGH band outperforming without offer — retrain model to raise HIGH threshold to 0.68. Estimated additional £180K saved next campaign cycle.</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+</div><!-- proto-wrap -->
+
+<script>
+function launchCampaign() {
+  var ov = document.getElementById('s2ov');
+  ov.classList.add('show');
+  var c = document.getElementById('conf2');
+  var cols = ['#0668E1','#7C3AED','#F59E0B','#10B981','#60A5FA','#F472B6','#34D399'];
+  for (var i = 0; i < 36; i++) {
+    var p = document.createElement('div');
+    p.className = 'cp';
+    var size = 4 + Math.random() * 7;
+    p.style.cssText = 'left:' + (Math.random() * 100) + '%;top:' + (Math.random() * 120 - 10) + '%;width:' + size + 'px;height:' + size + 'px;background:' + cols[Math.floor(Math.random() * cols.length)] + ';border-radius:' + (Math.random() > 0.5 ? '50%' : '2px') + ';animation-duration:' + (1.4 + Math.random() * 1.8) + 's;animation-delay:' + (Math.random() * 2.4) + 's;';
+    c.appendChild(p);
+  }
+}
+</script>
+
+</body>
+</html>
