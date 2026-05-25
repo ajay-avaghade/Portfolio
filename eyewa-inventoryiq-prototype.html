@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>eyewa InventoryIQ — Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Inter',sans-serif;background:#0A0714;color:#f0f4f8;min-height:100vh;}
+
+.proto-header{background:#000;padding:12px 32px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #1a1530;}
+.ph-eyebrow{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#64748b;}
+.ph-title{font-size:13px;font-weight:700;color:#f8fafc;}
+.ph-accent{color:#8B5CF6;}
+.ph-pipe{color:#2a2040;}
+.ph-tag{font-size:10px;color:#64748b;background:#0d0b1a;border:1px solid #2a1f4a;border-radius:4px;padding:2px 8px;}
+
+.screen-nav{background:#0D0B1A;border-bottom:1px solid #1e1635;display:flex;gap:0;padding:0 24px;}
+.snav{background:none;border:none;border-bottom:2px solid transparent;color:#64748b;font-family:'Inter',sans-serif;font-size:11.5px;font-weight:500;padding:11px 20px;cursor:pointer;transition:all .2s;}
+.snav:hover{color:#94a3b8;}
+.snav.active{color:#8B5CF6;border-bottom-color:#8B5CF6;}
+
+.browser-outer{max-width:1380px;margin:24px auto;border-radius:10px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.5);border:1px solid #1e1635;}
+.browser-chrome{height:44px;background:#0D0B1A;display:flex;align-items:center;gap:12px;padding:0 16px;border-bottom:1px solid #1e1635;}
+.bc-dots{display:flex;gap:6px;}
+.bc-dots span{width:12px;height:12px;border-radius:50%;}
+.dr{background:#ff5f57;}.dy{background:#febc2e;}.dg{background:#28c840;}
+.bc-url{flex:1;background:#07051A;border-radius:6px;height:26px;display:flex;align-items:center;padding:0 12px;font-size:11px;color:#64748b;max-width:480px;margin:0 auto;}
+.bc-usr{font-size:11px;color:#475569;margin-left:auto;}
+
+.console-layout{display:flex;height:660px;background:#07051A;}
+.sidebar{width:220px;flex-shrink:0;background:#0A0714;border-right:1px solid #1e1635;display:flex;flex-direction:column;}
+.sb-logo{display:flex;align-items:center;gap:10px;padding:16px 16px 12px;border-bottom:1px solid #1e1635;}
+.sb-logo-mark{width:34px;height:34px;background:linear-gradient(135deg,#8B5CF6,#6D28D9);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;}
+.sb-logo-title{font-size:13px;font-weight:700;color:#f0f4f8;}
+.sb-logo-sub{font-size:10px;color:#475569;margin-top:1px;}
+.sb-section{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#2a2040;padding:14px 16px 6px;}
+.sb-nav-item{display:flex;align-items:center;gap:9px;padding:9px 16px;font-size:12px;color:#64748b;cursor:pointer;transition:all .15s;border-left:2px solid transparent;}
+.sb-nav-item:hover{background:rgba(139,92,246,.05);color:#94a3b8;}
+.sb-nav-item.active{background:rgba(139,92,246,.08);color:#8B5CF6;border-left-color:#8B5CF6;}
+.sb-icon{font-size:13px;width:16px;text-align:center;}
+.sb-spacer{flex:1;}
+.sb-footer{padding:12px 16px;border-top:1px solid #1e1635;}
+.sb-stat-row{display:flex;justify-content:space-between;margin-bottom:10px;}
+.sb-stat{text-align:center;}
+.sb-stat-val{font-size:14px;font-weight:700;color:#f0f4f8;}
+.sb-stat-val.red{color:#EF4444;}.sb-stat-val.purple{color:#8B5CF6;}
+.sb-stat-lbl{font-size:9px;color:#475569;margin-top:1px;}
+.sb-user{display:flex;align-items:center;gap:8px;}
+.sb-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#8B5CF6,#6D28D9);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0;}
+.sb-user-name{font-size:11px;font-weight:600;color:#94a3b8;}
+.sb-user-role{font-size:9px;color:#475569;}
+
+.main-area{flex:1;overflow-y:auto;background:#07051A;}
+.screen{display:none;padding:24px;}
+.screen.active{display:block;}
+
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;}
+.page-title{font-size:18px;font-weight:700;color:#f0f4f8;}
+.page-sub{font-size:12px;color:#64748b;margin-top:3px;}
+.hdr-actions{display:flex;gap:8px;}
+.btn-primary{background:#8B5CF6;color:#fff;border:none;border-radius:6px;padding:8px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;}
+.btn-outline{background:none;color:#94a3b8;border:1px solid #1e1635;border-radius:6px;padding:7px 14px;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;}
+.btn-approve{background:#22C55E;color:#fff;border:none;border-radius:6px;padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;}
+.btn-reject{background:rgba(239,68,68,.12);color:#EF4444;border:1px solid rgba(239,68,68,.3);border-radius:6px;padding:9px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;}
+
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+.kpi-card{background:#0D0B1A;border:1px solid #1e1635;border-radius:10px;padding:16px;}
+.kpi-label{font-size:10px;font-weight:600;color:#475569;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;}
+.kpi-val{font-size:26px;font-weight:700;color:#f0f4f8;line-height:1;}
+.kpi-val.purple{color:#8B5CF6;}
+.kpi-val.red{color:#EF4444;}
+.kpi-val.amber{color:#F59E0B;}
+.kpi-val.green{color:#22C55E;}
+.kpi-delta{font-size:10px;margin-top:6px;}
+.kpi-delta.up{color:#22C55E;}
+.kpi-delta.down{color:#EF4444;}
+.kpi-delta.neutral{color:#64748b;}
+
+.card{background:#0D0B1A;border:1px solid #1e1635;border-radius:10px;overflow:hidden;}
+.card-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #1e1635;}
+.card-title{font-size:12px;font-weight:700;color:#f0f4f8;}
+.card-sub{font-size:10px;color:#64748b;margin-top:1px;}
+
+/* SKU Grid */
+.filter-bar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+.filter-btn{background:#0D0B1A;border:1px solid #1e1635;border-radius:6px;padding:5px 12px;font-size:11px;color:#64748b;cursor:pointer;font-family:'Inter',sans-serif;}
+.filter-btn.active{border-color:#8B5CF6;color:#8B5CF6;background:rgba(139,92,246,.08);}
+.category-strip{display:flex;gap:10px;margin-bottom:16px;}
+.cat-pill{flex:1;background:#0D0B1A;border:1px solid #1e1635;border-radius:8px;padding:12px;text-align:center;}
+.cat-pill-num{font-size:18px;font-weight:700;color:#f0f4f8;}
+.cat-pill-lbl{font-size:10px;color:#475569;margin-top:2px;}
+.sku-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.sku-card{background:#0D0B1A;border:1px solid #1e1635;border-radius:8px;padding:12px;position:relative;}
+.sku-status-dot{width:8px;height:8px;border-radius:50%;position:absolute;top:12px;right:12px;}
+.sku-status-dot.green{background:#22C55E;box-shadow:0 0 6px #22C55E;}
+.sku-status-dot.amber{background:#F59E0B;box-shadow:0 0 6px #F59E0B;}
+.sku-status-dot.red{background:#EF4444;box-shadow:0 0 6px #EF4444;}
+.sku-brand{font-size:9px;font-weight:700;color:#8B5CF6;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;}
+.sku-name{font-size:11px;font-weight:600;color:#f0f4f8;margin-bottom:8px;padding-right:16px;line-height:1.3;}
+.sku-metric{display:flex;justify-content:space-between;font-size:10px;margin-bottom:3px;}
+.sku-metric-lbl{color:#475569;}
+.sku-metric-val{font-weight:600;color:#94a3b8;}
+.sku-metric-val.red{color:#EF4444;}
+.sku-metric-val.amber{color:#F59E0B;}
+.sku-metric-val.green{color:#22C55E;}
+.sku-badge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700;margin-top:6px;}
+.sku-badge.stockout{background:rgba(239,68,68,.15);color:#EF4444;}
+.sku-badge.low{background:rgba(245,158,11,.15);color:#F59E0B;}
+.sku-badge.healthy{background:rgba(34,197,94,.12);color:#22C55E;}
+.sku-badge.reorder{background:rgba(139,92,246,.15);color:#A78BFA;}
+
+/* Screen 2 - Forecast */
+.forecast-header{display:flex;gap:16px;margin-bottom:20px;}
+.sku-detail-card{flex:1;background:#0D0B1A;border:1px solid #1e1635;border-radius:10px;padding:16px;}
+.sku-detail-brand{font-size:10px;font-weight:700;color:#8B5CF6;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;}
+.sku-detail-name{font-size:16px;font-weight:700;color:#f0f4f8;margin-bottom:12px;}
+.sku-detail-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.sd-item{background:#07051A;border-radius:6px;padding:10px;}
+.sd-label{font-size:9px;color:#475569;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;}
+.sd-val{font-size:16px;font-weight:700;color:#f0f4f8;}
+.sd-val.red{color:#EF4444;}
+.sd-val.amber{color:#F59E0B;}
+.alert-box{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:8px;padding:12px 16px;flex-shrink:0;display:flex;align-items:center;gap:12px;}
+.alert-box-icon{font-size:24px;}
+.alert-box-title{font-size:12px;font-weight:700;color:#EF4444;margin-bottom:2px;}
+.alert-box-sub{font-size:11px;color:#64748b;}
+
+/* Bar chart */
+.bar-chart-wrap{background:#0D0B1A;border:1px solid #1e1635;border-radius:10px;padding:20px;margin-bottom:16px;}
+.chart-title{font-size:12px;font-weight:700;color:#f0f4f8;margin-bottom:4px;}
+.chart-sub{font-size:10px;color:#64748b;margin-bottom:20px;}
+.bar-chart{display:flex;align-items:flex-end;gap:8px;height:160px;border-bottom:1px solid #1e1635;padding-bottom:0;position:relative;}
+.bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;}
+.bar-label{font-size:9px;color:#475569;white-space:nowrap;margin-top:8px;order:2;}
+.bar-inner{flex:1;display:flex;align-items:flex-end;width:100%;}
+.bar{width:100%;border-radius:4px 4px 0 0;position:relative;min-height:4px;display:flex;align-items:flex-start;justify-content:center;}
+.bar.actual{background:rgba(139,92,246,.5);}
+.bar.forecast{background:rgba(139,92,246,.2);border:1px dashed rgba(139,92,246,.5);border-bottom:none;}
+.bar-val{font-size:9px;font-weight:700;color:#f0f4f8;margin-top:4px;white-space:nowrap;}
+.chart-legend{display:flex;gap:16px;margin-top:12px;}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:10px;color:#64748b;}
+.legend-dot{width:10px;height:10px;border-radius:2px;}
+.legend-dot.actual{background:rgba(139,92,246,.5);}
+.legend-dot.forecast{background:rgba(139,92,246,.2);border:1px dashed rgba(139,92,246,.5);}
+.eid-marker{font-size:9px;color:#F59E0B;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.2);border-radius:4px;padding:2px 6px;display:inline-block;margin-top:4px;}
+
+/* Demand forecast cards */
+.demand-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px;}
+.demand-card{background:#0D0B1A;border:1px solid #1e1635;border-radius:10px;padding:16px;}
+.demand-horizon{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#475569;margin-bottom:8px;}
+.demand-val{font-size:28px;font-weight:800;color:#8B5CF6;}
+.demand-ci{font-size:10px;color:#64748b;margin-top:3px;}
+.demand-reorder{font-size:10px;color:#F59E0B;margin-top:6px;background:rgba(245,158,11,.08);border-radius:4px;padding:4px 8px;}
+
+/* Screen 3 - PO Generator */
+table{width:100%;border-collapse:collapse;}
+th{font-size:9.5px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.06em;padding:10px 12px;text-align:left;border-bottom:1px solid #1e1635;}
+td{font-size:12px;color:#94a3b8;padding:11px 12px;border-bottom:1px solid rgba(255,255,255,.04);}
+tr:hover td{background:rgba(139,92,246,.03);}
+.urgency-badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:9px;font-weight:700;}
+.urgency-badge.critical{background:rgba(239,68,68,.15);color:#EF4444;}
+.urgency-badge.high{background:rgba(245,158,11,.12);color:#F59E0B;}
+.urgency-badge.normal{background:rgba(34,197,94,.1);color:#22C55E;}
+.ai-reason{font-size:10px;color:#64748b;max-width:260px;line-height:1.4;}
+.approve-btn{background:rgba(34,197,94,.1);color:#22C55E;border:1px solid rgba(34,197,94,.2);border-radius:4px;padding:4px 10px;font-size:10px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;}
+.po-summary-bar{background:#0D0B1A;border:1px solid #1e1635;border-radius:8px;padding:14px 16px;display:flex;gap:32px;margin-bottom:16px;}
+.po-sum-item{text-align:center;}
+.po-sum-val{font-size:18px;font-weight:700;color:#f0f4f8;}
+.po-sum-lbl{font-size:9px;color:#475569;margin-top:2px;}
+
+/* Screen 4 - Market Playbook */
+.market-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+.market-header-card{background:#0D0B1A;border:1px solid #1e1635;border-radius:10px;padding:20px;}
+.mkt-title{font-size:16px;font-weight:700;color:#f0f4f8;margin-bottom:4px;}
+.mkt-sub{font-size:11px;color:#64748b;margin-bottom:16px;}
+.mkt-stat{display:flex;align-items:baseline;gap:8px;margin-bottom:8px;}
+.mkt-stat-val{font-size:22px;font-weight:700;color:#8B5CF6;}
+.mkt-stat-lbl{font-size:11px;color:#64748b;}
+.mkt-insight{background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:6px;padding:10px 12px;font-size:11px;color:#A78BFA;line-height:1.5;}
+.curve-chart{background:#07051A;border-radius:8px;padding:16px;margin-top:12px;}
+.curve-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.curve-month{font-size:10px;color:#475569;width:40px;flex-shrink:0;}
+.curve-bar-wrap{flex:1;height:18px;background:#1e1635;border-radius:4px;overflow:hidden;position:relative;}
+.curve-bar{height:100%;border-radius:4px;display:flex;align-items:center;padding-left:8px;}
+.curve-bar.uae{background:rgba(139,92,246,.4);}
+.curve-bar.ksa{background:rgba(245,158,11,.4);}
+.curve-bar-val{font-size:9px;font-weight:700;color:#f0f4f8;}
+.curve-legend{display:flex;gap:16px;margin-top:8px;}
+.cl-item{display:flex;align-items:center;gap:6px;font-size:10px;color:#64748b;}
+.cl-dot{width:10px;height:10px;border-radius:2px;}
+.cl-dot.uae{background:rgba(139,92,246,.4);}
+.cl-dot.ksa{background:rgba(245,158,11,.4);}
+.category-breakdown{background:#0D0B1A;border:1px solid #1e1635;border-radius:10px;padding:16px;}
+.cat-row{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+.cat-name{font-size:11px;color:#94a3b8;width:160px;flex-shrink:0;}
+.cat-bar-wrap{flex:1;height:8px;background:#1e1635;border-radius:99px;overflow:hidden;}
+.cat-bar{height:100%;border-radius:99px;}
+.cat-bar.frames{background:#8B5CF6;}
+.cat-bar.sun{background:#F59E0B;}
+.cat-bar.cl{background:#22C55E;}
+.cat-pct{font-size:11px;font-weight:600;color:#94a3b8;width:32px;text-align:right;flex-shrink:0;}
+</style>
+</head>
+<body>
+
+<div class="proto-header">
+  <span class="ph-eyebrow">eyewa · Supply Chain Intelligence</span>
+  <span class="ph-pipe">|</span>
+  <span class="ph-title">eyewa <span class="ph-accent">InventoryIQ</span> — ML Demand Forecasting & Smart Reorder</span>
+  <span class="ph-pipe">|</span>
+  <span class="ph-tag">Interactive Prototype</span>
+</div>
+
+<div class="screen-nav">
+  <button class="snav active" data-s="1">01 — SKU Health Dashboard</button>
+  <button class="snav" data-s="2">02 — Demand Forecast</button>
+  <button class="snav" data-s="3">03 — Smart PO Generator</button>
+  <button class="snav" data-s="4">04 — New Market Playbook</button>
+</div>
+
+<div class="browser-outer">
+  <div class="browser-chrome">
+    <div class="bc-dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div>
+    <div class="bc-url" id="bcUrl">inventoryiq.eyewa.internal/dashboard</div>
+    <span class="bc-usr">Supply Chain · eyewa Dubai</span>
+  </div>
+
+  <div class="console-layout">
+    <aside class="sidebar">
+      <div class="sb-logo">
+        <div class="sb-logo-mark">IQ</div>
+        <div>
+          <div class="sb-logo-title">InventoryIQ</div>
+          <div class="sb-logo-sub">eyewa · Supply Chain</div>
+        </div>
+      </div>
+      <div class="sb-section">Analytics</div>
+      <div class="sb-nav-item active" data-s="1"><span class="sb-icon">▦</span> SKU Health</div>
+      <div class="sb-nav-item" data-s="2"><span class="sb-icon">~</span> Demand Forecast</div>
+      <div class="sb-nav-item" data-s="3"><span class="sb-icon">📋</span> PO Generator</div>
+      <div class="sb-section">Markets</div>
+      <div class="sb-nav-item" data-s="4"><span class="sb-icon">🌍</span> New Market Playbook</div>
+      <div class="sb-spacer"></div>
+      <div class="sb-footer">
+        <div class="sb-stat-row">
+          <div class="sb-stat"><div class="sb-stat-val">6,066</div><div class="sb-stat-lbl">Total SKUs</div></div>
+          <div class="sb-stat"><div class="sb-stat-val red">12</div><div class="sb-stat-lbl">Stockouts</div></div>
+          <div class="sb-stat"><div class="sb-stat-val purple">3</div><div class="sb-stat-lbl">Draft POs</div></div>
+        </div>
+        <div class="sb-user">
+          <div class="sb-avatar">SC</div>
+          <div>
+            <div class="sb-user-name">Supply Chain Lead</div>
+            <div class="sb-user-role">eyewa · Dubai HQ</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="main-area">
+
+      <!-- ═══ SCREEN 1: SKU HEALTH ═══ -->
+      <div class="screen active" id="s1">
+        <div class="page-header">
+          <div>
+            <div class="page-title">SKU Health Dashboard</div>
+            <div class="page-sub">6,066 active SKUs across 4 categories · Updated 15 min ago</div>
+          </div>
+          <div class="hdr-actions">
+            <button class="btn-outline">⬇ Export</button>
+            <button class="btn-primary">🔄 Refresh ML Scores</button>
+          </div>
+        </div>
+
+        <div class="kpi-row">
+          <div class="kpi-card"><div class="kpi-label">Healthy SKUs</div><div class="kpi-val green">4,064</div><div class="kpi-delta up">67% of catalogue — on target</div></div>
+          <div class="kpi-card"><div class="kpi-label">Low Stock Warning</div><div class="kpi-val amber">1,394</div><div class="kpi-delta neutral">23% · reorder recommended</div></div>
+          <div class="kpi-card"><div class="kpi-label">Stockouts</div><div class="kpi-val red">12</div><div class="kpi-delta down">↑ 4 since last week · urgent</div></div>
+          <div class="kpi-card"><div class="kpi-label">Dead Stock Risk</div><div class="kpi-val purple">608</div><div class="kpi-delta neutral">10% · no reorder needed</div></div>
+        </div>
+
+        <div class="category-strip">
+          <div class="cat-pill"><div class="cat-pill-num">2,847</div><div class="cat-pill-lbl">Frames</div></div>
+          <div class="cat-pill"><div class="cat-pill-num">1,203</div><div class="cat-pill-lbl">Rx Lenses</div></div>
+          <div class="cat-pill"><div class="cat-pill-num">892</div><div class="cat-pill-lbl">Contact Lenses</div></div>
+          <div class="cat-pill"><div class="cat-pill-num">1,124</div><div class="cat-pill-lbl">Sunglasses</div></div>
+        </div>
+
+        <div class="filter-bar">
+          <button class="filter-btn active">All SKUs</button>
+          <button class="filter-btn">🔴 Stockout</button>
+          <button class="filter-btn">🟡 Low Stock</button>
+          <button class="filter-btn">🟢 Healthy</button>
+          <button class="filter-btn">Frames</button>
+          <button class="filter-btn">Lenses</button>
+          <button class="filter-btn">Sunglasses</button>
+        </div>
+
+        <div class="sku-grid">
+          <div class="sku-card"><div class="sku-status-dot red"></div><div class="sku-brand">Oakley</div><div class="sku-name">Holbrook Matte Black / Grey Lens 55mm</div><div class="sku-metric"><span class="sku-metric-lbl">Stock</span><span class="sku-metric-val red">0 units</span></div><div class="sku-metric"><span class="sku-metric-lbl">30d demand</span><span class="sku-metric-val">38 units</span></div><div class="sku-metric"><span class="sku-metric-lbl">Lead time</span><span class="sku-metric-val">21 days</span></div><div><span class="sku-badge stockout">STOCKOUT</span></div></div>
+
+          <div class="sku-card"><div class="sku-status-dot red"></div><div class="sku-brand">Ray-Ban</div><div class="sku-name">RB3025 Aviator Black G15 Classic 55mm</div><div class="sku-metric"><span class="sku-metric-lbl">Stock</span><span class="sku-metric-val amber">12 units</span></div><div class="sku-metric"><span class="sku-metric-lbl">30d demand</span><span class="sku-metric-val">47 units</span></div><div class="sku-metric"><span class="sku-metric-lbl">Reorder in</span><span class="sku-metric-val red">8 days</span></div><div><span class="sku-badge reorder">REORDER NOW</span></div></div>
+
+          <div class="sku-card"><div class="sku-status-dot amber"></div><div class="sku-brand">Essilor</div><div class="sku-name">Varilux Comfort 360 Hi-Index 1.67 Clear</div><div class="sku-metric"><span class="sku-metric-lbl">Stock</span><span class="sku-metric-val amber">6 units</span></div><div class="sku-metric"><span class="sku-metric-lbl">30d demand</span><span class="sku-metric-val">22 units</span></div><div class="sku-metric"><span class="sku-metric-lbl">Reorder in</span><span class="sku-metric-val amber">12 days</span></div><div><span class="sku-badge low">LOW STOCK</span></div></div>
+
+          <div class="sku-card"><div class="sku-status-dot green"></div><div class="sku-brand">Tom Ford</div><div class="sku-name">FT0248 Havana Brown / Gradient Brown 52mm</div><div class="sku-metric"><span class="sku-metric-lbl">Stock</span><span class="sku-metric-val green">34 units</span></div><div class="sku-metric"><span class="sku-metric-lbl">30d demand</span><span class="sku-metric-val">18 units</span></div><div class="sku-metric"><span class="sku-metric-lbl">Coverage</span><span class="sku-metric-val green">57 days</span></div><div><span class="sku-badge healthy">HEALTHY</span></div></div>
+
+          <div class="sku-card"><div class="sku-status-dot green"></div><div class="sku-brand">Acuvue</div><div class="sku-name">Oasys 1-Day with HydraLuxe 30pk BC 8.5</div><div class="sku-metric"><span class="sku-metric-lbl">Stock</span><span class="sku-metric-val green">214 units</span></div><div class="sku-metric"><span class="sku-metric-lbl">30d demand</span><span class="sku-metric-val">89 units</span></div><div class="sku-metric"><span class="sku-metric-lbl">Coverage</span><span class="sku-metric-val green">72 days</span></div><div><span class="sku-badge healthy">HEALTHY</span></div></div>
+
+          <div class="sku-card"><div class="sku-status-dot amber"></div><div class="sku-brand">Prada</div><div class="sku-name">PR 08YV Conceptual Black / Pale Gold 54mm</div><div class="sku-metric"><span class="sku-metric-lbl">Stock</span><span class="sku-metric-val amber">3 units</span></div><div class="sku-metric"><span class="sku-metric-lbl">30d demand</span><span class="sku-metric-val">9 units</span></div><div class="sku-metric"><span class="sku-metric-lbl">Reorder in</span><span class="sku-metric-val amber">10 days</span></div><div><span class="sku-badge low">LOW STOCK</span></div></div>
+        </div>
+      </div>
+
+      <!-- ═══ SCREEN 2: DEMAND FORECAST ═══ -->
+      <div class="screen" id="s2">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Demand Forecast</div>
+            <div class="page-sub">Ray-Ban RB3025 Aviator · Black G15 55mm · ML model updated 2 hrs ago</div>
+          </div>
+          <div class="hdr-actions">
+            <button class="btn-outline">← Back to SKUs</button>
+            <button class="btn-primary">Generate PO Draft</button>
+          </div>
+        </div>
+
+        <div class="forecast-header">
+          <div class="sku-detail-card">
+            <div class="sku-detail-brand">Ray-Ban · Frames</div>
+            <div class="sku-detail-name">RB3025 Aviator Classic · Black G15 55mm</div>
+            <div class="sku-detail-grid">
+              <div class="sd-item"><div class="sd-label">Current Stock</div><div class="sd-val amber">12 units</div></div>
+              <div class="sd-item"><div class="sd-label">Lead Time</div><div class="sd-val">21 days</div></div>
+              <div class="sd-item"><div class="sd-label">Reorder Point</div><div class="sd-val red">8 days</div></div>
+              <div class="sd-item"><div class="sd-label">Avg Daily Demand</div><div class="sd-val">1.6 units</div></div>
+              <div class="sd-item"><div class="sd-label">Supplier</div><div class="sd-val" style="font-size:12px;">Luxottica Gulf DMCC</div></div>
+              <div class="sd-item"><div class="sd-label">MOQ</div><div class="sd-val">24 units</div></div>
+            </div>
+          </div>
+          <div class="alert-box">
+            <div class="alert-box-icon">⚠</div>
+            <div>
+              <div class="alert-box-title">Stockout Risk in 8 Days</div>
+              <div class="alert-box-sub">At current demand rate, stock runs out by June 3. Lead time is 21 days — order must be placed today to avoid stockout.</div>
+              <div style="margin-top:8px;font-size:10px;color:#F59E0B;">+ Eid al-Adha uplift: +34% demand expected June 7–14</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bar-chart-wrap">
+          <div class="chart-title">Monthly Demand — Actual vs. ML Forecast</div>
+          <div class="chart-sub">Units sold / predicted per month · Confidence interval ±8–18 units</div>
+          <div class="bar-chart">
+            <div class="bar-wrap"><div class="bar-inner"><div class="bar actual" style="height:62%"><span class="bar-val">31</span></div></div><div class="bar-label">Jan</div></div>
+            <div class="bar-wrap"><div class="bar-inner"><div class="bar actual" style="height:56%"><span class="bar-val">28</span></div></div><div class="bar-label">Feb</div></div>
+            <div class="bar-wrap"><div class="bar-inner"><div class="bar actual" style="height:70%"><span class="bar-val">35</span></div></div><div class="bar-label">Mar</div></div>
+            <div class="bar-wrap"><div class="bar-inner"><div class="bar actual" style="height:80%"><span class="bar-val">40</span></div></div><div class="bar-label">Apr</div></div>
+            <div class="bar-wrap"><div class="bar-inner"><div class="bar actual" style="height:88%"><span class="bar-val">44</span></div></div><div class="bar-label">May</div></div>
+            <div class="bar-wrap"><div class="bar-inner"><div class="bar forecast" style="height:94%"><span class="bar-val" style="color:#A78BFA">47</span></div></div><div class="bar-label">Jun <span class="eid-marker">Eid ↑</span></div></div>
+            <div class="bar-wrap"><div class="bar-inner"><div class="bar forecast" style="height:72%"><span class="bar-val" style="color:#A78BFA">36</span></div></div><div class="bar-label">Jul</div></div>
+            <div class="bar-wrap"><div class="bar-inner"><div class="bar forecast" style="height:68%"><span class="bar-val" style="color:#A78BFA">34</span></div></div><div class="bar-label">Aug</div></div>
+          </div>
+          <div class="chart-legend">
+            <div class="legend-item"><div class="legend-dot actual"></div>Actual sales</div>
+            <div class="legend-item"><div class="legend-dot forecast"></div>ML forecast (dashed = projected)</div>
+          </div>
+        </div>
+
+        <div class="demand-cards">
+          <div class="demand-card">
+            <div class="demand-horizon">30-Day Demand</div>
+            <div class="demand-val">47 units</div>
+            <div class="demand-ci">±8 units · confidence 91%</div>
+            <div class="demand-reorder">⚠ Current stock covers only 7.5 days</div>
+          </div>
+          <div class="demand-card">
+            <div class="demand-horizon">60-Day Demand</div>
+            <div class="demand-val">89 units</div>
+            <div class="demand-ci">±12 units · confidence 84%</div>
+            <div class="demand-reorder">Eid uplift included in 60d estimate</div>
+          </div>
+          <div class="demand-card">
+            <div class="demand-horizon">90-Day Demand</div>
+            <div class="demand-val">134 units</div>
+            <div class="demand-ci">±18 units · confidence 76%</div>
+            <div class="demand-reorder">Seasonal decline expected Aug–Sep</div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:12px;">
+          <button class="btn-approve">Generate PO Draft — 60 units recommended</button>
+          <button class="btn-outline">Adjust Quantity</button>
+        </div>
+      </div>
+
+      <!-- ═══ SCREEN 3: PO GENERATOR ═══ -->
+      <div class="screen" id="s3">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Smart PO Generator</div>
+            <div class="page-sub">AI-drafted purchase orders awaiting approval · 3 drafts pending</div>
+          </div>
+          <div class="hdr-actions">
+            <button class="btn-outline">+ Manual PO</button>
+            <button class="btn-primary">✓ Approve All 3</button>
+          </div>
+        </div>
+
+        <div class="po-summary-bar">
+          <div class="po-sum-item"><div class="po-sum-val">3</div><div class="po-sum-lbl">Draft POs</div></div>
+          <div class="po-sum-item"><div class="po-sum-val" style="color:#EF4444">1</div><div class="po-sum-lbl">Critical (stockout)</div></div>
+          <div class="po-sum-item"><div class="po-sum-val" style="color:#F59E0B">2</div><div class="po-sum-lbl">High Priority</div></div>
+          <div class="po-sum-item"><div class="po-sum-val">AED 38,400</div><div class="po-sum-lbl">Total PO Value</div></div>
+          <div class="po-sum-item"><div class="po-sum-val" style="color:#22C55E">3</div><div class="po-sum-lbl">Suppliers Ready</div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><div class="card-title">AI-Generated Purchase Order Drafts</div><div style="font-size:10px;color:#64748b;">Review AI reasoning before approving</div></div>
+          <table>
+            <thead>
+              <tr>
+                <th>SKU</th>
+                <th>Category</th>
+                <th>Supplier</th>
+                <th>Qty</th>
+                <th>Unit Cost</th>
+                <th>Total (AED)</th>
+                <th>Priority</th>
+                <th>AI Reasoning</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="color:#f0f4f8;font-weight:600;font-size:11px;">Oakley Holbrook<br/>Matte Black 55mm</td>
+                <td>Sunglasses</td>
+                <td>Oakley Gulf FZE</td>
+                <td style="font-weight:700;color:#f0f4f8;">30</td>
+                <td>AED 280</td>
+                <td style="font-weight:700;color:#f0f4f8;">AED 8,400</td>
+                <td><span class="urgency-badge critical">CRITICAL</span></td>
+                <td><div class="ai-reason">Stock at 0 units. Return spike flagged — recommend 30 units (conservative) pending quality investigation. Lead time 18 days.</div></td>
+                <td><button class="approve-btn">✓ Approve</button></td>
+              </tr>
+              <tr>
+                <td style="color:#f0f4f8;font-weight:600;font-size:11px;">Ray-Ban RB3025<br/>Aviator Black G15</td>
+                <td>Sunglasses</td>
+                <td>Luxottica Gulf DMCC</td>
+                <td style="font-weight:700;color:#f0f4f8;">60</td>
+                <td>AED 240</td>
+                <td style="font-weight:700;color:#f0f4f8;">AED 14,400</td>
+                <td><span class="urgency-badge high">HIGH</span></td>
+                <td><div class="ai-reason">Stockout in 8 days. Eid uplift +34% in June. 60 units covers 90-day demand with Eid buffer. MOQ met (24 units).</div></td>
+                <td><button class="approve-btn">✓ Approve</button></td>
+              </tr>
+              <tr>
+                <td style="color:#f0f4f8;font-weight:600;font-size:11px;">Essilor Varilux<br/>Comfort 360 1.67</td>
+                <td>Rx Lenses</td>
+                <td>Essilor Luxottica MENA</td>
+                <td style="font-weight:700;color:#f0f4f8;">40</td>
+                <td>AED 390</td>
+                <td style="font-weight:700;color:#f0f4f8;">AED 15,600</td>
+                <td><span class="urgency-badge high">HIGH</span></td>
+                <td><div class="ai-reason">6 units remain, 12 days to stockout. Progressive lens demand growing 18% MoM. 40 units = 60-day cover.</div></td>
+                <td><button class="approve-btn">✓ Approve</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ═══ SCREEN 4: NEW MARKET PLAYBOOK ═══ -->
+      <div class="screen" id="s4">
+        <div class="page-header">
+          <div>
+            <div class="page-title">New Market Playbook</div>
+            <div class="page-sub">Saudi Arabia · Riyadh launch — ML demand projection from UAE analogy model</div>
+          </div>
+          <div class="hdr-actions">
+            <button class="btn-outline">Switch Market</button>
+            <button class="btn-primary">Generate Seed PO</button>
+          </div>
+        </div>
+
+        <div class="market-grid">
+          <div class="market-header-card">
+            <div class="mkt-title">Saudi Arabia · Riyadh Launch</div>
+            <div class="mkt-sub">Analogous to UAE launch — scaled for larger market population and higher Avg Order Value</div>
+            <div class="mkt-stat"><div class="mkt-stat-val">+20%</div><div class="mkt-stat-lbl">demand uplift vs UAE launch curve (larger addressable population)</div></div>
+            <div class="mkt-stat"><div class="mkt-stat-val">AED 320</div><div class="mkt-stat-lbl">projected Average Order Value (vs AED 265 UAE launch)</div></div>
+            <div class="mkt-stat"><div class="mkt-stat-val">Month 4</div><div class="mkt-stat-lbl">projected break-even on initial seed inventory</div></div>
+            <div style="height:12px;"></div>
+            <div class="mkt-insight">KSA market has significantly higher sunglass preference (Gulf climate) and luxury frame demand. Initial seed inventory should over-index on premium frames vs contact lenses vs UAE launch mix.</div>
+          </div>
+
+          <div>
+            <div class="curve-chart" style="background:#0D0B1A;border:1px solid #1e1635;border-radius:10px;padding:16px;margin-bottom:14px;">
+              <div style="font-size:12px;font-weight:700;color:#f0f4f8;margin-bottom:4px;">Launch Demand Curve — UAE Actual vs KSA Projected</div>
+              <div style="font-size:10px;color:#64748b;margin-bottom:14px;">Units sold per month · Month 1 = launch month</div>
+              <div class="curve-row"><div class="curve-month">Month 1</div><div class="curve-bar-wrap"><div class="curve-bar uae" style="width:25%"><span class="curve-bar-val">420</span></div></div><div style="width:50%;margin-left:4px"><div class="curve-bar ksa" style="width:48%"><span class="curve-bar-val" style="color:#F59E0B">504</span></div></div></div>
+              <div class="curve-row"><div class="curve-month">Month 2</div><div class="curve-bar-wrap"><div class="curve-bar uae" style="width:44%"><span class="curve-bar-val">740</span></div></div><div style="width:50%;margin-left:4px"><div class="curve-bar ksa" style="width:52%"><span class="curve-bar-val" style="color:#F59E0B">888</span></div></div></div>
+              <div class="curve-row"><div class="curve-month">Month 3</div><div class="curve-bar-wrap"><div class="curve-bar uae" style="width:62%"><span class="curve-bar-val">1,040</span></div></div><div style="width:50%;margin-left:4px"><div class="curve-bar ksa" style="width:74%"><span class="curve-bar-val" style="color:#F59E0B">1,248</span></div></div></div>
+              <div class="curve-row"><div class="curve-month">Month 4</div><div class="curve-bar-wrap"><div class="curve-bar uae" style="width:80%"><span class="curve-bar-val">1,340</span></div></div><div style="width:50%;margin-left:4px"><div class="curve-bar ksa" style="width:100%"><span class="curve-bar-val" style="color:#F59E0B">1,608</span></div></div></div>
+              <div class="curve-legend">
+                <div class="cl-item"><div class="cl-dot uae"></div>UAE actual</div>
+                <div class="cl-item"><div class="cl-dot ksa"></div>KSA projected</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="category-breakdown">
+          <div class="card-header"><div class="card-title">Recommended Seed Inventory Mix — KSA Launch</div><div style="font-size:10px;color:#64748b;">vs UAE launch mix in brackets</div></div>
+          <div style="padding:16px;">
+            <div class="cat-row"><div class="cat-name">Premium Frames (Rx)</div><div class="cat-bar-wrap"><div class="cat-bar frames" style="width:45%"></div></div><div class="cat-pct" style="color:#8B5CF6">45%</div><div style="font-size:10px;color:#64748b;margin-left:8px;">(vs 38% UAE)</div></div>
+            <div class="cat-row"><div class="cat-name">Sunglasses</div><div class="cat-bar-wrap"><div class="cat-bar sun" style="width:31%"></div></div><div class="cat-pct" style="color:#F59E0B">31%</div><div style="font-size:10px;color:#64748b;margin-left:8px;">(vs 26% UAE)</div></div>
+            <div class="cat-row"><div class="cat-name">Contact Lenses</div><div class="cat-bar-wrap"><div class="cat-bar cl" style="width:24%"></div></div><div class="cat-pct" style="color:#22C55E">24%</div><div style="font-size:10px;color:#64748b;margin-left:8px;">(vs 36% UAE)</div></div>
+            <div style="margin-top:12px;padding:12px;background:rgba(139,92,246,.06);border:1px solid rgba(139,92,246,.15);border-radius:8px;font-size:11px;color:#A78BFA;line-height:1.6;">
+              Recommendation: Over-index on premium frames and sunglasses for KSA. Contact lens demand typically lags market maturity by 6–8 months — start lean and build up as repeat purchase behaviour establishes. Recommended total seed inventory: AED 2.1M across 840 SKUs.
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+const urls = {
+  1:'inventoryiq.eyewa.internal/dashboard',
+  2:'inventoryiq.eyewa.internal/forecast/RB3025-BLACK-55',
+  3:'inventoryiq.eyewa.internal/po-generator',
+  4:'inventoryiq.eyewa.internal/market-playbook/ksa-riyadh'
+};
+function switchScreen(n) {
+  n = String(n);
+  document.querySelectorAll('.snav').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.sb-nav-item').forEach(b => b.classList.remove('active'));
+  const tab = document.querySelector(`.snav[data-s="${n}"]`);
+  const scr = document.getElementById('s'+n);
+  const nav = document.querySelector(`.sb-nav-item[data-s="${n}"]`);
+  if(tab) tab.classList.add('active');
+  if(scr) scr.classList.add('active');
+  if(nav) nav.classList.add('active');
+  document.getElementById('bcUrl').textContent = urls[n];
+}
+document.querySelectorAll('.snav').forEach(b => b.addEventListener('click', () => switchScreen(b.dataset.s)));
+document.querySelectorAll('.sb-nav-item').forEach(b => b.addEventListener('click', () => switchScreen(b.dataset.s)));
+</script>
+</body>
+</html>

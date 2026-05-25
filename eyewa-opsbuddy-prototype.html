@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>eyewa OpsBuddy — Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Inter',sans-serif;background:#060C14;color:#f0f4f8;min-height:100vh;}
+
+.proto-header{background:#000;padding:12px 32px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #0d1f35;}
+.ph-eyebrow{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#64748b;}
+.ph-title{font-size:13px;font-weight:700;color:#f8fafc;}
+.ph-accent{color:#3B82F6;}
+.ph-pipe{color:#1a2e42;}
+.ph-tag{font-size:10px;color:#64748b;background:#060C14;border:1px solid #1a2e42;border-radius:4px;padding:2px 8px;}
+
+.screen-nav{background:#08111D;border-bottom:1px solid #1a2e42;display:flex;gap:0;padding:0 24px;}
+.snav{background:none;border:none;border-bottom:2px solid transparent;color:#64748b;font-family:'Inter',sans-serif;font-size:11.5px;font-weight:500;padding:11px 20px;cursor:pointer;transition:all .2s;}
+.snav:hover{color:#94a3b8;}
+.snav.active{color:#3B82F6;border-bottom-color:#3B82F6;}
+
+.browser-outer{max-width:1380px;margin:24px auto;border-radius:10px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.5);border:1px solid #1a2e42;}
+.browser-chrome{height:44px;background:#08111D;display:flex;align-items:center;gap:12px;padding:0 16px;border-bottom:1px solid #1a2e42;}
+.bc-dots{display:flex;gap:6px;}
+.bc-dots span{width:12px;height:12px;border-radius:50%;}
+.dr{background:#ff5f57;}.dy{background:#febc2e;}.dg{background:#28c840;}
+.bc-url{flex:1;background:#040912;border-radius:6px;height:26px;display:flex;align-items:center;padding:0 12px;font-size:11px;color:#64748b;max-width:480px;margin:0 auto;}
+.bc-usr{font-size:11px;color:#475569;margin-left:auto;}
+
+.console-layout{display:flex;height:660px;background:#060C14;}
+.sidebar{width:220px;flex-shrink:0;background:#07111E;border-right:1px solid #1a2e42;display:flex;flex-direction:column;}
+.sb-logo{display:flex;align-items:center;gap:10px;padding:16px 16px 12px;border-bottom:1px solid #1a2e42;}
+.sb-logo-mark{width:34px;height:34px;background:linear-gradient(135deg,#3B82F6,#1D4ED8);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;}
+.sb-logo-title{font-size:13px;font-weight:700;color:#f0f4f8;}
+.sb-logo-sub{font-size:10px;color:#475569;margin-top:1px;}
+.sb-section{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#1a2e42;padding:14px 16px 6px;}
+.sb-nav-item{display:flex;align-items:center;gap:9px;padding:9px 16px;font-size:12px;color:#64748b;cursor:pointer;transition:all .15s;border-left:2px solid transparent;}
+.sb-nav-item:hover{background:rgba(59,130,246,.05);color:#94a3b8;}
+.sb-nav-item.active{background:rgba(59,130,246,.08);color:#3B82F6;border-left-color:#3B82F6;}
+.sb-icon{font-size:13px;width:16px;text-align:center;}
+.sb-spacer{flex:1;}
+.sb-footer{padding:12px 16px;border-top:1px solid #1a2e42;}
+.sb-stat-row{display:flex;justify-content:space-between;margin-bottom:10px;}
+.sb-stat{text-align:center;}
+.sb-stat-val{font-size:14px;font-weight:700;color:#f0f4f8;}
+.sb-stat-val.red{color:#EF4444;}.sb-stat-val.blue{color:#3B82F6;}.sb-stat-val.green{color:#10B981;}
+.sb-stat-lbl{font-size:9px;color:#475569;margin-top:1px;}
+.sb-user{display:flex;align-items:center;gap:8px;}
+.sb-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#3B82F6,#1D4ED8);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0;}
+.sb-user-name{font-size:11px;font-weight:600;color:#94a3b8;}
+.sb-user-role{font-size:9px;color:#475569;}
+
+.main-area{flex:1;overflow-y:auto;background:#060C14;}
+.screen{display:none;}
+.screen.active{display:block;}
+
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:0;padding:20px 24px 16px;}
+.page-title{font-size:18px;font-weight:700;color:#f0f4f8;}
+.page-sub{font-size:12px;color:#64748b;margin-top:3px;}
+.hdr-actions{display:flex;gap:8px;}
+.btn-primary{background:#3B82F6;color:#fff;border:none;border-radius:6px;padding:8px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;}
+.btn-outline{background:none;color:#94a3b8;border:1px solid #1a2e42;border-radius:6px;padding:7px 14px;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;}
+
+/* ── Screen 1: Chat ── */
+.chat-layout{display:grid;grid-template-columns:1fr 320px;height:610px;}
+.chat-panel{display:flex;flex-direction:column;border-right:1px solid #1a2e42;}
+.chat-header{padding:14px 20px;border-bottom:1px solid #1a2e42;display:flex;align-items:center;gap:10px;}
+.chat-ai-dot{width:8px;height:8px;border-radius:50%;background:#10B981;box-shadow:0 0 8px #10B981;}
+.chat-header-title{font-size:13px;font-weight:600;color:#f0f4f8;}
+.chat-header-sub{font-size:10px;color:#64748b;margin-top:1px;}
+.chat-msgs{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:14px;}
+.msg{display:flex;flex-direction:column;gap:4px;}
+.msg.user{align-items:flex-end;}
+.msg.ai{align-items:flex-start;}
+.msg-bubble{padding:10px 14px;border-radius:12px;font-size:12px;line-height:1.55;max-width:85%;}
+.msg.user .msg-bubble{background:#1D4ED8;color:#fff;border-radius:12px 12px 2px 12px;}
+.msg.ai .msg-bubble{background:#0D1B2A;border:1px solid #1a2e42;color:#d1d5db;border-radius:2px 12px 12px 12px;}
+.msg-time{font-size:9px;color:#475569;}
+.data-card{background:#040912;border:1px solid #1a2e42;border-radius:8px;padding:12px;margin-top:6px;width:100%;max-width:85%;}
+.data-card-title{font-size:9px;font-weight:700;color:#3B82F6;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;}
+.data-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:11px;}
+.data-label{color:#64748b;}
+.data-val{font-weight:600;color:#f0f4f8;}
+.data-val.red{color:#EF4444;}.data-val.amber{color:#F59E0B;}.data-val.green{color:#10B981;}
+.chat-input-area{padding:14px 20px;border-top:1px solid #1a2e42;display:flex;gap:10px;}
+.chat-input{flex:1;background:#0D1B2A;border:1px solid #1a2e42;border-radius:8px;padding:10px 14px;font-size:12px;color:#f0f4f8;font-family:'Inter',sans-serif;outline:none;}
+.chat-input::placeholder{color:#475569;}
+.chat-send{background:#3B82F6;color:#fff;border:none;border-radius:8px;padding:10px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;}
+.quick-queries{padding:10px 20px;border-bottom:1px solid #1a2e42;display:flex;gap:6px;flex-wrap:wrap;}
+.qq{background:#0D1B2A;border:1px solid #1a2e42;border-radius:6px;padding:5px 10px;font-size:10px;color:#64748b;cursor:pointer;white-space:nowrap;}
+.qq:hover{border-color:#3B82F6;color:#3B82F6;}
+.chat-sidebar-panel{padding:16px;overflow-y:auto;}
+.csp-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#475569;margin-bottom:12px;}
+.context-card{background:#0D1B2A;border:1px solid #1a2e42;border-radius:8px;padding:12px;margin-bottom:10px;}
+.context-card-label{font-size:9px;font-weight:600;color:#3B82F6;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;}
+.context-item{display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px;}
+.ci-label{color:#64748b;}
+.ci-val{color:#f0f4f8;font-weight:500;}
+.ci-val.bad{color:#EF4444;}.ci-val.warn{color:#F59E0B;}.ci-val.good{color:#10B981;}
+
+/* ── Screen 2: Daily Brief ── */
+.brief-layout{padding:20px 24px;}
+.brief-header-card{background:#0D1B2A;border:1px solid #3B82F6;border-radius:10px;padding:16px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;}
+.brief-date{font-size:11px;color:#64748b;}
+.brief-title-lg{font-size:15px;font-weight:700;color:#f0f4f8;margin-top:2px;}
+.brief-ai-badge{background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.3);border-radius:6px;padding:6px 12px;font-size:11px;color:#60A5FA;display:flex;align-items:center;gap:6px;}
+.brief-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.brief-section{background:#0D1B2A;border:1px solid #1a2e42;border-radius:10px;overflow:hidden;}
+.brief-section-header{padding:12px 16px;border-bottom:1px solid #1a2e42;display:flex;align-items:center;justify-content:space-between;}
+.bsh-title{font-size:11px;font-weight:700;color:#f0f4f8;}
+.bsh-badge{font-size:9px;padding:2px 7px;border-radius:4px;font-weight:700;}
+.bsh-badge.good{background:rgba(16,185,129,.12);color:#10B981;}
+.bsh-badge.warn{background:rgba(245,158,11,.12);color:#F59E0B;}
+.bsh-badge.alert{background:rgba(239,68,68,.12);color:#EF4444;}
+.brief-section-body{padding:12px 16px;}
+.brief-stat-row{display:flex;justify-content:space-between;margin-bottom:8px;font-size:11px;}
+.bsr-label{color:#64748b;}
+.bsr-val{font-weight:600;color:#f0f4f8;}
+.bsr-val.good{color:#10B981;}.bsr-val.warn{color:#F59E0B;}.bsr-val.bad{color:#EF4444;}
+.brief-full-section{background:#0D1B2A;border:1px solid #1a2e42;border-radius:10px;padding:14px 16px;margin-bottom:14px;}
+.brief-anomaly-item{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.brief-anomaly-item:last-child{border-bottom:none;}
+.bai-icon{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.bai-icon.red{background:rgba(239,68,68,.12);}
+.bai-icon.amber{background:rgba(245,158,11,.12);}
+.bai-text{font-size:11px;color:#94a3b8;line-height:1.5;}
+.bai-text strong{color:#f0f4f8;}
+
+/* ── Screen 3: Anomaly Feed ── */
+.anomaly-layout{padding:20px 24px;}
+.anomaly-filter-bar{display:flex;gap:8px;margin-bottom:16px;}
+.anomaly-count-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;}
+.ac-card{background:#0D1B2A;border:1px solid #1a2e42;border-radius:8px;padding:12px;text-align:center;}
+.ac-val{font-size:20px;font-weight:700;}
+.ac-val.red{color:#EF4444;}.ac-val.amber{color:#F59E0B;}.ac-val.green{color:#10B981;}
+.ac-lbl{font-size:9px;color:#475569;margin-top:3px;}
+.anomaly-item{background:#0D1B2A;border:1px solid #1a2e42;border-radius:10px;padding:16px;margin-bottom:10px;display:flex;gap:14px;}
+.anom-sev{width:4px;border-radius:2px;flex-shrink:0;}
+.anom-sev.red{background:#EF4444;}
+.anom-sev.amber{background:#F59E0B;}
+.anom-sev.green{background:#10B981;}
+.anom-body{flex:1;}
+.anom-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px;}
+.anom-title{font-size:12px;font-weight:600;color:#f0f4f8;}
+.anom-badges{display:flex;gap:6px;align-items:center;}
+.sev-badge{font-size:9px;font-weight:700;padding:2px 8px;border-radius:4px;}
+.sev-badge.red{background:rgba(239,68,68,.15);color:#EF4444;}
+.sev-badge.amber{background:rgba(245,158,11,.12);color:#F59E0B;}
+.sev-badge.low{background:rgba(16,185,129,.1);color:#10B981;}
+.anom-time{font-size:9px;color:#475569;}
+.anom-desc{font-size:11px;color:#94a3b8;line-height:1.55;margin-bottom:10px;}
+.anom-meta{display:flex;gap:12px;}
+.anom-meta-item{background:#071525;border-radius:6px;padding:6px 10px;font-size:10px;}
+.ami-label{color:#475569;margin-bottom:2px;}
+.ami-val{font-weight:600;color:#f0f4f8;}
+.anom-actions{display:flex;gap:6px;margin-top:10px;}
+.anom-btn{background:rgba(59,130,246,.1);color:#60A5FA;border:1px solid rgba(59,130,246,.2);border-radius:4px;padding:5px 10px;font-size:10px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;}
+.anom-dismiss{background:none;color:#475569;border:1px solid #1a2e42;border-radius:4px;padding:5px 10px;font-size:10px;cursor:pointer;font-family:'Inter',sans-serif;}
+
+/* ── Screen 4: Admin Config ── */
+.config-layout{padding:20px 24px;}
+.config-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.card{background:#0D1B2A;border:1px solid #1a2e42;border-radius:10px;overflow:hidden;}
+.card-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #1a2e42;}
+.card-title{font-size:12px;font-weight:700;color:#f0f4f8;}
+.connector-item{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.04);}
+.connector-item:last-child{border-bottom:none;}
+.ci-left{display:flex;align-items:center;gap:10px;}
+.ci-icon{width:30px;height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;}
+.ci-icon.shopify{background:rgba(16,185,129,.12);}
+.ci-icon.lab{background:rgba(59,130,246,.12);}
+.ci-icon.erp{background:rgba(245,158,11,.12);}
+.ci-icon.tpl{background:rgba(139,92,246,.12);}
+.ci-icon.csv{background:rgba(245,158,11,.08);}
+.ci-name{font-size:11px;font-weight:600;color:#f0f4f8;}
+.ci-detail{font-size:9px;color:#64748b;margin-top:1px;}
+.ci-status{display:flex;align-items:center;gap:6px;font-size:10px;}
+.ci-dot{width:6px;height:6px;border-radius:50%;}
+.ci-dot.green{background:#10B981;}.ci-dot.amber{background:#F59E0B;}
+.ci-status.connected{color:#10B981;}
+.ci-status.warn{color:#F59E0B;}
+.rule-item{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.04);}
+.rule-item:last-child{border-bottom:none;}
+.rule-name{font-size:12px;font-weight:500;color:#f0f4f8;margin-bottom:2px;}
+.rule-desc{font-size:10px;color:#475569;}
+.toggle{width:36px;height:20px;border-radius:10px;position:relative;cursor:pointer;flex-shrink:0;}
+.toggle.on{background:#3B82F6;}
+.toggle.off{background:#1a2e42;}
+.toggle::after{content:'';position:absolute;top:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:.2s;}
+.toggle.on::after{left:18px;}
+.toggle.off::after{left:2px;}
+</style>
+</head>
+<body>
+
+<div class="proto-header">
+  <span class="ph-eyebrow">eyewa · AI Operations Intelligence</span>
+  <span class="ph-pipe">|</span>
+  <span class="ph-title">eyewa <span class="ph-accent">OpsBuddy</span> — AI Co-Pilot for Operations Teams</span>
+  <span class="ph-pipe">|</span>
+  <span class="ph-tag">Interactive Prototype</span>
+</div>
+
+<div class="screen-nav">
+  <button class="snav active" data-s="1">01 — OpsBuddy Chat</button>
+  <button class="snav" data-s="2">02 — Daily Ops Brief</button>
+  <button class="snav" data-s="3">03 — Anomaly Alert Feed</button>
+  <button class="snav" data-s="4">04 — Admin Config</button>
+</div>
+
+<div class="browser-outer">
+  <div class="browser-chrome">
+    <div class="bc-dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div>
+    <div class="bc-url" id="bcUrl">opsbuddy.eyewa.internal/chat</div>
+    <span class="bc-usr">Ops Director · eyewa Dubai</span>
+  </div>
+
+  <div class="console-layout">
+    <aside class="sidebar">
+      <div class="sb-logo">
+        <div class="sb-logo-mark">🤖</div>
+        <div>
+          <div class="sb-logo-title">OpsBuddy</div>
+          <div class="sb-logo-sub">eyewa · AI Co-Pilot</div>
+        </div>
+      </div>
+      <div class="sb-section">Intelligence</div>
+      <div class="sb-nav-item active" data-s="1"><span class="sb-icon">💬</span> Chat</div>
+      <div class="sb-nav-item" data-s="2"><span class="sb-icon">☀</span> Daily Brief</div>
+      <div class="sb-nav-item" data-s="3"><span class="sb-icon">⚡</span> Anomaly Feed</div>
+      <div class="sb-section">System</div>
+      <div class="sb-nav-item" data-s="4"><span class="sb-icon">⚙</span> Config</div>
+      <div class="sb-spacer"></div>
+      <div class="sb-footer">
+        <div class="sb-stat-row">
+          <div class="sb-stat"><div class="sb-stat-val green">7</div><div class="sb-stat-lbl">Sources</div></div>
+          <div class="sb-stat"><div class="sb-stat-val red">5</div><div class="sb-stat-lbl">Alerts</div></div>
+          <div class="sb-stat"><div class="sb-stat-val blue">99.1%</div><div class="sb-stat-lbl">On-Time</div></div>
+        </div>
+        <div class="sb-user">
+          <div class="sb-avatar">OD</div>
+          <div>
+            <div class="sb-user-name">Ops Director</div>
+            <div class="sb-user-role">eyewa · Dubai HQ</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="main-area">
+
+      <!-- ═══ SCREEN 1: CHAT ═══ -->
+      <div class="screen active" id="s1">
+        <div class="chat-layout">
+          <div class="chat-panel">
+            <div class="chat-header">
+              <div class="chat-ai-dot"></div>
+              <div>
+                <div class="chat-header-title">OpsBuddy</div>
+                <div class="chat-header-sub">Connected to 7 data sources · Updated 2 min ago</div>
+              </div>
+            </div>
+            <div class="quick-queries">
+              <span style="font-size:9px;color:#475569;align-self:center;padding-right:4px;">Quick ask:</span>
+              <div class="qq">Pending Rx orders at Gulf Optics?</div>
+              <div class="qq">Return rate this week?</div>
+              <div class="qq">Which labs are over capacity?</div>
+              <div class="qq">Today's SLA breach risk?</div>
+            </div>
+            <div class="chat-msgs">
+              <div class="msg user">
+                <div class="msg-bubble">How many Rx orders are pending at Gulf Optics today, and are any at risk of missing SLA?</div>
+                <div class="msg-time">9:14 AM</div>
+              </div>
+              <div class="msg ai">
+                <div class="msg-bubble">34 orders are currently pending at Gulf Optics Dubai — here's the breakdown:</div>
+                <div class="data-card">
+                  <div class="data-card-title">Gulf Optics Dubai · Live Order Status</div>
+                  <div class="data-row"><span class="data-label">Total pending</span><span class="data-val">34 orders</span></div>
+                  <div class="data-row"><span class="data-label">At SLA risk (&lt; 4hrs to deadline)</span><span class="data-val bad">6 orders</span></div>
+                  <div class="data-row"><span class="data-label">Most critical type</span><span class="data-val warn">Progressive Hi-Index (3 orders)</span></div>
+                  <div class="data-row"><span class="data-label">Earliest SLA deadline</span><span class="data-val bad">Today 1:00 PM (2.7 hrs away)</span></div>
+                  <div class="data-row"><span class="data-label">Lab current capacity</span><span class="data-val warn">71%</span></div>
+                </div>
+                <div class="msg-bubble" style="margin-top:4px;">The 6 at-risk orders are all progressive lenses — Gulf Optics is operating fine but the batch cut started late this morning. I'd recommend checking in with their floor manager. Want me to draft an alert to the CS team for proactive customer communication on those 6?</div>
+                <div class="msg-time">9:14 AM</div>
+              </div>
+              <div class="msg user">
+                <div class="msg-bubble">What's our average processing time this week compared to last week?</div>
+                <div class="msg-time">9:16 AM</div>
+              </div>
+              <div class="msg ai">
+                <div class="msg-bubble">Processing time improved this week. Here's the full comparison:</div>
+                <div class="data-card">
+                  <div class="data-card-title">Processing Time — Week-on-Week</div>
+                  <div class="data-row"><span class="data-label">This week avg</span><span class="data-val good">2.4 days</span></div>
+                  <div class="data-row"><span class="data-label">Last week avg</span><span class="data-val">2.7 days</span></div>
+                  <div class="data-row"><span class="data-label">Improvement</span><span class="data-val good">−0.3 days (↓11%)</span></div>
+                  <div class="data-row"><span class="data-label">Biggest driver</span><span class="data-val good">Rx validation: 8.2h → 5.1h</span></div>
+                  <div class="data-row"><span class="data-label">Since AI validator launch</span><span class="data-val">Monday (4 days ago)</span></div>
+                </div>
+                <div class="msg-bubble" style="margin-top:4px;">The Rx validation step is the biggest contributor to the improvement — the AI validator that went live Monday is clearing prescriptions 38% faster than the manual process. Lab cutting and QC times are unchanged.</div>
+                <div class="msg-time">9:16 AM</div>
+              </div>
+              <div class="msg user">
+                <div class="msg-bubble">Is the Oakley return spike a quality issue or a sizing issue?</div>
+                <div class="msg-time">9:18 AM</div>
+              </div>
+              <div class="msg ai">
+                <div class="msg-bubble">Based on the return reason data from the last 48 hours, it looks like a quality batch issue — not sizing. 11 of the 12 Oakley Holbrook returns in that window cited "tint inconsistency" (one side noticeably lighter). That pattern is very unlikely to be sizing-related. I'd recommend pausing new orders of that specific SKU until the batch is inspected. Want me to flag this to the quality team with the return data attached?</div>
+                <div class="msg-time">9:18 AM</div>
+              </div>
+            </div>
+            <div class="chat-input-area">
+              <input class="chat-input" placeholder="Ask anything about your operations…" value="Which KSA orders have a delivery time above 3.5 days?"/>
+              <button class="chat-send">Send</button>
+            </div>
+          </div>
+
+          <!-- Chat sidebar: live context -->
+          <div class="chat-sidebar-panel">
+            <div class="csp-title">Live Ops Context</div>
+            <div class="context-card">
+              <div class="context-card-label">Orders · Today</div>
+              <div class="context-item"><span class="ci-label">Total orders</span><span class="ci-val">1,247</span></div>
+              <div class="context-item"><span class="ci-label">At-risk</span><span class="ci-val bad">34</span></div>
+              <div class="context-item"><span class="ci-label">Delivered</span><span class="ci-val good">1,019</span></div>
+              <div class="context-item"><span class="ci-label">Delayed</span><span class="ci-val bad">2</span></div>
+            </div>
+            <div class="context-card">
+              <div class="context-card-label">Lab Network</div>
+              <div class="context-item"><span class="ci-label">Gulf Optics</span><span class="ci-val good">71%</span></div>
+              <div class="context-item"><span class="ci-label">Vision Labs</span><span class="ci-val warn">89% ⚠</span></div>
+              <div class="context-item"><span class="ci-label">Al Noor</span><span class="ci-val bad">94% !</span></div>
+              <div class="context-item"><span class="ci-label">LensCraft</span><span class="ci-val good">45%</span></div>
+            </div>
+            <div class="context-card">
+              <div class="context-card-label">Active Anomalies</div>
+              <div class="context-item"><span class="ci-label">Oakley returns</span><span class="ci-val bad">🔴 Quality alert</span></div>
+              <div class="context-item"><span class="ci-label">Vision Labs SLA</span><span class="ci-val warn">🟡 Trending up</span></div>
+              <div class="context-item"><span class="ci-label">KSA delivery</span><span class="ci-val warn">🟡 Above threshold</span></div>
+            </div>
+            <div class="context-card">
+              <div class="context-card-label">Data Sources</div>
+              <div class="context-item"><span class="ci-label">Shopify</span><span class="ci-val good">● Live</span></div>
+              <div class="context-item"><span class="ci-label">Lab Portals</span><span class="ci-val good">● Live</span></div>
+              <div class="context-item"><span class="ci-label">3PL (Aramex)</span><span class="ci-val good">● Live</span></div>
+              <div class="context-item"><span class="ci-label">ERP (SAP)</span><span class="ci-val good">● Live</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ SCREEN 2: DAILY BRIEF ═══ -->
+      <div class="screen" id="s2">
+        <div class="brief-layout">
+          <div class="brief-header-card">
+            <div>
+              <div class="brief-date">Monday, 26 May 2026 · Generated at 8:00 AM</div>
+              <div class="brief-title-lg">Good morning. Here is your daily operations briefing.</div>
+            </div>
+            <div class="brief-ai-badge">🤖 AI-generated · Based on 7 live data sources</div>
+          </div>
+
+          <div class="brief-grid">
+            <div class="brief-section">
+              <div class="brief-section-header"><div class="bsh-title">Yesterday's Performance</div><div class="bsh-badge good">Strong</div></div>
+              <div class="brief-section-body">
+                <div class="brief-stat-row"><span class="bsr-label">Orders delivered</span><span class="bsr-val">1,183</span></div>
+                <div class="brief-stat-row"><span class="bsr-label">On-time delivery rate</span><span class="bsr-val good">99.1%</span></div>
+                <div class="brief-stat-row"><span class="bsr-label">SLA breaches</span><span class="bsr-val">11 <span style="color:#64748b;font-weight:400;">(vs 18 last Monday)</span></span></div>
+                <div class="brief-stat-row"><span class="bsr-label">Avg processing time</span><span class="bsr-val good">2.4 days ↓ from 2.7</span></div>
+                <div class="brief-stat-row"><span class="bsr-label">Return rate</span><span class="bsr-val warn">2.1% (threshold: 2%)</span></div>
+              </div>
+            </div>
+            <div class="brief-section">
+              <div class="brief-section-header"><div class="bsh-title">Today's Priorities</div><div class="bsh-badge warn">2 Actions Needed</div></div>
+              <div class="brief-section-body">
+                <div class="brief-stat-row"><span class="bsr-label">At-risk orders (SLA)</span><span class="bsr-val bad">34 — action needed</span></div>
+                <div class="brief-stat-row"><span class="bsr-label">Vision Labs capacity</span><span class="bsr-val warn">89% — consider re-routing</span></div>
+                <div class="brief-stat-row"><span class="bsr-label">Al Noor capacity</span><span class="bsr-val bad">94% — do not route new orders</span></div>
+                <div class="brief-stat-row"><span class="bsr-label">Oakley SKU</span><span class="bsr-val bad">Pause — quality investigation</span></div>
+                <div class="brief-stat-row"><span class="bsr-label">LensCraft RAK</span><span class="bsr-val good">45% — available for overflow</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="brief-full-section">
+            <div class="card-header" style="padding:0 0 12px 0;border:none;"><div class="bsh-title">Overnight Anomalies Detected (3)</div></div>
+            <div class="brief-anomaly-item">
+              <div class="bai-icon red">⚠</div>
+              <div class="bai-text"><strong>Oakley Holbrook return rate 180% above baseline</strong> — 12 returns in last 48 hours citing "tint inconsistency". Pattern suggests a quality batch issue, not a sizing or fit problem. OpsBuddy recommendation: pause reorders and inspect warehouse stock of this SKU.</div>
+            </div>
+            <div class="brief-anomaly-item">
+              <div class="bai-icon amber">📈</div>
+              <div class="bai-text"><strong>Vision Labs SLA breach rate trending upward</strong> — 3 consecutive days above the 2% threshold. Root cause likely capacity pressure (89%). OpsBuddy recommendation: proactively re-route 15–20 new progressive lens orders to Gulf Optics or LensCraft today.</div>
+            </div>
+            <div class="brief-anomaly-item">
+              <div class="bai-icon amber">🌍</div>
+              <div class="bai-text"><strong>KSA delivery time above 3.5-day threshold</strong> — average 4.1 days last 7 days. Contributing factor: new Riyadh 3PL partner onboarding delay. OpsBuddy recommendation: escalate with Aramex KSA for SLA review by Wednesday.</div>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:12px;margin-top:4px;">
+            <button class="btn-primary">Share Brief → Slack</button>
+            <button class="btn-outline">⬇ Export PDF</button>
+            <button class="btn-outline">Edit Alert Rules</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ SCREEN 3: ANOMALY FEED ═══ -->
+      <div class="screen" id="s3">
+        <div class="anomaly-layout">
+          <div class="page-header" style="padding:0 0 16px 0;">
+            <div>
+              <div class="page-title">Anomaly Alert Feed</div>
+              <div class="page-sub">ML-detected deviations from baseline · Last 72 hours · 5 active</div>
+            </div>
+            <div class="hdr-actions">
+              <button class="btn-outline">Dismiss All Low</button>
+              <button class="btn-primary">Configure Rules</button>
+            </div>
+          </div>
+
+          <div class="anomaly-count-row">
+            <div class="ac-card"><div class="ac-val red">2</div><div class="ac-lbl">HIGH severity</div></div>
+            <div class="ac-card"><div class="ac-val amber">2</div><div class="ac-lbl">MEDIUM severity</div></div>
+            <div class="ac-card"><div class="ac-val green">1</div><div class="ac-lbl">LOW severity</div></div>
+          </div>
+
+          <div class="anomaly-filter-bar">
+            <button class="btn-outline" style="font-size:10px;padding:4px 10px;border-color:#EF4444;color:#EF4444;">🔴 HIGH 2</button>
+            <button class="btn-outline" style="font-size:10px;padding:4px 10px;border-color:#F59E0B;color:#F59E0B;">🟡 MEDIUM 2</button>
+            <button class="btn-outline" style="font-size:10px;padding:4px 10px;">🟢 LOW 1</button>
+            <button class="btn-outline" style="font-size:10px;padding:4px 10px;">All</button>
+          </div>
+
+          <div class="anomaly-item">
+            <div class="anom-sev red"></div>
+            <div class="anom-body">
+              <div class="anom-header">
+                <div class="anom-title">Oakley Holbrook Matte Black — Return rate 180% above 7-day baseline</div>
+                <div class="anom-badges"><span class="sev-badge red">HIGH</span><span class="anom-time">Detected 6 hrs ago · Still active</span></div>
+              </div>
+              <div class="anom-desc">12 returns in the last 48 hours, all citing "tint inconsistency" (one lens noticeably lighter than the other). Baseline return rate for this SKU is 1.2%; current rate is 3.4% (180% above baseline). Pattern is highly consistent with a quality batch issue. Stock of this SKU: 0 units (already sold out). No new orders possible, but 6 units are in the Rx processing pipeline — recommend intercepting before dispatch.</div>
+              <div class="anom-meta">
+                <div class="anom-meta-item"><div class="ami-label">7-day baseline</div><div class="ami-val">1.2%</div></div>
+                <div class="anom-meta-item"><div class="ami-label">Current rate (48h)</div><div class="ami-val" style="color:#EF4444">3.4%</div></div>
+                <div class="anom-meta-item"><div class="ami-label">Units returned</div><div class="ami-val">12</div></div>
+                <div class="anom-meta-item"><div class="ami-label">In pipeline</div><div class="ami-val" style="color:#F59E0B">6 at risk</div></div>
+              </div>
+              <div class="anom-actions">
+                <button class="anom-btn">Intercept 6 Pipeline Orders</button>
+                <button class="anom-btn">Alert Quality Team</button>
+                <button class="anom-dismiss">Dismiss</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="anomaly-item">
+            <div class="anom-sev red"></div>
+            <div class="anom-body">
+              <div class="anom-header">
+                <div class="anom-title">Vision Labs Sharjah — SLA breach rate 3 consecutive days above threshold</div>
+                <div class="anom-badges"><span class="sev-badge red">HIGH</span><span class="anom-time">Detected 18 hrs ago · Escalating</span></div>
+              </div>
+              <div class="anom-desc">Vision Labs has breached the 2% SLA threshold for 3 consecutive days (Mon 2.4%, Tue 2.7%, Wed 2.9%). Root cause: lab running at 89% capacity with no overtime shift. If trend continues, projected breach rate reaches 3.5% by Friday — a level that typically triggers customer satisfaction impact. Recommended action: re-route 20 progressive lens orders to Gulf Optics (45% capacity headroom) today.</div>
+              <div class="anom-meta">
+                <div class="anom-meta-item"><div class="ami-label">SLA threshold</div><div class="ami-val">2.0%</div></div>
+                <div class="anom-meta-item"><div class="ami-label">Current (Wed)</div><div class="ami-val" style="color:#EF4444">2.9%</div></div>
+                <div class="anom-meta-item"><div class="ami-label">Lab capacity</div><div class="ami-val" style="color:#F59E0B">89%</div></div>
+                <div class="anom-meta-item"><div class="ami-label">Projected Friday</div><div class="ami-val" style="color:#EF4444">3.5%</div></div>
+              </div>
+              <div class="anom-actions">
+                <button class="anom-btn">Re-route 20 Orders → Gulf Optics</button>
+                <button class="anom-btn">Contact Lab Manager</button>
+                <button class="anom-dismiss">Dismiss</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="anomaly-item">
+            <div class="anom-sev amber"></div>
+            <div class="anom-body">
+              <div class="anom-header">
+                <div class="anom-title">KSA Orders — Average delivery time 4.1 days (threshold: 3.5 days)</div>
+                <div class="anom-badges"><span class="sev-badge amber">MEDIUM</span><span class="anom-time">Detected 2 days ago · Stable</span></div>
+              </div>
+              <div class="anom-desc">KSA orders have averaged 4.1-day delivery over the past 7 days, above the 3.5-day target. Appears related to new Riyadh 3PL partner (Naqel Express) onboarding — pickup schedules not yet optimised for eyewa's order cadence. UAE orders remain within SLA (2.1 days avg). Recommended action: SLA review call with Aramex KSA and Naqel Express before end of week.</div>
+              <div class="anom-actions">
+                <button class="anom-btn">Schedule 3PL Review Call</button>
+                <button class="anom-dismiss">Dismiss</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ═══ SCREEN 4: ADMIN CONFIG ═══ -->
+      <div class="screen" id="s4">
+        <div class="config-layout">
+          <div class="page-header" style="padding:0 0 16px 0;">
+            <div>
+              <div class="page-title">Admin Configuration</div>
+              <div class="page-sub">Data connectors · Alert rules · Brief schedule</div>
+            </div>
+            <div class="hdr-actions"><button class="btn-primary">Save Changes</button></div>
+          </div>
+
+          <div class="config-grid">
+            <div class="card">
+              <div class="card-header"><div class="card-title">Data Source Connectors</div><div style="font-size:10px;color:#10B981">6 of 7 live</div></div>
+              <div class="connector-item">
+                <div class="ci-left">
+                  <div class="ci-icon shopify">🛍</div>
+                  <div><div class="ci-name">Shopify Orders API</div><div class="ci-detail">Last sync: 2 min ago · Real-time</div></div>
+                </div>
+                <div class="ci-status connected"><div class="ci-dot green"></div>Connected</div>
+              </div>
+              <div class="connector-item">
+                <div class="ci-left">
+                  <div class="ci-icon lab">🏭</div>
+                  <div><div class="ci-name">Gulf Optics Lab Portal</div><div class="ci-detail">Last sync: 15 min ago · API</div></div>
+                </div>
+                <div class="ci-status connected"><div class="ci-dot green"></div>Connected</div>
+              </div>
+              <div class="connector-item">
+                <div class="ci-left">
+                  <div class="ci-icon lab">🏭</div>
+                  <div><div class="ci-name">Vision Labs API</div><div class="ci-detail">Last sync: 8 min ago · API</div></div>
+                </div>
+                <div class="ci-status connected"><div class="ci-dot green"></div>Connected</div>
+              </div>
+              <div class="connector-item">
+                <div class="ci-left">
+                  <div class="ci-icon csv">📄</div>
+                  <div><div class="ci-name">Al Noor Optical (CSV/FTP)</div><div class="ci-detail">Last sync: 3 hrs ago · Manual upload</div></div>
+                </div>
+                <div class="ci-status warn"><div class="ci-dot amber"></div>Delayed</div>
+              </div>
+              <div class="connector-item">
+                <div class="ci-left">
+                  <div class="ci-icon erp">⚙</div>
+                  <div><div class="ci-name">ERP System (SAP S/4HANA)</div><div class="ci-detail">Last sync: 5 min ago · API</div></div>
+                </div>
+                <div class="ci-status connected"><div class="ci-dot green"></div>Connected</div>
+              </div>
+              <div class="connector-item">
+                <div class="ci-left">
+                  <div class="ci-icon tpl">🚚</div>
+                  <div><div class="ci-name">Aramex 3PL API</div><div class="ci-detail">Last sync: 1 min ago · Real-time</div></div>
+                </div>
+                <div class="ci-status connected"><div class="ci-dot green"></div>Connected</div>
+              </div>
+              <div class="connector-item">
+                <div class="ci-left">
+                  <div class="ci-icon shopify">📦</div>
+                  <div><div class="ci-name">LensCraft Lab Portal</div><div class="ci-detail">Last sync: 12 min ago · API</div></div>
+                </div>
+                <div class="ci-status connected"><div class="ci-dot green"></div>Connected</div>
+              </div>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:14px;">
+              <div class="card">
+                <div class="card-header"><div class="card-title">Alert Rules</div></div>
+                <div class="rule-item">
+                  <div><div class="rule-name">Daily brief generation</div><div class="rule-desc">Auto-generate every day at 8:00 AM</div></div>
+                  <div class="toggle on"></div>
+                </div>
+                <div class="rule-item">
+                  <div><div class="rule-name">Return rate spike alert</div><div class="rule-desc">Trigger if return rate &gt; 150% of 7-day baseline</div></div>
+                  <div class="toggle on"></div>
+                </div>
+                <div class="rule-item">
+                  <div><div class="rule-name">Lab capacity warning</div><div class="rule-desc">Alert if any lab exceeds 85% capacity</div></div>
+                  <div class="toggle on"></div>
+                </div>
+                <div class="rule-item">
+                  <div><div class="rule-name">Delivery time threshold</div><div class="rule-desc">Alert if avg delivery exceeds SLA threshold by region</div></div>
+                  <div class="toggle on"></div>
+                </div>
+                <div class="rule-item">
+                  <div><div class="rule-name">SLA breach rate trend</div><div class="rule-desc">Alert if SLA breaches rise &gt; 2% for 2+ consecutive days</div></div>
+                  <div class="toggle on"></div>
+                </div>
+                <div class="rule-item">
+                  <div><div class="rule-name">Slack briefing share</div><div class="rule-desc">Auto-post daily brief to #ops-morning-brief channel</div></div>
+                  <div class="toggle off"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+const urls = {
+  1:'opsbuddy.eyewa.internal/chat',
+  2:'opsbuddy.eyewa.internal/brief/2026-05-26',
+  3:'opsbuddy.eyewa.internal/anomalies',
+  4:'opsbuddy.eyewa.internal/admin/config'
+};
+function switchScreen(n) {
+  n = String(n);
+  document.querySelectorAll('.snav').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.sb-nav-item').forEach(b => b.classList.remove('active'));
+  const tab = document.querySelector(`.snav[data-s="${n}"]`);
+  const scr = document.getElementById('s'+n);
+  const nav = document.querySelector(`.sb-nav-item[data-s="${n}"]`);
+  if(tab) tab.classList.add('active');
+  if(scr) scr.classList.add('active');
+  if(nav) nav.classList.add('active');
+  document.getElementById('bcUrl').textContent = urls[n];
+}
+document.querySelectorAll('.snav').forEach(b => b.addEventListener('click', () => switchScreen(b.dataset.s)));
+document.querySelectorAll('.sb-nav-item').forEach(b => b.addEventListener('click', () => switchScreen(b.dataset.s)));
+</script>
+</body>
+</html>

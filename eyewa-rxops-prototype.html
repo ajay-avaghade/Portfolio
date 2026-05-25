@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>eyewa RxOps — Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Inter',sans-serif;background:#07111F;color:#f0f4f8;min-height:100vh;}
+
+/* ── Proto header ── */
+.proto-header{background:#000;padding:12px 32px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #1a2a3a;}
+.ph-eyebrow{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#64748b;}
+.ph-title{font-size:13px;font-weight:700;color:#f8fafc;}
+.ph-accent{color:#00BFA5;}
+.ph-pipe{color:#2d3f52;}
+.ph-tag{font-size:10px;color:#64748b;background:#0d1b2a;border:1px solid #1e3a52;border-radius:4px;padding:2px 8px;}
+
+/* ── Screen nav ── */
+.screen-nav{background:#0D1B2A;border-bottom:1px solid #1a2e42;display:flex;gap:0;padding:0 24px;}
+.snav{background:none;border:none;border-bottom:2px solid transparent;color:#64748b;font-family:'Inter',sans-serif;font-size:11.5px;font-weight:500;padding:11px 20px;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.snav:hover{color:#94a3b8;}
+.snav.active{color:#00BFA5;border-bottom-color:#00BFA5;}
+
+/* ── Browser chrome ── */
+.browser-outer{max-width:1380px;margin:24px auto;border-radius:10px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.5);border:1px solid #1a2e42;}
+.browser-chrome{height:44px;background:#0D1B2A;display:flex;align-items:center;gap:12px;padding:0 16px;border-bottom:1px solid #1a2e42;}
+.bc-dots{display:flex;gap:6px;}
+.bc-dots span{width:12px;height:12px;border-radius:50%;}
+.bc-dots .dr{background:#ff5f57;}.bc-dots .dy{background:#febc2e;}.bc-dots .dg{background:#28c840;}
+.bc-url{flex:1;background:#071525;border-radius:6px;height:26px;display:flex;align-items:center;padding:0 12px;font-size:11px;color:#64748b;max-width:480px;margin:0 auto;}
+.bc-usr{font-size:11px;color:#475569;margin-left:auto;}
+
+/* ── Console layout ── */
+.console-layout{display:flex;height:660px;background:#071525;}
+
+/* ── Sidebar ── */
+.sidebar{width:220px;flex-shrink:0;background:#0A1628;border-right:1px solid #1a2e42;display:flex;flex-direction:column;}
+.sb-logo{display:flex;align-items:center;gap:10px;padding:16px 16px 12px;border-bottom:1px solid #1a2e42;}
+.sb-logo-mark{width:34px;height:34px;background:linear-gradient(135deg,#00BFA5,#00897B);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;}
+.sb-logo-title{font-size:13px;font-weight:700;color:#f0f4f8;}
+.sb-logo-sub{font-size:10px;color:#475569;margin-top:1px;}
+.sb-section{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#2d3f52;padding:14px 16px 6px;}
+.sb-nav-item{display:flex;align-items:center;gap:9px;padding:9px 16px;font-size:12px;color:#64748b;cursor:pointer;border-radius:0;transition:all .15s;border-left:2px solid transparent;}
+.sb-nav-item:hover{background:rgba(0,191,165,.05);color:#94a3b8;}
+.sb-nav-item.active{background:rgba(0,191,165,.08);color:#00BFA5;border-left-color:#00BFA5;}
+.sb-icon{font-size:13px;width:16px;text-align:center;}
+.sb-spacer{flex:1;}
+.sb-footer{padding:12px 16px;border-top:1px solid #1a2e42;}
+.sb-stat-row{display:flex;justify-content:space-between;margin-bottom:10px;}
+.sb-stat{text-align:center;}
+.sb-stat-val{font-size:14px;font-weight:700;color:#f0f4f8;}
+.sb-stat-lbl{font-size:9px;color:#475569;margin-top:1px;}
+.sb-stat-val.red{color:#EF4444;}
+.sb-user{display:flex;align-items:center;gap:8px;}
+.sb-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#00BFA5,#00897B);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0;}
+.sb-user-name{font-size:11px;font-weight:600;color:#94a3b8;}
+.sb-user-role{font-size:9px;color:#475569;}
+
+/* ── Main area ── */
+.main-area{flex:1;overflow-y:auto;background:#071525;}
+.screen{display:none;padding:24px;}
+.screen.active{display:block;}
+
+/* ── Page header ── */
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;}
+.page-title{font-size:18px;font-weight:700;color:#f0f4f8;}
+.page-sub{font-size:12px;color:#64748b;margin-top:3px;}
+.hdr-actions{display:flex;gap:8px;}
+.btn-primary{background:#00BFA5;color:#fff;border:none;border-radius:6px;padding:8px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;}
+.btn-outline{background:none;color:#94a3b8;border:1px solid #1a2e42;border-radius:6px;padding:7px 14px;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;}
+
+/* ── KPI cards ── */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+.kpi-card{background:#0D1B2A;border:1px solid #1a2e42;border-radius:10px;padding:16px;}
+.kpi-label{font-size:10px;font-weight:600;color:#475569;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;}
+.kpi-val{font-size:26px;font-weight:700;color:#f0f4f8;line-height:1;}
+.kpi-val.teal{color:#00BFA5;}
+.kpi-val.red{color:#EF4444;}
+.kpi-val.amber{color:#F59E0B;}
+.kpi-delta{font-size:10px;margin-top:6px;}
+.kpi-delta.up{color:#22C55E;}
+.kpi-delta.down{color:#EF4444;}
+.kpi-delta.neutral{color:#64748b;}
+
+/* ── Section card ── */
+.card{background:#0D1B2A;border:1px solid #1a2e42;border-radius:10px;overflow:hidden;}
+.card-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #1a2e42;}
+.card-title{font-size:12px;font-weight:700;color:#f0f4f8;}
+.card-sub{font-size:10px;color:#64748b;margin-top:1px;}
+
+/* ── Split layout ── */
+.split{display:grid;grid-template-columns:1fr 320px;gap:14px;}
+
+/* ── Table ── */
+.tbl-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+th{font-size:9.5px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.06em;padding:10px 12px;text-align:left;border-bottom:1px solid #1a2e42;}
+td{font-size:12px;color:#94a3b8;padding:11px 12px;border-bottom:1px solid rgba(255,255,255,.04);}
+td.order-id{font-family:'Courier New',monospace;font-size:11px;color:#00BFA5;font-weight:600;}
+td.customer{color:#f0f4f8;font-weight:500;}
+tr:hover td{background:rgba(0,191,165,.03);}
+
+/* ── Risk badge ── */
+.risk{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:.04em;}
+.risk.low{background:rgba(34,197,94,.12);color:#22C55E;}
+.risk.med{background:rgba(245,158,11,.12);color:#F59E0B;}
+.risk.high{background:rgba(239,68,68,.12);color:#EF4444;}
+
+/* ── Status chip ── */
+.status{display:inline-block;padding:3px 8px;border-radius:4px;font-size:10px;font-weight:600;}
+.status.processing{background:rgba(59,130,246,.12);color:#60A5FA;}
+.status.validated{background:rgba(34,197,94,.1);color:#22C55E;}
+.status.at-lab{background:rgba(139,92,246,.12);color:#A78BFA;}
+.status.qc{background:rgba(245,158,11,.1);color:#F59E0B;}
+.status.delayed{background:rgba(239,68,68,.12);color:#EF4444;animation:pulse .8s ease infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.6;}}
+
+/* ── Lab capacity bars ── */
+.lab-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.lab-name{font-size:11px;color:#94a3b8;width:130px;flex-shrink:0;}
+.lab-bar-wrap{flex:1;height:6px;background:#1a2e42;border-radius:99px;overflow:hidden;}
+.lab-bar{height:100%;border-radius:99px;transition:.4s ease;}
+.lab-bar.green{background:#22C55E;}
+.lab-bar.amber{background:#F59E0B;}
+.lab-bar.red{background:#EF4444;}
+.lab-pct{font-size:11px;font-weight:600;width:32px;text-align:right;flex-shrink:0;}
+.lab-pct.green{color:#22C55E;}.lab-pct.amber{color:#F59E0B;}.lab-pct.red{color:#EF4444;}
+
+/* ── Screen 2: Rx Validator ── */
+.rx-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+.rx-eye-card{background:#0D1B2A;border:1px solid #1a2e42;border-radius:10px;padding:16px;}
+.eye-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#475569;margin-bottom:12px;}
+.rx-field-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.rx-field{background:#071525;border-radius:6px;padding:10px 12px;}
+.rx-field-label{font-size:9px;font-weight:600;color:#475569;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;}
+.rx-field-val{font-size:18px;font-weight:700;color:#00BFA5;font-family:'Courier New',monospace;}
+.ai-result-card{background:#0D1B2A;border:1px solid #1a2e42;border-radius:10px;padding:20px;}
+.ai-status-bar{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+.ai-status-icon{width:40px;height:40px;border-radius:10px;background:rgba(245,158,11,.15);display:flex;align-items:center;justify-content:center;font-size:20px;}
+.ai-status-title{font-size:15px;font-weight:700;color:#F59E0B;}
+.ai-status-sub{font-size:11px;color:#64748b;margin-top:2px;}
+.ai-confidence{background:#071525;border-radius:6px;padding:8px 12px;display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.ai-conf-label{font-size:10px;color:#475569;}
+.ai-conf-val{font-size:13px;font-weight:700;color:#00BFA5;}
+.flag-item{background:#1a0f00;border:1px solid rgba(245,158,11,.2);border-radius:8px;padding:12px;margin-bottom:8px;}
+.flag-tag{font-size:9px;font-weight:700;color:#F59E0B;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;}
+.flag-text{font-size:11px;color:#94a3b8;line-height:1.5;}
+.order-meta-strip{background:#071525;border-radius:8px;padding:14px;display:flex;gap:24px;margin-bottom:16px;border:1px solid #1a2e42;}
+.meta-item{flex:1;}
+.meta-label{font-size:9px;color:#475569;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;}
+.meta-val{font-size:12px;font-weight:600;color:#f0f4f8;}
+.action-row{display:flex;gap:10px;}
+.btn-approve{background:#22C55E;color:#fff;border:none;border-radius:6px;padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;}
+.btn-flag{background:rgba(245,158,11,.12);color:#F59E0B;border:1px solid rgba(245,158,11,.3);border-radius:6px;padding:9px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;}
+.btn-override{background:none;color:#64748b;border:1px solid #1a2e42;border-radius:6px;padding:9px 18px;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;}
+
+/* ── Screen 3: Lab Router ── */
+.order-summary-card{background:#0D1B2A;border:1px solid #1a2e42;border-radius:10px;padding:16px;margin-bottom:16px;display:flex;align-items:center;gap:20px;}
+.oc-complexity{background:rgba(245,158,11,.12);color:#F59E0B;border:1px solid rgba(245,158,11,.2);border-radius:6px;padding:4px 12px;font-size:11px;font-weight:600;}
+.lab-options{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:14px;}
+.lab-card{background:#0D1B2A;border:1px solid #1a2e42;border-radius:10px;padding:16px;position:relative;}
+.lab-card.recommended{border-color:#00BFA5;background:rgba(0,191,165,.04);}
+.rec-badge{position:absolute;top:-1px;left:50%;transform:translateX(-50%);background:#00BFA5;color:#fff;font-size:9px;font-weight:700;padding:2px 10px;border-radius:0 0 6px 6px;text-transform:uppercase;letter-spacing:.06em;}
+.lab-card-name{font-size:13px;font-weight:700;color:#f0f4f8;margin-top:10px;margin-bottom:2px;}
+.lab-card-loc{font-size:10px;color:#475569;margin-bottom:12px;}
+.lab-metric{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.lm-label{font-size:10px;color:#64748b;}
+.lm-val{font-size:11px;font-weight:600;color:#94a3b8;}
+.spec-tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px;}
+.spec-tag{background:rgba(0,191,165,.08);color:#00BFA5;border:1px solid rgba(0,191,165,.2);border-radius:4px;font-size:9px;font-weight:600;padding:2px 7px;}
+.match-score{display:flex;align-items:center;justify-content:space-between;padding-top:12px;border-top:1px solid #1a2e42;}
+.ms-label{font-size:9px;color:#475569;text-transform:uppercase;letter-spacing:.06em;}
+.ms-val{font-size:16px;font-weight:800;}
+.ms-val.good{color:#22C55E;}.ms-val.med{color:#F59E0B;}.ms-val.bad{color:#EF4444;}
+.ai-reasoning-box{background:#071525;border:1px solid rgba(0,191,165,.2);border-radius:8px;padding:14px;margin-bottom:16px;}
+.arb-title{font-size:10px;font-weight:700;color:#00BFA5;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;}
+.arb-text{font-size:12px;color:#94a3b8;line-height:1.6;}
+
+/* ── Screen 4: Config ── */
+.config-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.rule-row{display:flex;align-items:flex-start;justify-content:space-between;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.rule-row:last-child{border-bottom:none;}
+.rule-name{font-size:12px;font-weight:500;color:#f0f4f8;margin-bottom:2px;}
+.rule-desc{font-size:10px;color:#475569;}
+.toggle{width:36px;height:20px;border-radius:10px;position:relative;cursor:pointer;flex-shrink:0;margin-top:2px;}
+.toggle.on{background:#00BFA5;}
+.toggle.off{background:#1a2e42;}
+.toggle::after{content:'';position:absolute;top:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:.2s;}
+.toggle.on::after{left:18px;}
+.toggle.off::after{left:2px;}
+.threshold-item{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.threshold-item:last-child{border-bottom:none;}
+.threshold-label{font-size:12px;color:#94a3b8;}
+.threshold-val{background:#071525;border:1px solid #1a2e42;border-radius:6px;padding:5px 12px;font-size:13px;font-weight:700;color:#00BFA5;font-family:'Courier New',monospace;min-width:60px;text-align:center;}
+</style>
+</head>
+<body>
+
+<!-- ── Proto header ── -->
+<div class="proto-header">
+  <span class="ph-eyebrow">eyewa · Internal Operations Console</span>
+  <span class="ph-pipe">|</span>
+  <span class="ph-title">eyewa <span class="ph-accent">RxOps</span> — AI-Powered Prescription Order Intelligence</span>
+  <span class="ph-pipe">|</span>
+  <span class="ph-tag">Interactive Prototype</span>
+</div>
+
+<!-- ── Screen nav ── -->
+<div class="screen-nav">
+  <button class="snav active" data-s="1">01 — Ops Dashboard</button>
+  <button class="snav" data-s="2">02 — Rx Validator</button>
+  <button class="snav" data-s="3">03 — Smart Lab Router</button>
+  <button class="snav" data-s="4">04 — Admin Config</button>
+</div>
+
+<!-- ── Browser chrome ── -->
+<div class="browser-outer">
+  <div class="browser-chrome">
+    <div class="bc-dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div>
+    <div class="bc-url" id="bcUrl">rxops.eyewa.internal/dashboard</div>
+    <span class="bc-usr">Ops Manager · eyewa Dubai</span>
+  </div>
+
+  <!-- ── Console ── -->
+  <div class="console-layout">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sb-logo">
+        <div class="sb-logo-mark">Rx</div>
+        <div>
+          <div class="sb-logo-title">RxOps</div>
+          <div class="sb-logo-sub">eyewa · Operations</div>
+        </div>
+      </div>
+      <div class="sb-section">Operations</div>
+      <div class="sb-nav-item active" data-s="1"><span class="sb-icon">▦</span> Dashboard</div>
+      <div class="sb-nav-item" data-s="2"><span class="sb-icon">◉</span> Rx Validator</div>
+      <div class="sb-nav-item" data-s="3"><span class="sb-icon">⇌</span> Lab Router</div>
+      <div class="sb-section">System</div>
+      <div class="sb-nav-item" data-s="4"><span class="sb-icon">⚙</span> Config</div>
+      <div class="sb-spacer"></div>
+      <div class="sb-footer">
+        <div class="sb-stat-row">
+          <div class="sb-stat"><div class="sb-stat-val">1,247</div><div class="sb-stat-lbl">Today</div></div>
+          <div class="sb-stat"><div class="sb-stat-val red">34</div><div class="sb-stat-lbl">At-Risk</div></div>
+          <div class="sb-stat"><div class="sb-stat-val" style="color:#00BFA5">78%</div><div class="sb-stat-lbl">Lab Util.</div></div>
+        </div>
+        <div class="sb-user">
+          <div class="sb-avatar">OM</div>
+          <div>
+            <div class="sb-user-name">Ops Manager</div>
+            <div class="sb-user-role">eyewa · Dubai HQ</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main area -->
+    <div class="main-area">
+
+      <!-- ═══ SCREEN 1: OPS DASHBOARD ═══ -->
+      <div class="screen active" id="s1">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Operations Dashboard</div>
+            <div class="page-sub">Monday, 26 May 2026 · Live · Updated 2 min ago</div>
+          </div>
+          <div class="hdr-actions">
+            <button class="btn-outline">⬇ Export</button>
+            <button class="btn-primary">+ New Order</button>
+          </div>
+        </div>
+
+        <!-- KPIs -->
+        <div class="kpi-row">
+          <div class="kpi-card">
+            <div class="kpi-label">Orders Today</div>
+            <div class="kpi-val">1,247</div>
+            <div class="kpi-delta up">↑ 12% vs yesterday</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">At-Risk Orders</div>
+            <div class="kpi-val red">34</div>
+            <div class="kpi-delta down">↑ 8 since 9am · action needed</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Avg Processing Time</div>
+            <div class="kpi-val teal">2.4<span style="font-size:14px;font-weight:400;color:#64748b;"> days</span></div>
+            <div class="kpi-delta neutral">Target: 3 days ✓ on track</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Lab Network Utilization</div>
+            <div class="kpi-val amber">78%</div>
+            <div class="kpi-delta down">Vision Labs at 89% ⚠</div>
+          </div>
+        </div>
+
+        <!-- Split: orders table + lab capacity -->
+        <div class="split">
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Live Order Pipeline</div>
+                <div class="card-sub">Sorted by AI Risk Score · Showing 8 of 1,247</div>
+              </div>
+              <div style="display:flex;gap:6px;">
+                <button class="btn-outline" style="font-size:10px;padding:4px 10px;">All</button>
+                <button class="btn-outline" style="font-size:10px;padding:4px 10px;color:#EF4444;border-color:#EF4444;">At-Risk 34</button>
+                <button class="btn-outline" style="font-size:10px;padding:4px 10px;">Delayed</button>
+              </div>
+            </div>
+            <div class="tbl-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Order ID</th>
+                    <th>Customer</th>
+                    <th>Lens Type</th>
+                    <th>Lab</th>
+                    <th>SLA</th>
+                    <th>Status</th>
+                    <th>AI Risk</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="order-id">EW-284628</td><td class="customer">Aisha Al-Zaabi</td><td>Progressive 1.67</td><td>Gulf Optics</td><td style="color:#EF4444">Today 1pm !</td><td><span class="status delayed">DELAYED</span></td><td><span class="risk high">HIGH</span></td>
+                  </tr>
+                  <tr>
+                    <td class="order-id">EW-284673</td><td class="customer">James Okafor</td><td>Progressive 1.74</td><td>Al Noor</td><td style="color:#EF4444">Yest. 6pm !</td><td><span class="status delayed">DELAYED</span></td><td><span class="risk high">HIGH</span></td>
+                  </tr>
+                  <tr>
+                    <td class="order-id">EW-284711</td><td class="customer">Sarah Al-Mansoori</td><td>Progressive Hi-Idx</td><td>Gulf Optics</td><td style="color:#F59E0B">Today 5pm</td><td><span class="status processing">Processing</span></td><td><span class="risk high">HIGH</span></td>
+                  </tr>
+                  <tr>
+                    <td class="order-id">EW-284687</td><td class="customer">Priya Krishnamurthy</td><td>Bifocal 1.60</td><td>Gulf Optics</td><td style="color:#F59E0B">Today 3pm</td><td><span class="status at-lab">At Lab</span></td><td><span class="risk med">MED</span></td>
+                  </tr>
+                  <tr>
+                    <td class="order-id">EW-284641</td><td class="customer">David Chen</td><td>Hi-Index 1.74</td><td>Vision Labs</td><td>Today 8pm</td><td><span class="status qc">QC</span></td><td><span class="risk low">LOW</span></td>
+                  </tr>
+                  <tr>
+                    <td class="order-id">EW-284659</td><td class="customer">Fatima Hassan</td><td>Single Vision 1.50</td><td>Gulf Optics</td><td>Tmrw 9am</td><td><span class="status at-lab">Cutting</span></td><td><span class="risk low">LOW</span></td>
+                  </tr>
+                  <tr>
+                    <td class="order-id">EW-284698</td><td class="customer">Mohammed Al-Rashid</td><td>Single Vision 1.60</td><td>Vision Labs</td><td>Tmrw 2pm</td><td><span class="status validated">Validated</span></td><td><span class="risk low">LOW</span></td>
+                  </tr>
+                  <tr>
+                    <td class="order-id">EW-284614</td><td class="customer">Rahul Mehta</td><td>Single Vision 1.56</td><td>Al Noor</td><td>Tmrw 6pm</td><td><span class="status validated">Validated</span></td><td><span class="risk low">LOW</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Lab capacity -->
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <div class="card">
+              <div class="card-header"><div class="card-title">Lab Network Capacity</div></div>
+              <div style="padding:16px;">
+                <div class="lab-row">
+                  <div class="lab-name">Gulf Optics · Dubai</div>
+                  <div class="lab-bar-wrap"><div class="lab-bar green" style="width:71%"></div></div>
+                  <div class="lab-pct green">71%</div>
+                </div>
+                <div class="lab-row">
+                  <div class="lab-name">Vision Labs · Sharjah</div>
+                  <div class="lab-bar-wrap"><div class="lab-bar amber" style="width:89%"></div></div>
+                  <div class="lab-pct amber">89%</div>
+                </div>
+                <div class="lab-row">
+                  <div class="lab-name">Al Noor · Abu Dhabi</div>
+                  <div class="lab-bar-wrap"><div class="lab-bar red" style="width:94%"></div></div>
+                  <div class="lab-pct red">94%</div>
+                </div>
+                <div class="lab-row">
+                  <div class="lab-name">LensCraft · RAK</div>
+                  <div class="lab-bar-wrap"><div class="lab-bar green" style="width:45%"></div></div>
+                  <div class="lab-pct green">45%</div>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header"><div class="card-title">Today's Processing Breakdown</div></div>
+              <div style="padding:16px;display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                <div style="background:#071525;border-radius:8px;padding:12px;text-align:center;">
+                  <div style="font-size:20px;font-weight:700;color:#22C55E;">1,019</div>
+                  <div style="font-size:10px;color:#475569;margin-top:3px;">On Track</div>
+                </div>
+                <div style="background:#071525;border-radius:8px;padding:12px;text-align:center;">
+                  <div style="font-size:20px;font-weight:700;color:#EF4444;">34</div>
+                  <div style="font-size:10px;color:#475569;margin-top:3px;">At Risk</div>
+                </div>
+                <div style="background:#071525;border-radius:8px;padding:12px;text-align:center;">
+                  <div style="font-size:20px;font-weight:700;color:#A78BFA;">147</div>
+                  <div style="font-size:10px;color:#475569;margin-top:3px;">At Lab</div>
+                </div>
+                <div style="background:#071525;border-radius:8px;padding:12px;text-align:center;">
+                  <div style="font-size:20px;font-weight:700;color:#00BFA5;">47</div>
+                  <div style="font-size:10px;color:#475569;margin-top:3px;">QC / Dispatch</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ SCREEN 2: RX VALIDATOR ═══ -->
+      <div class="screen" id="s2">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Rx Validator</div>
+            <div class="page-sub">AI prescription screening · Order <span style="color:#00BFA5;font-family:monospace">EW-284711</span></div>
+          </div>
+          <div class="hdr-actions">
+            <button class="btn-outline">← Back to Dashboard</button>
+          </div>
+        </div>
+
+        <!-- Order meta strip -->
+        <div class="order-meta-strip">
+          <div class="meta-item"><div class="meta-label">Customer</div><div class="meta-val">Sarah Al-Mansoori</div></div>
+          <div class="meta-item"><div class="meta-label">Frame</div><div class="meta-val">Ray-Ban RB5154 Clubmaster · Havana</div></div>
+          <div class="meta-item"><div class="meta-label">Lens</div><div class="meta-val">Essilor Crizal Alizé UV · Hi-Index 1.67</div></div>
+          <div class="meta-item"><div class="meta-label">SLA Deadline</div><div class="meta-val" style="color:#F59E0B">Today · 5:00 PM</div></div>
+          <div class="meta-item"><div class="meta-label">Rx Source</div><div class="meta-val">Uploaded by customer · PDF</div></div>
+        </div>
+
+        <!-- Prescription grid -->
+        <div class="rx-grid">
+          <div class="rx-eye-card">
+            <div class="eye-label">Right Eye (OD)</div>
+            <div class="rx-field-grid">
+              <div class="rx-field"><div class="rx-field-label">SPH</div><div class="rx-field-val">-2.50</div></div>
+              <div class="rx-field"><div class="rx-field-label">CYL</div><div class="rx-field-val">-0.75</div></div>
+              <div class="rx-field"><div class="rx-field-label">AXIS</div><div class="rx-field-val" style="color:#F59E0B">180°</div></div>
+              <div class="rx-field"><div class="rx-field-label">ADD</div><div class="rx-field-val">+2.00</div></div>
+            </div>
+          </div>
+          <div class="rx-eye-card">
+            <div class="eye-label">Left Eye (OS)</div>
+            <div class="rx-field-grid">
+              <div class="rx-field"><div class="rx-field-label">SPH</div><div class="rx-field-val">-2.25</div></div>
+              <div class="rx-field"><div class="rx-field-label">CYL</div><div class="rx-field-val">-0.50</div></div>
+              <div class="rx-field"><div class="rx-field-label">AXIS</div><div class="rx-field-val">175°</div></div>
+              <div class="rx-field"><div class="rx-field-label">ADD</div><div class="rx-field-val">+2.00</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <div class="rx-eye-card">
+            <div class="eye-label">Pupillary Distance (PD)</div>
+            <div class="rx-field-grid">
+              <div class="rx-field"><div class="rx-field-label">Right PD</div><div class="rx-field-val">62mm</div></div>
+              <div class="rx-field"><div class="rx-field-label">Left PD</div><div class="rx-field-val">60mm</div></div>
+            </div>
+          </div>
+          <div class="rx-eye-card" style="display:flex;align-items:center;justify-content:center;text-align:center;">
+            <div>
+              <div style="font-size:28px;font-weight:800;color:#F59E0B;margin-bottom:4px;">87%</div>
+              <div style="font-size:10px;color:#475569;text-transform:uppercase;letter-spacing:.06em;">AI Validation Confidence</div>
+              <div style="font-size:10px;color:#64748b;margin-top:6px;">2 flags require review</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="height:16px;"></div>
+
+        <div class="ai-result-card">
+          <div class="ai-status-bar">
+            <div class="ai-status-icon">⚠</div>
+            <div>
+              <div class="ai-status-title">2 Flags Require Review</div>
+              <div class="ai-status-sub">Prescription valid but flagged values should be confirmed before routing to lab</div>
+            </div>
+          </div>
+          <div class="flag-item">
+            <div class="flag-tag">⚠ FLAG 01 — AXIS boundary value</div>
+            <div class="flag-text">OD AXIS 180° is at the upper boundary of the valid range (0–180°). This is clinically valid but is often confused with 0° during data entry. Verify with customer or prescribing optometrist that 180° is correct before lens cutting.</div>
+          </div>
+          <div class="flag-item">
+            <div class="flag-tag">⚠ FLAG 02 — ADD power vs. patient age</div>
+            <div class="flag-text">ADD +2.00 is typical for presbyopic correction (usually 45+ years). System records show customer DOB: 1989 (age 37). This is uncommon — please confirm prescription date and whether patient has early-onset presbyopia or a non-standard correction need.</div>
+          </div>
+          <div style="height:14px;"></div>
+          <div class="action-row">
+            <button class="btn-approve">✓ Approve & Route to Lab</button>
+            <button class="btn-flag">✉ Request Clarification</button>
+            <button class="btn-override">Manual Override</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ SCREEN 3: LAB ROUTER ═══ -->
+      <div class="screen" id="s3">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Smart Lab Router</div>
+            <div class="page-sub">AI routing recommendation · Order <span style="color:#00BFA5;font-family:monospace">EW-284711</span></div>
+          </div>
+          <div class="hdr-actions">
+            <button class="btn-outline">← Back</button>
+          </div>
+        </div>
+
+        <div class="order-summary-card">
+          <div style="flex:1;display:grid;grid-template-columns:repeat(4,1fr);gap:16px;">
+            <div><div class="meta-label" style="font-size:9px;color:#475569;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;">Customer</div><div style="font-size:12px;font-weight:600;color:#f0f4f8;">Sarah Al-Mansoori</div></div>
+            <div><div class="meta-label" style="font-size:9px;color:#475569;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;">Lens Type</div><div style="font-size:12px;font-weight:600;color:#f0f4f8;">Progressive Hi-Index 1.67</div></div>
+            <div><div class="meta-label" style="font-size:9px;color:#475569;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;">SLA Deadline</div><div style="font-size:12px;font-weight:600;color:#F59E0B;">Today · 5:00 PM</div></div>
+            <div><div class="meta-label" style="font-size:9px;color:#475569;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;">Rx Complexity</div><div class="oc-complexity">Medium — 2 flags reviewed</div></div>
+          </div>
+        </div>
+
+        <div class="ai-reasoning-box">
+          <div class="arb-title">⚡ AI Recommendation</div>
+          <div class="arb-text">Gulf Optics Dubai is the optimal choice — lowest TAT for hi-index progressive within your SLA buffer, 71% capacity (lowest among progressive-certified labs), and nearest to the main dispatch hub (12km). Vision Labs Sharjah can handle progressive but is at 89% capacity with 0.8 days extra TAT. Al Noor Abu Dhabi is not recommended — 94% capacity and 2.3 days over SLA.</div>
+        </div>
+
+        <div class="lab-options">
+          <!-- Lab 1: Recommended -->
+          <div class="lab-card recommended">
+            <div class="rec-badge">AI Recommended</div>
+            <div class="lab-card-name">Gulf Optics Dubai</div>
+            <div class="lab-card-loc">Al Quoz Industrial · 12km from hub</div>
+            <div class="lab-metric"><span class="lm-label">Capacity</span><span class="lm-val" style="color:#22C55E">71% utilized</span></div>
+            <div class="lab-metric"><span class="lm-label">Est. TAT</span><span class="lm-val">1.8 days</span></div>
+            <div class="lab-metric"><span class="lm-label">SLA Buffer</span><span class="lm-val" style="color:#22C55E">+1.2 days</span></div>
+            <div class="spec-tags">
+              <span class="spec-tag">Progressive ✓</span>
+              <span class="spec-tag">Hi-Index 1.67 ✓</span>
+              <span class="spec-tag">Hi-Index 1.74 ✓</span>
+            </div>
+            <div class="match-score"><span class="ms-label">AI Match Score</span><span class="ms-val good">94%</span></div>
+          </div>
+
+          <!-- Lab 2 -->
+          <div class="lab-card">
+            <div class="lab-card-name">Vision Labs Sharjah</div>
+            <div class="lab-card-loc">Industrial Area 6 · 28km from hub</div>
+            <div class="lab-metric"><span class="lm-label">Capacity</span><span class="lm-val" style="color:#F59E0B">89% utilized</span></div>
+            <div class="lab-metric"><span class="lm-label">Est. TAT</span><span class="lm-val">2.6 days</span></div>
+            <div class="lab-metric"><span class="lm-label">SLA Buffer</span><span class="lm-val" style="color:#F59E0B">+0.4 days</span></div>
+            <div class="spec-tags">
+              <span class="spec-tag">Progressive ✓</span>
+              <span class="spec-tag">Hi-Index 1.67 ✓</span>
+            </div>
+            <div class="match-score"><span class="ms-label">AI Match Score</span><span class="ms-val med">71%</span></div>
+          </div>
+
+          <!-- Lab 3 -->
+          <div class="lab-card">
+            <div class="lab-card-name">Al Noor Optical Abu Dhabi</div>
+            <div class="lab-card-loc">Mussafah Industrial · 138km from hub</div>
+            <div class="lab-metric"><span class="lm-label">Capacity</span><span class="lm-val" style="color:#EF4444">94% utilized</span></div>
+            <div class="lab-metric"><span class="lm-label">Est. TAT</span><span class="lm-val">4.1 days</span></div>
+            <div class="lab-metric"><span class="lm-label">SLA Buffer</span><span class="lm-val" style="color:#EF4444">–2.1 days !</span></div>
+            <div class="spec-tags">
+              <span class="spec-tag" style="opacity:.5">Progressive ✓</span>
+            </div>
+            <div class="match-score"><span class="ms-label">AI Match Score</span><span class="ms-val bad">43%</span></div>
+          </div>
+        </div>
+
+        <div class="action-row">
+          <button class="btn-approve">✓ Confirm — Gulf Optics Dubai</button>
+          <button class="btn-flag">Override & Select Manually</button>
+        </div>
+      </div>
+
+      <!-- ═══ SCREEN 4: ADMIN CONFIG ═══ -->
+      <div class="screen" id="s4">
+        <div class="page-header">
+          <div>
+            <div class="page-title">System Configuration</div>
+            <div class="page-sub">Routing rules · Alert thresholds · Lab registry</div>
+          </div>
+          <div class="hdr-actions">
+            <button class="btn-primary">Save Changes</button>
+          </div>
+        </div>
+
+        <div class="config-grid">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Routing Rules</div></div>
+            <div style="padding:0 16px;">
+              <div class="rule-row">
+                <div><div class="rule-name">Nearest lab priority</div><div class="rule-desc">Prefer nearest lab if TAT delta is &lt; 0.5 days</div></div>
+                <div class="toggle on"></div>
+              </div>
+              <div class="rule-row">
+                <div><div class="rule-name">Hard capacity cap</div><div class="rule-desc">Never route to labs above 90% capacity</div></div>
+                <div class="toggle on"></div>
+              </div>
+              <div class="rule-row">
+                <div><div class="rule-name">Progressive lens certification</div><div class="rule-desc">Progressive lenses → certified labs only</div></div>
+                <div class="toggle on"></div>
+              </div>
+              <div class="rule-row">
+                <div><div class="rule-name">Hi-Index 1.74 specialization</div><div class="rule-desc">Hi-index 1.74+ → specialized labs only</div></div>
+                <div class="toggle on"></div>
+              </div>
+              <div class="rule-row">
+                <div><div class="rule-name">Same-day order gating</div><div class="rule-desc">Same-day orders → Dubai/Sharjah labs only</div></div>
+                <div class="toggle on"></div>
+              </div>
+              <div class="rule-row">
+                <div><div class="rule-name">Auto-route low-risk orders</div><div class="rule-desc">Orders with risk score &lt; 20% are auto-routed without review</div></div>
+                <div class="toggle off"></div>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <div class="card">
+              <div class="card-header"><div class="card-title">Alert Thresholds</div></div>
+              <div style="padding:0 16px;">
+                <div class="threshold-item">
+                  <div class="threshold-label">At-risk SLA buffer</div>
+                  <div class="threshold-val">24 hrs</div>
+                </div>
+                <div class="threshold-item">
+                  <div class="threshold-label">Lab capacity warning</div>
+                  <div class="threshold-val">85%</div>
+                </div>
+                <div class="threshold-item">
+                  <div class="threshold-label">Min Rx validation confidence</div>
+                  <div class="threshold-val">75%</div>
+                </div>
+                <div class="threshold-item">
+                  <div class="threshold-label">Auto-approve below risk score</div>
+                  <div class="threshold-val">Off</div>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header"><div class="card-title">Lab Registry</div></div>
+              <div style="padding:14px 16px;font-size:11px;color:#64748b;">
+                <div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span>Gulf Optics Dubai</span><span style="color:#22C55E">● Active</span></div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span>Vision Labs Sharjah</span><span style="color:#22C55E">● Active</span></div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span>Al Noor Abu Dhabi</span><span style="color:#22C55E">● Active</span></div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:12px;"><span>LensCraft RAK</span><span style="color:#22C55E">● Active</span></div>
+                <button class="btn-outline" style="width:100%;font-size:11px;">+ Add Lab Partner</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end main-area -->
+  </div><!-- end console-layout -->
+</div><!-- end browser-outer -->
+
+<script>
+const urls = {
+  1:'rxops.eyewa.internal/dashboard',
+  2:'rxops.eyewa.internal/validator/EW-284711',
+  3:'rxops.eyewa.internal/router/EW-284711',
+  4:'rxops.eyewa.internal/admin/config'
+};
+function switchScreen(n) {
+  n = String(n);
+  document.querySelectorAll('.snav').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.sb-nav-item').forEach(b => b.classList.remove('active'));
+  const tab = document.querySelector(`.snav[data-s="${n}"]`);
+  const scr = document.getElementById('s'+n);
+  const nav = document.querySelector(`.sb-nav-item[data-s="${n}"]`);
+  if(tab) tab.classList.add('active');
+  if(scr) scr.classList.add('active');
+  if(nav) nav.classList.add('active');
+  document.getElementById('bcUrl').textContent = urls[n];
+}
+document.querySelectorAll('.snav').forEach(b => b.addEventListener('click', () => switchScreen(b.dataset.s)));
+document.querySelectorAll('.sb-nav-item').forEach(b => b.addEventListener('click', () => switchScreen(b.dataset.s)));
+</script>
+</body>
+</html>
