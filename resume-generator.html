@@ -762,7 +762,7 @@ Output clean HTML only — no markdown, no code fences, no explanations before o
 // ─────────────────────────────────────────────
 async function callGemini(apiKey, prompt) {
   const model = document.getElementById('geminiModel').value;
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+  const url = `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${apiKey}`;
   const body = {
     contents: [{ parts: [{ text: prompt }] }],
     generationConfig: {
