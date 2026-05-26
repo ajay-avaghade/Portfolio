@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Deel — EquityOnboard · Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --c-dark:   #0D1117;
+  --c-hero:   #161B22;
+  --c-card:   #1C2333;
+  --c-bright: #34D399;
+  --c-accent: #10B981;
+  --purple:   #818CF8;
+  --orange:   #F97316;
+  --red:      #EF4444;
+  --ink:      #F0F6FC;
+  --muted:    #8B949E;
+  --border:   #30363D;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Sora',sans-serif;background:#080F0D;min-height:100vh;padding:32px 20px 48px;display:flex;flex-direction:column;align-items:center;}
+.page-header{text-align:center;margin-bottom:32px;}
+.page-header .co-tag{display:inline-block;background:rgba(52,211,153,0.12);color:var(--c-bright);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:4px 12px;border-radius:99px;border:1px solid rgba(52,211,153,0.3);margin-bottom:10px;}
+.page-header h1{font-size:22px;font-weight:800;color:#F0F6FC;letter-spacing:-.02em;}
+.page-header p{font-size:12px;color:#8B949E;margin-top:4px;}
+.phones-row{display:flex;gap:32px;align-items:flex-start;flex-wrap:wrap;justify-content:center;}
+.phone-wrap{display:flex;flex-direction:column;align-items:center;gap:12px;}
+.phone-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#8B949E;}
+.phone{width:375px;height:812px;background:var(--c-dark);border-radius:46px;box-shadow:0 40px 100px rgba(0,0,0,0.6),0 0 0 1px rgba(255,255,255,0.08);overflow:hidden;position:relative;display:flex;flex-direction:column;}
+.notch{width:118px;height:28px;background:var(--c-dark);border-radius:0 0 16px 16px;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:6px;position:relative;z-index:10;flex-shrink:0;}
+.nc{width:10px;height:10px;background:#1C2333;border-radius:50%;}
+.notch-sensor{width:6px;height:6px;background:#2d3748;border-radius:50%;}
+.status-bar{display:flex;justify-content:space-between;align-items:center;padding:4px 20px 6px;font-family:'DM Mono',monospace;font-size:11px;color:#8B949E;flex-shrink:0;}
+.screen{flex:1;overflow-y:auto;scrollbar-width:none;padding-bottom:16px;}
+.screen::-webkit-scrollbar{display:none;}
+.top-bar{display:flex;align-items:center;justify-content:space-between;padding:12px 18px 8px;}
+.top-bar .back{font-size:18px;color:var(--c-bright);line-height:1;}
+.top-bar .title{font-size:13px;font-weight:700;color:var(--ink);}
+.top-bar .action{font-size:11px;color:var(--c-bright);font-weight:600;}
+.section-label{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:0 18px;margin:14px 0 6px;}
+.card{margin:0 18px 8px;background:var(--c-card);border-radius:14px;padding:14px;border:1px solid var(--border);}
+.tag{font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:99px;}
+.tag-green{background:rgba(52,211,153,0.15);color:var(--c-bright);border:1px solid rgba(52,211,153,0.3);}
+.tag-orange{background:rgba(249,115,22,0.15);color:var(--orange);border:1px solid rgba(249,115,22,0.3);}
+.tag-red{background:rgba(239,68,68,0.15);color:var(--red);border:1px solid rgba(239,68,68,0.3);}
+.tag-muted{background:rgba(139,148,158,0.15);color:var(--muted);border:1px solid rgba(139,148,158,0.3);}
+.tag-purple{background:rgba(129,140,248,0.15);color:var(--purple);border:1px solid rgba(129,140,248,0.3);}
+.track{height:6px;background:var(--border);border-radius:99px;overflow:visible;position:relative;margin:6px 0;}
+.fill{height:100%;border-radius:99px;background:var(--c-bright);position:relative;}
+.fill-badge{position:absolute;right:-2px;top:-9px;background:var(--c-bright);color:#0D1117;font-size:8px;font-weight:700;padding:1px 4px;border-radius:4px;font-family:'DM Mono',monospace;}
+.conf-wrap{position:relative;overflow:hidden;border-radius:14px;padding:20px 14px;text-align:center;background:var(--c-card);margin:0 18px 8px;border:1px solid var(--border);}
+@keyframes confD{0%{transform:translateY(-20px) rotate(0deg);opacity:1;}100%{transform:translateY(120px) rotate(360deg);opacity:0;}}
+.cp{position:absolute;animation:confD linear infinite;}
+.cta-btn{display:block;margin:0 18px 8px;background:var(--c-accent);color:#fff;font-size:12px;font-weight:700;padding:13px;border-radius:12px;text-align:center;border:none;cursor:pointer;}
+.cta-btn-outline{display:block;margin:0 18px 8px;background:transparent;color:var(--c-bright);font-size:12px;font-weight:600;padding:12px;border-radius:12px;text-align:center;border:1px solid rgba(52,211,153,0.4);cursor:pointer;}
+.bottom-nav{display:flex;justify-content:space-around;align-items:center;padding:10px 0 20px;border-top:1px solid var(--border);background:var(--c-dark);flex-shrink:0;}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:9px;color:var(--muted);}
+.nav-item.active{color:var(--c-bright);}
+.nav-dot{width:4px;height:4px;background:var(--c-bright);border-radius:50%;margin:0 auto;}
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="co-tag">Deel — EquityOnboard · Interactive Prototype</div>
+  <h1>AI-Guided Equity Expansion to New Geographies</h1>
+  <p>Compliance gap analysis + sub-plan scaffold in hours, not weeks</p>
+</div>
+
+<div class="phones-row">
+
+<!-- ══ SCREEN 1 — COUNTRY PICKER ══ -->
+<div class="phone-wrap">
+<div class="phone-label">01 — Country Expansion Picker</div>
+<div class="phone">
+  <div class="notch"><div class="nc"></div><div class="notch-sensor"></div></div>
+  <div class="status-bar"><span>9:41</span><span>▌▌▌ ◀ 87%</span></div>
+  <div class="screen">
+    <div style="background:linear-gradient(160deg,#0D1117 0%,#0d1a12 100%);padding:18px 18px 14px;">
+      <div style="font-size:10px;font-weight:700;color:var(--c-bright);letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px;">EquityOnboard</div>
+      <div style="font-size:18px;font-weight:800;color:var(--ink);line-height:1.2;">Expand Equity to<br>New Countries</div>
+      <div style="font-size:10px;color:var(--muted);margin-top:4px;">AI analyses compliance requirements & generates sub-plan scaffold</div>
+    </div>
+
+    <div style="padding:8px 18px 0;">
+      <div style="background:var(--c-card);border-radius:10px;padding:10px 12px;border:1px solid var(--border);display:flex;align-items:center;gap:8px;">
+        <span style="color:var(--muted);font-size:14px;">🔍</span>
+        <span style="font-size:11px;color:var(--muted);">Search country…</span>
+      </div>
+    </div>
+
+    <div class="section-label">Recommended Next Markets</div>
+
+    <div class="card" style="border-left:3px solid var(--orange);">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:24px;">🇮🇳</span>
+          <div>
+            <div style="font-size:13px;font-weight:700;color:var(--ink);">India</div>
+            <div style="font-size:9px;color:var(--muted);">ESOP, FEMA, Securities Act</div>
+          </div>
+        </div>
+        <span class="tag tag-orange">High Demand</span>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <div style="flex:1;background:rgba(255,255,255,0.04);border-radius:8px;padding:7px;text-align:center;">
+          <div style="font-size:11px;font-weight:700;color:var(--orange);font-family:'DM Mono',monospace;">Medium</div>
+          <div style="font-size:8px;color:var(--muted);">Complexity</div>
+        </div>
+        <div style="flex:1;background:rgba(255,255,255,0.04);border-radius:8px;padding:7px;text-align:center;">
+          <div style="font-size:11px;font-weight:700;color:var(--c-bright);font-family:'DM Mono',monospace;">3 gaps</div>
+          <div style="font-size:8px;color:var(--muted);">Est. gaps</div>
+        </div>
+        <div style="flex:1;background:rgba(255,255,255,0.04);border-radius:8px;padding:7px;text-align:center;">
+          <div style="font-size:11px;font-weight:700;color:var(--c-bright);font-family:'DM Mono',monospace;">4 hrs</div>
+          <div style="font-size:8px;color:var(--muted);">vs 3 weeks</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:24px;">🇧🇷</span>
+          <div>
+            <div style="font-size:13px;font-weight:700;color:var(--ink);">Brazil</div>
+            <div style="font-size:9px;color:var(--muted);">CVM, Receita Federal, BACEN</div>
+          </div>
+        </div>
+        <span class="tag tag-red">High Complexity</span>
+      </div>
+      <div style="font-size:9px;color:var(--muted);">Est. 5 compliance gaps · Securities registration required</div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:24px;">🇳🇬</span>
+          <div>
+            <div style="font-size:13px;font-weight:700;color:var(--ink);">Nigeria</div>
+            <div style="font-size:9px;color:var(--muted);">SEC Nigeria, FIRS, CBN</div>
+          </div>
+        </div>
+        <span class="tag tag-muted">Medium Complexity</span>
+      </div>
+      <div style="font-size:9px;color:var(--muted);">Growing demand · Est. 2 gaps</div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:24px;">🇩🇪</span>
+          <div>
+            <div style="font-size:13px;font-weight:700;color:var(--ink);">Germany</div>
+            <div style="font-size:9px;color:var(--muted);">BaFin, Lohnsteuer, SV</div>
+          </div>
+        </div>
+        <span class="tag tag-green">✓ Supported</span>
+      </div>
+    </div>
+
+    <button class="cta-btn" style="margin-top:12px;">Analyse India →</button>
+  </div>
+</div>
+</div>
+
+<!-- ══ SCREEN 2 — COMPLIANCE GAP ANALYSIS ══ -->
+<div class="phone-wrap">
+<div class="phone-label">02 — AI Gap Analysis</div>
+<div class="phone">
+  <div class="notch"><div class="nc"></div><div class="notch-sensor"></div></div>
+  <div class="status-bar"><span>9:41</span><span>▌▌▌ ◀ 87%</span></div>
+  <div class="screen">
+    <div class="top-bar">
+      <span class="back">←</span>
+      <span class="title">India — ESOP Analysis</span>
+      <span class="action">Save</span>
+    </div>
+
+    <div style="margin:0 18px 12px;background:linear-gradient(135deg,rgba(52,211,153,0.1),rgba(16,185,129,0.05));border-radius:14px;padding:14px;border:1px solid rgba(52,211,153,0.2);">
+      <div style="font-size:9px;font-weight:700;color:var(--c-bright);margin-bottom:4px;">AI COMPLIANCE ENGINE</div>
+      <div style="font-size:12px;color:var(--ink);font-weight:600;">6 / 9 requirements met · 3 gaps found</div>
+      <div style="display:flex;gap:4px;margin-top:8px;">
+        <div style="height:6px;flex:1;background:var(--c-bright);border-radius:3px;"></div>
+        <div style="height:6px;flex:1;background:var(--c-bright);border-radius:3px;"></div>
+        <div style="height:6px;flex:1;background:var(--c-bright);border-radius:3px;"></div>
+        <div style="height:6px;flex:1;background:var(--c-bright);border-radius:3px;"></div>
+        <div style="height:6px;flex:1;background:var(--c-bright);border-radius:3px;"></div>
+        <div style="height:6px;flex:1;background:var(--c-bright);border-radius:3px;"></div>
+        <div style="height:6px;flex:1;background:var(--border);border-radius:3px;"></div>
+        <div style="height:6px;flex:1;background:var(--border);border-radius:3px;"></div>
+        <div style="height:6px;flex:1;background:var(--border);border-radius:3px;"></div>
+      </div>
+    </div>
+
+    <div class="section-label">Requirements Met (6)</div>
+    <div class="card">
+      <div style="display:flex;flex-direction:column;gap:7px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div style="font-size:10px;color:var(--ink);">Companies Act 2013 — Section 62(1)(b)</div>
+          <span class="tag tag-green" style="font-size:8px;padding:2px 6px;">✓</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div style="font-size:10px;color:var(--ink);">SEBI ESOP Guidelines (listed cos)</div>
+          <span class="tag tag-green" style="font-size:8px;padding:2px 6px;">✓</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div style="font-size:10px;color:var(--ink);">Perquisite tax at exercise</div>
+          <span class="tag tag-green" style="font-size:8px;padding:2px 6px;">✓</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div style="font-size:10px;color:var(--ink);">TDS deduction at vesting</div>
+          <span class="tag tag-green" style="font-size:8px;padding:2px 6px;">✓</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div style="font-size:10px;color:var(--ink);">Employee consent & disclosure</div>
+          <span class="tag tag-green" style="font-size:8px;padding:2px 6px;">✓</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div style="font-size:10px;color:var(--ink);">Board & shareholder approval</div>
+          <span class="tag tag-green" style="font-size:8px;padding:2px 6px;">✓</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-label">Gaps Requiring Action (3)</div>
+    <div class="card" style="border-left:3px solid var(--orange);margin-bottom:8px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+        <div style="font-size:11px;font-weight:700;color:var(--ink);">FEMA Sub-Plan Required</div>
+        <span class="tag tag-orange">Legal</span>
+      </div>
+      <div style="font-size:9px;color:var(--muted);">Cross-border equity grants require RBI-compliant sub-plan. Deel scaffold ready — legal review needed.</div>
+    </div>
+    <div class="card" style="border-left:3px solid var(--orange);margin-bottom:8px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+        <div style="font-size:11px;font-weight:700;color:var(--ink);">Form 3CEB Filing</div>
+        <span class="tag tag-orange">Tax</span>
+      </div>
+      <div style="font-size:9px;color:var(--muted);">Annual transfer pricing filing required for related-party ESOP transactions. Auto-flagged for tax team.</div>
+    </div>
+    <div class="card" style="border-left:3px solid var(--red);">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+        <div style="font-size:11px;font-weight:700;color:var(--ink);">Securities Registration (Unlisted)</div>
+        <span class="tag tag-red">Blocker</span>
+      </div>
+      <div style="font-size:9px;color:var(--muted);">If Deel entity is unlisted in India, private placement rules apply. Legal confirmation required.</div>
+    </div>
+
+    <button class="cta-btn">Generate Sub-Plan Scaffold →</button>
+  </div>
+</div>
+</div>
+
+<!-- ══ SCREEN 3 — SUCCESS ══ -->
+<div class="phone-wrap">
+<div class="phone-label">03 — Sub-Plan Generated</div>
+<div class="phone">
+  <div class="notch"><div class="nc"></div><div class="notch-sensor"></div></div>
+  <div class="status-bar"><span>9:41</span><span>▌▌▌ ◀ 87%</span></div>
+  <div class="screen">
+    <div class="conf-wrap" style="margin:18px 18px 8px;min-height:150px;">
+      <div id="conf3eo"></div>
+      <div style="font-size:36px;margin-bottom:8px;">📄</div>
+      <div style="font-size:16px;font-weight:800;color:var(--ink);margin-bottom:4px;">India Sub-Plan<br>Scaffold Ready</div>
+      <div style="font-size:10px;color:var(--muted);">3 sections drafted · 2 action items for legal</div>
+    </div>
+
+    <div class="section-label">Draft Sub-Plan Sections</div>
+    <div class="card">
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:28px;height:28px;background:rgba(52,211,153,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:700;color:var(--c-bright);">1</div>
+          <div>
+            <div style="font-size:11px;font-weight:600;color:var(--ink);">Grant Eligibility & Types</div>
+            <div style="font-size:9px;color:var(--c-bright);">✓ Drafted · Compliant with Sec 62</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:28px;height:28px;background:rgba(52,211,153,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:700;color:var(--c-bright);">2</div>
+          <div>
+            <div style="font-size:11px;font-weight:600;color:var(--ink);">Vesting Schedule Rules</div>
+            <div style="font-size:9px;color:var(--c-bright);">✓ Drafted · Min 1yr cliff per SEBI</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:28px;height:28px;background:rgba(52,211,153,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:700;color:var(--c-bright);">3</div>
+          <div>
+            <div style="font-size:11px;font-weight:600;color:var(--ink);">Tax Withholding Mechanics</div>
+            <div style="font-size:9px;color:var(--c-bright);">✓ Drafted · TDS + perquisite calc</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-label">Action Items for Your Legal Team</div>
+    <div class="card" style="background:rgba(249,115,22,0.06);border-color:rgba(249,115,22,0.2);">
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;align-items:flex-start;gap:10px;">
+          <span style="font-size:14px;color:var(--orange);flex-shrink:0;">⚡</span>
+          <div>
+            <div style="font-size:10px;font-weight:600;color:var(--ink);">Review FEMA sub-plan language</div>
+            <div style="font-size:9px;color:var(--muted);">Section 3.2 — RBI compliance wording</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px;">
+          <span style="font-size:14px;color:var(--orange);flex-shrink:0;">⚡</span>
+          <div>
+            <div style="font-size:10px;font-weight:600;color:var(--ink);">Confirm securities registration path</div>
+            <div style="font-size:9px;color:var(--muted);">Appendix B — Private placement vs. listed</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="text-align:center;">
+        <div style="font-size:9px;color:var(--muted);margin-bottom:8px;">Time to launch vs. traditional approach</div>
+        <div style="display:flex;justify-content:center;gap:24px;">
+          <div><div style="font-size:22px;font-weight:800;color:var(--c-bright);font-family:'DM Mono',monospace;">4 hrs</div><div style="font-size:9px;color:var(--muted);">With EquityOnboard</div></div>
+          <div><div style="font-size:22px;font-weight:800;color:var(--red);font-family:'DM Mono',monospace;">3 wks</div><div style="font-size:9px;color:var(--muted);">Manual compliance</div></div>
+        </div>
+      </div>
+    </div>
+
+    <button class="cta-btn">Send to Legal for Review →</button>
+    <button class="cta-btn-outline">Download Draft (PDF)</button>
+  </div>
+</div>
+</div>
+
+<!-- ══ SCREEN 4 — APPROVAL QUEUE ══ -->
+<div class="phone-wrap">
+<div class="phone-label">04 — Compliance Approval Queue</div>
+<div class="phone">
+  <div class="notch"><div class="nc"></div><div class="notch-sensor"></div></div>
+  <div class="status-bar"><span>9:41</span><span>▌▌▌ ◀ 87%</span></div>
+  <div class="screen">
+    <div class="top-bar">
+      <span class="back">←</span>
+      <span class="title">Approval Queue</span>
+      <span class="action">Filter</span>
+    </div>
+
+    <div style="margin:0 18px 12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+      <div style="background:var(--c-card);border-radius:12px;padding:10px;text-align:center;border:1px solid var(--border);">
+        <div style="font-size:18px;font-weight:800;font-family:'DM Mono',monospace;color:var(--orange);">3</div>
+        <div style="font-size:8px;color:var(--muted);">Awaiting<br>Review</div>
+      </div>
+      <div style="background:var(--c-card);border-radius:12px;padding:10px;text-align:center;border:1px solid var(--border);">
+        <div style="font-size:18px;font-weight:800;font-family:'DM Mono',monospace;color:var(--c-bright);">5</div>
+        <div style="font-size:8px;color:var(--muted);">Approved<br>This Month</div>
+      </div>
+      <div style="background:var(--c-card);border-radius:12px;padding:10px;text-align:center;border:1px solid var(--border);">
+        <div style="font-size:18px;font-weight:800;font-family:'DM Mono',monospace;color:var(--c-bright);">4 hrs</div>
+        <div style="font-size:8px;color:var(--muted);">Avg Review<br>Time</div>
+      </div>
+    </div>
+
+    <div class="section-label">Awaiting Legal Review</div>
+
+    <div class="card" style="border-left:3px solid var(--orange);">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">
+        <div>
+          <div style="font-size:12px;font-weight:700;color:var(--ink);">🇮🇳 India FEMA Sub-Plan</div>
+          <div style="font-size:9px;color:var(--muted);margin-top:2px;">Sent 2h ago · Assigned: Priya Mehta (Legal)</div>
+        </div>
+        <span class="tag tag-orange">In Review</span>
+      </div>
+      <div style="font-size:9px;color:var(--muted);">2 sections to approve · Est. 2 hrs remaining</div>
+    </div>
+
+    <div class="card" style="border-left:3px solid var(--muted);">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">
+        <div>
+          <div style="font-size:12px;font-weight:700;color:var(--ink);">🇧🇷 Brazil CVM Sub-Plan</div>
+          <div style="font-size:9px;color:var(--muted);margin-top:2px;">Queued · Not yet assigned</div>
+        </div>
+        <span class="tag tag-muted">Queued</span>
+      </div>
+      <div style="font-size:9px;color:var(--muted);">5 gaps identified · Securities registration required</div>
+    </div>
+
+    <div class="card" style="border-left:3px solid var(--muted);">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div>
+          <div style="font-size:12px;font-weight:700;color:var(--ink);">🇳🇬 Nigeria SEC Sub-Plan</div>
+          <div style="font-size:9px;color:var(--muted);margin-top:2px;">Queued · 2 gaps to resolve</div>
+        </div>
+        <span class="tag tag-muted">Queued</span>
+      </div>
+    </div>
+
+    <div class="section-label">Recently Approved</div>
+    <div class="card">
+      <div style="display:flex;flex-direction:column;gap:7px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div style="font-size:10px;color:var(--ink);">🇸🇬 Singapore MAS Sub-Plan</div>
+          <span class="tag tag-green" style="font-size:8px;">Approved</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div style="font-size:10px;color:var(--ink);">🇦🇪 UAE DIFC Sub-Plan</div>
+          <span class="tag tag-green" style="font-size:8px;">Approved</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div style="font-size:10px;color:var(--ink);">🇦🇺 Australia ASIC Sub-Plan</div>
+          <span class="tag tag-green" style="font-size:8px;">Approved</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+</div><!-- /phones-row -->
+
+<script>
+const cols=['#34D399','#F97316','#818CF8','#FBBF24','#F472B6','#60A5FA','#A78BFA'];
+const c=document.getElementById('conf3eo');
+for(let i=0;i<32;i++){
+  const p=document.createElement('div');p.className='cp';
+  const size=4+Math.random()*7;
+  p.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*120-10}%;width:${size}px;height:${size}px;background:${cols[Math.floor(Math.random()*cols.length)]};border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${1.4+Math.random()*1.8}s;animation-delay:${Math.random()*2.4}s;`;
+  c.appendChild(p);
+}
+</script>
+</body>
+</html>

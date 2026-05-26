@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Deel — EquityPulse · Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --c-dark:   #0D1117;
+  --c-hero:   #161B22;
+  --c-card:   #1C2333;
+  --c-bright: #00C9A7;
+  --c-accent: #00A888;
+  --orange:   #F97316;
+  --red:      #EF4444;
+  --ink:      #F0F6FC;
+  --muted:    #8B949E;
+  --border:   #30363D;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  font-family:'Sora',sans-serif;
+  background:#060A0F;
+  min-height:100vh;
+  padding:32px 20px 48px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+.page-header{
+  text-align:center;
+  margin-bottom:32px;
+}
+.page-header .co-tag{
+  display:inline-block;
+  background:rgba(0,201,167,0.12);
+  color:var(--c-bright);
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  padding:4px 12px;
+  border-radius:99px;
+  border:1px solid rgba(0,201,167,0.3);
+  margin-bottom:10px;
+}
+.page-header h1{
+  font-size:22px;
+  font-weight:800;
+  color:#F0F6FC;
+  letter-spacing:-.02em;
+}
+.page-header p{
+  font-size:12px;
+  color:#8B949E;
+  margin-top:4px;
+}
+.phones-row{
+  display:flex;
+  gap:32px;
+  align-items:flex-start;
+  flex-wrap:wrap;
+  justify-content:center;
+}
+.phone-wrap{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:12px;
+}
+.phone-label{
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:#8B949E;
+}
+.phone{
+  width:375px;
+  height:812px;
+  background:var(--c-dark);
+  border-radius:46px;
+  box-shadow:0 40px 100px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.08);
+  overflow:hidden;
+  position:relative;
+  display:flex;
+  flex-direction:column;
+}
+.notch{
+  width:118px;height:28px;
+  background:var(--c-dark);
+  border-radius:0 0 16px 16px;
+  margin:0 auto;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  position:relative;z-index:10;
+  flex-shrink:0;
+}
+.nc{width:10px;height:10px;background:#1C2333;border-radius:50%;}
+.notch-sensor{width:6px;height:6px;background:#2d3748;border-radius:50%;}
+.status-bar{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:4px 20px 6px;
+  font-family:'DM Mono',monospace;
+  font-size:11px;
+  color:#8B949E;
+  flex-shrink:0;
+}
+.screen{
+  flex:1;
+  overflow-y:auto;
+  scrollbar-width:none;
+  padding-bottom:16px;
+}
+.screen::-webkit-scrollbar{display:none;}
+
+/* ── SHARED COMPONENTS ── */
+.top-bar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 18px 8px;
+}
+.top-bar .back{font-size:18px;color:var(--c-bright);line-height:1;}
+.top-bar .title{font-size:13px;font-weight:700;color:var(--ink);}
+.top-bar .action{font-size:11px;color:var(--c-bright);font-weight:600;}
+
+.section-label{
+  font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);padding:0 18px;margin:14px 0 6px;
+}
+.stat-row{
+  display:flex;gap:10px;padding:0 18px;margin-bottom:12px;
+}
+.stat-pill{
+  flex:1;background:var(--c-card);border-radius:12px;padding:10px 12px;
+  border:1px solid var(--border);text-align:center;
+}
+.stat-pill .sv{font-size:18px;font-weight:800;font-family:'DM Mono',monospace;color:var(--c-bright);}
+.stat-pill .sl{font-size:9px;color:var(--muted);margin-top:2px;line-height:1.3;}
+
+.card{
+  margin:0 18px 8px;
+  background:var(--c-card);
+  border-radius:14px;
+  padding:14px;
+  border:1px solid var(--border);
+}
+.card-row{display:flex;justify-content:space-between;align-items:center;}
+.tag{
+  font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  padding:3px 8px;border-radius:99px;
+}
+.tag-green{background:rgba(0,201,167,0.15);color:var(--c-bright);border:1px solid rgba(0,201,167,0.3);}
+.tag-orange{background:rgba(249,115,22,0.15);color:var(--orange);border:1px solid rgba(249,115,22,0.3);}
+.tag-red{background:rgba(239,68,68,0.15);color:var(--red);border:1px solid rgba(239,68,68,0.3);}
+.tag-muted{background:rgba(139,148,158,0.15);color:var(--muted);border:1px solid rgba(139,148,158,0.3);}
+
+/* Progress */
+.track{height:6px;background:var(--border);border-radius:99px;overflow:visible;position:relative;margin:6px 0;}
+.fill{height:100%;border-radius:99px;background:var(--c-bright);position:relative;transition:.6s ease;}
+.fill-badge{position:absolute;right:-2px;top:-9px;background:var(--c-bright);color:#0D1117;font-size:8px;font-weight:700;padding:1px 4px;border-radius:4px;font-family:'DM Mono',monospace;}
+
+/* Confetti */
+.conf-wrap{position:relative;overflow:hidden;border-radius:14px;padding:20px 14px;text-align:center;background:var(--c-card);margin:0 18px 8px;border:1px solid var(--border);}
+@keyframes confD{0%{transform:translateY(-20px) rotate(0deg);opacity:1;}100%{transform:translateY(120px) rotate(360deg);opacity:0;}}
+.cp{position:absolute;animation:confD linear infinite;}
+
+/* Bottom nav */
+.bottom-nav{
+  display:flex;justify-content:space-around;align-items:center;
+  padding:10px 0 20px;
+  border-top:1px solid var(--border);
+  background:var(--c-dark);
+  flex-shrink:0;
+}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:9px;color:var(--muted);}
+.nav-item.active{color:var(--c-bright);}
+.nav-dot{width:4px;height:4px;background:var(--c-bright);border-radius:50%;margin:0 auto;}
+
+/* Divider */
+.divider{height:1px;background:var(--border);margin:10px 18px;}
+
+/* CTA btn */
+.cta-btn{
+  display:block;margin:0 18px 8px;
+  background:var(--c-bright);color:#0D1117;
+  font-size:12px;font-weight:700;
+  padding:13px;border-radius:12px;
+  text-align:center;border:none;cursor:pointer;
+}
+.cta-btn-outline{
+  display:block;margin:0 18px 8px;
+  background:transparent;color:var(--c-bright);
+  font-size:12px;font-weight:600;
+  padding:12px;border-radius:12px;
+  text-align:center;border:1px solid rgba(0,201,167,0.4);cursor:pointer;
+}
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="co-tag">Deel — EquityPulse · Interactive Prototype</div>
+  <h1>AI-Powered Equity Event Orchestration</h1>
+  <p>Zero-touch vesting → compliance → payroll automation across 150+ countries</p>
+</div>
+
+<div class="phones-row">
+
+<!-- ══ SCREEN 1 — VESTING EVENT DASHBOARD ══ -->
+<div class="phone-wrap">
+<div class="phone-label">01 — Vesting Dashboard</div>
+<div class="phone">
+  <div class="notch"><div class="nc"></div><div class="notch-sensor"></div></div>
+  <div class="status-bar"><span>9:41</span><span>▌▌▌ ◀ 87%</span></div>
+  <div class="screen">
+    <div style="background:linear-gradient(160deg,#0D1117 0%,#0d1a14 100%);padding:18px 18px 14px;">
+      <div style="font-size:10px;font-weight:700;color:var(--c-bright);letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px;">EquityPulse</div>
+      <div style="font-size:18px;font-weight:800;color:var(--ink);line-height:1.2;">3 Vesting Events<br>This Week</div>
+      <div style="font-size:10px;color:var(--muted);margin-top:4px;">Next: Tue 27 May · 47 employees across 8 countries</div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-pill"><div class="sv">47</div><div class="sl">Employees<br>Vesting</div></div>
+      <div class="stat-pill"><div class="sv" style="color:#F59E0B;">8</div><div class="sl">Countries<br>Affected</div></div>
+      <div class="stat-pill"><div class="sv" style="color:var(--c-bright);">100%</div><div class="sl">Auto-<br>Processed</div></div>
+    </div>
+
+    <div class="section-label">Upcoming Events</div>
+
+    <div class="card">
+      <div class="card-row" style="margin-bottom:8px;">
+        <div>
+          <div style="font-size:12px;font-weight:700;color:var(--ink);">Q2 RSU Cliff Vesting</div>
+          <div style="font-size:9px;color:var(--muted);margin-top:2px;">Tue 27 May · 31 employees</div>
+        </div>
+        <span class="tag tag-green">Ready</span>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
+        <span style="font-size:9px;background:rgba(255,255,255,0.06);padding:3px 7px;border-radius:6px;color:var(--muted);">🇺🇸 US · 18</span>
+        <span style="font-size:9px;background:rgba(255,255,255,0.06);padding:3px 7px;border-radius:6px;color:var(--muted);">🇬🇧 UK · 7</span>
+        <span style="font-size:9px;background:rgba(255,255,255,0.06);padding:3px 7px;border-radius:6px;color:var(--muted);">🇩🇪 DE · 6</span>
+      </div>
+      <div style="font-size:10px;color:var(--muted);">₹0 manual ops · Compliance ✓ · Payroll queued</div>
+    </div>
+
+    <div class="card">
+      <div class="card-row" style="margin-bottom:8px;">
+        <div>
+          <div style="font-size:12px;font-weight:700;color:var(--ink);">ESOP Monthly Tranche</div>
+          <div style="font-size:9px;color:var(--muted);margin-top:2px;">Thu 29 May · 12 employees</div>
+        </div>
+        <span class="tag tag-orange">Review</span>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
+        <span style="font-size:9px;background:rgba(255,255,255,0.06);padding:3px 7px;border-radius:6px;color:var(--muted);">🇮🇳 IN · 9</span>
+        <span style="font-size:9px;background:rgba(255,255,255,0.06);padding:3px 7px;border-radius:6px;color:var(--muted);">🇸🇬 SG · 3</span>
+      </div>
+      <div style="font-size:10px;color:var(--orange);">⚠ India FEMA compliance — 1 item pending legal sign-off</div>
+    </div>
+
+    <div class="card">
+      <div class="card-row" style="margin-bottom:8px;">
+        <div>
+          <div style="font-size:12px;font-weight:700;color:var(--ink);">Accelerated RSU Grant</div>
+          <div style="font-size:9px;color:var(--muted);margin-top:2px;">Fri 30 May · 4 employees</div>
+        </div>
+        <span class="tag tag-muted">Scheduled</span>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
+        <span style="font-size:9px;background:rgba(255,255,255,0.06);padding:3px 7px;border-radius:6px;color:var(--muted);">🇧🇷 BR · 2</span>
+        <span style="font-size:9px;background:rgba(255,255,255,0.06);padding:3px 7px;border-radius:6px;color:var(--muted);">🇦🇪 AE · 2</span>
+      </div>
+      <div style="font-size:10px;color:var(--muted);">Processing begins 48h before event</div>
+    </div>
+
+    <div class="section-label">This Quarter</div>
+    <div class="stat-row">
+      <div class="stat-pill"><div class="sv">₹0</div><div class="sl">Manual ops<br>cost</div></div>
+      <div class="stat-pill"><div class="sv">4 min</div><div class="sl">Avg processing<br>TAT</div></div>
+      <div class="stat-pill"><div class="sv">0</div><div class="sl">Compliance<br>errors</div></div>
+    </div>
+  </div>
+  <div class="bottom-nav">
+    <div class="nav-item active"><span>⚡</span><div class="nav-dot"></div></div>
+    <div class="nav-item"><span>📋</span><span>Events</span></div>
+    <div class="nav-item"><span>🌍</span><span>Countries</span></div>
+    <div class="nav-item"><span>⚙️</span><span>Settings</span></div>
+  </div>
+</div>
+</div>
+
+<!-- ══ SCREEN 2 — COMPLIANCE CHECK ══ -->
+<div class="phone-wrap">
+<div class="phone-label">02 — Auto-Compliance Check</div>
+<div class="phone">
+  <div class="notch"><div class="nc"></div><div class="notch-sensor"></div></div>
+  <div class="status-bar"><span>9:41</span><span>▌▌▌ ◀ 87%</span></div>
+  <div class="screen">
+    <div class="top-bar">
+      <span class="back">←</span>
+      <span class="title">Q2 RSU Cliff · 27 May</span>
+      <span class="action">Export</span>
+    </div>
+
+    <div style="margin:0 18px 12px;background:linear-gradient(135deg,rgba(0,201,167,0.12),rgba(0,168,136,0.06));border-radius:14px;padding:14px;border:1px solid rgba(0,201,167,0.2);">
+      <div style="font-size:10px;font-weight:700;color:var(--c-bright);margin-bottom:4px;">AI COMPLIANCE ENGINE</div>
+      <div style="font-size:12px;color:var(--ink);font-weight:600;">3 countries auto-checked · 0 blockers found</div>
+      <div style="font-size:10px;color:var(--muted);margin-top:4px;">Withholding rates, filing obligations & employee comms queued</div>
+    </div>
+
+    <div class="section-label">Country Breakdown</div>
+
+    <!-- US -->
+    <div class="card" style="margin-bottom:8px;">
+      <div class="card-row" style="margin-bottom:8px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:20px;">🇺🇸</span>
+          <div>
+            <div style="font-size:12px;font-weight:700;color:var(--ink);">United States · 18 employees</div>
+            <div style="font-size:9px;color:var(--muted);">Federal + State withholding</div>
+          </div>
+        </div>
+        <span class="tag tag-green">✓ Clear</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+        <div style="background:rgba(255,255,255,0.04);border-radius:8px;padding:8px;">
+          <div style="font-size:9px;color:var(--muted);">Withholding Rate</div>
+          <div style="font-size:13px;font-weight:700;color:var(--ink);font-family:'DM Mono',monospace;">22% + state</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.04);border-radius:8px;padding:8px;">
+          <div style="font-size:9px;color:var(--muted);">W-2 Supplement</div>
+          <div style="font-size:13px;font-weight:700;color:var(--c-bright);">Auto-filed</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.04);border-radius:8px;padding:8px;">
+          <div style="font-size:9px;color:var(--muted);">Payroll Items</div>
+          <div style="font-size:13px;font-weight:700;color:var(--ink);">18 queued</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.04);border-radius:8px;padding:8px;">
+          <div style="font-size:9px;color:var(--muted);">Employee Notif</div>
+          <div style="font-size:13px;font-weight:700;color:var(--c-bright);">Scheduled</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- UK -->
+    <div class="card" style="margin-bottom:8px;">
+      <div class="card-row" style="margin-bottom:8px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:20px;">🇬🇧</span>
+          <div>
+            <div style="font-size:12px;font-weight:700;color:var(--ink);">United Kingdom · 7 employees</div>
+            <div style="font-size:9px;color:var(--muted);">PAYE + NIC obligations</div>
+          </div>
+        </div>
+        <span class="tag tag-green">✓ Clear</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+        <div style="background:rgba(255,255,255,0.04);border-radius:8px;padding:8px;">
+          <div style="font-size:9px;color:var(--muted);">PAYE Rate</div>
+          <div style="font-size:13px;font-weight:700;color:var(--ink);font-family:'DM Mono',monospace;">40% (higher)</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.04);border-radius:8px;padding:8px;">
+          <div style="font-size:9px;color:var(--muted);">EMI Relief</div>
+          <div style="font-size:13px;font-weight:700;color:var(--c-bright);">2 employees</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DE -->
+    <div class="card" style="margin-bottom:8px;">
+      <div class="card-row" style="margin-bottom:8px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:20px;">🇩🇪</span>
+          <div>
+            <div style="font-size:12px;font-weight:700;color:var(--ink);">Germany · 6 employees</div>
+            <div style="font-size:9px;color:var(--muted);">Lohnsteuer + SV contributions</div>
+          </div>
+        </div>
+        <span class="tag tag-green">✓ Clear</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+        <div style="background:rgba(255,255,255,0.04);border-radius:8px;padding:8px;">
+          <div style="font-size:9px;color:var(--muted);">Tax Rate</div>
+          <div style="font-size:13px;font-weight:700;color:var(--ink);font-family:'DM Mono',monospace;">~42%</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.04);border-radius:8px;padding:8px;">
+          <div style="font-size:9px;color:var(--muted);">Payslip Item</div>
+          <div style="font-size:13px;font-weight:700;color:var(--c-bright);">Injected</div>
+        </div>
+      </div>
+    </div>
+
+    <button class="cta-btn">Approve & Queue Payroll (31 items)</button>
+    <button class="cta-btn-outline">Preview Employee Notifications</button>
+  </div>
+</div>
+</div>
+
+<!-- ══ SCREEN 3 — SUCCESS ══ -->
+<div class="phone-wrap">
+<div class="phone-label">03 — Payroll Queued</div>
+<div class="phone">
+  <div class="notch"><div class="nc"></div><div class="notch-sensor"></div></div>
+  <div class="status-bar"><span>9:41</span><span>▌▌▌ ◀ 87%</span></div>
+  <div class="screen">
+    <div class="conf-wrap" style="margin:18px 18px 8px;min-height:160px;">
+      <div id="conf3ep"></div>
+      <div style="font-size:36px;margin-bottom:8px;">⚡</div>
+      <div style="font-size:16px;font-weight:800;color:var(--ink);margin-bottom:4px;">31 Payroll Items<br>Queued</div>
+      <div style="font-size:10px;color:var(--muted);">Processing in next payroll run · Zero manual steps</div>
+    </div>
+
+    <div class="section-label">What Happened Automatically</div>
+
+    <div class="card" style="margin-bottom:8px;">
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:28px;height:28px;background:rgba(0,201,167,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px;">✓</div>
+          <div>
+            <div style="font-size:11px;font-weight:600;color:var(--ink);">Withholding rates applied</div>
+            <div style="font-size:9px;color:var(--muted);">US/UK/DE rates calculated per employee</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:28px;height:28px;background:rgba(0,201,167,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px;">✓</div>
+          <div>
+            <div style="font-size:11px;font-weight:600;color:var(--ink);">Compliance filings scheduled</div>
+            <div style="font-size:9px;color:var(--muted);">W-2 supplement, PAYE, Lohnsteuer entries queued</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:28px;height:28px;background:rgba(0,201,167,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px;">✓</div>
+          <div>
+            <div style="font-size:11px;font-weight:600;color:var(--ink);">Employee notifications sent</div>
+            <div style="font-size:9px;color:var(--muted);">31 personalised emails dispatched in local language</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:28px;height:28px;background:rgba(0,201,167,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px;">✓</div>
+          <div>
+            <div style="font-size:11px;font-weight:600;color:var(--ink);">Audit trail logged</div>
+            <div style="font-size:9px;color:var(--muted);">All decisions, rates & approvals stored</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;text-align:center;">
+        <div>
+          <div style="font-size:20px;font-weight:800;color:var(--c-bright);font-family:'DM Mono',monospace;">4 min</div>
+          <div style="font-size:9px;color:var(--muted);">Total processing time</div>
+        </div>
+        <div>
+          <div style="font-size:20px;font-weight:800;color:var(--c-bright);font-family:'DM Mono',monospace;">0</div>
+          <div style="font-size:9px;color:var(--muted);">Manual steps required</div>
+        </div>
+        <div>
+          <div style="font-size:20px;font-weight:800;color:#F59E0B;font-family:'DM Mono',monospace;">$2,400</div>
+          <div style="font-size:9px;color:var(--muted);">Ops cost saved per event</div>
+        </div>
+        <div>
+          <div style="font-size:20px;font-weight:800;color:var(--c-bright);font-family:'DM Mono',monospace;">100%</div>
+          <div style="font-size:9px;color:var(--muted);">Compliance coverage</div>
+        </div>
+      </div>
+    </div>
+
+    <button class="cta-btn">View Full Audit Trail</button>
+  </div>
+</div>
+</div>
+
+<!-- ══ SCREEN 4 — OPS CONSOLE ══ -->
+<div class="phone-wrap">
+<div class="phone-label">04 — Ops Intelligence</div>
+<div class="phone">
+  <div class="notch"><div class="nc"></div><div class="notch-sensor"></div></div>
+  <div class="status-bar"><span>9:41</span><span>▌▌▌ ◀ 87%</span></div>
+  <div class="screen">
+    <div class="top-bar">
+      <span class="back">≡</span>
+      <span class="title">Ops Console</span>
+      <span class="action">Export</span>
+    </div>
+
+    <div style="margin:0 18px 12px;background:linear-gradient(135deg,rgba(0,201,167,0.08),transparent);border-radius:14px;padding:12px;border:1px solid rgba(0,201,167,0.15);">
+      <div style="font-size:9px;color:var(--c-bright);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;">Q2 2025 · 90 days</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div><div style="font-size:20px;font-weight:800;font-family:'DM Mono',monospace;color:var(--ink);">1,247</div><div style="font-size:9px;color:var(--muted);">Events processed</div></div>
+        <div><div style="font-size:20px;font-weight:800;font-family:'DM Mono',monospace;color:var(--c-bright);">0</div><div style="font-size:9px;color:var(--muted);">Compliance errors</div></div>
+        <div><div style="font-size:20px;font-weight:800;font-family:'DM Mono',monospace;color:#F59E0B;">4.2 min</div><div style="font-size:9px;color:var(--muted);">Avg TAT</div></div>
+        <div><div style="font-size:20px;font-weight:800;font-family:'DM Mono',monospace;color:var(--c-bright);">$180K</div><div style="font-size:9px;color:var(--muted);">Ops cost saved</div></div>
+      </div>
+    </div>
+
+    <div class="section-label">Countries Covered</div>
+    <div style="padding:0 18px;margin-bottom:12px;">
+      <div style="display:flex;flex-wrap:wrap;gap:6px;">
+        <span style="font-size:10px;background:rgba(0,201,167,0.1);color:var(--c-bright);padding:4px 8px;border-radius:8px;border:1px solid rgba(0,201,167,0.2);">🇺🇸 US</span>
+        <span style="font-size:10px;background:rgba(0,201,167,0.1);color:var(--c-bright);padding:4px 8px;border-radius:8px;border:1px solid rgba(0,201,167,0.2);">🇬🇧 UK</span>
+        <span style="font-size:10px;background:rgba(0,201,167,0.1);color:var(--c-bright);padding:4px 8px;border-radius:8px;border:1px solid rgba(0,201,167,0.2);">🇩🇪 DE</span>
+        <span style="font-size:10px;background:rgba(0,201,167,0.1);color:var(--c-bright);padding:4px 8px;border-radius:8px;border:1px solid rgba(0,201,167,0.2);">🇮🇳 IN</span>
+        <span style="font-size:10px;background:rgba(0,201,167,0.1);color:var(--c-bright);padding:4px 8px;border-radius:8px;border:1px solid rgba(0,201,167,0.2);">🇸🇬 SG</span>
+        <span style="font-size:10px;background:rgba(0,201,167,0.1);color:var(--c-bright);padding:4px 8px;border-radius:8px;border:1px solid rgba(0,201,167,0.2);">🇳🇱 NL</span>
+        <span style="font-size:10px;background:rgba(255,255,255,0.06);color:var(--muted);padding:4px 8px;border-radius:8px;border:1px solid var(--border);">+22 more</span>
+      </div>
+    </div>
+
+    <div class="section-label">Event Queue — This Week</div>
+    <div style="margin:0 18px;border-radius:12px;overflow:hidden;border:1px solid var(--border);">
+      <div style="display:grid;grid-template-columns:2fr 1fr 1fr;background:rgba(255,255,255,0.04);padding:8px 10px;border-bottom:1px solid var(--border);">
+        <div style="font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;">Event</div>
+        <div style="font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;">EEs</div>
+        <div style="font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;">Status</div>
+      </div>
+      <div style="display:grid;grid-template-columns:2fr 1fr 1fr;padding:8px 10px;border-bottom:1px solid var(--border);align-items:center;">
+        <div style="font-size:10px;color:var(--ink);">Q2 RSU Cliff</div>
+        <div style="font-size:10px;color:var(--ink);font-family:'DM Mono',monospace;">31</div>
+        <span class="tag tag-green" style="font-size:8px;padding:2px 6px;">Done</span>
+      </div>
+      <div style="display:grid;grid-template-columns:2fr 1fr 1fr;padding:8px 10px;border-bottom:1px solid var(--border);align-items:center;">
+        <div style="font-size:10px;color:var(--ink);">ESOP Monthly</div>
+        <div style="font-size:10px;color:var(--ink);font-family:'DM Mono',monospace;">12</div>
+        <span class="tag tag-orange" style="font-size:8px;padding:2px 6px;">Review</span>
+      </div>
+      <div style="display:grid;grid-template-columns:2fr 1fr 1fr;padding:8px 10px;align-items:center;">
+        <div style="font-size:10px;color:var(--ink);">Accel. Grant</div>
+        <div style="font-size:10px;color:var(--ink);font-family:'DM Mono',monospace;">4</div>
+        <span class="tag tag-muted" style="font-size:8px;padding:2px 6px;">Pending</span>
+      </div>
+    </div>
+
+    <div style="margin:10px 18px;background:rgba(0,201,167,0.08);border-radius:12px;padding:12px;border:1px solid rgba(0,201,167,0.15);">
+      <div style="font-size:10px;font-weight:700;color:var(--c-bright);margin-bottom:4px;">vs. Manual Baseline</div>
+      <div style="font-size:10px;color:var(--muted);">TAT: <b style="color:var(--ink);">4 min</b> vs <b style="color:var(--red);">3.5 days</b> manual · Error rate: <b style="color:var(--c-bright);">0%</b> vs <b style="color:var(--red);">4.2%</b> manual</div>
+    </div>
+  </div>
+</div>
+</div>
+
+</div><!-- /phones-row -->
+
+<script>
+const cols=['#00C9A7','#F97316','#60A5FA','#FBBF24','#F472B6','#A78BFA','#34D399'];
+const c=document.getElementById('conf3ep');
+for(let i=0;i<32;i++){
+  const p=document.createElement('div');p.className='cp';
+  const size=4+Math.random()*7;
+  p.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*120-10}%;width:${size}px;height:${size}px;background:${cols[Math.floor(Math.random()*cols.length)]};border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${1.4+Math.random()*1.8}s;animation-delay:${Math.random()*2.4}s;`;
+  c.appendChild(p);
+}
+</script>
+</body>
+</html>
