@@ -356,6 +356,16 @@
         </div>
         <button class="btn-save" id="saveKeyBtn" onclick="saveApiKey()">Save</button>
       </div>
+      <div class="field-group" style="margin-top:10px;">
+        <label>Gemini Model</label>
+        <select id="geminiModel" onchange="saveModel()">
+          <option value="gemini-1.5-flash">Gemini 1.5 Flash — best free tier (1500 RPD)</option>
+          <option value="gemini-2.0-flash-lite" selected>Gemini 2.0 Flash Lite — free tier (20 RPD)</option>
+          <option value="gemini-2.0-flash">Gemini 2.0 Flash — free tier (20 RPD)</option>
+          <option value="gemini-2.5-flash">Gemini 2.5 Flash — pay-as-you-go</option>
+          <option value="gemini-2.5-pro">Gemini 2.5 Pro — pay-as-you-go (best quality)</option>
+        </select>
+      </div>
       <div style="font-size:11px; color:var(--muted); margin-top:6px;">
         Key saved in browser localStorage. <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--accent); text-decoration:none;">Get free key →</a>
       </div>
@@ -609,7 +619,16 @@ window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('saveKeyBtn').textContent = '✓ Saved';
     document.getElementById('saveKeyBtn').classList.add('saved');
   }
+  const savedModel = localStorage.getItem('gemini_model');
+  if (savedModel) {
+    const sel = document.getElementById('geminiModel');
+    if ([...sel.options].some(o => o.value === savedModel)) sel.value = savedModel;
+  }
 });
+
+function saveModel() {
+  localStorage.setItem('gemini_model', document.getElementById('geminiModel').value);
+}
 
 function saveApiKey() {
   const key = document.getElementById('apiKey').value.trim();
@@ -742,7 +761,8 @@ Output clean HTML only — no markdown, no code fences, no explanations before o
 //  GEMINI CALL
 // ─────────────────────────────────────────────
 async function callGemini(apiKey, prompt) {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${apiKey}`;
+  const model = document.getElementById('geminiModel').value;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
   const body = {
     contents: [{ parts: [{ text: prompt }] }],
     generationConfig: {
