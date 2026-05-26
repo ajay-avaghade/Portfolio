@@ -349,12 +349,10 @@
   <div class="controls">
     <div>
       <div class="section-label">API Configuration</div>
-      <div class="api-row">
-        <div class="field-group">
-          <label>Gemini API Key</label>
-          <input type="password" id="apiKey" placeholder="AIza..." autocomplete="off">
-        </div>
-        <button class="btn-save" id="saveKeyBtn" onclick="saveApiKey()">Save</button>
+      <div class="field-group">
+        <label>Gemini API Key</label>
+        <input type="password" id="apiKey" placeholder="AIza..." autocomplete="off" oninput="autoSaveKey()">
+        <div id="keyStatus" style="font-size:11px; margin-top:4px; color:var(--muted);"></div>
       </div>
       <div class="field-group" style="margin-top:10px;">
         <label>Gemini Model</label>
@@ -616,8 +614,7 @@ window.addEventListener('DOMContentLoaded', () => {
   const saved = localStorage.getItem('gemini_api_key');
   if (saved) {
     document.getElementById('apiKey').value = saved;
-    document.getElementById('saveKeyBtn').textContent = '✓ Saved';
-    document.getElementById('saveKeyBtn').classList.add('saved');
+    showKeyStatus(saved);
   }
   const savedModel = localStorage.getItem('gemini_model');
   if (savedModel) {
@@ -626,19 +623,24 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-function saveModel() {
-  localStorage.setItem('gemini_model', document.getElementById('geminiModel').value);
+function autoSaveKey() {
+  const key = document.getElementById('apiKey').value.trim();
+  if (key.length > 10) {
+    localStorage.setItem('gemini_api_key', key);
+    showKeyStatus(key);
+  } else {
+    document.getElementById('keyStatus').textContent = '';
+  }
 }
 
-function saveApiKey() {
-  const key = document.getElementById('apiKey').value.trim();
-  if (key) {
-    localStorage.setItem('gemini_api_key', key);
-    const btn = document.getElementById('saveKeyBtn');
-    btn.textContent = '✓ Saved';
-    btn.classList.add('saved');
-    setTimeout(() => { btn.textContent = 'Save'; btn.classList.remove('saved'); }, 2000);
-  }
+function showKeyStatus(key) {
+  const last6 = key.slice(-6);
+  document.getElementById('keyStatus').innerHTML =
+    `✓ Saved &nbsp;·&nbsp; Active key ends in <strong style="color:var(--text);">…${last6}</strong>`;
+}
+
+function saveModel() {
+  localStorage.setItem('gemini_model', document.getElementById('geminiModel').value);
 }
 
 // ─────────────────────────────────────────────
@@ -869,7 +871,8 @@ async function generateResume() {
   btn.disabled = true;
   btnIcon.outerHTML = '<span class="spinner" id="btnIcon"></span>';
   btnText.textContent = 'Generating…';
-  showStatus('info', `Calling Gemini for ${company} resume…`);
+  const model = document.getElementById('geminiModel').value;
+  showStatus('info', `Calling ${model} · key …${apiKey.slice(-6)} for ${company} resume…`);
 
   try {
     const matched = findCaseStudies(company);
