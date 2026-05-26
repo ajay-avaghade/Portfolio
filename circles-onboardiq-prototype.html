@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Circles OnboardIQ — Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --c-dark: #060D1A;
+  --c-hero: #0B1829;
+  --c-bright: #00C6FF;
+  --c-accent: #7C3AED;
+  --c-green: #22C55E;
+  --c-orange: #F97316;
+  --c-gold: #F59E0B;
+  --ink: #0f172a;
+  --muted: #64748b;
+  --border: #e2e8f0;
+  --gray: #f1f5f9;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family:'Sora',sans-serif;
+  background: linear-gradient(135deg, #060D1A 0%, #0D1428 50%, #060D1A 100%);
+  min-height:100vh;
+  padding:40px 20px 60px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+.header-strip {
+  width:100%;
+  max-width:1640px;
+  text-align:center;
+  margin-bottom:36px;
+}
+.header-strip h1 {
+  font-size:15px;
+  font-weight:700;
+  color:var(--c-bright);
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+.header-strip p {
+  font-size:12px;
+  color:rgba(255,255,255,0.45);
+  margin-top:4px;
+}
+.phones-row {
+  display:flex;
+  gap:32px;
+  align-items:flex-start;
+  justify-content:center;
+  flex-wrap:wrap;
+}
+.phone-wrap { display:flex; flex-direction:column; align-items:center; gap:12px; }
+.screen-label {
+  font-size:11px;
+  font-weight:600;
+  letter-spacing:.1em;
+  color:rgba(0,198,255,0.55);
+  text-transform:uppercase;
+}
+.phone {
+  width:375px;
+  height:812px;
+  background:#0B1829;
+  border-radius:46px;
+  box-shadow:0 40px 100px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.07);
+  overflow:hidden;
+  position:relative;
+  display:flex;
+  flex-direction:column;
+}
+.notch {
+  width:118px; height:28px;
+  background:var(--c-dark);
+  border-radius:0 0 16px 16px;
+  position:absolute;
+  top:0; left:50%; transform:translateX(-50%);
+  z-index:10;
+  display:flex; align-items:center; justify-content:center; gap:6px;
+}
+.nc { width:10px; height:10px; background:#1a2a3a; border-radius:50%; }
+.notch-sensor { width:5px; height:5px; background:#0a1520; border-radius:50%; }
+.statusbar {
+  height:44px;
+  background:var(--c-dark);
+  display:flex; align-items:flex-end; justify-content:space-between;
+  padding:0 22px 6px;
+  flex-shrink:0;
+}
+.sb-time { font-family:'DM Mono',monospace; font-size:12px; color:rgba(255,255,255,0.8); font-weight:500; }
+.sb-icons { display:flex; gap:4px; align-items:center; }
+.sb-icons span { font-size:11px; color:rgba(255,255,255,0.7); }
+.screen { overflow-y:auto; flex:1; scrollbar-width:none; }
+.screen::-webkit-scrollbar { display:none; }
+
+/* ===== SCREEN 1 — WELCOME / PLAN PICKER ===== */
+.s1-welcome-hero {
+  background: linear-gradient(160deg, #0D0B2A 0%, #0B1829 60%, #060D1A 100%);
+  padding:20px 18px 0;
+  text-align:center;
+}
+.oiq-logo { font-size:13px; font-weight:800; color:var(--c-bright); letter-spacing:.1em; text-transform:uppercase; margin-bottom:6px; }
+.oiq-headline { font-size:20px; font-weight:800; color:#fff; line-height:1.2; margin-bottom:6px; }
+.oiq-sub { font-size:11.5px; color:rgba(255,255,255,0.5); line-height:1.5; margin-bottom:16px; }
+.ai-tag {
+  display:inline-flex; align-items:center; gap:5px;
+  background:rgba(124,58,237,0.18); border:1px solid rgba(124,58,237,0.4);
+  border-radius:20px; padding:4px 12px;
+  font-size:10px; font-weight:700; color:#A78BFA;
+  margin-bottom:16px;
+}
+.usage-question {
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:14px;
+  padding:14px 16px;
+  text-align:left;
+  margin-bottom:10px;
+}
+.uq-label { font-size:10px; font-weight:700; color:rgba(255,255,255,0.5); letter-spacing:.07em; text-transform:uppercase; margin-bottom:8px; }
+.uq-question { font-size:13px; color:#fff; font-weight:600; margin-bottom:10px; }
+.usage-chips { display:flex; flex-wrap:wrap; gap:6px; }
+.usage-chip {
+  padding:6px 12px;
+  border-radius:20px;
+  border:1px solid rgba(255,255,255,0.15);
+  font-size:11px;
+  color:rgba(255,255,255,0.7);
+  cursor:pointer;
+}
+.usage-chip.active { background:rgba(0,198,255,0.18); border-color:var(--c-bright); color:var(--c-bright); font-weight:600; }
+.progress-dots { display:flex; gap:5px; justify-content:center; margin:14px 0 0; }
+.pd { width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,0.15); }
+.pd.active { background:var(--c-bright); width:18px; border-radius:3px; }
+
+/* ===== SCREEN 2 — AI PLAN RECOMMENDATION ===== */
+.s2-hero { background:var(--c-dark); padding:14px 18px 12px; }
+.s2-back { font-size:11px; color:var(--c-bright); margin-bottom:6px; }
+.s2-title { font-size:17px; font-weight:700; color:#fff; }
+.s2-sub { font-size:11px; color:rgba(255,255,255,0.45); margin-top:2px; }
+.ai-processing {
+  background:linear-gradient(135deg, rgba(124,58,237,0.15), rgba(0,198,255,0.08));
+  border:1px solid rgba(124,58,237,0.3);
+  border-radius:12px;
+  padding:12px 14px;
+  margin:0 18px 12px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.ai-dot { width:8px; height:8px; background:#A78BFA; border-radius:50%; animation:aipulse 1.2s infinite; }
+@keyframes aipulse { 0%,100%{transform:scale(1);opacity:1;} 50%{transform:scale(1.4);opacity:0.5;} }
+.ai-text { font-size:11px; color:rgba(255,255,255,0.7); }
+.plan-rec-card {
+  margin:0 18px 10px;
+  background:linear-gradient(135deg, rgba(0,198,255,0.12), rgba(0,198,255,0.05));
+  border:1.5px solid rgba(0,198,255,0.4);
+  border-radius:16px;
+  padding:16px;
+  position:relative;
+}
+.plan-rec-badge {
+  position:absolute; top:-10px; left:16px;
+  background:var(--c-bright); color:var(--c-dark);
+  font-size:9px; font-weight:800; padding:3px 10px; border-radius:10px;
+  letter-spacing:.06em; text-transform:uppercase;
+}
+.plan-name { font-size:20px; font-weight:800; color:#fff; margin-top:4px; }
+.plan-price-row { display:flex; align-items:baseline; gap:4px; margin:4px 0 10px; }
+.plan-price { font-family:'DM Mono',monospace; font-size:26px; font-weight:700; color:var(--c-bright); }
+.plan-period { font-size:12px; color:rgba(255,255,255,0.45); }
+.plan-features { list-style:none; }
+.plan-features li { font-size:11.5px; color:rgba(255,255,255,0.8); padding:3px 0; }
+.plan-features li::before { content:'✓ '; color:var(--c-green); font-weight:700; }
+.plan-fit-row { display:flex; align-items:center; gap:8px; margin-top:10px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.08); }
+.plan-fit-label { font-size:10px; color:rgba(255,255,255,0.45); }
+.plan-fit-score { font-family:'DM Mono',monospace; font-size:15px; font-weight:700; color:var(--c-bright); margin-left:auto; }
+.fit-track { flex:1; height:5px; background:rgba(255,255,255,0.1); border-radius:99px; overflow:hidden; }
+.fit-fill { height:100%; border-radius:99px; background:var(--c-bright); }
+.compare-link { font-size:11px; color:var(--c-bright); text-align:center; display:block; margin:0 18px 10px; }
+.why-ai { margin:0 18px 10px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:12px 14px; }
+.why-ai-title { font-size:10px; font-weight:700; color:rgba(255,255,255,0.45); letter-spacing:.07em; text-transform:uppercase; margin-bottom:8px; }
+.why-row { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+.why-icon-sm { font-size:14px; }
+.why-detail { font-size:11px; color:rgba(255,255,255,0.65); line-height:1.4; }
+.activate-btn { margin:0 18px 14px; display:block; background:var(--c-bright); color:var(--c-dark); font-size:13px; font-weight:800; padding:14px; border-radius:14px; text-align:center; cursor:pointer; }
+
+/* ===== SCREEN 3 — ACTIVATION SUCCESS ===== */
+.s3-bg { background:linear-gradient(180deg,#0D1025 0%,#0B1829 100%); min-height:812px; padding-bottom:20px; }
+.s3-confetti-wrap { position:relative; height:180px; overflow:hidden; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+#conf3oiq { position:absolute; inset:0; pointer-events:none; }
+.s3-icon { font-size:48px; z-index:1; }
+.s3-headline { font-size:19px; font-weight:800; color:#fff; text-align:center; padding:0 20px; z-index:1; margin-top:4px; }
+.s3-tagline { font-size:11.5px; color:rgba(255,255,255,0.5); text-align:center; padding:0 24px; margin-top:4px; }
+.active-plan-card { margin:14px 18px; background:rgba(0,198,255,0.1); border:1.5px solid rgba(0,198,255,0.35); border-radius:16px; padding:14px; }
+.apc-label { font-size:9.5px; font-weight:700; color:var(--c-bright); letter-spacing:.07em; text-transform:uppercase; margin-bottom:4px; }
+.apc-name { font-size:20px; font-weight:800; color:#fff; margin-bottom:2px; }
+.apc-sub { font-size:11px; color:rgba(255,255,255,0.5); margin-bottom:12px; }
+.apc-metrics { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
+.apc-metric { text-align:center; }
+.apc-val { font-family:'DM Mono',monospace; font-size:17px; font-weight:700; color:var(--c-bright); }
+.apc-lbl { font-size:9px; color:rgba(255,255,255,0.4); margin-top:1px; }
+.next-steps { margin:0 18px; }
+.ns-title { font-size:10.5px; font-weight:700; color:rgba(255,255,255,0.5); letter-spacing:.07em; text-transform:uppercase; margin-bottom:8px; }
+.ns-card { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:12px 14px; margin-bottom:8px; display:flex; align-items:center; gap:10px; }
+.ns-num { font-family:'DM Mono',monospace; font-size:16px; font-weight:700; color:var(--c-bright); flex-shrink:0; width:28px; }
+.ns-text { flex:1; }
+.ns-name { font-size:12px; font-weight:600; color:#fff; margin-bottom:2px; }
+.ns-sub { font-size:10px; color:rgba(255,255,255,0.4); }
+.ns-arrow { font-size:14px; color:rgba(255,255,255,0.3); }
+.xp-bar-wrap { margin:12px 18px 0; }
+.xp-label-row { display:flex; justify-content:space-between; margin-bottom:4px; }
+.xp-label { font-size:10px; color:rgba(255,255,255,0.45); }
+.xp-val { font-family:'DM Mono',monospace; font-size:10px; color:var(--c-gold); font-weight:700; }
+.xp-track { height:6px; background:rgba(255,255,255,0.08); border-radius:99px; overflow:hidden; }
+.xp-fill { height:100%; border-radius:99px; background:linear-gradient(90deg,var(--c-gold),var(--c-orange)); }
+
+/* ===== SCREEN 4 — OPS / ACQUISITION DASHBOARD ===== */
+.s4-bg { background:var(--c-dark); }
+.s4-header { padding:14px 18px 10px; }
+.s4-eyebrow { font-size:9.5px; font-weight:700; color:var(--c-bright); letter-spacing:.08em; text-transform:uppercase; margin-bottom:2px; }
+.s4-title { font-size:17px; font-weight:700; color:#fff; }
+.s4-sub { font-size:10.5px; color:rgba(255,255,255,0.4); margin-top:1px; }
+.kpi-grid { padding:0 18px; display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.kpi-card { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:11px 12px; }
+.kpi-val { font-family:'DM Mono',monospace; font-size:22px; font-weight:700; }
+.kpi-lbl { font-size:9.5px; color:rgba(255,255,255,0.4); margin-top:2px; }
+.onboard-funnel { padding:12px 18px 0; }
+.of-title { font-size:10px; font-weight:700; color:rgba(255,255,255,0.45); letter-spacing:.07em; text-transform:uppercase; margin-bottom:10px; }
+.of-row { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+.of-label { font-size:11px; color:#fff; min-width:120px; }
+.of-bar-wrap { flex:1; }
+.of-track { height:7px; background:rgba(255,255,255,0.07); border-radius:99px; overflow:hidden; }
+.of-fill { height:100%; border-radius:99px; }
+.of-sub { font-size:9px; color:rgba(255,255,255,0.3); margin-top:2px; }
+.of-count { font-family:'DM Mono',monospace; font-size:11.5px; font-weight:700; }
+.cohort-section { padding:10px 18px 0; }
+.cs-title { font-size:10px; font-weight:700; color:rgba(255,255,255,0.45); letter-spacing:.07em; text-transform:uppercase; margin-bottom:8px; }
+.cohort-row {
+  display:flex; align-items:center; gap:8px;
+  padding:8px 12px;
+  background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:10px; margin-bottom:6px;
+}
+.cohort-flag { font-size:14px; flex-shrink:0; }
+.cohort-name { flex:1; font-size:11px; font-weight:500; color:#fff; }
+.cohort-count { font-family:'DM Mono',monospace; font-size:11px; color:rgba(255,255,255,0.45); }
+.cohort-arpu { font-family:'DM Mono',monospace; font-size:11px; font-weight:700; color:var(--c-green); }
+.ops-summary-box { margin:12px 18px 16px; background:rgba(0,198,255,0.07); border:1px solid rgba(0,198,255,0.2); border-radius:12px; padding:12px 14px; }
+.osb-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; }
+.osb-label { font-size:10.5px; color:rgba(255,255,255,0.5); }
+.osb-val { font-family:'DM Mono',monospace; font-size:12px; font-weight:700; color:var(--c-bright); }
+</style>
+</head>
+<body>
+
+<div class="header-strip">
+  <h1>Circles — OnboardIQ &nbsp;·&nbsp; Interactive Prototype</h1>
+  <p>AI-Guided Subscriber Onboarding for MENA Launch · Right Plan, First Time</p>
+</div>
+
+<div class="phones-row">
+
+  <!-- PHONE 1: AI Plan Picker -->
+  <div class="phone-wrap">
+    <div class="screen-label">01 — AI Plan Picker</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="notch-sensor"></div></div>
+      <div class="statusbar">
+        <span class="sb-time">9:41</span>
+        <div class="sb-icons"><span>▲▲▲</span><span>WiFi</span><span>●●</span></div>
+      </div>
+      <div class="screen">
+        <div class="s1-welcome-hero">
+          <div class="oiq-logo">Circles OnboardIQ</div>
+          <div class="oiq-headline">Find your perfect plan<br>in 60 seconds</div>
+          <div class="oiq-sub">Answer 3 quick questions. Our AI picks the plan that fits your life — not the most expensive one.</div>
+          <div class="ai-tag">🤖 AI-powered matching</div>
+        </div>
+        <div style="padding:0 18px 14px;">
+          <div class="usage-question">
+            <div class="uq-label">Question 1 of 3</div>
+            <div class="uq-question">How do you mostly use mobile data?</div>
+            <div class="usage-chips">
+              <div class="usage-chip active">📱 Social & Streaming</div>
+              <div class="usage-chip">💼 Work & Video calls</div>
+              <div class="usage-chip">📷 Just browsing</div>
+              <div class="usage-chip">🎮 Gaming & Downloads</div>
+            </div>
+          </div>
+          <div class="usage-question">
+            <div class="uq-label">Question 2 of 3</div>
+            <div class="uq-question">Do you travel outside UAE regularly?</div>
+            <div class="usage-chips">
+              <div class="usage-chip">✈️ Yes, monthly+</div>
+              <div class="usage-chip active">🛫 A few times/year</div>
+              <div class="usage-chip">🏠 Rarely / never</div>
+            </div>
+          </div>
+          <div class="usage-question">
+            <div class="uq-label">Question 3 of 3</div>
+            <div class="uq-question">How important are voice calls to you?</div>
+            <div class="usage-chips">
+              <div class="usage-chip">📞 Very — I call daily</div>
+              <div class="usage-chip active">🔇 Mostly WhatsApp/apps</div>
+              <div class="usage-chip">💬 Hardly ever</div>
+            </div>
+          </div>
+          <div style="margin-top:14px; background:var(--c-bright); color:var(--c-dark); font-size:13px; font-weight:800; padding:14px; border-radius:14px; text-align:center; cursor:pointer;">
+            Show My Perfect Plan →
+          </div>
+          <div class="progress-dots" style="margin-top:12px;">
+            <div class="pd active"></div><div class="pd active"></div><div class="pd active"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHONE 2: AI Recommendation -->
+  <div class="phone-wrap">
+    <div class="screen-label">02 — AI Recommendation</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="notch-sensor"></div></div>
+      <div class="statusbar">
+        <span class="sb-time">9:41</span>
+        <div class="sb-icons"><span>▲▲▲</span><span>WiFi</span><span>●●</span></div>
+      </div>
+      <div class="screen">
+        <div class="s2-hero">
+          <div class="s2-back">← Back</div>
+          <div class="s2-title">Your Perfect Plan</div>
+          <div class="s2-sub">Matched from 7 Circles plans using 6 usage signals</div>
+        </div>
+        <div class="ai-processing" style="margin-top:12px;">
+          <div class="ai-dot"></div>
+          <div class="ai-text">OnboardIQ matched your profile: Data-heavy + Occasional roaming + App-first</div>
+        </div>
+        <div class="plan-rec-card">
+          <div class="plan-rec-badge">⭐ Best Match · 94% Fit</div>
+          <div class="plan-name">Circles 30GB GCC</div>
+          <div class="plan-price-row">
+            <div class="plan-price">AED 89</div>
+            <div class="plan-period">/ month</div>
+          </div>
+          <ul class="plan-features">
+            <li>30GB local data (never throttled)</li>
+            <li>10GB GCC roaming included</li>
+            <li>Unlimited WhatsApp & social apps</li>
+            <li>100 min international calling</li>
+            <li>eSIM — activate in 2 minutes</li>
+          </ul>
+          <div class="plan-fit-row">
+            <div class="plan-fit-label">Plan Fit Score</div>
+            <div class="fit-track"><div class="fit-fill" style="width:94%;"></div></div>
+            <div class="plan-fit-score">94 / 100</div>
+          </div>
+        </div>
+        <div class="compare-link">Compare all plans →</div>
+        <div class="why-ai">
+          <div class="why-ai-title">Why this plan?</div>
+          <div class="why-row">
+            <div class="why-icon-sm">📱</div>
+            <div class="why-detail">You stream heavily → 30GB prevents throttling frustration</div>
+          </div>
+          <div class="why-row">
+            <div class="why-icon-sm">✈️</div>
+            <div class="why-detail">Occasional travel → 10GB GCC roaming saves avg AED 60/trip</div>
+          </div>
+          <div class="why-row">
+            <div class="why-icon-sm">🔇</div>
+            <div class="why-detail">App-first user → unlimited social saves you vs per-MB billing</div>
+          </div>
+          <div class="why-row">
+            <div class="why-icon-sm">💰</div>
+            <div class="why-detail">Not upselling 50GB — you'd use only 34% of extra data</div>
+          </div>
+        </div>
+        <div class="activate-btn">Activate Now — AED 89/mo</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHONE 3: Activation Success -->
+  <div class="phone-wrap">
+    <div class="screen-label">03 — Welcome Aboard</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="notch-sensor"></div></div>
+      <div class="statusbar" style="background:#090D1F;">
+        <span class="sb-time">9:43</span>
+        <div class="sb-icons"><span>▲▲▲</span><span>WiFi</span><span>●●</span></div>
+      </div>
+      <div class="screen">
+        <div class="s3-bg">
+          <div class="s3-confetti-wrap">
+            <div id="conf3oiq"></div>
+            <div class="s3-icon">🚀</div>
+            <div class="s3-headline">Welcome to Circles!</div>
+            <div class="s3-tagline">Your eSIM is active. You're connected.</div>
+          </div>
+          <div class="active-plan-card">
+            <div class="apc-label">Active plan · Started today</div>
+            <div class="apc-name">Circles 30GB GCC</div>
+            <div class="apc-sub">Renews monthly · AED 89/mo · Cancel anytime</div>
+            <div class="apc-metrics">
+              <div class="apc-metric">
+                <div class="apc-val">30GB</div>
+                <div class="apc-lbl">Local data</div>
+              </div>
+              <div class="apc-metric">
+                <div class="apc-val">10GB</div>
+                <div class="apc-lbl">GCC roaming</div>
+              </div>
+              <div class="apc-metric">
+                <div class="apc-val">94%</div>
+                <div class="apc-lbl">Plan fit</div>
+              </div>
+            </div>
+          </div>
+          <div class="next-steps">
+            <div class="ns-title">Your 3 next steps</div>
+            <div class="ns-card">
+              <div class="ns-num">1</div>
+              <div class="ns-text">
+                <div class="ns-name">Scan QR to install eSIM</div>
+                <div class="ns-sub">Takes 2 minutes · No SIM card needed</div>
+              </div>
+              <div class="ns-arrow">→</div>
+            </div>
+            <div class="ns-card">
+              <div class="ns-num">2</div>
+              <div class="ns-text">
+                <div class="ns-name">Set up AutoPay</div>
+                <div class="ns-sub">Never lose connectivity at renewal</div>
+              </div>
+              <div class="ns-arrow">→</div>
+            </div>
+            <div class="ns-card">
+              <div class="ns-num">3</div>
+              <div class="ns-text">
+                <div class="ns-name">Enable data usage alerts</div>
+                <div class="ns-sub">We'll nudge you at 80% — no surprises</div>
+              </div>
+              <div class="ns-arrow">→</div>
+            </div>
+          </div>
+          <div class="xp-bar-wrap">
+            <div class="xp-label-row">
+              <div class="xp-label">Onboarding progress</div>
+              <div class="xp-val">1 / 3 steps</div>
+            </div>
+            <div class="xp-track"><div class="xp-fill" style="width:33%;"></div></div>
+          </div>
+          <div style="height:20px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHONE 4: Ops / Acquisition Dashboard -->
+  <div class="phone-wrap">
+    <div class="screen-label">04 — Ops Intelligence</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="notch-sensor"></div></div>
+      <div class="statusbar">
+        <span class="sb-time">9:41</span>
+        <div class="sb-icons"><span>▲▲▲</span><span>WiFi</span><span>●●</span></div>
+      </div>
+      <div class="screen">
+        <div class="s4-header" style="background:var(--c-dark);">
+          <div class="s4-eyebrow">OnboardIQ — Ops View</div>
+          <div class="s4-title">Acquisition Dashboard</div>
+          <div class="s4-sub">MENA launch · Updated hourly</div>
+        </div>
+        <div class="kpi-grid" style="margin-top:10px;">
+          <div class="kpi-card">
+            <div class="kpi-val" style="color:var(--c-bright);">12,480</div>
+            <div class="kpi-lbl">Subscribers onboarded<br>this month</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-val" style="color:var(--c-green);">91%</div>
+            <div class="kpi-lbl">Completed full<br>onboarding flow</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-val" style="color:var(--c-orange);">AED 89</div>
+            <div class="kpi-lbl">Avg first-month<br>plan ARPU</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-val" style="color:var(--c-accent);">−43%</div>
+            <div class="kpi-lbl">Plan mismatch rate<br>vs manual selection</div>
+          </div>
+        </div>
+        <div class="onboard-funnel" style="margin-top:14px;">
+          <div class="of-title">Onboarding Funnel — Rolling 30 Days</div>
+          <div class="of-row">
+            <div class="of-label">Visited plan page</div>
+            <div class="of-bar-wrap">
+              <div class="of-track"><div class="of-fill" style="width:100%;background:rgba(0,198,255,0.55);"></div></div>
+            </div>
+            <div class="of-count" style="color:var(--c-bright);">18,200</div>
+          </div>
+          <div class="of-row">
+            <div class="of-label">Started OnboardIQ</div>
+            <div class="of-bar-wrap">
+              <div class="of-track"><div class="of-fill" style="width:72%;background:rgba(0,198,255,0.45);"></div></div>
+              <div class="of-sub">72% AI flow vs 28% manual</div>
+            </div>
+            <div class="of-count">13,100</div>
+          </div>
+          <div class="of-row">
+            <div class="of-label">Completed questions</div>
+            <div class="of-bar-wrap">
+              <div class="of-track"><div class="of-fill" style="width:68%;background:rgba(0,198,255,0.35);"></div></div>
+            </div>
+            <div class="of-count">12,380</div>
+          </div>
+          <div class="of-row">
+            <div class="of-label">Plan activated</div>
+            <div class="of-bar-wrap">
+              <div class="of-track"><div class="of-fill" style="width:69%;background:var(--c-green);"></div></div>
+              <div class="of-sub" style="color:var(--c-green);">69% activation of AI-flow starters</div>
+            </div>
+            <div class="of-count" style="color:var(--c-green);">12,480</div>
+          </div>
+        </div>
+        <div class="cohort-section">
+          <div class="cs-title">Top Matched Plan Cohorts</div>
+          <div class="cohort-row">
+            <div class="cohort-flag">📱</div>
+            <div class="cohort-name">30GB GCC (streaming)</div>
+            <div class="cohort-count">4,820</div>
+            <div class="cohort-arpu">AED 89</div>
+          </div>
+          <div class="cohort-row">
+            <div class="cohort-flag">💼</div>
+            <div class="cohort-name">50GB Pro (work-heavy)</div>
+            <div class="cohort-count">2,940</div>
+            <div class="cohort-arpu">AED 129</div>
+          </div>
+          <div class="cohort-row">
+            <div class="cohort-flag">🌍</div>
+            <div class="cohort-name">Unlimited GCC Roaming</div>
+            <div class="cohort-count">1,630</div>
+            <div class="cohort-arpu">AED 149</div>
+          </div>
+          <div class="cohort-row">
+            <div class="cohort-flag">🪶</div>
+            <div class="cohort-name">15GB Lite (basic)</div>
+            <div class="cohort-count">3,090</div>
+            <div class="cohort-arpu">AED 59</div>
+          </div>
+        </div>
+        <div class="ops-summary-box">
+          <div class="osb-row">
+            <div class="osb-label">Avg plan fit score (AI cohort)</div>
+            <div class="osb-val">91 / 100</div>
+          </div>
+          <div class="osb-row">
+            <div class="osb-label">Churn rate at day 90 (AI vs manual)</div>
+            <div class="osb-val">4.1% vs 9.8%</div>
+          </div>
+          <div class="osb-row" style="margin-bottom:0;">
+            <div class="osb-label">Estimated annual ARPU impact</div>
+            <div class="osb-val">+AED 1.4M</div>
+          </div>
+        </div>
+        <div style="height:12px;"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// Confetti screen 3
+const c3 = document.getElementById('conf3oiq');
+const cols = ['#00C6FF','#7C3AED','#22C55E','#F59E0B','#F97316','#60A5FA','#A78BFA'];
+for(let i=0;i<36;i++){
+  const p=document.createElement('div');
+  p.style.position='absolute';
+  p.style.borderRadius=Math.random()>.5?'50%':'2px';
+  const sz=4+Math.random()*7;
+  p.style.width=sz+'px'; p.style.height=sz+'px';
+  p.style.background=cols[i%cols.length];
+  p.style.left=Math.random()*100+'%';
+  p.style.top=(Math.random()*110-10)+'%';
+  p.style.animation=`confDrop ${1.4+Math.random()*1.8}s ease-in ${Math.random()*2.4}s forwards`;
+  c3.appendChild(p);
+}
+const st=document.createElement('style');
+st.textContent='@keyframes confDrop{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(180px) rotate(720deg);opacity:0}}';
+document.head.appendChild(st);
+</script>
+</body>
+</html>

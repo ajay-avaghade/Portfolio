@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Circles ChurnShield — Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --c-dark: #060D1A;
+  --c-hero: #0B1829;
+  --c-bright: #00C6FF;
+  --c-accent: #0EA5E9;
+  --c-green: #22C55E;
+  --c-orange: #F97316;
+  --c-red: #EF4444;
+  --ink: #0f172a;
+  --muted: #64748b;
+  --border: #e2e8f0;
+  --gray: #f1f5f9;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family:'Sora',sans-serif;
+  background: linear-gradient(135deg, #060D1A 0%, #0B1829 50%, #091523 100%);
+  min-height:100vh;
+  padding:40px 20px 60px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+.header-strip {
+  width:100%;
+  max-width:1640px;
+  text-align:center;
+  margin-bottom:36px;
+}
+.header-strip h1 {
+  font-size:15px;
+  font-weight:700;
+  color:var(--c-bright);
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+.header-strip p {
+  font-size:12px;
+  color:rgba(255,255,255,0.45);
+  margin-top:4px;
+}
+.phones-row {
+  display:flex;
+  gap:32px;
+  align-items:flex-start;
+  justify-content:center;
+  flex-wrap:wrap;
+}
+.phone-wrap { display:flex; flex-direction:column; align-items:center; gap:12px; }
+.screen-label {
+  font-size:11px;
+  font-weight:600;
+  letter-spacing:.1em;
+  color:rgba(0,198,255,0.55);
+  text-transform:uppercase;
+}
+.phone {
+  width:375px;
+  height:812px;
+  background:#0B1829;
+  border-radius:46px;
+  box-shadow:0 40px 100px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.07);
+  overflow:hidden;
+  position:relative;
+  display:flex;
+  flex-direction:column;
+}
+.notch {
+  width:118px; height:28px;
+  background:var(--c-dark);
+  border-radius:0 0 16px 16px;
+  position:absolute;
+  top:0; left:50%; transform:translateX(-50%);
+  z-index:10;
+  display:flex; align-items:center; justify-content:center; gap:6px;
+}
+.nc { width:10px; height:10px; background:#1a2a3a; border-radius:50%; }
+.notch-sensor { width:5px; height:5px; background:#0a1520; border-radius:50%; }
+.statusbar {
+  height:44px;
+  background:var(--c-dark);
+  display:flex; align-items:flex-end; justify-content:space-between;
+  padding:0 22px 6px;
+  flex-shrink:0;
+}
+.sb-time { font-family:'DM Mono',monospace; font-size:12px; color:rgba(255,255,255,0.8); font-weight:500; }
+.sb-icons { display:flex; gap:4px; align-items:center; }
+.sb-icons span { font-size:11px; color:rgba(255,255,255,0.7); }
+.screen { overflow-y:auto; flex:1; scrollbar-width:none; }
+.screen::-webkit-scrollbar { display:none; }
+
+/* ===== SCREEN 1 — CHURN RISK HOME ===== */
+.s1-hero {
+  background: linear-gradient(180deg, #060D1A 0%, #0B1829 100%);
+  padding:16px 18px 0;
+}
+.s1-greeting { font-size:12px; color:rgba(255,255,255,0.5); margin-bottom:2px; }
+.s1-name { font-size:18px; font-weight:700; color:#fff; margin-bottom:14px; }
+.churn-alert-card {
+  background: linear-gradient(135deg, rgba(239,68,68,0.18) 0%, rgba(239,68,68,0.08) 100%);
+  border:1px solid rgba(239,68,68,0.4);
+  border-radius:16px;
+  padding:14px 16px;
+  margin-bottom:14px;
+}
+.alert-row { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+.alert-dot { width:8px; height:8px; background:#EF4444; border-radius:50%; animation:pulse 1.5s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+.alert-label { font-size:10px; font-weight:700; color:#EF4444; letter-spacing:.08em; text-transform:uppercase; }
+.churn-score-row { display:flex; align-items:baseline; gap:6px; margin-bottom:8px; }
+.churn-score-num { font-family:'DM Mono',monospace; font-size:38px; font-weight:700; color:#EF4444; }
+.churn-score-unit { font-size:13px; color:rgba(255,255,255,0.5); }
+.churn-risk-bar-wrap { margin-bottom:8px; }
+.crb-label { font-size:10px; color:rgba(255,255,255,0.45); margin-bottom:4px; }
+.crb-track { height:6px; background:rgba(255,255,255,0.1); border-radius:99px; overflow:hidden; }
+.crb-fill { height:100%; border-radius:99px; background:linear-gradient(90deg,#F97316,#EF4444); }
+.churn-cta {
+  background:rgba(239,68,68,0.15);
+  border:1px solid rgba(239,68,68,0.3);
+  border-radius:10px;
+  padding:10px 12px;
+  font-size:11.5px;
+  color:#fff;
+  line-height:1.5;
+}
+.churn-cta-btn {
+  display:inline-block;
+  margin-top:8px;
+  background:#EF4444;
+  color:#fff;
+  font-size:11px;
+  font-weight:700;
+  padding:7px 18px;
+  border-radius:20px;
+  cursor:pointer;
+}
+.s1-section-title { font-size:11px; font-weight:700; color:rgba(255,255,255,0.5); letter-spacing:.07em; text-transform:uppercase; padding:0 18px; margin:14px 0 8px; }
+.why-card {
+  margin:0 18px 8px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:12px;
+  padding:12px 14px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.why-icon { font-size:18px; flex-shrink:0; }
+.why-text { flex:1; }
+.why-title { font-size:12px; font-weight:600; color:#fff; margin-bottom:2px; }
+.why-sub { font-size:10.5px; color:rgba(255,255,255,0.45); line-height:1.4; }
+.why-badge {
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  font-weight:700;
+  padding:3px 8px;
+  border-radius:6px;
+  flex-shrink:0;
+}
+.badge-red { background:rgba(239,68,68,0.15); color:#EF4444; border:1px solid rgba(239,68,68,0.25); }
+.badge-orange { background:rgba(249,115,22,0.15); color:#F97316; border:1px solid rgba(249,115,22,0.25); }
+.badge-yellow { background:rgba(234,179,8,0.15); color:#EAB308; border:1px solid rgba(234,179,8,0.25); }
+
+/* ===== SCREEN 2 — RISK ANALYZER ===== */
+.s2-header { background:var(--c-dark); padding:14px 18px 10px; }
+.s2-back { font-size:11px; color:var(--c-bright); margin-bottom:6px; }
+.s2-title { font-size:17px; font-weight:700; color:#fff; }
+.s2-sub { font-size:11px; color:rgba(255,255,255,0.45); margin-top:2px; }
+.risk-score-circle-wrap { display:flex; justify-content:center; padding:20px 0 16px; background:var(--c-dark); }
+.rsc { position:relative; width:110px; height:110px; }
+.rsc svg { position:absolute; top:0; left:0; transform:rotate(-90deg); }
+.rsc-inner { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+.rsc-num { font-family:'DM Mono',monospace; font-size:28px; font-weight:700; color:#EF4444; }
+.rsc-lbl { font-size:9px; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:.07em; }
+.risk-drivers { padding:14px 18px 0; background:var(--c-hero); }
+.rd-title { font-size:11px; font-weight:700; color:rgba(255,255,255,0.5); letter-spacing:.07em; text-transform:uppercase; margin-bottom:10px; }
+.driver-row { margin-bottom:12px; }
+.dr-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; }
+.dr-name { font-size:12px; color:#fff; font-weight:500; }
+.dr-val { font-family:'DM Mono',monospace; font-size:11px; font-weight:700; }
+.dr-track { height:7px; background:rgba(255,255,255,0.08); border-radius:99px; overflow:hidden; }
+.dr-fill { height:100%; border-radius:99px; }
+.dr-note { font-size:9.5px; color:rgba(255,255,255,0.35); margin-top:3px; }
+.ml-signal-box {
+  margin:14px 18px;
+  background:rgba(0,198,255,0.08);
+  border:1px solid rgba(0,198,255,0.25);
+  border-radius:12px;
+  padding:12px 14px;
+}
+.ml-label { font-size:9.5px; font-weight:700; color:var(--c-bright); letter-spacing:.07em; text-transform:uppercase; margin-bottom:6px; }
+.ml-insight { font-size:11.5px; color:rgba(255,255,255,0.75); line-height:1.5; }
+.intervention-section { padding:0 18px 14px; background:var(--c-hero); }
+.int-title { font-size:11px; font-weight:700; color:rgba(255,255,255,0.5); letter-spacing:.07em; text-transform:uppercase; margin:12px 0 8px; }
+.int-option {
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:12px;
+  padding:11px 13px;
+  margin-bottom:8px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.int-option.recommended { border-color:rgba(0,198,255,0.35); background:rgba(0,198,255,0.07); }
+.int-rec-tag { font-size:8.5px; font-weight:700; color:var(--c-bright); letter-spacing:.07em; text-transform:uppercase; }
+.int-name { font-size:12px; font-weight:600; color:#fff; }
+.int-desc { font-size:10px; color:rgba(255,255,255,0.45); margin-top:2px; }
+.int-impact { font-family:'DM Mono',monospace; font-size:11px; font-weight:700; color:var(--c-green); flex-shrink:0; }
+
+/* ===== SCREEN 3 — OFFER ACCEPTED / SUCCESS ===== */
+.s3-bg { background: linear-gradient(180deg, #0B2010 0%, #0B1829 100%); min-height:812px; padding-bottom:20px; }
+.s3-confetti { position:relative; height:180px; overflow:hidden; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+#conf3 { position:absolute; inset:0; pointer-events:none; }
+.conf-particle { position:absolute; animation:confDrop 2.5s ease-in forwards; border-radius:2px; }
+@keyframes confDrop { 0%{transform:translateY(-20px) rotate(0deg);opacity:1;} 100%{transform:translateY(180px) rotate(720deg);opacity:0;} }
+.s3-trophy { font-size:48px; z-index:1; }
+.s3-headline { font-size:18px; font-weight:800; color:#fff; text-align:center; padding:0 20px; z-index:1; margin-top:4px; }
+.s3-sub { font-size:11.5px; color:rgba(255,255,255,0.5); text-align:center; padding:0 24px; margin-top:4px; z-index:1; }
+.s3-offer-card {
+  margin:16px 18px;
+  background:rgba(34,197,94,0.12);
+  border:1.5px solid rgba(34,197,94,0.4);
+  border-radius:16px;
+  padding:16px;
+  text-align:center;
+}
+.s3-offer-label { font-size:9.5px; font-weight:700; color:var(--c-green); letter-spacing:.08em; text-transform:uppercase; margin-bottom:6px; }
+.s3-offer-val { font-family:'DM Mono',monospace; font-size:32px; font-weight:800; color:#fff; }
+.s3-offer-desc { font-size:11px; color:rgba(255,255,255,0.55); margin-top:4px; }
+.s3-stats { margin:0 18px 14px; display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.s3-stat { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:12px; text-align:center; }
+.s3-stat-val { font-family:'DM Mono',monospace; font-size:22px; font-weight:700; color:var(--c-green); }
+.s3-stat-lbl { font-size:9.5px; color:rgba(255,255,255,0.45); margin-top:2px; line-height:1.3; }
+.s3-cta-btn {
+  margin:0 18px 12px;
+  display:block;
+  background:var(--c-green);
+  color:#fff;
+  font-size:13px;
+  font-weight:700;
+  padding:14px;
+  border-radius:14px;
+  text-align:center;
+  cursor:pointer;
+}
+.s3-secondary {
+  margin:0 18px;
+  display:block;
+  border:1px solid rgba(255,255,255,0.15);
+  color:rgba(255,255,255,0.6);
+  font-size:12px;
+  font-weight:600;
+  padding:12px;
+  border-radius:14px;
+  text-align:center;
+}
+.s3-risk-after {
+  margin:12px 18px 0;
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:12px;
+  padding:12px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.s3-risk-label { font-size:11px; color:rgba(255,255,255,0.5); }
+.s3-risk-change { display:flex; align-items:center; gap:8px; }
+.s3-risk-old { font-family:'DM Mono',monospace; font-size:14px; color:#EF4444; text-decoration:line-through; opacity:0.6; }
+.s3-risk-arrow { font-size:12px; color:rgba(255,255,255,0.3); }
+.s3-risk-new { font-family:'DM Mono',monospace; font-size:18px; font-weight:700; color:var(--c-green); }
+
+/* ===== SCREEN 4 — OPS INTELLIGENCE ===== */
+.s4-bg { background:var(--c-dark); }
+.s4-header { padding:14px 18px 10px; background:var(--c-dark); }
+.s4-eyebrow { font-size:9.5px; font-weight:700; color:var(--c-bright); letter-spacing:.08em; text-transform:uppercase; margin-bottom:2px; }
+.s4-title { font-size:17px; font-weight:700; color:#fff; }
+.s4-sub { font-size:10.5px; color:rgba(255,255,255,0.4); margin-top:1px; }
+.funnel-section { padding:12px 18px 0; }
+.funnel-title { font-size:10px; font-weight:700; color:rgba(255,255,255,0.45); letter-spacing:.07em; text-transform:uppercase; margin-bottom:10px; }
+.funnel-row {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:10px;
+}
+.funnel-bar-wrap { flex:1; }
+.funnel-label { font-size:11px; color:#fff; margin-bottom:3px; font-weight:500; }
+.funnel-track { height:8px; background:rgba(255,255,255,0.07); border-radius:99px; overflow:hidden; position:relative; }
+.funnel-fill { height:100%; border-radius:99px; }
+.funnel-sub { font-size:9.5px; color:rgba(255,255,255,0.35); margin-top:2px; }
+.funnel-count { font-family:'DM Mono',monospace; font-size:12px; font-weight:700; color:#fff; white-space:nowrap; }
+.risk-dist {
+  margin:12px 18px 0;
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:8px;
+}
+.rd-card {
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:10px;
+  padding:10px 10px 8px;
+  text-align:center;
+}
+.rd-card-label { font-size:8.5px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; margin-bottom:4px; }
+.rd-card-val { font-family:'DM Mono',monospace; font-size:20px; font-weight:700; }
+.rd-card-sub { font-size:8.5px; color:rgba(255,255,255,0.35); margin-top:2px; line-height:1.3; }
+.interventions-table { padding:12px 18px 0; }
+.it-title { font-size:10px; font-weight:700; color:rgba(255,255,255,0.45); letter-spacing:.07em; text-transform:uppercase; margin-bottom:8px; }
+.it-row {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:9px 12px;
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:10px;
+  margin-bottom:7px;
+}
+.it-name { flex:1; font-size:11px; color:#fff; font-weight:500; }
+.it-sent { font-family:'DM Mono',monospace; font-size:10.5px; color:rgba(255,255,255,0.4); }
+.it-conv { font-family:'DM Mono',monospace; font-size:11px; font-weight:700; }
+.it-arpu { font-family:'DM Mono',monospace; font-size:10.5px; color:var(--c-bright); }
+.ops-summary-box {
+  margin:12px 18px 16px;
+  background:rgba(0,198,255,0.07);
+  border:1px solid rgba(0,198,255,0.2);
+  border-radius:12px;
+  padding:12px 14px;
+}
+.osb-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; }
+.osb-label { font-size:10.5px; color:rgba(255,255,255,0.5); }
+.osb-val { font-family:'DM Mono',monospace; font-size:12px; font-weight:700; color:var(--c-bright); }
+
+/* track/fill shared */
+.track { height:8px; background:rgba(255,255,255,0.1); border-radius:99px; overflow:visible; position:relative; }
+.fill { height:100%; border-radius:99px; position:relative; transition:.6s ease; }
+</style>
+</head>
+<body>
+
+<div class="header-strip">
+  <h1>Circles — ChurnShield &nbsp;·&nbsp; Interactive Prototype</h1>
+  <p>ML Churn Prediction & Proactive Retention Engine</p>
+</div>
+
+<div class="phones-row">
+
+  <!-- PHONE 1: Churn Risk Home -->
+  <div class="phone-wrap">
+    <div class="screen-label">01 — Churn Risk Alert</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="notch-sensor"></div></div>
+      <div class="statusbar">
+        <span class="sb-time">9:41</span>
+        <div class="sb-icons"><span>▲▲▲</span><span>WiFi</span><span>●●</span></div>
+      </div>
+      <div class="screen">
+        <div class="s1-hero">
+          <div class="s1-greeting">Good morning</div>
+          <div class="s1-name">Ahmed Al-Rashid 👋</div>
+          <div class="churn-alert-card">
+            <div class="alert-row">
+              <div class="alert-dot"></div>
+              <div class="alert-label">Action required</div>
+            </div>
+            <div style="font-size:12.5px;color:rgba(255,255,255,0.7);margin-bottom:8px;line-height:1.4;">Your Circles plan may not be right for you. Our AI noticed 3 usage mismatches.</div>
+            <div class="churn-score-row">
+              <div class="churn-score-num">78</div>
+              <div style="display:flex;flex-direction:column;">
+                <span style="font-size:12px;color:rgba(255,255,255,0.6);font-weight:600;">/ 100</span>
+                <span style="font-size:9.5px;color:#EF4444;font-weight:700;">CHURN RISK</span>
+              </div>
+            </div>
+            <div class="churn-risk-bar-wrap">
+              <div class="crb-label">Risk score (0 = no risk · 100 = very likely to leave)</div>
+              <div class="crb-track"><div class="crb-fill" style="width:78%;"></div></div>
+            </div>
+            <div class="churn-cta">
+              We found a plan that could save you <strong style="color:#fff;">AED 12/month</strong> while giving you more data. Takes 30 seconds to switch.
+              <div class="churn-cta-btn">See My Recommendation →</div>
+            </div>
+          </div>
+        </div>
+        <div class="s1-section-title">Why we flagged this</div>
+        <div class="why-card">
+          <div class="why-icon">📶</div>
+          <div class="why-text">
+            <div class="why-title">Hitting data cap every month</div>
+            <div class="why-sub">You've hit 80%+ data 4 of last 6 months</div>
+          </div>
+          <div class="why-badge badge-red">High</div>
+        </div>
+        <div class="why-card">
+          <div class="why-icon">✈️</div>
+          <div class="why-text">
+            <div class="why-title">Paying roaming charges</div>
+            <div class="why-sub">AED 84 in roaming fees last 3 months</div>
+          </div>
+          <div class="why-badge badge-orange">Medium</div>
+        </div>
+        <div class="why-card">
+          <div class="why-icon">📞</div>
+          <div class="why-text">
+            <div class="why-title">Unused voice allocation</div>
+            <div class="why-sub">Using only 18% of your 300 min voice plan</div>
+          </div>
+          <div class="why-badge badge-yellow">Low</div>
+        </div>
+        <div style="height:20px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHONE 2: Risk Analyzer -->
+  <div class="phone-wrap">
+    <div class="screen-label">02 — ML Risk Analyzer</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="notch-sensor"></div></div>
+      <div class="statusbar">
+        <span class="sb-time">9:41</span>
+        <div class="sb-icons"><span>▲▲▲</span><span>WiFi</span><span>●●</span></div>
+      </div>
+      <div class="screen">
+        <div class="s2-header" style="background:var(--c-dark);">
+          <div class="s2-back">← Back to Home</div>
+          <div class="s2-title">Your Churn Risk Profile</div>
+          <div class="s2-sub">Based on 90 days of usage · Updated daily</div>
+        </div>
+        <div class="risk-score-circle-wrap">
+          <div class="rsc">
+            <svg width="110" height="110" viewBox="0 0 110 110">
+              <circle cx="55" cy="55" r="46" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="9"/>
+              <circle cx="55" cy="55" r="46" fill="none" stroke="#EF4444" stroke-width="9"
+                stroke-dasharray="289" stroke-dashoffset="63" stroke-linecap="round"/>
+            </svg>
+            <div class="rsc-inner">
+              <div class="rsc-num">78</div>
+              <div class="rsc-lbl">Risk Score</div>
+            </div>
+          </div>
+        </div>
+        <div class="risk-drivers">
+          <div class="rd-title">Churn Risk Drivers</div>
+          <div class="driver-row">
+            <div class="dr-head">
+              <div class="dr-name">📶 Data cap stress</div>
+              <div class="dr-val" style="color:#EF4444;">34 pts</div>
+            </div>
+            <div class="dr-track"><div class="dr-fill" style="width:82%;background:linear-gradient(90deg,#F97316,#EF4444);"></div></div>
+            <div class="dr-note">Hit 80%+ data threshold 4× in 6 months — strongest churn signal</div>
+          </div>
+          <div class="driver-row">
+            <div class="dr-head">
+              <div class="dr-name">✈️ Roaming cost friction</div>
+              <div class="dr-val" style="color:#F97316;">24 pts</div>
+            </div>
+            <div class="dr-track"><div class="dr-fill" style="width:58%;background:linear-gradient(90deg,#EAB308,#F97316);"></div></div>
+            <div class="dr-note">AED 84 unexpected roaming spend in 90 days</div>
+          </div>
+          <div class="driver-row">
+            <div class="dr-head">
+              <div class="dr-name">📞 Plan-usage mismatch</div>
+              <div class="dr-val" style="color:#EAB308;">12 pts</div>
+            </div>
+            <div class="dr-track"><div class="dr-fill" style="width:30%;background:#EAB308;"></div></div>
+            <div class="dr-note">Paying for 300 min voice, using avg 54 min/month</div>
+          </div>
+          <div class="driver-row">
+            <div class="dr-head">
+              <div class="dr-name">📅 Billing cycle proximity</div>
+              <div class="dr-val" style="color:#8B5CF6;">8 pts</div>
+            </div>
+            <div class="dr-track"><div class="dr-fill" style="width:20%;background:#8B5CF6;"></div></div>
+            <div class="dr-note">Renewal in 4 days — high churn window</div>
+          </div>
+        </div>
+        <div class="ml-signal-box" style="margin:12px 18px 0;">
+          <div class="ml-label">🤖 ChurnShield ML Insight</div>
+          <div class="ml-insight">Subscribers matching this profile (data stress + roaming + renewal proximity) churn at <strong style="color:#fff;">3.2× base rate</strong>. Targeted intervention now converts at 61% vs 12% post-churn.</div>
+        </div>
+        <div class="intervention-section">
+          <div class="int-title">Recommended Interventions</div>
+          <div class="int-option recommended">
+            <div style="flex:1;">
+              <div class="int-rec-tag">✦ Best match</div>
+              <div class="int-name">Upgrade to Circles 50GB + Roaming</div>
+              <div class="int-desc">+20GB data · Unlimited GCC roaming · Save AED 12/mo</div>
+            </div>
+            <div class="int-impact">−41% risk</div>
+          </div>
+          <div class="int-option">
+            <div style="flex:1;">
+              <div class="int-name">Roaming Day-Pass Add-On</div>
+              <div class="int-desc">AED 10/day unlimited roaming · Immediate activation</div>
+            </div>
+            <div class="int-impact">−18% risk</div>
+          </div>
+        </div>
+        <div style="height:16px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHONE 3: Offer Accepted / Success -->
+  <div class="phone-wrap">
+    <div class="screen-label">03 — Offer Accepted</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="notch-sensor"></div></div>
+      <div class="statusbar" style="background:#0B2010;">
+        <span class="sb-time">9:43</span>
+        <div class="sb-icons"><span>▲▲▲</span><span>WiFi</span><span>●●</span></div>
+      </div>
+      <div class="screen">
+        <div class="s3-bg">
+          <div class="s3-confetti">
+            <div id="conf3"></div>
+            <div class="s3-trophy">🛡️</div>
+            <div class="s3-headline">Plan Switched!</div>
+            <div class="s3-sub">You're protected. ChurnShield closed your risk.</div>
+          </div>
+          <div class="s3-offer-card">
+            <div class="s3-offer-label">Your new plan (effective now)</div>
+            <div class="s3-offer-val">Circles 50GB</div>
+            <div class="s3-offer-desc">+20GB data &nbsp;·&nbsp; GCC Roaming Included &nbsp;·&nbsp; AED 89/mo</div>
+          </div>
+          <div class="s3-stats">
+            <div class="s3-stat">
+              <div class="s3-stat-val">−41%</div>
+              <div class="s3-stat-lbl">Churn risk<br>reduced</div>
+            </div>
+            <div class="s3-stat">
+              <div class="s3-stat-val">AED 12</div>
+              <div class="s3-stat-lbl">Saved vs<br>old plan</div>
+            </div>
+            <div class="s3-stat">
+              <div class="s3-stat-val">+20GB</div>
+              <div class="s3-stat-lbl">More data<br>monthly</div>
+            </div>
+            <div class="s3-stat">
+              <div class="s3-stat-val">Free</div>
+              <div class="s3-stat-lbl">GCC roaming<br>included</div>
+            </div>
+          </div>
+          <div class="s3-risk-after">
+            <div class="s3-risk-label">Churn Risk Score</div>
+            <div class="s3-risk-change">
+              <div class="s3-risk-old">78</div>
+              <div class="s3-risk-arrow">→</div>
+              <div class="s3-risk-new">37</div>
+            </div>
+          </div>
+          <div style="margin:12px 18px 0;padding:10px 14px;background:rgba(34,197,94,0.07);border:1px solid rgba(34,197,94,0.2);border-radius:10px;font-size:10.5px;color:rgba(255,255,255,0.55);line-height:1.5;">
+            ✅ You'll receive a confirmation SMS &nbsp;·&nbsp; First bill reflects new rate &nbsp;·&nbsp; Data resets at midnight
+          </div>
+          <div class="s3-cta-btn" style="margin-top:14px;">View New Plan Details →</div>
+          <div class="s3-secondary">Set up AutoPay &amp; earn 5% cashback</div>
+          <div style="height:20px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHONE 4: Ops Intelligence Dashboard -->
+  <div class="phone-wrap">
+    <div class="screen-label">04 — Ops Intelligence</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="notch-sensor"></div></div>
+      <div class="statusbar">
+        <span class="sb-time">9:41</span>
+        <div class="sb-icons"><span>▲▲▲</span><span>WiFi</span><span>●●</span></div>
+      </div>
+      <div class="screen">
+        <div class="s4-header">
+          <div class="s4-eyebrow">ChurnShield — Ops View</div>
+          <div class="s4-title">Retention Dashboard</div>
+          <div class="s4-sub">250K subscriber base &nbsp;·&nbsp; Updated 6h ago</div>
+        </div>
+        <div class="risk-dist">
+          <div class="rd-card" style="border-color:rgba(239,68,68,0.3);">
+            <div class="rd-card-label" style="color:#EF4444;">High Risk</div>
+            <div class="rd-card-val" style="color:#EF4444;">8,420</div>
+            <div class="rd-card-sub">Score 70–100 · intervene now</div>
+          </div>
+          <div class="rd-card" style="border-color:rgba(249,115,22,0.3);">
+            <div class="rd-card-label" style="color:#F97316;">Medium</div>
+            <div class="rd-card-val" style="color:#F97316;">12,300</div>
+            <div class="rd-card-sub">Score 40–69 · nurture</div>
+          </div>
+          <div class="rd-card" style="border-color:rgba(34,197,94,0.3);">
+            <div class="rd-card-label" style="color:#22C55E;">Low Risk</div>
+            <div class="rd-card-val" style="color:#22C55E;">229K</div>
+            <div class="rd-card-sub">Score &lt;40 · healthy</div>
+          </div>
+        </div>
+        <div class="funnel-section" style="margin-top:12px;">
+          <div class="funnel-title">Intervention Funnel — Rolling 30 Days</div>
+          <div class="funnel-row">
+            <div class="funnel-bar-wrap">
+              <div class="funnel-label">Flagged at-risk</div>
+              <div class="funnel-track"><div class="funnel-fill" style="width:100%;background:rgba(0,198,255,0.6);"></div></div>
+              <div class="funnel-sub">Score ≥ 60 triggered push</div>
+            </div>
+            <div class="funnel-count" style="color:var(--c-bright);">8,420</div>
+          </div>
+          <div class="funnel-row">
+            <div class="funnel-bar-wrap">
+              <div class="funnel-label">Opened recommendation</div>
+              <div class="funnel-track"><div class="funnel-fill" style="width:68%;background:rgba(0,198,255,0.5);"></div></div>
+              <div class="funnel-sub">In-app alert CTR: 68%</div>
+            </div>
+            <div class="funnel-count">5,726</div>
+          </div>
+          <div class="funnel-row">
+            <div class="funnel-bar-wrap">
+              <div class="funnel-label">Viewed offer detail</div>
+              <div class="funnel-track"><div class="funnel-fill" style="width:52%;background:rgba(0,198,255,0.4);"></div></div>
+              <div class="funnel-sub">Of flagged users</div>
+            </div>
+            <div class="funnel-count">4,378</div>
+          </div>
+          <div class="funnel-row">
+            <div class="funnel-bar-wrap">
+              <div class="funnel-label">Switched plan</div>
+              <div class="funnel-track"><div class="funnel-fill" style="width:31%;background:var(--c-green);"></div></div>
+              <div class="funnel-sub" style="color:var(--c-green);">31% conversion of flagged</div>
+            </div>
+            <div class="funnel-count" style="color:var(--c-green);">2,610</div>
+          </div>
+        </div>
+        <div class="interventions-table">
+          <div class="it-title">Intervention Performance</div>
+          <div style="display:flex;gap:4px;padding:0 0 6px;font-size:9px;color:rgba(255,255,255,0.3);font-weight:700;letter-spacing:.06em;text-transform:uppercase;">
+            <div style="flex:1;">Type</div><div style="width:44px;text-align:right;">Sent</div><div style="width:44px;text-align:right;">Conv%</div><div style="width:54px;text-align:right;">ARPU↑</div>
+          </div>
+          <div class="it-row">
+            <div class="it-name">Plan upgrade push</div>
+            <div class="it-sent">4,210</div>
+            <div class="it-conv" style="color:var(--c-green);">31%</div>
+            <div class="it-arpu">+AED 8.40</div>
+          </div>
+          <div class="it-row">
+            <div class="it-name">Roaming add-on SMS</div>
+            <div class="it-sent">2,180</div>
+            <div class="it-conv" style="color:#EAB308;">18%</div>
+            <div class="it-arpu">+AED 3.20</div>
+          </div>
+          <div class="it-row">
+            <div class="it-name">Loyalty discount</div>
+            <div class="it-sent">1,030</div>
+            <div class="it-conv" style="color:#8B5CF6;">12%</div>
+            <div class="it-arpu">+AED 1.80</div>
+          </div>
+        </div>
+        <div class="ops-summary-box">
+          <div class="osb-row">
+            <div class="osb-label">ARPU rescued (30d)</div>
+            <div class="osb-val">AED 174K</div>
+          </div>
+          <div class="osb-row">
+            <div class="osb-label">Projected annual ARPU rescued</div>
+            <div class="osb-val">AED 2.1M+</div>
+          </div>
+          <div class="osb-row">
+            <div class="osb-label">Churn reduction vs control</div>
+            <div class="osb-val">−31%</div>
+          </div>
+          <div class="osb-row" style="margin-bottom:0;">
+            <div class="osb-label">Intervention cost / save</div>
+            <div class="osb-val">AED 0.00</div>
+          </div>
+        </div>
+        <div style="height:16px;"></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /phones-row -->
+
+<script>
+// Confetti on screen 3
+const c3 = document.getElementById('conf3');
+const cols = ['#00C6FF','#22C55E','#F97316','#60A5FA','#FBBF24','#F472B6','#A78BFA','#34D399'];
+for(let i=0;i<36;i++){
+  const p=document.createElement('div');
+  p.className='conf-particle';
+  const sz=4+Math.random()*7;
+  p.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*110-10}%;width:${sz}px;height:${sz}px;background:${cols[i%cols.length]};border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${1.4+Math.random()*1.8}s;animation-delay:${Math.random()*2.4}s;`;
+  c3.appendChild(p);
+}
+</script>
+
+</body>
+</html>
