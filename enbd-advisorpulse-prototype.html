@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ENBD AdvisorPulse — Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --c-dark:   #0D1B35;
+  --c-hero:   #162040;
+  --c-card:   #1E2D4E;
+  --c-lift:   #243558;
+  --teal:     #00957A;
+  --teal-lt:  #00BFA0;
+  --gold:     #D4A843;
+  --blue:     #4A90D9;
+  --red:      #EF4444;
+  --amber:    #F59E0B;
+  --green:    #22C55E;
+  --ink:      #0f172a;
+  --muted:    #7A8BAA;
+  --border:   rgba(255,255,255,0.08);
+  --white:    #F8FAFF;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family:'Sora',sans-serif;
+  background:#060C1A;
+  color:var(--white);
+  padding:40px 32px 60px;
+  min-height:100vh;
+}
+
+/* Header */
+.proto-header {
+  text-align:center;
+  margin-bottom:48px;
+}
+.proto-tag {
+  display:inline-block;
+  background:rgba(0,149,122,0.15);
+  border:1px solid rgba(0,149,122,0.35);
+  color:var(--teal);
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  padding:5px 14px;
+  border-radius:20px;
+  margin-bottom:14px;
+}
+.proto-title {
+  font-size:26px;
+  font-weight:800;
+  color:var(--white);
+  margin-bottom:6px;
+}
+.proto-sub {
+  font-size:12px;
+  color:var(--muted);
+  letter-spacing:.04em;
+}
+
+/* Section label */
+.section-label-wrap {
+  display:flex;
+  align-items:center;
+  gap:14px;
+  margin-bottom:28px;
+  max-width:1440px;
+  margin-left:auto;
+  margin-right:auto;
+}
+.section-label {
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--teal);
+  white-space:nowrap;
+}
+.section-line {
+  flex:1;
+  height:1px;
+  background:rgba(0,149,122,0.2);
+}
+
+/* Grid */
+.panels-grid {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:32px;
+  max-width:1440px;
+  margin:0 auto;
+}
+.panel-wrap {
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.panel-label {
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:var(--muted);
+  padding-left:4px;
+}
+
+/* Browser chrome */
+.browser {
+  background:var(--c-dark);
+  border-radius:12px;
+  overflow:hidden;
+  box-shadow:0 24px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.07);
+}
+.browser-bar {
+  background:#0A1224;
+  padding:10px 14px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  border-bottom:1px solid var(--border);
+}
+.bdot { width:11px; height:11px; border-radius:50%; flex-shrink:0; }
+.bdot.r { background:#EF4444; }
+.bdot.y { background:#F59E0B; }
+.bdot.g { background:#34D399; }
+.browser-url {
+  background:rgba(255,255,255,0.05);
+  border-radius:5px;
+  padding:4px 12px;
+  flex:1;
+  max-width:380px;
+  margin:0 auto;
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  color:var(--muted);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.browser-content {
+  padding:18px 20px;
+  height:520px;
+  overflow-y:auto;
+  scrollbar-width:none;
+}
+.browser-content::-webkit-scrollbar { display:none; }
+
+/* Shared inner components */
+.panel-topbar {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:16px;
+}
+.panel-topbar-title {
+  font-size:13px;
+  font-weight:700;
+  color:var(--white);
+}
+.panel-topbar-sub {
+  font-size:10px;
+  color:var(--muted);
+  margin-top:2px;
+}
+.badge {
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  padding:4px 10px;
+  border-radius:20px;
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:.04em;
+}
+.badge-teal { background:rgba(0,149,122,0.18); color:var(--teal-lt); border:1px solid rgba(0,149,122,0.3); }
+.badge-gold { background:rgba(212,168,67,0.15); color:var(--gold); border:1px solid rgba(212,168,67,0.3); }
+.badge-red  { background:rgba(239,68,68,0.15); color:#F87171; border:1px solid rgba(239,68,68,0.3); }
+.badge-blue { background:rgba(74,144,217,0.15); color:#7CB9F0; border:1px solid rgba(74,144,217,0.3); }
+.badge-green { background:rgba(34,197,94,0.15); color:#4ADE80; border:1px solid rgba(34,197,94,0.3); }
+.badge-muted { background:rgba(255,255,255,0.05); color:var(--muted); border:1px solid var(--border); }
+.dot { width:8px; height:8px; border-radius:50%; display:inline-block; }
+
+/* ========================
+   PANEL 1 — Appointment Queue
+   ======================== */
+.rm-header {
+  background:var(--c-card);
+  border-radius:10px;
+  padding:14px 16px;
+  display:flex;
+  align-items:center;
+  gap:14px;
+  margin-bottom:16px;
+  border:1px solid var(--border);
+}
+.rm-avatar {
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  background:linear-gradient(135deg,var(--teal),#004D40);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:16px;
+  font-weight:800;
+  color:#fff;
+  flex-shrink:0;
+}
+.rm-name { font-size:13px; font-weight:700; }
+.rm-meta { font-size:10px; color:var(--muted); margin-top:2px; }
+.rm-stats {
+  display:flex;
+  gap:16px;
+  margin-left:auto;
+}
+.rm-stat-val { font-family:'DM Mono',monospace; font-size:18px; font-weight:700; color:var(--teal); text-align:center; }
+.rm-stat-lbl { font-size:9px; color:var(--muted); text-align:center; margin-top:1px; }
+
+.queue-section-title {
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:8px;
+}
+.appt-card {
+  background:var(--c-card);
+  border-radius:8px;
+  padding:12px 14px;
+  margin-bottom:8px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  border:1px solid var(--border);
+  position:relative;
+  overflow:hidden;
+}
+.appt-card.active { border-color:rgba(0,149,122,0.4); background:rgba(0,149,122,0.07); }
+.appt-card.active::before {
+  content:'';
+  position:absolute;
+  left:0; top:0; bottom:0;
+  width:3px;
+  background:var(--teal);
+  border-radius:8px 0 0 8px;
+}
+.appt-card.upcoming::before {
+  content:'';
+  position:absolute;
+  left:0; top:0; bottom:0;
+  width:3px;
+  background:var(--gold);
+  border-radius:8px 0 0 8px;
+}
+.appt-card.done { opacity:0.55; }
+.appt-card.done::before {
+  content:'';
+  position:absolute;
+  left:0; top:0; bottom:0;
+  width:3px;
+  background:#555;
+  border-radius:8px 0 0 8px;
+}
+.appt-time-col { text-align:center; min-width:52px; }
+.appt-time { font-family:'DM Mono',monospace; font-size:12px; font-weight:700; color:var(--white); }
+.appt-dur { font-size:9px; color:var(--muted); margin-top:2px; }
+.appt-divider { width:1px; height:36px; background:var(--border); }
+.appt-info { flex:1; }
+.appt-name { font-size:12px; font-weight:700; }
+.appt-type { font-size:10px; color:var(--muted); margin-top:2px; }
+.appt-right { text-align:right; }
+.ai-tag {
+  display:inline-block;
+  background:rgba(0,149,122,0.15);
+  color:var(--teal-lt);
+  font-size:9px;
+  font-weight:700;
+  padding:2px 7px;
+  border-radius:4px;
+  margin-bottom:3px;
+}
+
+/* ========================
+   PANEL 2 — Customer Context
+   ======================== */
+.cust-hero {
+  background:linear-gradient(135deg,var(--c-card),#1A2940);
+  border-radius:10px;
+  padding:16px;
+  margin-bottom:14px;
+  border:1px solid var(--border);
+  display:flex;
+  gap:14px;
+  align-items:flex-start;
+}
+.cust-avatar {
+  width:48px;
+  height:48px;
+  border-radius:50%;
+  background:linear-gradient(135deg,#D4A843,#8B6914);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:18px;
+  font-weight:800;
+  color:#fff;
+  flex-shrink:0;
+}
+.cust-name { font-size:14px; font-weight:800; }
+.cust-sub { font-size:10px; color:var(--muted); margin-top:3px; }
+.cust-tier {
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  background:rgba(212,168,67,0.15);
+  color:var(--gold);
+  font-size:9px;
+  font-weight:700;
+  padding:3px 8px;
+  border-radius:4px;
+  margin-top:6px;
+}
+.segment-title {
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:8px;
+  margin-top:14px;
+}
+.products-grid {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-bottom:12px;
+}
+.product-card {
+  background:var(--c-card);
+  border-radius:8px;
+  padding:10px 12px;
+  border:1px solid var(--border);
+}
+.product-icon { font-size:18px; margin-bottom:4px; }
+.product-name { font-size:10px; font-weight:700; color:var(--white); }
+.product-val { font-family:'DM Mono',monospace; font-size:12px; color:var(--teal); font-weight:700; margin-top:2px; }
+.product-lbl { font-size:9px; color:var(--muted); }
+.signal-row {
+  background:var(--c-card);
+  border-radius:8px;
+  padding:10px 12px;
+  margin-bottom:7px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  border:1px solid var(--border);
+}
+.signal-icon { font-size:16px; width:28px; text-align:center; }
+.signal-text { font-size:11px; flex:1; }
+.signal-conf { font-family:'DM Mono',monospace; font-size:10px; font-weight:700; }
+
+/* ========================
+   PANEL 3 — AI Recommendations
+   ======================== */
+.rec-header-card {
+  background:linear-gradient(135deg,rgba(0,149,122,0.15),rgba(0,149,122,0.05));
+  border:1px solid rgba(0,149,122,0.3);
+  border-radius:10px;
+  padding:14px 16px;
+  margin-bottom:16px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.rec-ai-badge {
+  background:var(--teal);
+  color:#fff;
+  font-size:10px;
+  font-weight:800;
+  padding:4px 10px;
+  border-radius:5px;
+  letter-spacing:.05em;
+}
+.rec-context { font-size:11px; color:var(--muted); flex:1; }
+.rec-card {
+  background:var(--c-card);
+  border-radius:8px;
+  padding:13px 14px;
+  margin-bottom:10px;
+  border:1px solid var(--border);
+}
+.rec-card.priority {
+  border-color:rgba(0,149,122,0.35);
+  background:rgba(0,149,122,0.06);
+}
+.rec-top {
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  margin-bottom:8px;
+}
+.rec-label {
+  font-size:10px;
+  font-weight:700;
+  color:var(--teal);
+  text-transform:uppercase;
+  letter-spacing:.06em;
+  margin-bottom:3px;
+}
+.rec-title { font-size:12px; font-weight:700; }
+.rec-body { font-size:11px; color:var(--muted); line-height:1.5; margin-bottom:8px; }
+.talking-pts { margin-top:8px; }
+.tp-item {
+  display:flex;
+  gap:8px;
+  align-items:flex-start;
+  margin-bottom:5px;
+  font-size:10px;
+  color:var(--white);
+}
+.tp-num {
+  background:rgba(0,149,122,0.2);
+  color:var(--teal);
+  font-family:'DM Mono',monospace;
+  font-size:9px;
+  font-weight:700;
+  width:18px;
+  height:18px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-shrink:0;
+  margin-top:1px;
+}
+.confidence-bar-wrap { display:flex; align-items:center; gap:8px; margin-top:8px; }
+.confidence-bar-label { font-size:9px; color:var(--muted); white-space:nowrap; }
+.confidence-bar-track { flex:1; height:5px; background:rgba(255,255,255,0.08); border-radius:99px; overflow:hidden; }
+.confidence-bar-fill { height:100%; border-radius:99px; }
+.confidence-pct { font-family:'DM Mono',monospace; font-size:10px; font-weight:700; }
+
+/* ========================
+   PANEL 4 — Post-Visit Log
+   ======================== */
+.visit-summary {
+  background:var(--c-card);
+  border-radius:10px;
+  padding:14px 16px;
+  margin-bottom:14px;
+  border:1px solid var(--border);
+}
+.vs-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+.vs-name { font-size:13px; font-weight:700; }
+.vs-time { font-size:10px; color:var(--muted); }
+.outcome-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
+.outcome-box {
+  background:rgba(255,255,255,0.04);
+  border-radius:7px;
+  padding:8px 10px;
+  text-align:center;
+  border:1px solid var(--border);
+}
+.outcome-val { font-family:'DM Mono',monospace; font-size:16px; font-weight:700; }
+.outcome-lbl { font-size:9px; color:var(--muted); margin-top:2px; }
+.action-item {
+  background:var(--c-card);
+  border-radius:8px;
+  padding:11px 14px;
+  margin-bottom:8px;
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  border:1px solid var(--border);
+}
+.action-checkbox {
+  width:18px;
+  height:18px;
+  border-radius:4px;
+  border:2px solid var(--muted);
+  flex-shrink:0;
+  margin-top:1px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.action-checkbox.done { background:var(--teal); border-color:var(--teal); }
+.action-checkbox.done::after { content:'✓'; font-size:10px; color:#fff; font-weight:700; }
+.action-text { font-size:11px; flex:1; }
+.action-due { font-size:9px; color:var(--muted); margin-top:2px; }
+.action-owner { font-size:9px; color:var(--teal); }
+.crm-push-bar {
+  background:linear-gradient(135deg,rgba(0,149,122,0.12),rgba(0,149,122,0.04));
+  border:1px solid rgba(0,149,122,0.3);
+  border-radius:8px;
+  padding:12px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-top:14px;
+}
+.crm-status { font-size:11px; font-weight:700; }
+.crm-sub { font-size:9px; color:var(--muted); margin-top:2px; }
+.crm-btn {
+  background:var(--teal);
+  color:#fff;
+  font-size:10px;
+  font-weight:700;
+  padding:7px 14px;
+  border-radius:6px;
+  border:none;
+  cursor:pointer;
+  font-family:'Sora',sans-serif;
+  letter-spacing:.04em;
+}
+.notes-textarea {
+  background:rgba(255,255,255,0.04);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:11px 12px;
+  width:100%;
+  color:var(--white);
+  font-size:11px;
+  font-family:'Sora',sans-serif;
+  resize:none;
+  height:72px;
+  outline:none;
+  margin-top:10px;
+}
+.notes-textarea::placeholder { color:var(--muted); }
+</style>
+</head>
+<body>
+
+<div class="proto-header">
+  <div class="proto-tag">Emirates NBD × Virtusa — Prototype</div>
+  <div class="proto-title">ENBD AdvisorPulse — RM Intelligence Dashboard</div>
+  <div class="proto-sub">Relationship Manager Web Console · ai.advisorpulse.enbd.ae</div>
+</div>
+
+<div class="section-label-wrap">
+  <div class="section-label">Relationship Manager — Web Dashboard</div>
+  <div class="section-line"></div>
+</div>
+
+<div class="panels-grid">
+
+  <!-- PANEL 1: Today's Appointment Queue -->
+  <div class="panel-wrap">
+    <div class="panel-label">01 — Today's Appointment Queue</div>
+    <div class="browser">
+      <div class="browser-bar">
+        <div class="bdot r"></div><div class="bdot y"></div><div class="bdot g"></div>
+        <div class="browser-url">ai.advisorpulse.enbd.ae/queue/today</div>
+      </div>
+      <div class="browser-content">
+        <!-- RM Header -->
+        <div class="rm-header">
+          <div class="rm-avatar">SA</div>
+          <div>
+            <div class="rm-name">Sarah Al-Rashidi</div>
+            <div class="rm-meta">Senior RM · DIFC Branch · Affluent &amp; Priority Segment</div>
+          </div>
+          <div class="rm-stats">
+            <div>
+              <div class="rm-stat-val">6</div>
+              <div class="rm-stat-lbl">Appts Today</div>
+            </div>
+            <div>
+              <div class="rm-stat-val" style="color:var(--gold);">2</div>
+              <div class="rm-stat-lbl">High Signal</div>
+            </div>
+            <div>
+              <div class="rm-stat-val" style="color:var(--green);">3</div>
+              <div class="rm-stat-lbl">Done</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="queue-section-title">In Progress</div>
+        <div class="appt-card active">
+          <div class="appt-time-col">
+            <div class="appt-time">10:30</div>
+            <div class="appt-dur">45 min</div>
+          </div>
+          <div class="appt-divider"></div>
+          <div class="appt-info">
+            <div class="appt-name">Khalid Al-Farsi</div>
+            <div class="appt-type">Investment Review · Platinum</div>
+          </div>
+          <div class="appt-right">
+            <div class="ai-tag">🤖 AI READY</div>
+            <div class="badge badge-teal">In Meeting</div>
+          </div>
+        </div>
+
+        <div class="queue-section-title" style="margin-top:12px;">Upcoming</div>
+        <div class="appt-card upcoming">
+          <div class="appt-time-col">
+            <div class="appt-time">11:30</div>
+            <div class="appt-dur">30 min</div>
+          </div>
+          <div class="appt-divider"></div>
+          <div class="appt-info">
+            <div class="appt-name">Nour Mansouri</div>
+            <div class="appt-type">Home Loan Enquiry · Priority</div>
+          </div>
+          <div class="appt-right">
+            <div class="ai-tag">🤖 AI READY</div>
+            <div class="badge badge-gold">In 52 min</div>
+          </div>
+        </div>
+
+        <div class="appt-card upcoming">
+          <div class="appt-time-col">
+            <div class="appt-time">13:00</div>
+            <div class="appt-dur">45 min</div>
+          </div>
+          <div class="appt-divider"></div>
+          <div class="appt-info">
+            <div class="appt-name">Farrukh Tashkentov</div>
+            <div class="appt-type">Term Deposit Renewal · Preferred</div>
+          </div>
+          <div class="appt-right">
+            <div class="ai-tag">🤖 AI READY</div>
+            <div class="badge badge-blue">Pre-booked</div>
+          </div>
+        </div>
+
+        <div class="appt-card">
+          <div class="appt-time-col">
+            <div class="appt-time">14:30</div>
+            <div class="appt-dur">30 min</div>
+          </div>
+          <div class="appt-divider"></div>
+          <div class="appt-info">
+            <div class="appt-name">Meera Patel</div>
+            <div class="appt-type">NRI Account Setup · New to Bank</div>
+          </div>
+          <div class="appt-right">
+            <div class="badge badge-muted">Walk-in Slot</div>
+          </div>
+        </div>
+
+        <div class="queue-section-title" style="margin-top:12px;">Completed</div>
+        <div class="appt-card done">
+          <div class="appt-time-col">
+            <div class="appt-time">09:00</div>
+            <div class="appt-dur">30 min</div>
+          </div>
+          <div class="appt-divider"></div>
+          <div class="appt-info">
+            <div class="appt-name">Omar Al-Suwaidi</div>
+            <div class="appt-type">Credit Card Limit Review</div>
+          </div>
+          <div class="appt-right">
+            <div class="badge badge-green">Completed ✓</div>
+          </div>
+        </div>
+        <div class="appt-card done">
+          <div class="appt-time-col">
+            <div class="appt-time">09:45</div>
+            <div class="appt-dur">30 min</div>
+          </div>
+          <div class="appt-divider"></div>
+          <div class="appt-info">
+            <div class="appt-name">Lina Khoury</div>
+            <div class="appt-type">Savings Account Opening</div>
+          </div>
+          <div class="appt-right">
+            <div class="badge badge-green">Completed ✓</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL 2: Customer Context Card -->
+  <div class="panel-wrap">
+    <div class="panel-label">02 — Customer 360° Context Card</div>
+    <div class="browser">
+      <div class="browser-bar">
+        <div class="bdot r"></div><div class="bdot y"></div><div class="bdot g"></div>
+        <div class="browser-url">ai.advisorpulse.enbd.ae/customer/KAF-00291</div>
+      </div>
+      <div class="browser-content">
+        <!-- Customer Hero -->
+        <div class="cust-hero">
+          <div class="cust-avatar">KA</div>
+          <div style="flex:1;">
+            <div class="cust-name">Khalid Al-Farsi</div>
+            <div class="cust-sub">Customer ID: KAF-00291 · Relationship since 2017</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;">
+              <div class="cust-tier">⭐ Platinum — AED 2.4M AUM</div>
+              <div class="badge badge-teal" style="font-size:9px;padding:3px 8px;">Age 42 · Male</div>
+              <div class="badge badge-blue" style="font-size:9px;padding:3px 8px;">Director, Tech Co.</div>
+            </div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:9px;color:var(--muted);">CSAT Score</div>
+            <div style="font-family:'DM Mono',monospace;font-size:22px;font-weight:700;color:var(--teal);">8.6</div>
+            <div style="font-size:9px;color:var(--muted);">/10</div>
+          </div>
+        </div>
+
+        <div class="segment-title">Product Holdings</div>
+        <div class="products-grid">
+          <div class="product-card">
+            <div class="product-icon">💳</div>
+            <div class="product-name">Priority Account</div>
+            <div class="product-val">AED 420K</div>
+            <div class="product-lbl">Avg Monthly Balance</div>
+          </div>
+          <div class="product-card">
+            <div class="product-icon">📈</div>
+            <div class="product-name">Mutual Funds</div>
+            <div class="product-val">AED 1.2M</div>
+            <div class="product-lbl">Portfolio Value</div>
+          </div>
+          <div class="product-card">
+            <div class="product-icon">🏠</div>
+            <div class="product-name">Home Loan</div>
+            <div class="product-val">AED 1.8M</div>
+            <div class="product-lbl">Outstanding Balance</div>
+          </div>
+          <div class="product-card" style="border-color:rgba(212,168,67,0.3);background:rgba(212,168,67,0.06);">
+            <div class="product-icon">🏦</div>
+            <div class="product-name">Term Deposit</div>
+            <div class="product-val" style="color:var(--gold);">Maturing May 31</div>
+            <div class="product-lbl" style="color:var(--gold);">AED 600K · 4 days</div>
+          </div>
+        </div>
+
+        <div class="segment-title">AI Life Event Signals</div>
+        <div class="signal-row" style="border-color:rgba(0,149,122,0.3);background:rgba(0,149,122,0.06);">
+          <div class="signal-icon">📅</div>
+          <div class="signal-text">
+            <div style="font-size:11px;font-weight:700;color:var(--white);">Term Deposit Maturing in 4 Days</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px;">AED 600K — renewal or reallocation decision needed</div>
+          </div>
+          <div class="signal-conf" style="color:var(--teal);">98%</div>
+        </div>
+        <div class="signal-row" style="border-color:rgba(212,168,67,0.3);background:rgba(212,168,67,0.05);">
+          <div class="signal-icon">🏡</div>
+          <div class="signal-text">
+            <div style="font-size:11px;font-weight:700;color:var(--white);">Possible 2nd Property Intent</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px;">3× recent Bayut searches via ENBD app browser</div>
+          </div>
+          <div class="signal-conf" style="color:var(--gold);">74%</div>
+        </div>
+        <div class="signal-row">
+          <div class="signal-icon">📊</div>
+          <div class="signal-text">
+            <div style="font-size:11px;font-weight:700;color:var(--white);">Portfolio underweight Fixed Income</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px;">vs Platinum peer benchmark — rebalance opportunity</div>
+          </div>
+          <div class="signal-conf" style="color:var(--muted);">61%</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL 3: AI Recommended Conversation -->
+  <div class="panel-wrap">
+    <div class="panel-label">03 — AI Recommended Conversation Guide</div>
+    <div class="browser">
+      <div class="browser-bar">
+        <div class="bdot r"></div><div class="bdot y"></div><div class="bdot g"></div>
+        <div class="browser-url">ai.advisorpulse.enbd.ae/guide/KAF-00291</div>
+      </div>
+      <div class="browser-content">
+        <div class="rec-header-card">
+          <div class="rec-ai-badge">AI GUIDE</div>
+          <div class="rec-context">
+            3 conversation priorities for Khalid Al-Farsi · Based on holdings + life signals + segment benchmarks
+          </div>
+        </div>
+
+        <!-- Rec 1 -->
+        <div class="rec-card priority">
+          <div class="rec-top">
+            <div>
+              <div class="rec-label">🔥 Priority 1 — Expiring Product</div>
+              <div class="rec-title">Term Deposit Renewal Decision</div>
+            </div>
+            <div class="badge badge-teal">High Urgency</div>
+          </div>
+          <div class="rec-body">
+            AED 600K term deposit matures in 4 days. Khalid likely expects a renewal conversation. Opportunity to upgrade to Flexi Term or reallocate to structured product.
+          </div>
+          <div class="talking-pts">
+            <div style="font-size:9px;color:var(--teal);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Talking Points</div>
+            <div class="tp-item"><div class="tp-num">1</div><div>"Your AED 600K deposit matures on May 31 — have you thought about what you'd like to do with it?"</div></div>
+            <div class="tp-item"><div class="tp-num">2</div><div>"We have a new 13-month structured product offering 5.8% — outperforming standard renewal by 1.2%."</div></div>
+            <div class="tp-item"><div class="tp-num">3</div><div>"If you're considering diversifying into fixed income, this could align well with your current portfolio mix."</div></div>
+          </div>
+          <div class="confidence-bar-wrap">
+            <div class="confidence-bar-label">Conversion confidence</div>
+            <div class="confidence-bar-track"><div class="confidence-bar-fill" style="width:87%;background:var(--teal);"></div></div>
+            <div class="confidence-pct" style="color:var(--teal);">87%</div>
+          </div>
+        </div>
+
+        <!-- Rec 2 -->
+        <div class="rec-card">
+          <div class="rec-top">
+            <div>
+              <div class="rec-label" style="color:var(--gold);">📊 Priority 2 — Portfolio Rebalance</div>
+              <div class="rec-title">Fixed Income Gap vs Peer Benchmark</div>
+            </div>
+            <div class="badge badge-gold">Medium</div>
+          </div>
+          <div class="rec-body">
+            Khalid's portfolio is 14% underweight in fixed income vs Platinum peers at same life stage. Introducing a bond fund or sukuk could be well received.
+          </div>
+          <div class="talking-pts">
+            <div style="font-size:9px;color:var(--gold);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Talking Points</div>
+            <div class="tp-item"><div class="tp-num" style="background:rgba(212,168,67,0.2);color:var(--gold);">1</div><div>"Peers at your tier typically hold 18–22% in fixed income — you're currently at 8%. Happy to walk through why?"</div></div>
+            <div class="tp-item"><div class="tp-num" style="background:rgba(212,168,67,0.2);color:var(--gold);">2</div><div>"The ENBD Al-Islami Sukuk fund is returning 6.1% ytd with monthly liquidity — worth considering."</div></div>
+          </div>
+          <div class="confidence-bar-wrap">
+            <div class="confidence-bar-label">Conversion confidence</div>
+            <div class="confidence-bar-track"><div class="confidence-bar-fill" style="width:61%;background:var(--gold);"></div></div>
+            <div class="confidence-pct" style="color:var(--gold);">61%</div>
+          </div>
+        </div>
+
+        <!-- Rec 3 -->
+        <div class="rec-card">
+          <div class="rec-top">
+            <div>
+              <div class="rec-label" style="color:var(--blue);">🏠 Priority 3 — Potential New Need</div>
+              <div class="rec-title">2nd Property Financing</div>
+            </div>
+            <div class="badge badge-blue">Exploratory</div>
+          </div>
+          <div class="rec-body">
+            Browser signal suggests active property search. Don't push — open the conversation gently. If confirmed, route to Home Finance team.
+          </div>
+          <div class="talking-pts">
+            <div style="font-size:9px;color:var(--blue);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Talking Points</div>
+            <div class="tp-item"><div class="tp-num" style="background:rgba(74,144,217,0.2);color:var(--blue);">1</div><div>"Are you doing any property research these days? The Dubai market has some strong options in Q2."</div></div>
+            <div class="tp-item"><div class="tp-num" style="background:rgba(74,144,217,0.2);color:var(--blue);">2</div><div>"We can pre-qualify you for up to AED 2.2M in home finance if you decide to move forward."</div></div>
+          </div>
+          <div class="confidence-bar-wrap">
+            <div class="confidence-bar-label">Conversion confidence</div>
+            <div class="confidence-bar-track"><div class="confidence-bar-fill" style="width:38%;background:var(--blue);"></div></div>
+            <div class="confidence-pct" style="color:var(--blue);">38%</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL 4: Post-Visit Action Log -->
+  <div class="panel-wrap">
+    <div class="panel-label">04 — Post-Visit Action Log & CRM Sync</div>
+    <div class="browser">
+      <div class="browser-bar">
+        <div class="bdot r"></div><div class="bdot y"></div><div class="bdot g"></div>
+        <div class="browser-url">ai.advisorpulse.enbd.ae/log/KAF-00291/visit-001</div>
+      </div>
+      <div class="browser-content">
+        <!-- Visit Summary -->
+        <div class="visit-summary">
+          <div class="vs-top">
+            <div>
+              <div class="vs-name">Khalid Al-Farsi · Visit Summary</div>
+              <div class="vs-time">27 May 2026 · 10:30–11:15 AM · DIFC Branch · 45 min</div>
+            </div>
+            <div class="badge badge-green">Logged</div>
+          </div>
+          <div class="outcome-grid">
+            <div class="outcome-box">
+              <div class="outcome-val" style="color:var(--teal);">2</div>
+              <div class="outcome-lbl">Topics Covered</div>
+            </div>
+            <div class="outcome-box">
+              <div class="outcome-val" style="color:var(--gold);">1</div>
+              <div class="outcome-lbl">Product Discussed</div>
+            </div>
+            <div class="outcome-box">
+              <div class="outcome-val" style="color:var(--blue);">3</div>
+              <div class="outcome-lbl">Follow-ups Set</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="queue-section-title">Action Items</div>
+
+        <div class="action-item">
+          <div class="action-checkbox done"></div>
+          <div class="action-info" style="flex:1;">
+            <div class="action-text">Send structured product term sheet (13-month, 5.8%)</div>
+            <div style="display:flex;gap:8px;margin-top:3px;">
+              <div class="action-due">Due: Today</div>
+              <div class="action-owner">· Sarah Al-Rashidi</div>
+            </div>
+          </div>
+          <div class="badge badge-green" style="font-size:9px;margin-left:8px;">Done</div>
+        </div>
+
+        <div class="action-item" style="border-color:rgba(212,168,67,0.3);">
+          <div class="action-checkbox"></div>
+          <div style="flex:1;">
+            <div class="action-text">Follow up on TD renewal decision by May 30</div>
+            <div style="display:flex;gap:8px;margin-top:3px;">
+              <div class="action-due">Due: May 30</div>
+              <div class="action-owner">· Sarah Al-Rashidi</div>
+            </div>
+          </div>
+          <div class="badge badge-gold" style="font-size:9px;margin-left:8px;">Pending</div>
+        </div>
+
+        <div class="action-item">
+          <div class="action-checkbox"></div>
+          <div style="flex:1;">
+            <div class="action-text">Share portfolio rebalancing analysis — fixed income gap</div>
+            <div style="display:flex;gap:8px;margin-top:3px;">
+              <div class="action-due">Due: Jun 3</div>
+              <div class="action-owner">· Investment Team</div>
+            </div>
+          </div>
+          <div class="badge badge-muted" style="font-size:9px;margin-left:8px;">Assigned</div>
+        </div>
+
+        <div class="action-item">
+          <div class="action-checkbox"></div>
+          <div style="flex:1;">
+            <div class="action-text">Route to Home Finance if property intent confirmed</div>
+            <div style="display:flex;gap:8px;margin-top:3px;">
+              <div class="action-due">Due: Jun 5</div>
+              <div class="action-owner">· Home Finance Team</div>
+            </div>
+          </div>
+          <div class="badge badge-blue" style="font-size:9px;margin-left:8px;">Conditional</div>
+        </div>
+
+        <div class="queue-section-title" style="margin-top:14px;">Visit Notes</div>
+        <textarea class="notes-textarea" placeholder="Add visit notes…">Khalid responded positively to TD renewal discussion. Interested in 13-month structured product — send term sheet. Portfolio rebalancing conversation deferred to next visit. No explicit mention of property purchase — do not push.</textarea>
+
+        <div class="crm-push-bar">
+          <div>
+            <div class="crm-status">Sync to Salesforce CRM</div>
+            <div class="crm-sub">3 action items · 1 note · Last sync: 2 min ago</div>
+          </div>
+          <button class="crm-btn">Push Update →</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
