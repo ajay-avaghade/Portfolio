@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resume Generator — Ajay Avaghade</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0f0f1a;
+    --surface: rgba(255,255,255,0.04);
+    --surface-hover: rgba(255,255,255,0.07);
+    --border: rgba(255,255,255,0.08);
+    --accent: #7c3aed;
+    --accent-glow: rgba(124,58,237,0.3);
+    --accent-light: rgba(124,58,237,0.15);
+    --text: #f8f8ff;
+    --muted: #8b92a5;
+    --success: #22c55e;
+    --warning: #f59e0b;
+    --error: #ef4444;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Header */
+  .header {
+    padding: 16px 28px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(15,15,26,0.9);
+    backdrop-filter: blur(12px);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .header-logo {
+    width: 36px;
+    height: 36px;
+    background: var(--accent);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    color: #fff;
+  }
+  .header-title {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 17px;
+    color: var(--text);
+  }
+  .header-subtitle {
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .header-link {
+    font-size: 13px;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color .2s;
+  }
+  .header-link:hover { color: var(--text); }
+
+  /* Main layout */
+  .main {
+    display: flex;
+    flex: 1;
+    height: calc(100vh - 69px);
+    overflow: hidden;
+  }
+
+  /* Controls panel */
+  .controls {
+    width: 360px;
+    min-width: 360px;
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 24px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .controls::-webkit-scrollbar { width: 4px; }
+  .controls::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  .section-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--muted);
+  }
+  input, select, textarea {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    padding: 9px 12px;
+    transition: border-color .2s, background .2s;
+    outline: none;
+    width: 100%;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--accent);
+    background: var(--accent-light);
+  }
+  textarea {
+    resize: vertical;
+    min-height: 180px;
+    line-height: 1.5;
+  }
+  select option { background: #1a1a2e; color: var(--text); }
+
+  .api-row {
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+  }
+  .api-row .field-group { flex: 1; }
+  .btn-save {
+    padding: 9px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all .2s;
+  }
+  .btn-save:hover { border-color: var(--accent); color: var(--text); }
+  .btn-save.saved { border-color: var(--success); color: var(--success); }
+
+  .generate-btn {
+    width: 100%;
+    padding: 13px;
+    background: var(--accent);
+    border: none;
+    border-radius: 10px;
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 20px var(--accent-glow);
+    transition: all .2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .generate-btn:hover { background: #6d28d9; transform: translateY(-1px); box-shadow: 0 6px 28px var(--accent-glow); }
+  .generate-btn:disabled { opacity: .55; cursor: not-allowed; transform: none; }
+
+  .status-box {
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 12px;
+    line-height: 1.5;
+    display: none;
+  }
+  .status-box.info { background: var(--accent-light); border: 1px solid rgba(124,58,237,0.3); color: #c4b5fd; display: block; }
+  .status-box.error { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: #fca5a5; display: block; }
+  .status-box.success { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3); color: #86efac; display: block; }
+
+  .matched-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 500;
+    margin-top: 6px;
+  }
+  .matched-badge.has-match { background: rgba(34,197,94,0.12); border: 1px solid rgba(34,197,94,0.3); color: #86efac; }
+  .matched-badge.no-match { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3); color: #fcd34d; }
+
+  /* Preview panel */
+  .preview {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: #1a1a2e;
+  }
+  .preview-toolbar {
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(15,15,26,0.6);
+  }
+  .preview-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+  }
+  .preview-actions {
+    display: flex;
+    gap: 10px;
+  }
+  .action-btn {
+    padding: 7px 14px;
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all .2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none;
+  }
+  .action-btn.primary {
+    background: var(--accent);
+    border: none;
+    color: #fff;
+    box-shadow: 0 2px 10px var(--accent-glow);
+  }
+  .action-btn.primary:hover { background: #6d28d9; }
+  .action-btn.secondary {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+  .action-btn.secondary:hover { border-color: var(--accent); color: var(--text); }
+  .action-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+  .preview-frame-wrap {
+    flex: 1;
+    overflow-y: auto;
+    padding: 32px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+  }
+  .preview-frame-wrap::-webkit-scrollbar { width: 6px; }
+  .preview-frame-wrap::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  .preview-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    height: 100%;
+    color: var(--muted);
+    text-align: center;
+    min-height: 300px;
+  }
+  .placeholder-icon { font-size: 48px; opacity: .4; }
+  .placeholder-text { font-size: 14px; }
+  .placeholder-sub { font-size: 12px; opacity: .7; }
+
+  #resumeFrame {
+    width: 816px;
+    background: #fff;
+    box-shadow: 0 20px 80px rgba(0,0,0,0.5);
+    border: none;
+    border-radius: 4px;
+    display: none;
+  }
+
+  /* Spinner */
+  .spinner {
+    width: 16px; height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+    display: inline-block;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Divider */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 0; }
+
+  /* Copy toast */
+  #copyToast {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    background: #22c55e;
+    color: #fff;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    opacity: 0;
+    transition: opacity .3s;
+    pointer-events: none;
+    z-index: 9999;
+  }
+  #copyToast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-brand">
+    <div class="header-logo">AA</div>
+    <div>
+      <div class="header-title">Resume Generator</div>
+      <div class="header-subtitle">Ajay Avaghade · AI-tailored resumes in 30 seconds</div>
+    </div>
+  </div>
+  <a href="https://ajay-avaghade.github.io/Portfolio/" target="_blank" class="header-link">← Portfolio</a>
+</div>
+
+<div class="main">
+  <!-- Controls -->
+  <div class="controls">
+    <div>
+      <div class="section-label">API Configuration</div>
+      <div class="api-row">
+        <div class="field-group">
+          <label>Gemini API Key</label>
+          <input type="password" id="apiKey" placeholder="AIza..." autocomplete="off">
+        </div>
+        <button class="btn-save" id="saveKeyBtn" onclick="saveApiKey()">Save</button>
+      </div>
+      <div style="font-size:11px; color:var(--muted); margin-top:6px;">
+        Key saved in browser localStorage. <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--accent); text-decoration:none;">Get free key →</a>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div>
+      <div class="section-label">Job Details</div>
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <div class="field-group">
+          <label>Company Name</label>
+          <input type="text" id="companyName" placeholder="e.g. Stripe, Razorpay, Meesho..." oninput="checkMatch()">
+          <div id="matchBadge" style="display:none;"></div>
+        </div>
+        <div class="field-group">
+          <label>Location / Job Type</label>
+          <select id="location">
+            <option value="india">India (Bangalore / domestic)</option>
+            <option value="uae">UAE / Dubai — visa sponsorship needed</option>
+            <option value="other">Other / Not specified</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label>Job Description</label>
+          <textarea id="jdText" placeholder="Paste the full job description here. Include role title, requirements, and responsibilities for best results..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <button class="generate-btn" id="generateBtn" onclick="generateResume()">
+      <span id="btnIcon">✦</span>
+      <span id="btnText">Generate Resume</span>
+    </button>
+
+    <div class="status-box" id="statusBox"></div>
+
+    <hr class="divider">
+
+    <div style="font-size:11px; color:var(--muted); line-height:1.6;">
+      <strong style="color:var(--text);">How it works:</strong><br>
+      1. Enter company name + JD<br>
+      2. AI tailors the resume to the role<br>
+      3. If you have a case study for this company, it auto-includes it<br>
+      4. Otherwise, pulls 3 most relevant existing case studies<br>
+      5. Print directly to PDF
+    </div>
+  </div>
+
+  <!-- Preview -->
+  <div class="preview">
+    <div class="preview-toolbar">
+      <span class="preview-title" id="previewTitle">Preview will appear here</span>
+      <div class="preview-actions">
+        <button class="action-btn secondary" id="copyBtn" onclick="copyHTML()" disabled>
+          📋 Copy HTML
+        </button>
+        <button class="action-btn primary" id="printBtn" onclick="printResume()" disabled>
+          🖨️ Print / Save PDF
+        </button>
+      </div>
+    </div>
+    <div class="preview-frame-wrap" id="previewWrap">
+      <div class="preview-placeholder" id="placeholder">
+        <div class="placeholder-icon">📄</div>
+        <div class="placeholder-text">Your tailored resume will appear here</div>
+        <div class="placeholder-sub">Enter a company name and JD, then click Generate</div>
+      </div>
+      <iframe id="resumeFrame" scrolling="no"></iframe>
+    </div>
+  </div>
+</div>
+
+<div id="copyToast">✓ HTML copied to clipboard</div>
+
+<script>
+// ─────────────────────────────────────────────
+//  PORTFOLIO DATA
+// ─────────────────────────────────────────────
+const PORTFOLIO = [
+  { company: "talabat", displayName: "Talabat", aliases: ["talabat"],
+    studies: [
+      { name: "Talabat Steal Deals", proto: "steal-deals-prototype.html", deck: "assets/steal-deals-deck.pptx", domain: "Q-commerce · Flash Deals", summary: "Flash-sale discovery engine surfacing high-intent near-expiry offers; projected ↑18% conversion on deal-browsing sessions." },
+      { name: "Talabat AI Beauty Match", proto: "ai-beauty-match-prototype.html", deck: "assets/ai-beauty-match-deck.pptx", domain: "AI Commerce · Personalisation", summary: "Skin-tone + preference ML engine for beauty product recommendations; projected ↑32% add-to-cart on beauty SKUs." },
+      { name: "Talabat Reels", proto: "talabat-reels-prototype.html", deck: "assets/talabat-reels-deck.pptx", domain: "Social Commerce · Engagement", summary: "Vertical-video discovery feed for food + beauty; projected ↑24% new category exploration per session." }
+    ]},
+  { company: "virtusa", displayName: "Virtusa", aliases: ["virtusa"],
+    studies: [
+      { name: "MerchantOS: Milestone Rental Waiver", proto: "virtusa-milestone-prototype.html", deck: "assets/virtusa-milestone-deck.pptx", domain: "B2B Merchant · Incentive Design", summary: "Behaviour-linked POS terminal incentive: TPV + cardholder goals unlock rental waiver; projected ↑60% 90-day device activation." }
+    ]},
+  { company: "snapmint", displayName: "Snapmint", aliases: ["snapmint"],
+    studies: [
+      { name: "SnapPay: Credit on UPI", proto: "snapmint-snappay-prototype.html", deck: "assets/snapmint-snappay-deck.pptx", domain: "Fintech · BNPL · UPI Credit", summary: "BNPL rail embedded directly into UPI checkout; projected ↑40% approval rate vs traditional credit scoring." }
+    ]},
+  { company: "amazon", displayName: "Amazon", aliases: ["amazon", "amazon pay"],
+    studies: [
+      { name: "Amazon SmartOffer Engine", proto: "amazon-smartoffer-prototype.html", deck: "assets/amazon-smartoffer-deck.pptx", domain: "ML Incentives · Offer Suppression", summary: "ML propensity suppression for IBD offers: user-level scoring routes high-intent users to no-discount checkout, saving ₹340 Cr/yr." },
+      { name: "Amazon Pay Milestone", proto: "amazon-milestone-prototype.html", deck: "assets/amazon-milestone-deck.pptx", domain: "Engagement · Gamification", summary: "Milestone reward program for Amazon Pay: spend goals unlock escalating cashback tiers; projected ↑28% payment activation." }
+    ]},
+  { company: "ralph-lauren", displayName: "Ralph Lauren", aliases: ["ralph lauren", "ralph-lauren", "rl", "polo"],
+    studies: [
+      { name: "RL ClientIQ", proto: "rl-clientiq-prototype.html", deck: "assets/rl-clientiq-deck.pptx", domain: "Luxury Retail · CRM Intelligence", summary: "AI-powered client intelligence for SA teams: purchase history + style signals surface next-best-action before every interaction." },
+      { name: "RL CartBridge", proto: "rl-cartbridge-prototype.html", deck: "assets/rl-cartbridge-deck.pptx", domain: "Omnichannel · Cart Recovery", summary: "Unified cart bridging online-offline: customer's online wishlist surfaces on SA's POS device; projected ↓42% in-store lost sales." }
+    ]},
+  { company: "agoda", displayName: "Agoda", aliases: ["agoda"],
+    studies: [
+      { name: "Agoda Spark", proto: "agoda-spark-prototype.html", deck: "assets/agoda-spark-deck.pptx", domain: "Travel · Dynamic Pricing", summary: "Real-time price-match + urgency signals reducing decision paralysis; projected ↑15% same-session booking conversion." },
+      { name: "Agoda TripAgent", proto: "agoda-tripagent-prototype.html", deck: "assets/agoda-tripagent-deck.pptx", domain: "AI Travel Planning · Agentic", summary: "Conversational AI itinerary builder: natural language → full trip plan with bookable properties and activities." },
+      { name: "Agoda TrustScore", proto: "agoda-trustscore-prototype.html", deck: "assets/agoda-trustscore-deck.pptx", domain: "Trust · Review Intelligence", summary: "ML review authenticity scoring reducing fake review impact; projected ↑11% booking confidence on surfaced properties." }
+    ]},
+  { company: "multibank", displayName: "MultiBank", aliases: ["multibank", "multi bank"],
+    studies: [
+      { name: "MultiBank TradeRise", proto: "multibank-traderise-prototype.html", deck: "assets/multibank-traderise-deck.pptx", domain: "Trading · Gamification", summary: "Milestone-based trading incentive program converting trial traders to active; projected ↑35% 90-day retention." },
+      { name: "MultiBank TradeCircle", proto: "multibank-tradecircle-prototype.html", deck: "assets/multibank-tradecircle-deck.pptx", domain: "Social Trading · Referral", summary: "Social referral + copy-trading layer; projected ↑42% organic acquisition via trader network effects." }
+    ]},
+  { company: "adcb", displayName: "ADCB", aliases: ["adcb", "abu dhabi commercial bank"],
+    studies: [
+      { name: "ADCB CorporateLens", proto: "adcb-corporatelens-prototype.html", deck: "assets/adcb-corporatelens-deck.pptx", domain: "Corporate Banking · Analytics", summary: "AI-powered corporate client intelligence dashboard: cash flow forecasting + relationship health scoring for RM teams." },
+      { name: "ADCB CardLaunch", proto: "adcb-cardlaunch-prototype.html", deck: "assets/adcb-cardlaunch-deck.pptx", domain: "B2B Fintech · Card Issuance", summary: "4-step digital corporate card launch: OCR + AI credit scoring + virtual card issuance compressing onboarding from 3 weeks to 24 minutes." }
+    ]},
+  { company: "paypay", displayName: "PayPay", aliases: ["paypay", "pay pay"],
+    studies: [
+      { name: "PayPay SmartBonus + MissionBoard", proto: "paypay-smartbonus-prototype.html", deck: "assets/paypay-smartbonus-deck.pptx", domain: "ML Rewards · Personalisation", summary: "ML-personalised bonus rate engine: propensity score sets each user's reward rate; MissionBoard layers spending challenges for higher rates." },
+      { name: "PayPay NearPay", proto: "paypay-nearpay-prototype.html", deck: "assets/paypay-nearpay-deck.pptx", domain: "Geo Commerce · Discovery", summary: "Location-triggered offer discovery: NFC + geofence surfaces the best merchant deal within 200m." }
+    ]},
+  { company: "jpmorgan", displayName: "J.P. Morgan", aliases: ["jpmorgan", "jp morgan", "j.p. morgan", "chase"],
+    studies: [
+      { name: "J.P. Morgan PayIQ", proto: "jpmorgan-payiq-prototype.html", deck: "assets/jpmorgan-payiq-deck.pptx", domain: "Payment Rail Intelligence · ISO 20022", summary: "ML-powered payment rail selection: multi-variable scoring (amount × corridor × urgency × cut-off) routes each transaction to optimal rail with ISO 20022 dashboard; projected ↑18% STP rate." },
+      { name: "J.P. Morgan ClearPath", proto: "jpmorgan-clearpath-prototype.html", deck: "assets/jpmorgan-clearpath-deck.pptx", domain: "Cross-Border Payments · Transparency", summary: "Pre-payment fee + FX transparency layer for cross-border wires; projected ↓60% SWIFT inquiry volume." }
+    ]},
+  { company: "adyen", displayName: "Adyen", aliases: ["adyen"],
+    studies: [
+      { name: "Adyen SmartCheckout", proto: "adyen-smartcheckout-prototype.html", deck: "assets/adyen-smartcheckout-deck.pptx", domain: "Checkout Optimisation · LPM Ranking", summary: "ML-powered EMEA local payment method ranking using 23 session signals; surfaces optimal LPM per transaction with no merchant dev required; projected ↑12% checkout conversion." },
+      { name: "Adyen RegSense", proto: "adyen-regsense-prototype.html", deck: "assets/adyen-regsense-deck.pptx", domain: "Compliance · Regulatory Intelligence", summary: "AI-powered regulatory change monitoring: auto-maps new PSD2/local rules to Adyen's product surface, projected ↓70% manual compliance review hours." }
+    ]},
+  { company: "nykaa", displayName: "Nykaa", aliases: ["nykaa", "nykaa superstore", "nykaa fashion"],
+    studies: [
+      { name: "Nykaa QuickStore", proto: "nykaa-quickstore-prototype.html", deck: "assets/nykaa-quickstore-deck.pptx", domain: "B2B Marketplace · Self-Serve", summary: "Self-serve guided ordering for Bharat retailers: store-type wizard + smart shelf + pre-filled reorder cart eliminates BDE call dependency; projected ↓60% BDE calls, ↑2.4× reorder frequency." },
+      { name: "Nykaa AdAgent", proto: "nykaa-adagent-prototype.html", deck: "assets/nykaa-adagent-deck.pptx", domain: "Agentic AI · Ad Campaigns", summary: "Agentic AI campaign manager: seller states a goal, agent handles keywords + creatives + bids + 6-hour optimisation + plain-language report; projected ↑60% seller ad activation, ↑2.1× ROAS." },
+      { name: "Nykaa SellerIQ", proto: "nykaa-selleriq-prototype.html", deck: "assets/nykaa-selleriq-deck.pptx", domain: "AI Insights · Predictive Alerts", summary: "AI insights + predictive alerts: daily brief, NL Q&A, stockout/return-spike alerts 48–72 hrs early; projected ↑28% GMV per active seller." }
+    ]},
+  { company: "eyewa", displayName: "eyewa", aliases: ["eyewa"],
+    studies: [
+      { name: "eyewa RxOps", proto: "eyewa-rxops-prototype.html", deck: "assets/eyewa-rxops-deck.pptx", domain: "AI Ops · Prescription Validation", summary: "AI prescription validation + ML-scored lab routing replacing 7 manual handoffs; projected ↓75% remake rate, AED 2.1M+ annual cost saved." },
+      { name: "eyewa InventoryIQ", proto: "eyewa-inventoryiq-prototype.html", deck: "assets/eyewa-inventoryiq-deck.pptx", domain: "ML Forecasting · Inventory", summary: "ML demand forecasting for 6,066 SKUs with AI-drafted POs and a New Market Playbook for KSA/Bahrain; projected ↓75% stockout frequency, AED 4.8M+ efficiency gain." },
+      { name: "eyewa OpsBuddy", proto: "eyewa-opsbuddy-prototype.html", deck: "assets/eyewa-opsbuddy-deck.pptx", domain: "AI Co-pilot · Ops Intelligence", summary: "Unified ops AI co-pilot: NL Q&A across Shopify/ERP/labs/3PL, proactive daily brief, real-time anomaly feed (14 signals); projected ↓75% dashboard time, AED 2.4M+ ops cost recovery." }
+    ]}
+];
+
+// ─────────────────────────────────────────────
+//  RESUME CSS (exact format used in all resumes)
+// ─────────────────────────────────────────────
+function getResumeCss(location) {
+  const isUAE = location === 'uae';
+  const pageMargin = isUAE ? '.18in .22in' : '.22in .28in';
+  const padding = isUAE ? '13px 25px' : '14px 26px';
+  const fontSize = isUAE ? '8.3pt' : '8.4pt';
+  const lineHeight = isUAE ? '1.34' : '1.35';
+  return `
+  @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family:'Inter',Arial,sans-serif;
+    font-size:${fontSize};
+    color:#1a1a1a;
+    background:#fff;
+    padding:${padding};
+    max-width:800px;
+    margin:0 auto;
+    line-height:${lineHeight};
+  }
+  .name       { font-size:${isUAE?'18.5pt':'19pt'}; font-weight:700; text-align:center; letter-spacing:.04em; }
+  .role-title { font-size:${isUAE?'8.8pt':'9pt'}; font-style:italic; text-align:center; color:#444; margin:1px 0 2px; }
+  .contact    { font-size:${isUAE?'7.5pt':'7.6pt'}; text-align:center; color:#444; margin-bottom:${isUAE?'2px':'5px'}; }
+  .contact a  { color:ACCENT_COLOR; text-decoration:none; }
+  .relocation { font-size:7.5pt; font-style:italic; text-align:center; color:ACCENT_COLOR; margin-bottom:4px; }
+  hr { border:none; border-top:1.5px solid ACCENT_HR; margin:${isUAE?'2px 0 2px':'3px 0 2px'}; }
+  h2 { font-size:${isUAE?'7.6pt':'7.8pt'}; font-weight:700; color:ACCENT_COLOR; text-transform:uppercase; letter-spacing:.07em; margin:${isUAE?'3px 0 1px':'5px 0 1px'}; }
+  .job-row   { display:flex; justify-content:space-between; align-items:baseline; }
+  .job-title { font-size:${isUAE?'8.6pt':'8.8pt'}; font-weight:700; }
+  .job-date  { font-size:${isUAE?'7.4pt':'7.6pt'}; color:#555; white-space:nowrap; }
+  .company   { font-size:${isUAE?'7.4pt':'7.6pt'}; color:#555; font-style:italic; margin-bottom:1px; }
+  ul { padding-left:12px; margin:1px 0 3px; }
+  li {
+    font-size:${isUAE?'8.1pt':'8.2pt'};
+    line-height:${isUAE?'1.36':'1.38'};
+    margin-bottom:${isUAE?'1.5px':'2px'};
+    text-align:justify;
+    text-align-last:left;
+  }
+  .summary {
+    font-size:${isUAE?'8.1pt':'8.2pt'}; line-height:${isUAE?'1.4':'1.42'};
+    text-align:justify; text-align-last:left;
+  }
+  .skills-row {
+    font-size:${isUAE?'7.9pt':'8.1pt'}; line-height:${isUAE?'1.4':'1.42'}; margin-bottom:1px;
+    text-align:justify; text-align-last:left;
+  }
+  .skills-row strong { font-weight:600; color:#0f0f0f; }
+  .edu-row  { display:flex; justify-content:space-between; align-items:baseline; }
+  .edu-name { font-size:${isUAE?'8.4pt':'8.6pt'}; font-weight:600; }
+  .edu-date { font-size:${isUAE?'7.4pt':'7.6pt'}; color:#555; }
+  .edu-sub  { font-size:${isUAE?'7.4pt':'7.6pt'}; color:#555; font-style:italic; margin-bottom:2px; }
+  a { color:ACCENT_COLOR; font-weight:500; text-decoration:none; }
+  .awards-line {
+    font-size:${isUAE?'7.9pt':'8.1pt'}; line-height:${isUAE?'1.4':'1.42'};
+    text-align:justify; text-align-last:left;
+  }
+  @media print {
+    body { padding:0; }
+    @page { margin:${pageMargin}; size:${isUAE?'A4':'letter'}; }
+  }`;
+}
+
+// ─────────────────────────────────────────────
+//  PORTFOLIO MATCHING
+// ─────────────────────────────────────────────
+function findCaseStudies(company) {
+  if (!company) return null;
+  const normalized = company.toLowerCase().trim();
+  return PORTFOLIO.find(p =>
+    p.aliases.some(a => normalized.includes(a) || a.includes(normalized))
+  ) || null;
+}
+
+let currentMatch = null;
+
+function checkMatch() {
+  const company = document.getElementById('companyName').value;
+  currentMatch = findCaseStudies(company);
+  const badge = document.getElementById('matchBadge');
+  if (!company.trim()) {
+    badge.style.display = 'none';
+    return;
+  }
+  badge.style.display = 'block';
+  if (currentMatch) {
+    badge.innerHTML = `<span class="matched-badge has-match">✓ ${currentMatch.studies.length} case study${currentMatch.studies.length > 1 ? ' ('+currentMatch.studies.length+')' : ''} found for ${currentMatch.displayName}</span>`;
+  } else {
+    badge.innerHTML = `<span class="matched-badge no-match">⚡ No custom case study — will use most relevant existing ones</span>`;
+  }
+}
+
+// ─────────────────────────────────────────────
+//  API KEY
+// ─────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  const saved = localStorage.getItem('gemini_api_key');
+  if (saved) {
+    document.getElementById('apiKey').value = saved;
+    document.getElementById('saveKeyBtn').textContent = '✓ Saved';
+    document.getElementById('saveKeyBtn').classList.add('saved');
+  }
+});
+
+function saveApiKey() {
+  const key = document.getElementById('apiKey').value.trim();
+  if (key) {
+    localStorage.setItem('gemini_api_key', key);
+    const btn = document.getElementById('saveKeyBtn');
+    btn.textContent = '✓ Saved';
+    btn.classList.add('saved');
+    setTimeout(() => { btn.textContent = 'Save'; btn.classList.remove('saved'); }, 2000);
+  }
+}
+
+// ─────────────────────────────────────────────
+//  PROMPT BUILDER
+// ─────────────────────────────────────────────
+function buildPrompt(company, location, jd, matchedPortfolio) {
+  const isUAE = location === 'uae';
+  const isIndia = location === 'india';
+
+  let caseStudyInstructions = '';
+  if (matchedPortfolio) {
+    const studies = matchedPortfolio.studies;
+    const studyLines = studies.map(s =>
+      `<li><strong>${s.name}</strong> — ${s.summary} &nbsp;<a href="${s.proto}">[prototype]</a> &nbsp;<a href="${s.deck}">[deck]</a></li>`
+    ).join('\n    ');
+    caseStudyInstructions = `
+CASE STUDIES SECTION:
+Include this section labeled exactly: <h2>Case Studies — ${matchedPortfolio.displayName}</h2>
+Use these exact case studies (already built):
+${studies.map(s => `- ${s.name}: ${s.summary} | proto: ${s.proto} | deck: ${s.deck}`).join('\n')}
+
+HTML for case studies section:
+<h2>Case Studies — ${matchedPortfolio.displayName}</h2>
+<hr>
+<ul style="margin-bottom:0;">
+    ${studyLines}
+</ul>`;
+  } else {
+    caseStudyInstructions = `
+CASE STUDIES SECTION:
+Since there is no custom case study for ${company} yet, include a section labeled exactly: <h2>Relevant Portfolio Case Studies</h2>
+Based on the JD domain, select the 3 MOST RELEVANT case studies from this list and write them as tight one-line bullet descriptions:
+
+Available case studies:
+${PORTFOLIO.flatMap(p => p.studies.map(s => `- ${s.name} (${p.displayName}): ${s.summary} | proto: ${s.proto} | deck: ${s.deck}`)).join('\n')}
+
+Choose 3 that best match this JD's domain. Write each as:
+<li><strong>[Name]</strong> — [description]. &nbsp;<a href="[proto]">[prototype]</a> &nbsp;<a href="[deck]">[deck]</a></li>`;
+  }
+
+  const relocationNote = isUAE
+    ? `<div class="relocation">Relocating to Dubai, UAE &nbsp;·&nbsp; Q2 2026 &nbsp;·&nbsp; Visa Sponsorship Required</div>`
+    : '';
+
+  return `You are generating a tailored, single-page HTML resume for Ajay Avaghade for a Product Manager role at ${company}.
+
+CANDIDATE PROFILE (use ONLY this data — never fabricate):
+Name: Ajay Avaghade
+Location: Bangalore, India
+Phone: +91 9561558439
+Email: avaghadeajay009@gmail.com
+LinkedIn: https://linkedin.com/in/ajay-avaghade
+Portfolio: https://ajay-avaghade.github.io/Portfolio/
+
+EXPERIENCE:
+1) Product Manager — PhonePe · Consumer Offers & Growth Platform (May 2023 – Present)
+   METRIC FACTS (use these exactly, never alter):
+   - Redesigned offers stack across 350M+ MAU → 22% checkout conversion lift
+   - ML Propensity-to-Transact models replaced ₹1,000+ Cr/yr static targeting → 32% marketing burn reduction, sustained GMV
+   - Dynamic cart incentivisation engine for Pincode (quick commerce) → 35% AOV uplift, 60% cart abandonment reduction, 20% 30-day retention improvement
+
+2) Associate Product Manager — PhonePe · Third-Party Rewards & Merchant Growth (Apr 2022 – Apr 2023)
+   METRIC FACTS:
+   - Rebuilt ₹100 Cr/yr rewards portfolio into ML-driven marketplace → 500+ brand partners, 11% YoY revenue growth, 26% user engagement uplift
+   - Built zero-to-one self-serve PG integration platform + offer ops redesign → 5,000+ B2B merchants, 23% lower CAC, 5Mn+ new users/month, ops TAT 2 days → 30 minutes
+   - Behaviour-linked milestone incentive system (TPV + cardholder goals → rental waiver) A/B tested for POS merchants → 60% improvement in 90-day device activation vs flat discount control
+
+3) Product Manager — Founding Team (Intern) — Kotak Mahindra Bank · Kotak Cherry WealthTech (Apr 2021 – Jun 2021)
+   - Founding team for Kotak Cherry; led UX research, scoped MVP (asset allocation + goal tracking), co-owned GTM with Compliance and Legal → 100K+ downloads in launch window
+
+EDUCATION:
+- MBA — IIM Indore (2020–2022) · Exchange: NEOMA Business School, France (2021)
+- B.Tech Computer Science & Engineering — VNIT Nagpur (2016–2020)
+
+SKILLS BASE:
+Product: 0→1 Launches, Growth Strategy, Monetisation, Marketplace Design, ML Product Management, A/B Testing, P&L Management, API Platform Design, Self-Serve Tooling, Fintech Infrastructure, Offer & Incentive Platforms
+Data & Tools: SQL, Mixpanel, Amplitude, CleverTap, Metabase, Tableau, Figma, Jira, Vibe-coded Prototyping (HTML/CSS/JS)
+
+PROJECTS:
+- Antigravity Resume Agent — Gemini-powered multi-agent pipeline (6 parallel agents: scraping, synthesis, layout, ATS scoring, outreach) auto-generating >90 ATS-scored resumes from a JD URL
+- AI Mock PM Interviewer — Conversational AI for PM interview practice with structured scoring and real-time coaching; built on intent-classification and response-evaluation layer
+
+AWARDS:
+- ITC Interrobang — National Finalist, Top 15 teams, ITC's premier pan-India strategy competition
+- Asian Paints Canvas — 1st place, pan-India brand strategy & product innovation challenge
+- Education Minister Award — State-level academic excellence, Government of Maharashtra
+
+JOB DESCRIPTION FOR ${company.toUpperCase()}:
+${jd}
+
+─────────────────────────────────────────────────────────────
+INSTRUCTIONS — READ CAREFULLY:
+
+ROLE TITLE LINE: Derive a 5–7 word role title under the name (e.g. "Product Manager — Growth, Incentives & API Platforms") that maps to the JD's domain. Use italic style via class="role-title".
+
+SUMMARY (1 paragraph, ~55 words): Lead with the most relevant domain for this JD. End with: "B.Tech Computer Science (VNIT Nagpur) + MBA IIM Indore. Portfolio includes case studies on [relevant domain descriptors]."
+
+EXPERIENCE BULLETS — RULES:
+- Each bullet follows STAR: Situation (context/problem) → Action (what was built/changed) → **bold metric** mid-sentence (the result) + closing clause of ≥6 words adding context.
+- Bold only the metric number and its descriptor (e.g., <strong>22% checkout conversion lift</strong>). Never bold the whole sentence.
+- Reframe bullet context to match JD priorities — same metrics, different emphasis.
+- PM role: exactly 3 bullets. APM role: exactly 2–3 bullets (choose based on relevance). Kotak: exactly 1 bullet.
+- No "demonstrating X" or "validating X" trailing clauses — they add no value.
+- NEVER invent metrics not in the profile above.
+
+SKILLS SECTION: Tailor "Product & Domain" line keywords to match JD ATS terms. Keep "Data & Tools" unchanged.
+
+${isUAE ? 'RELOCATION: Include this exact div after .contact: ' + relocationNote : 'LOCATION: This is an India job. Do NOT include any relocation or visa note.'}
+
+SINGLE PAGE RULE: The resume MUST fit on one page when printed. Keep bullet descriptions tight. No bullet should orphan (end with a single word on a new line).
+
+${caseStudyInstructions}
+
+─────────────────────────────────────────────────────────────
+OUTPUT FORMAT:
+Output ONLY the HTML body content — no <!DOCTYPE>, no <html>, no <head>, no <style> tags.
+Start directly with: <div class="name">AJAY AVAGHADE</div>
+End with the last </p> or </ul> of the Awards section.
+Use only these CSS classes (they are pre-defined in the stylesheet):
+  .name, .role-title, .contact, .relocation, hr, h2, .job-row, .job-title, .job-date, .company, ul, li, .summary, .skills-row, .edu-row, .edu-name, .edu-date, .edu-sub, .awards-line, a, strong
+
+Use &amp; for & in HTML text. Do not use any inline styles except on education rows where style="margin-top:2px;" is standard.
+Output clean HTML only — no markdown, no code fences, no explanations before or after.`;
+}
+
+// ─────────────────────────────────────────────
+//  GEMINI CALL
+// ─────────────────────────────────────────────
+async function callGemini(apiKey, prompt) {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+  const body = {
+    contents: [{ parts: [{ text: prompt }] }],
+    generationConfig: {
+      temperature: 0.35,
+      maxOutputTokens: 4096
+    }
+  };
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error?.message || `HTTP ${res.status}`);
+  }
+  const data = await res.json();
+  return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+}
+
+// ─────────────────────────────────────────────
+//  ACCENT COLORS
+// ─────────────────────────────────────────────
+function pickAccentColors(company, location) {
+  // UAE / eyewa: teal
+  if (location === 'uae') return { color: '#007A6E', hr: '#00BFA5' };
+  // Try to match known companies to their brand colors
+  const normalized = (company || '').toLowerCase();
+  if (normalized.includes('nykaa')) return { color: '#C4005A', hr: '#FC2779' };
+  if (normalized.includes('xoxo') || normalized.includes('plum')) return { color: '#C2410C', hr: '#F97316' };
+  if (normalized.includes('zomato') || normalized.includes('swiggy')) return { color: '#E23744', hr: '#FF6B6B' };
+  if (normalized.includes('cred')) return { color: '#1a1a1a', hr: '#3d3d3d' };
+  if (normalized.includes('meesho')) return { color: '#9E25AC', hr: '#C548D3' };
+  if (normalized.includes('zepto') || normalized.includes('blinkit') || normalized.includes('zerodha')) return { color: '#2563EB', hr: '#3B82F6' };
+  if (normalized.includes('stripe') || normalized.includes('adyen')) return { color: '#635BFF', hr: '#7B73FF' };
+  if (normalized.includes('razorpay')) return { color: '#2D81FF', hr: '#3B91FF' };
+  if (normalized.includes('phonepe')) return { color: '#5F259F', hr: '#7C3AED' };
+  if (normalized.includes('paytm')) return { color: '#002970', hr: '#0052CC' };
+  if (normalized.includes('amazon')) return { color: '#FF9900', hr: '#FF9900' };
+  // default: blue
+  return { color: '#1a56db', hr: '#1a56db' };
+}
+
+// ─────────────────────────────────────────────
+//  BUILD FULL HTML DOCUMENT
+// ─────────────────────────────────────────────
+function buildResumeDocument(bodyHTML, company, location) {
+  const accent = pickAccentColors(company, location);
+  let css = getResumeCss(location);
+  css = css.replace(/ACCENT_COLOR/g, accent.color);
+  css = css.replace(/ACCENT_HR/g, accent.hr);
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Ajay Avaghade — Resume — ${company}</title>
+<style>${css}</style>
+</head>
+<body>
+${bodyHTML}
+</body>
+</html>`;
+}
+
+// ─────────────────────────────────────────────
+//  EXTRACT BODY HTML
+// ─────────────────────────────────────────────
+function extractBodyHTML(text) {
+  // Strip markdown code fences
+  text = text.replace(/^```html?\n?/i, '').replace(/\n?```$/i, '').trim();
+  // Strip wrapping html/head/body if present
+  const bodyMatch = text.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+  if (bodyMatch) return bodyMatch[1].trim();
+  // Strip just <html> wrapper
+  text = text.replace(/^<html[^>]*>/i, '').replace(/<\/html>$/i, '').trim();
+  // Strip <head>...</head>
+  text = text.replace(/<head[\s\S]*?<\/head>/i, '').trim();
+  // Strip standalone <body> and </body> tags
+  text = text.replace(/^<body[^>]*>/i, '').replace(/<\/body>$/i, '').trim();
+  return text;
+}
+
+// ─────────────────────────────────────────────
+//  MAIN GENERATE FUNCTION
+// ─────────────────────────────────────────────
+let lastGeneratedHTML = '';
+let lastGeneratedBody = '';
+
+async function generateResume() {
+  const apiKey = document.getElementById('apiKey').value.trim() || localStorage.getItem('gemini_api_key') || '';
+  const company = document.getElementById('companyName').value.trim();
+  const location = document.getElementById('location').value;
+  const jd = document.getElementById('jdText').value.trim();
+
+  // Validation
+  if (!apiKey) return showStatus('error', 'Please enter your Gemini API key. <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:#fca5a5;">Get one free →</a>');
+  if (!company) return showStatus('error', 'Please enter the company name.');
+  if (!jd) return showStatus('error', 'Please paste the job description.');
+
+  const btn = document.getElementById('generateBtn');
+  const btnText = document.getElementById('btnText');
+  const btnIcon = document.getElementById('btnIcon');
+
+  btn.disabled = true;
+  btnIcon.outerHTML = '<span class="spinner" id="btnIcon"></span>';
+  btnText.textContent = 'Generating…';
+  showStatus('info', `Calling Gemini for ${company} resume…`);
+
+  try {
+    const matched = findCaseStudies(company);
+    const prompt = buildPrompt(company, location, jd, matched);
+    const raw = await callGemini(apiKey, prompt);
+    const bodyHTML = extractBodyHTML(raw);
+    const fullHTML = buildResumeDocument(bodyHTML, company, location);
+    lastGeneratedHTML = fullHTML;
+    lastGeneratedBody = bodyHTML;
+    renderResume(fullHTML, company);
+    showStatus('success', `✓ Resume generated for ${company}${matched ? ' — with ' + matched.studies.length + ' custom case study' : ' — using relevant existing case studies'}.`);
+  } catch (err) {
+    showStatus('error', `Error: ${err.message}`);
+  } finally {
+    btn.disabled = false;
+    document.getElementById('btnIcon').outerHTML = '<span id="btnIcon">✦</span>';
+    btnText.textContent = 'Generate Resume';
+  }
+}
+
+function renderResume(fullHTML, company) {
+  const frame = document.getElementById('resumeFrame');
+  const placeholder = document.getElementById('placeholder');
+  const previewTitle = document.getElementById('previewTitle');
+
+  frame.style.display = 'block';
+  placeholder.style.display = 'none';
+  previewTitle.textContent = `Resume — ${company}`;
+
+  // Set srcdoc
+  frame.srcdoc = fullHTML;
+
+  // Auto-height after load
+  frame.onload = () => {
+    try {
+      const doc = frame.contentDocument || frame.contentWindow.document;
+      frame.style.height = (doc.body.scrollHeight + 40) + 'px';
+    } catch(e) {
+      frame.style.height = '1200px';
+    }
+  };
+
+  document.getElementById('printBtn').disabled = false;
+  document.getElementById('copyBtn').disabled = false;
+}
+
+function printResume() {
+  if (!lastGeneratedHTML) return;
+  const w = window.open('', '_blank');
+  w.document.write(lastGeneratedHTML);
+  w.document.close();
+  w.focus();
+  w.print();
+}
+
+async function copyHTML() {
+  if (!lastGeneratedHTML) return;
+  try {
+    await navigator.clipboard.writeText(lastGeneratedHTML);
+    showToast('✓ HTML copied to clipboard');
+  } catch (e) {
+    showToast('Could not copy — try manually selecting');
+  }
+}
+
+function showStatus(type, msg) {
+  const box = document.getElementById('statusBox');
+  box.className = 'status-box ' + type;
+  box.innerHTML = msg;
+}
+
+function showToast(msg) {
+  const toast = document.getElementById('copyToast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2500);
+}
+
+// Allow Enter in API key to save
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('apiKey').addEventListener('keydown', e => {
+    if (e.key === 'Enter') saveApiKey();
+  });
+});
+</script>
+</body>
+</html>
