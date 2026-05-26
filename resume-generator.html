@@ -595,7 +595,7 @@ function checkMatch() {
   if (currentMatch) {
     badge.innerHTML = `<span class="matched-badge has-match">✓ ${currentMatch.studies.length} case study${currentMatch.studies.length > 1 ? ' ('+currentMatch.studies.length+')' : ''} found for ${currentMatch.displayName}</span>`;
   } else {
-    badge.innerHTML = `<span class="matched-badge no-match">⚡ No custom case study — will use most relevant existing ones</span>`;
+    badge.innerHTML = `<span class="matched-badge no-match">⚡ No custom case study — case study section will be omitted</span>`;
   }
 }
 
@@ -650,14 +650,7 @@ HTML for case studies section:
   } else {
     caseStudyInstructions = `
 CASE STUDIES SECTION:
-Since there is no custom case study for ${company} yet, include a section labeled exactly: <h2>Relevant Portfolio Case Studies</h2>
-Based on the JD domain, select the 3 MOST RELEVANT case studies from this list and write them as tight one-line bullet descriptions:
-
-Available case studies:
-${PORTFOLIO.flatMap(p => p.studies.map(s => `- ${s.name} (${p.displayName}): ${s.summary} | proto: ${s.proto} | deck: ${s.deck}`)).join('\n')}
-
-Choose 3 that best match this JD's domain. Write each as:
-<li><strong>[Name]</strong> — [description]. &nbsp;<a href="[proto]">[prototype]</a> &nbsp;<a href="[deck]">[deck]</a></li>`;
+There is no custom case study built for ${company} yet. Do NOT include any case study or portfolio section in the resume. Skip it entirely. The resume ends after Awards & Recognition.`;
   }
 
   const relocationNote = isUAE
