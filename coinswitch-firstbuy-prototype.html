@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CoinSwitch FirstBuy — Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --c-dark: #0A0E27;
+  --c-hero: #111432;
+  --c-bright: #F7B731;
+  --c-amber: #F59E0B;
+  --c-green: #22C55E;
+  --c-red: #EF4444;
+  --c-blue: #3B82F6;
+  --c-purple: #7C3AED;
+  --ink: #0f172a;
+  --muted: #8B9CB6;
+  --lgray: #F0F4FF;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family:'Sora',sans-serif;
+  background: linear-gradient(135deg, #070A1E 0%, #0A0E27 50%, #0D1035 100%);
+  min-height:100vh; padding:40px 20px 60px;
+  display:flex; flex-direction:column; align-items:center;
+}
+.header-strip { width:100%; max-width:1640px; text-align:center; margin-bottom:36px; }
+.header-strip h1 { font-size:15px; font-weight:700; color:#F7B731; letter-spacing:.08em; text-transform:uppercase; }
+.header-strip p { font-size:12px; color:rgba(255,255,255,0.45); margin-top:4px; }
+.phones-row { display:flex; gap:32px; align-items:flex-start; justify-content:center; flex-wrap:wrap; }
+.phone-wrap { display:flex; flex-direction:column; align-items:center; gap:12px; }
+.screen-label { font-size:11px; font-weight:600; letter-spacing:.1em; color:rgba(247,183,49,0.55); text-transform:uppercase; }
+.phone { width:375px; height:812px; background:#111432; border-radius:46px;
+  box-shadow:0 40px 100px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.07);
+  overflow:hidden; position:relative; display:flex; flex-direction:column; }
+.notch { width:118px; height:28px; background:var(--c-dark); border-radius:0 0 16px 16px;
+  position:absolute; top:0; left:50%; transform:translateX(-50%); z-index:10;
+  display:flex; align-items:center; justify-content:center; gap:6px; }
+.nc { width:10px; height:10px; background:#1a2035; border-radius:50%; }
+.notch-sensor { width:5px; height:5px; background:#0a1020; border-radius:50%; }
+.statusbar { height:44px; background:var(--c-dark); display:flex; align-items:flex-end;
+  justify-content:space-between; padding:0 22px 6px; flex-shrink:0; }
+.sb-time { font-family:'DM Mono',monospace; font-size:12px; color:rgba(255,255,255,0.8); font-weight:500; }
+.sb-icons { display:flex; gap:4px; align-items:center; }
+.sb-icons span { font-size:11px; color:rgba(255,255,255,0.7); }
+.screen { overflow-y:auto; flex:1; scrollbar-width:none; }
+.screen::-webkit-scrollbar { display:none; }
+
+/* ── SCREEN 1: ACTIVATION HOME ── */
+.s1-topbar { background:var(--c-dark); padding:14px 18px 10px; }
+.s1-greeting { font-size:12px; color:rgba(255,255,255,0.5); }
+.s1-name { font-size:18px; font-weight:700; color:#fff; margin-bottom:14px; }
+.portfolio-zero-card {
+  margin:0 18px 12px;
+  background:linear-gradient(135deg, rgba(247,183,49,0.14), rgba(247,183,49,0.05));
+  border:1.5px solid rgba(247,183,49,0.4); border-radius:16px; padding:16px;
+}
+.pzc-label { font-size:9.5px; font-weight:700; color:var(--c-bright); letter-spacing:.08em; text-transform:uppercase; margin-bottom:4px; }
+.pzc-value { font-family:'DM Mono',monospace; font-size:34px; font-weight:700; color:#fff; margin-bottom:2px; }
+.pzc-sub { font-size:11px; color:rgba(255,255,255,0.45); margin-bottom:12px; }
+.pzc-progress-label { font-size:10px; color:rgba(255,255,255,0.4); margin-bottom:4px; }
+.pzc-track { height:5px; background:rgba(255,255,255,0.08); border-radius:99px; overflow:hidden; margin-bottom:4px; }
+.pzc-fill { height:100%; border-radius:99px; background:var(--c-bright); width:33%; }
+.pzc-steps { display:flex; gap:4px; font-size:9px; color:rgba(255,255,255,0.35); margin-bottom:10px; }
+.pzc-steps span { color:var(--c-green); font-weight:700; }
+.firstbuy-cta { display:block; background:var(--c-bright); color:var(--c-dark); font-size:13px; font-weight:800; padding:12px; border-radius:12px; text-align:center; cursor:pointer; }
+.section-title { font-size:10.5px; font-weight:700; color:rgba(255,255,255,0.45); letter-spacing:.07em; text-transform:uppercase; padding:0 18px; margin:14px 0 8px; }
+.social-proof { margin:0 18px 8px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:12px 14px; display:flex; align-items:center; gap:10px; }
+.sp-icon { font-size:18px; }
+.sp-text { flex:1; }
+.sp-title { font-size:11.5px; font-weight:600; color:#fff; margin-bottom:1px; }
+.sp-sub { font-size:10px; color:rgba(255,255,255,0.45); }
+.sp-arrow { font-size:13px; color:rgba(255,255,255,0.25); }
+.market-ticker { padding:0 18px; margin-bottom:14px; }
+.ticker-row { display:flex; align-items:center; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.05); }
+.ticker-coin { display:flex; align-items:center; gap:8px; }
+.coin-dot { width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; }
+.ticker-name { font-size:11.5px; font-weight:600; color:#fff; }
+.ticker-sub { font-size:9.5px; color:rgba(255,255,255,0.4); }
+.ticker-price { text-align:right; }
+.ticker-val { font-family:'DM Mono',monospace; font-size:12px; color:#fff; font-weight:500; }
+.ticker-chg { font-family:'DM Mono',monospace; font-size:10px; font-weight:700; }
+
+/* ── SCREEN 2: QUIZ ── */
+.s2-header { background:var(--c-dark); padding:14px 18px 12px; }
+.s2-back { font-size:11px; color:var(--c-bright); margin-bottom:6px; }
+.s2-title { font-size:17px; font-weight:700; color:#fff; }
+.s2-sub { font-size:11px; color:rgba(255,255,255,0.45); margin-top:2px; }
+.quiz-progress { padding:12px 18px 0; }
+.qp-label { display:flex; justify-content:space-between; font-size:10px; color:rgba(255,255,255,0.4); margin-bottom:5px; }
+.qp-track { height:4px; background:rgba(255,255,255,0.08); border-radius:99px; overflow:hidden; margin-bottom:16px; }
+.qp-fill { height:100%; background:var(--c-bright); border-radius:99px; }
+.quiz-card { margin:0 18px 10px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:14px; padding:14px 16px; }
+.qc-step { font-size:9.5px; font-weight:700; color:var(--c-bright); letter-spacing:.07em; text-transform:uppercase; margin-bottom:4px; }
+.qc-q { font-size:14px; font-weight:700; color:#fff; margin-bottom:12px; line-height:1.3; }
+.chip-grid { display:flex; flex-wrap:wrap; gap:7px; }
+.chip { padding:7px 13px; border-radius:20px; border:1px solid rgba(255,255,255,0.15); font-size:11px; color:rgba(255,255,255,0.7); cursor:pointer; }
+.chip.active { background:rgba(247,183,49,0.18); border-color:var(--c-bright); color:var(--c-bright); font-weight:600; }
+.ai-reading { margin:0 18px 10px; background:rgba(247,183,49,0.07); border:1px solid rgba(247,183,49,0.25); border-radius:12px; padding:11px 13px; display:flex; align-items:center; gap:9px; }
+.ai-dot { width:7px; height:7px; background:var(--c-bright); border-radius:50%; animation:aip 1.2s infinite; flex-shrink:0; }
+@keyframes aip { 0%,100%{transform:scale(1);opacity:1;} 50%{transform:scale(1.4);opacity:0.4;} }
+.ai-msg { font-size:11px; color:rgba(255,255,255,0.65); }
+.quiz-cta { margin:0 18px; display:block; background:var(--c-bright); color:var(--c-dark); font-size:13px; font-weight:800; padding:14px; border-radius:14px; text-align:center; }
+.progress-dots { display:flex; gap:5px; justify-content:center; margin-top:12px; }
+.pd { width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,0.12); }
+.pd.active { background:var(--c-bright); width:18px; border-radius:3px; }
+
+/* ── SCREEN 3: RECOMMENDATION ── */
+.s3-hero { background:var(--c-dark); padding:14px 18px 12px; }
+.rec-badge { display:inline-flex; align-items:center; gap:5px; background:rgba(247,183,49,0.15); border:1px solid rgba(247,183,49,0.35); border-radius:20px; padding:4px 11px; font-size:9.5px; font-weight:700; color:var(--c-bright); margin-bottom:8px; }
+.rec-title { font-size:18px; font-weight:800; color:#fff; margin-bottom:2px; }
+.rec-sub { font-size:11px; color:rgba(255,255,255,0.45); }
+.rec-summary { margin:12px 18px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:13px 15px; }
+.rs-label { font-size:9.5px; font-weight:700; color:rgba(255,255,255,0.45); letter-spacing:.07em; text-transform:uppercase; margin-bottom:6px; }
+.rs-row { display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px solid rgba(255,255,255,0.05); }
+.rs-key { font-size:11px; color:rgba(255,255,255,0.5); }
+.rs-val { font-size:12px; font-weight:600; color:#fff; }
+.portfolio-coins { padding:0 18px; margin-bottom:12px; }
+.coin-alloc-row { display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.05); }
+.ca-coin { display:flex; align-items:center; gap:9px; flex:1; }
+.ca-dot { width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; flex-shrink:0; }
+.ca-name { font-size:12px; font-weight:600; color:#fff; }
+.ca-why { font-size:9.5px; color:rgba(255,255,255,0.4); margin-top:1px; }
+.ca-bar-wrap { width:80px; }
+.ca-track { height:5px; background:rgba(255,255,255,0.08); border-radius:99px; overflow:hidden; }
+.ca-fill { height:100%; border-radius:99px; }
+.ca-pct { font-family:'DM Mono',monospace; font-size:11px; font-weight:700; color:var(--c-bright); width:36px; text-align:right; }
+.invest-row { margin:0 18px 10px; display:flex; align-items:center; gap:10px; }
+.invest-amount { flex:1; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12); border-radius:10px; padding:10px 12px; }
+.ia-label { font-size:9.5px; color:rgba(255,255,255,0.4); margin-bottom:2px; }
+.ia-val { font-family:'DM Mono',monospace; font-size:18px; font-weight:700; color:#fff; }
+.invest-btn { background:var(--c-bright); color:var(--c-dark); font-size:12px; font-weight:800; padding:10px 18px; border-radius:10px; white-space:nowrap; cursor:pointer; }
+.zero-fee-tag { margin:0 18px 14px; display:flex; align-items:center; gap:6px; background:rgba(34,197,94,0.1); border:1px solid rgba(34,197,94,0.25); border-radius:8px; padding:8px 12px; font-size:11px; color:var(--c-green); }
+
+/* ── SCREEN 4: SUCCESS ── */
+.s4-bg { background:linear-gradient(180deg,#0A0E27 0%,#111432 100%); min-height:812px; }
+.s4-confetti-wrap { position:relative; height:170px; overflow:hidden; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+#conf4fb { position:absolute; inset:0; pointer-events:none; }
+.s4-icon { font-size:46px; z-index:1; }
+.s4-headline { font-size:20px; font-weight:800; color:#fff; text-align:center; padding:0 20px; z-index:1; margin-top:4px; }
+.s4-sub { font-size:11.5px; color:rgba(255,255,255,0.5); text-align:center; padding:0 24px; z-index:1; margin-top:3px; }
+.portfolio-card { margin:14px 18px; background:rgba(247,183,49,0.1); border:1.5px solid rgba(247,183,49,0.35); border-radius:16px; padding:14px; }
+.pc-label { font-size:9.5px; font-weight:700; color:var(--c-bright); letter-spacing:.07em; text-transform:uppercase; margin-bottom:4px; }
+.pc-value { font-family:'DM Mono',monospace; font-size:30px; font-weight:800; color:#fff; margin-bottom:6px; }
+.pc-breakdown { display:flex; gap:10px; }
+.pc-coin { flex:1; text-align:center; background:rgba(255,255,255,0.05); border-radius:8px; padding:8px; }
+.pc-coin-name { font-size:10px; color:rgba(255,255,255,0.45); margin-bottom:2px; }
+.pc-coin-val { font-family:'DM Mono',monospace; font-size:13px; font-weight:700; color:var(--c-bright); }
+.reward-card { margin:0 18px 10px; background:rgba(34,197,94,0.1); border:1px solid rgba(34,197,94,0.3); border-radius:14px; padding:13px; }
+.rc-label { font-size:9.5px; font-weight:700; color:var(--c-green); letter-spacing:.07em; text-transform:uppercase; margin-bottom:4px; }
+.rc-text { font-size:12px; color:#fff; line-height:1.5; }
+.rc-val { font-family:'DM Mono',monospace; font-size:20px; font-weight:800; color:var(--c-green); }
+.s4-stats { margin:0 18px 10px; display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.s4-stat { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:11px; text-align:center; }
+.s4-stat-val { font-family:'DM Mono',monospace; font-size:18px; font-weight:700; color:var(--c-bright); }
+.s4-stat-lbl { font-size:9.5px; color:rgba(255,255,255,0.4); margin-top:2px; }
+.s4-cta { margin:0 18px 10px; display:block; background:var(--c-bright); color:var(--c-dark); font-size:13px; font-weight:800; padding:14px; border-radius:14px; text-align:center; }
+.s4-secondary { margin:0 18px; display:block; border:1px solid rgba(255,255,255,0.15); color:rgba(255,255,255,0.6); font-size:12px; font-weight:600; padding:12px; border-radius:14px; text-align:center; }
+</style>
+</head>
+<body>
+
+<div class="header-strip">
+  <h1>CoinSwitch — FirstBuy &nbsp;·&nbsp; Interactive Prototype</h1>
+  <p>Activation Funnel: KYC-Complete → First Investment · Guided by AI</p>
+</div>
+
+<div class="phones-row">
+
+  <!-- PHONE 1: Activation Home -->
+  <div class="phone-wrap">
+    <div class="screen-label">01 — Activation Nudge</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="notch-sensor"></div></div>
+      <div class="statusbar">
+        <span class="sb-time">9:41</span>
+        <div class="sb-icons"><span>●●●</span><span>WiFi</span><span>🔋</span></div>
+      </div>
+      <div class="screen">
+        <div class="s1-topbar">
+          <div class="s1-greeting">Welcome back,</div>
+          <div class="s1-name">Rahul Mehta 👋</div>
+        </div>
+        <div class="portfolio-zero-card" style="margin-top:10px;">
+          <div class="pzc-label">Your Portfolio</div>
+          <div class="pzc-value">₹ 0</div>
+          <div class="pzc-sub">You're KYC verified — ready to invest in 60 seconds</div>
+          <div class="pzc-progress-label">Account setup progress</div>
+          <div class="pzc-track"><div class="pzc-fill"></div></div>
+          <div class="pzc-steps"><span>✓ Email</span> &nbsp;·&nbsp; <span>✓ KYC</span> &nbsp;·&nbsp; <span style="color:rgba(255,255,255,0.35);">○ First Investment</span></div>
+          <div class="firstbuy-cta">Start My Investment Journey →</div>
+        </div>
+        <div class="section-title">Users like you started with</div>
+        <div class="social-proof">
+          <div class="sp-icon">₿</div>
+          <div class="sp-text">
+            <div class="sp-title">"Invested ₹500 in Bitcoin + ETH"</div>
+            <div class="sp-sub">Priya, 28 · Mumbai · Portfolio now ₹14,200</div>
+          </div>
+          <div class="sp-arrow">›</div>
+        </div>
+        <div class="social-proof">
+          <div class="sp-icon">📈</div>
+          <div class="sp-text">
+            <div class="sp-title">"Started with ₹1,000 starter pack"</div>
+            <div class="sp-sub">Karan, 31 · Bangalore · +67% in 18 months</div>
+          </div>
+          <div class="sp-arrow">›</div>
+        </div>
+        <div class="section-title">Live Market</div>
+        <div class="market-ticker">
+          <div class="ticker-row">
+            <div class="ticker-coin"><div class="coin-dot" style="background:rgba(247,147,26,0.2);color:#F7931A;">₿</div><div><div class="ticker-name">Bitcoin</div><div class="ticker-sub">BTC</div></div></div>
+            <div class="ticker-price"><div class="ticker-val">₹57,84,200</div><div class="ticker-chg" style="color:#22C55E;">+2.4%</div></div>
+          </div>
+          <div class="ticker-row">
+            <div class="ticker-coin"><div class="coin-dot" style="background:rgba(98,126,234,0.2);color:#627EEA;">Ξ</div><div><div class="ticker-name">Ethereum</div><div class="ticker-sub">ETH</div></div></div>
+            <div class="ticker-price"><div class="ticker-val">₹3,12,500</div><div class="ticker-chg" style="color:#22C55E;">+1.8%</div></div>
+          </div>
+          <div class="ticker-row">
+            <div class="ticker-coin"><div class="coin-dot" style="background:rgba(34,197,94,0.2);color:#22C55E;">◎</div><div><div class="ticker-name">Solana</div><div class="ticker-sub">SOL</div></div></div>
+            <div class="ticker-price"><div class="ticker-val">₹12,840</div><div class="ticker-chg" style="color:#EF4444;">−0.9%</div></div>
+          </div>
+        </div>
+        <div style="height:16px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHONE 2: Guided Quiz -->
+  <div class="phone-wrap">
+    <div class="screen-label">02 — Guided Quiz</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="notch-sensor"></div></div>
+      <div class="statusbar">
+        <span class="sb-time">9:41</span>
+        <div class="sb-icons"><span>●●●</span><span>WiFi</span><span>🔋</span></div>
+      </div>
+      <div class="screen">
+        <div class="s2-header">
+          <div class="s2-back">← Back</div>
+          <div class="s2-title">Build Your Starter Pack</div>
+          <div class="s2-sub">3 quick questions — we'll do the rest</div>
+        </div>
+        <div class="quiz-progress">
+          <div class="qp-label"><span>Step 3 of 3</span><span>Almost done</span></div>
+          <div class="qp-track"><div class="qp-fill" style="width:100%;"></div></div>
+        </div>
+        <div class="quiz-card">
+          <div class="qc-step">Question 1 of 3</div>
+          <div class="qc-q">What's your main goal for investing in crypto?</div>
+          <div class="chip-grid">
+            <div class="chip active">📈 Long-term growth</div>
+            <div class="chip">⚡ Short-term gains</div>
+            <div class="chip">🛡️ Hedge inflation</div>
+            <div class="chip">🧪 Just exploring</div>
+          </div>
+        </div>
+        <div class="quiz-card">
+          <div class="qc-step">Question 2 of 3</div>
+          <div class="qc-q">How would you feel if your portfolio dropped 30% in a month?</div>
+          <div class="chip-grid">
+            <div class="chip">😰 Very worried — sell</div>
+            <div class="chip active">😐 Hold and monitor</div>
+            <div class="chip">💪 Buy more on dip</div>
+          </div>
+        </div>
+        <div class="quiz-card">
+          <div class="qc-step">Question 3 of 3</div>
+          <div class="qc-q">How much would you like to start with?</div>
+          <div class="chip-grid">
+            <div class="chip">₹ 500</div>
+            <div class="chip active">₹ 1,000</div>
+            <div class="chip">₹ 5,000</div>
+            <div class="chip">₹ 10,000+</div>
+          </div>
+        </div>
+        <div class="ai-reading">
+          <div class="ai-dot"></div>
+          <div class="ai-msg">AI is reading your profile: Long-term · Medium risk · ₹1,000 — building your personalised starter pack...</div>
+        </div>
+        <div class="quiz-cta">Show My Starter Pack →</div>
+        <div class="progress-dots" style="margin-top:12px; margin-bottom:16px;">
+          <div class="pd active"></div><div class="pd active"></div><div class="pd active"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHONE 3: Starter Portfolio Recommendation -->
+  <div class="phone-wrap">
+    <div class="screen-label">03 — Starter Pack</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="notch-sensor"></div></div>
+      <div class="statusbar">
+        <span class="sb-time">9:42</span>
+        <div class="sb-icons"><span>●●●</span><span>WiFi</span><span>🔋</span></div>
+      </div>
+      <div class="screen">
+        <div class="s3-hero">
+          <div class="rec-badge">⭐ Personalised for you</div>
+          <div class="rec-title">Your Starter Pack</div>
+          <div class="rec-sub">Built for: Long-term growth · Medium risk · ₹1,000</div>
+        </div>
+        <div class="rec-summary">
+          <div class="rs-label">Allocation summary</div>
+          <div class="rs-row"><div class="rs-key">Total investment</div><div class="rs-val">₹ 1,000</div></div>
+          <div class="rs-row"><div class="rs-key">Number of assets</div><div class="rs-val">3 coins</div></div>
+          <div class="rs-row" style="border:none;"><div class="rs-key">Risk profile matched</div><div class="rs-val" style="color:#22C55E;">Medium ✓</div></div>
+        </div>
+        <div class="section-title" style="margin-top:0;">Coin allocation</div>
+        <div class="portfolio-coins">
+          <div class="coin-alloc-row">
+            <div class="ca-coin">
+              <div class="ca-dot" style="background:rgba(247,147,26,0.2);color:#F7931A;">₿</div>
+              <div><div class="ca-name">Bitcoin</div><div class="ca-why">Store of value — most liquid</div></div>
+            </div>
+            <div class="ca-bar-wrap"><div class="ca-track"><div class="ca-fill" style="width:60%;background:#F7931A;"></div></div></div>
+            <div class="ca-pct">60%</div>
+          </div>
+          <div class="coin-alloc-row">
+            <div class="ca-coin">
+              <div class="ca-dot" style="background:rgba(98,126,234,0.2);color:#627EEA;">Ξ</div>
+              <div><div class="ca-name">Ethereum</div><div class="ca-why">Smart contract growth</div></div>
+            </div>
+            <div class="ca-bar-wrap"><div class="ca-track"><div class="ca-fill" style="width:30%;background:#627EEA;"></div></div></div>
+            <div class="ca-pct">30%</div>
+          </div>
+          <div class="coin-alloc-row">
+            <div class="ca-coin">
+              <div class="ca-dot" style="background:rgba(34,197,94,0.2);color:#22C55E;">◎</div>
+              <div><div class="ca-name">Solana</div><div class="ca-why">High-growth alternative</div></div>
+            </div>
+            <div class="ca-bar-wrap"><div class="ca-track"><div class="ca-fill" style="width:10%;background:#22C55E;"></div></div></div>
+            <div class="ca-pct">10%</div>
+          </div>
+        </div>
+        <div class="invest-row">
+          <div class="invest-amount"><div class="ia-label">Invest now</div><div class="ia-val">₹ 1,000</div></div>
+          <div class="invest-btn">Confirm →</div>
+        </div>
+        <div class="zero-fee-tag">🎁 &nbsp;<strong>Zero trading fee</strong>&nbsp; on your first investment — saved ₹2.50</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHONE 4: Success -->
+  <div class="phone-wrap">
+    <div class="screen-label">04 — First Investment Made</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="notch-sensor"></div></div>
+      <div class="statusbar" style="background:#0A0E27;">
+        <span class="sb-time">9:43</span>
+        <div class="sb-icons"><span>●●●</span><span>WiFi</span><span>🔋</span></div>
+      </div>
+      <div class="screen">
+        <div class="s4-bg">
+          <div class="s4-confetti-wrap">
+            <div id="conf4fb"></div>
+            <div class="s4-icon">🚀</div>
+            <div class="s4-headline">You're an investor now!</div>
+            <div class="s4-sub">First investment complete · ₹ 1,000 deployed</div>
+          </div>
+          <div class="portfolio-card">
+            <div class="pc-label">Portfolio · Active</div>
+            <div class="pc-value">₹ 1,000</div>
+            <div class="pc-breakdown">
+              <div class="pc-coin"><div class="pc-coin-name">BTC</div><div class="pc-coin-val">₹ 600</div></div>
+              <div class="pc-coin"><div class="pc-coin-name">ETH</div><div class="pc-coin-val">₹ 300</div></div>
+              <div class="pc-coin"><div class="pc-coin-name">SOL</div><div class="pc-coin-val">₹ 100</div></div>
+            </div>
+          </div>
+          <div class="reward-card">
+            <div class="rc-label">🎁 FirstBuy Reward Unlocked</div>
+            <div class="rc-text">Zero trading fee saved today: <span class="rc-val">₹ 2.50</span><br><span style="font-size:10.5px;color:rgba(255,255,255,0.5);">Your next 2 trades are also fee-free this week</span></div>
+          </div>
+          <div class="s4-stats">
+            <div class="s4-stat"><div class="s4-stat-val">1.2M+</div><div class="s4-stat-lbl">Investors joined this month</div></div>
+            <div class="s4-stat"><div class="s4-stat-val">0.7%</div><div class="s4-stat-lbl">Avg daily gain this week</div></div>
+            <div class="s4-stat"><div class="s4-stat-val">₹2.4L</div><div class="s4-stat-lbl">Projected 5-yr value at ₹1K/mo</div></div>
+            <div class="s4-stat"><div class="s4-stat-val">#Investor</div><div class="s4-stat-lbl">Badge unlocked 🏅</div></div>
+          </div>
+          <div class="s4-cta">Set Up Monthly SIP →</div>
+          <div class="s4-secondary">Invite a friend · Earn ₹100</div>
+          <div style="height:20px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const c = document.getElementById('conf4fb');
+const cols = ['#F7B731','#22C55E','#3B82F6','#F97316','#A78BFA','#F472B6','#34D399'];
+for(let i=0;i<36;i++){
+  const p=document.createElement('div');
+  const sz=4+Math.random()*7;
+  p.style.cssText=`position:absolute;left:${Math.random()*100}%;top:${Math.random()*110-10}%;width:${sz}px;height:${sz}px;background:${cols[i%cols.length]};border-radius:${Math.random()>.5?'50%':'2px'};animation:confD ${1.4+Math.random()*1.8}s ease-in ${Math.random()*2.4}s forwards;`;
+  c.appendChild(p);
+}
+const st=document.createElement('style');
+st.textContent='@keyframes confD{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(180px) rotate(720deg);opacity:0}}';
+document.head.appendChild(st);
+</script>
+</body>
+</html>

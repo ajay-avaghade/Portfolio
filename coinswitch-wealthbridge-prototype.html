@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CoinSwitch WealthBridge — Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --c-dark: #0A0E27;
+  --c-hero: #111432;
+  --c-bright: #00D4AA;
+  --c-teal: #0EA5E9;
+  --c-gold: #F7B731;
+  --c-green: #22C55E;
+  --c-purple: #7C3AED;
+  --c-red: #EF4444;
+  --muted: #8B9CB6;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family:'Sora',sans-serif;
+  background: linear-gradient(135deg, #070A1E 0%, #0A0E27 60%, #060F1A 100%);
+  min-height:100vh; padding:40px 20px 60px;
+  display:flex; flex-direction:column; align-items:center;
+}
+.header-strip { width:100%; max-width:1640px; text-align:center; margin-bottom:36px; }
+.header-strip h1 { font-size:15px; font-weight:700; color:#00D4AA; letter-spacing:.08em; text-transform:uppercase; }
+.header-strip p { font-size:12px; color:rgba(255,255,255,0.45); margin-top:4px; }
+.phones-row { display:flex; gap:32px; align-items:flex-start; justify-content:center; flex-wrap:wrap; }
+.phone-wrap { display:flex; flex-direction:column; align-items:center; gap:12px; }
+.screen-label { font-size:11px; font-weight:600; letter-spacing:.1em; color:rgba(0,212,170,0.55); text-transform:uppercase; }
+.phone { width:375px; height:812px; background:#111432; border-radius:46px;
+  box-shadow:0 40px 100px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.07);
+  overflow:hidden; position:relative; display:flex; flex-direction:column; }
+.notch { width:118px; height:28px; background:var(--c-dark); border-radius:0 0 16px 16px;
+  position:absolute; top:0; left:50%; transform:translateX(-50%); z-index:10;
+  display:flex; align-items:center; justify-content:center; gap:6px; }
+.nc { width:10px; height:10px; background:#1a2035; border-radius:50%; }
+.notch-sensor { width:5px; height:5px; background:#0a1020; border-radius:50%; }
+.statusbar { height:44px; background:var(--c-dark); display:flex; align-items:flex-end;
+  justify-content:space-between; padding:0 22px 6px; flex-shrink:0; }
+.sb-time { font-family:'DM Mono',monospace; font-size:12px; color:rgba(255,255,255,0.8); font-weight:500; }
+.sb-icons { display:flex; gap:4px; align-items:center; }
+.sb-icons span { font-size:11px; color:rgba(255,255,255,0.7); }
+.screen { overflow-y:auto; flex:1; scrollbar-width:none; }
+.screen::-webkit-scrollbar { display:none; }
+
+/* ── S1: CRYPTO HOME WITH WEALTHBRIDGE SIGNAL ── */
+.s1-top { background:var(--c-dark); padding:14px 18px 12px; }
+.s1-greeting { font-size:12px; color:rgba(255,255,255,0.5); }
+.s1-name { font-size:18px; font-weight:700; color:#fff; margin-bottom:12px; }
+.portfolio-card { background:linear-gradient(135deg, rgba(0,212,170,0.12), rgba(0,212,170,0.04)); border:1.5px solid rgba(0,212,170,0.35); border-radius:16px; padding:15px; margin-bottom:12px; }
+.pc-eyebrow { font-size:9.5px; font-weight:700; color:var(--c-bright); letter-spacing:.07em; text-transform:uppercase; margin-bottom:3px; }
+.pc-val { font-family:'DM Mono',monospace; font-size:30px; font-weight:700; color:#fff; margin-bottom:2px; }
+.pc-sub { font-size:10.5px; color:rgba(255,255,255,0.4); margin-bottom:10px; }
+.pc-mini-row { display:flex; gap:10px; }
+.pc-mini { flex:1; background:rgba(255,255,255,0.05); border-radius:8px; padding:7px; }
+.pc-mini-lbl { font-size:9px; color:rgba(255,255,255,0.4); margin-bottom:1px; }
+.pc-mini-val { font-family:'DM Mono',monospace; font-size:13px; font-weight:700; }
+.bridge-signal-card {
+  margin:0 18px 12px;
+  background:linear-gradient(135deg, rgba(0,212,170,0.14), rgba(0,212,170,0.06));
+  border:1.5px solid rgba(0,212,170,0.4);
+  border-radius:16px; padding:14px;
+  position:relative; overflow:hidden;
+}
+.bsc-pill { display:inline-flex; align-items:center; gap:5px; background:rgba(0,212,170,0.2); border-radius:20px; padding:3px 10px; font-size:9px; font-weight:700; color:var(--c-bright); letter-spacing:.07em; text-transform:uppercase; margin-bottom:8px; }
+.bsc-animate { width:6px; height:6px; background:var(--c-bright); border-radius:50%; animation:blink 1.5s infinite; }
+@keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+.bsc-title { font-size:15px; font-weight:700; color:#fff; margin-bottom:4px; }
+.bsc-sub { font-size:11px; color:rgba(255,255,255,0.55); line-height:1.5; margin-bottom:10px; }
+.bsc-score-row { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+.bsc-score-label { font-size:10px; color:rgba(255,255,255,0.45); }
+.bsc-score-track { flex:1; height:5px; background:rgba(255,255,255,0.1); border-radius:99px; overflow:hidden; }
+.bsc-score-fill { height:100%; border-radius:99px; background:var(--c-bright); }
+.bsc-score-num { font-family:'DM Mono',monospace; font-size:14px; font-weight:700; color:var(--c-bright); }
+.bsc-cta { display:block; background:var(--c-bright); color:var(--c-dark); font-size:12px; font-weight:800; padding:10px; border-radius:10px; text-align:center; }
+.section-title { font-size:10.5px; font-weight:700; color:rgba(255,255,255,0.45); letter-spacing:.07em; text-transform:uppercase; padding:0 18px; margin:12px 0 8px; }
+.coin-holdings { padding:0 18px; }
+.ch-row { display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid rgba(255,255,255,0.05); }
+.ch-dot { width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; flex-shrink:0; }
+.ch-info { flex:1; }
+.ch-name { font-size:12px; font-weight:600; color:#fff; }
+.ch-sub { font-size:9.5px; color:rgba(255,255,255,0.4); }
+.ch-val { text-align:right; }
+.ch-amount { font-family:'DM Mono',monospace; font-size:12px; color:#fff; }
+.ch-chg { font-family:'DM Mono',monospace; font-size:10px; font-weight:700; }
+
+/* ── S2: WEALTHBRIDGE MATCH ── */
+.s2-header { background:var(--c-dark); padding:14px 18px 10px; }
+.s2-back { font-size:11px; color:var(--c-bright); margin-bottom:5px; }
+.s2-title { font-size:17px; font-weight:700; color:#fff; }
+.s2-sub { font-size:11px; color:rgba(255,255,255,0.45); margin-top:2px; }
+.readiness-card { margin:12px 18px; background:rgba(0,212,170,0.09); border:1px solid rgba(0,212,170,0.3); border-radius:14px; padding:14px; }
+.ready-eyebrow { font-size:9.5px; font-weight:700; color:var(--c-bright); letter-spacing:.07em; text-transform:uppercase; margin-bottom:6px; }
+.ready-signals { }
+.rs-item { display:flex; align-items:center; gap:8px; margin-bottom:7px; }
+.rs-check { font-size:12px; }
+.rs-text { font-size:11.5px; color:rgba(255,255,255,0.75); }
+.rs-badge { font-family:'DM Mono',monospace; font-size:10px; font-weight:700; padding:2px 7px; border-radius:5px; margin-left:auto; }
+.badge-bright { background:rgba(0,212,170,0.18); color:var(--c-bright); }
+.mf-rec-card { margin:0 18px 10px; background:linear-gradient(135deg,rgba(124,58,237,0.14),rgba(0,212,170,0.08)); border:1.5px solid rgba(124,58,237,0.35); border-radius:16px; padding:15px; position:relative; }
+.mfrc-best { position:absolute; top:-10px; left:16px; background:var(--c-purple); color:#fff; font-size:8.5px; font-weight:800; padding:3px 10px; border-radius:10px; letter-spacing:.06em; text-transform:uppercase; }
+.mfrc-name { font-size:17px; font-weight:800; color:#fff; margin-top:4px; }
+.mfrc-sub { font-size:11px; color:rgba(255,255,255,0.45); margin-bottom:8px; }
+.mfrc-metrics { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:10px; }
+.mfrc-metric { text-align:center; background:rgba(255,255,255,0.05); border-radius:8px; padding:8px; }
+.mfrc-val { font-family:'DM Mono',monospace; font-size:15px; font-weight:700; color:var(--c-bright); }
+.mfrc-lbl { font-size:8.5px; color:rgba(255,255,255,0.4); margin-top:1px; }
+.mfrc-fit-row { display:flex; align-items:center; gap:8px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.08); }
+.mfrc-fit-label { font-size:10px; color:rgba(255,255,255,0.4); }
+.mfrc-fit-track { flex:1; height:5px; background:rgba(255,255,255,0.08); border-radius:99px; overflow:hidden; }
+.mfrc-fit-fill { height:100%; border-radius:99px; background:var(--c-bright); }
+.mfrc-fit-score { font-family:'DM Mono',monospace; font-size:13px; font-weight:700; color:var(--c-bright); }
+.why-bridge { margin:0 18px 12px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:12px 14px; }
+.wb-title { font-size:10px; font-weight:700; color:rgba(255,255,255,0.45); letter-spacing:.07em; text-transform:uppercase; margin-bottom:8px; }
+.wb-row { display:flex; gap:8px; margin-bottom:6px; align-items:flex-start; }
+.wb-icon { font-size:13px; flex-shrink:0; margin-top:1px; }
+.wb-text { font-size:11px; color:rgba(255,255,255,0.65); line-height:1.4; }
+.sip-btn { margin:0 18px 14px; display:block; background:var(--c-bright); color:var(--c-dark); font-size:13px; font-weight:800; padding:14px; border-radius:14px; text-align:center; }
+
+/* ── S3: SIP SETUP ── */
+.s3-header { background:var(--c-dark); padding:14px 18px 10px; }
+.s3-title { font-size:17px; font-weight:700; color:#fff; }
+.s3-sub { font-size:11px; color:rgba(255,255,255,0.45); margin-top:2px; }
+.sip-card { margin:12px 18px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:14px; padding:14px; }
+.sc-label { font-size:10px; font-weight:700; color:rgba(255,255,255,0.45); letter-spacing:.07em; text-transform:uppercase; margin-bottom:8px; }
+.amount-display { text-align:center; padding:14px 0; border-bottom:1px solid rgba(255,255,255,0.07); margin-bottom:10px; }
+.ad-val { font-family:'DM Mono',monospace; font-size:38px; font-weight:800; color:#fff; }
+.ad-label { font-size:10.5px; color:rgba(255,255,255,0.4); margin-top:2px; }
+.amount-chips { display:flex; gap:6px; flex-wrap:wrap; }
+.amount-chip { flex:1; min-width:60px; text-align:center; padding:8px; border-radius:10px; border:1px solid rgba(255,255,255,0.12); font-size:11px; color:rgba(255,255,255,0.65); font-weight:600; cursor:pointer; }
+.amount-chip.active { background:rgba(0,212,170,0.15); border-color:var(--c-bright); color:var(--c-bright); }
+.sip-option-row { margin:0 18px 8px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:12px 14px; display:flex; align-items:center; gap:10px; }
+.so-icon { font-size:18px; flex-shrink:0; }
+.so-info { flex:1; }
+.so-name { font-size:12px; font-weight:600; color:#fff; }
+.so-sub { font-size:10px; color:rgba(255,255,255,0.4); }
+.so-radio { width:16px; height:16px; border-radius:50%; border:2px solid var(--c-bright); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.so-radio-fill { width:8px; height:8px; background:var(--c-bright); border-radius:50%; }
+.confirm-btn { margin:12px 18px 14px; display:block; background:var(--c-bright); color:var(--c-dark); font-size:13px; font-weight:800; padding:14px; border-radius:14px; text-align:center; }
+.projection-note { margin:0 18px 10px; background:rgba(0,212,170,0.07); border:1px solid rgba(0,212,170,0.2); border-radius:10px; padding:10px 12px; font-size:11px; color:rgba(255,255,255,0.65); line-height:1.5; }
+
+/* ── S4: OPS INTELLIGENCE ── */
+.s4-header { background:var(--c-dark); padding:14px 18px 10px; }
+.s4-eyebrow { font-size:9.5px; font-weight:700; color:var(--c-bright); letter-spacing:.08em; text-transform:uppercase; margin-bottom:2px; }
+.s4-title { font-size:17px; font-weight:700; color:#fff; }
+.s4-sub { font-size:10.5px; color:rgba(255,255,255,0.4); margin-top:1px; }
+.kpi-grid { padding:12px 18px 0; display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.kpi-card { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:11px 12px; }
+.kpi-val { font-family:'DM Mono',monospace; font-size:22px; font-weight:700; }
+.kpi-lbl { font-size:9.5px; color:rgba(255,255,255,0.4); margin-top:2px; line-height:1.3; }
+.funnel-section { padding:12px 18px 0; }
+.fn-title { font-size:10px; font-weight:700; color:rgba(255,255,255,0.45); letter-spacing:.07em; text-transform:uppercase; margin-bottom:10px; }
+.fn-row { display:flex; align-items:center; gap:10px; margin-bottom:9px; }
+.fn-label { font-size:11px; color:#fff; min-width:120px; }
+.fn-bar-wrap { flex:1; }
+.fn-track { height:7px; background:rgba(255,255,255,0.07); border-radius:99px; overflow:hidden; }
+.fn-fill { height:100%; border-radius:99px; }
+.fn-sub { font-size:9px; color:rgba(255,255,255,0.3); margin-top:2px; }
+.fn-count { font-family:'DM Mono',monospace; font-size:12px; font-weight:700; }
+.cohort-table { padding:12px 18px 0; }
+.ct-title { font-size:10px; font-weight:700; color:rgba(255,255,255,0.45); letter-spacing:.07em; text-transform:uppercase; margin-bottom:8px; }
+.ct-row { display:flex; align-items:center; gap:8px; padding:8px 12px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:10px; margin-bottom:6px; }
+.ct-name { flex:1; font-size:11px; color:#fff; }
+.ct-score { font-family:'DM Mono',monospace; font-size:11px; color:var(--c-bright); }
+.ct-conv { font-family:'DM Mono',monospace; font-size:11px; font-weight:700; color:var(--c-green); }
+.summary-box { margin:12px 18px 14px; background:rgba(0,212,170,0.07); border:1px solid rgba(0,212,170,0.2); border-radius:12px; padding:12px 14px; }
+.sb-row { display:flex; justify-content:space-between; margin-bottom:4px; }
+.sb-label { font-size:10.5px; color:rgba(255,255,255,0.5); }
+.sb-val { font-family:'DM Mono',monospace; font-size:12px; font-weight:700; color:var(--c-bright); }
+</style>
+</head>
+<body>
+
+<div class="header-strip">
+  <h1>CoinSwitch — WealthBridge &nbsp;·&nbsp; Interactive Prototype</h1>
+  <p>Behavioural Scoring Engine: Crypto Users → Mutual Funds · Right User, Right Moment</p>
+</div>
+
+<div class="phones-row">
+
+  <!-- PHONE 1: Crypto Home with WealthBridge Signal -->
+  <div class="phone-wrap">
+    <div class="screen-label">01 — MF-Ready Signal</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="notch-sensor"></div></div>
+      <div class="statusbar">
+        <span class="sb-time">9:41</span>
+        <div class="sb-icons"><span>●●●</span><span>WiFi</span><span>🔋</span></div>
+      </div>
+      <div class="screen">
+        <div class="s1-top">
+          <div class="s1-greeting">Good morning,</div>
+          <div class="s1-name">Priya Sharma 👋</div>
+          <div class="portfolio-card">
+            <div class="pc-eyebrow">Crypto Portfolio</div>
+            <div class="pc-val">₹ 84,200</div>
+            <div class="pc-sub">+₹12,400 (17.3%) · 14 months active</div>
+            <div class="pc-mini-row">
+              <div class="pc-mini"><div class="pc-mini-lbl">Today</div><div class="pc-mini-val" style="color:#22C55E;">+1.4%</div></div>
+              <div class="pc-mini"><div class="pc-mini-lbl">This month</div><div class="pc-mini-val" style="color:#22C55E;">+8.2%</div></div>
+              <div class="pc-mini"><div class="pc-mini-lbl">All time</div><div class="pc-mini-val" style="color:#22C55E;">+17.3%</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="bridge-signal-card">
+          <div class="bsc-pill"><div class="bsc-animate"></div> New for you</div>
+          <div class="bsc-title">You're ready for Mutual Funds 🎯</div>
+          <div class="bsc-sub">Your crypto portfolio shows steady, disciplined investing. AI matched you to a MF that complements your existing portfolio.</div>
+          <div class="bsc-score-row">
+            <div class="bsc-score-label">MF Readiness Score</div>
+            <div class="bsc-score-track"><div class="bsc-score-fill" style="width:82%;"></div></div>
+            <div class="bsc-score-num">82 / 100</div>
+          </div>
+          <div class="bsc-cta">See My MF Match →</div>
+        </div>
+        <div class="section-title">Your Holdings</div>
+        <div class="coin-holdings">
+          <div class="ch-row">
+            <div class="ch-dot" style="background:rgba(247,147,26,0.2);color:#F7931A;">₿</div>
+            <div class="ch-info"><div class="ch-name">Bitcoin</div><div class="ch-sub">0.0084 BTC · 14 months held</div></div>
+            <div class="ch-val"><div class="ch-amount">₹ 48,600</div><div class="ch-chg" style="color:#22C55E;">+22.1%</div></div>
+          </div>
+          <div class="ch-row">
+            <div class="ch-dot" style="background:rgba(98,126,234,0.2);color:#627EEA;">Ξ</div>
+            <div class="ch-info"><div class="ch-name">Ethereum</div><div class="ch-sub">0.091 ETH · 11 months held</div></div>
+            <div class="ch-val"><div class="ch-amount">₹ 28,400</div><div class="ch-chg" style="color:#22C55E;">+11.4%</div></div>
+          </div>
+          <div class="ch-row">
+            <div class="ch-dot" style="background:rgba(34,197,94,0.2);color:#22C55E;">◎</div>
+            <div class="ch-info"><div class="ch-name">Solana</div><div class="ch-sub">0.56 SOL · 8 months held</div></div>
+            <div class="ch-val"><div class="ch-amount">₹ 7,200</div><div class="ch-chg" style="color:#EF4444;">−4.2%</div></div>
+          </div>
+        </div>
+        <div style="height:16px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHONE 2: WealthBridge MF Match -->
+  <div class="phone-wrap">
+    <div class="screen-label">02 — MF Match</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="notch-sensor"></div></div>
+      <div class="statusbar">
+        <span class="sb-time">9:41</span>
+        <div class="sb-icons"><span>●●●</span><span>WiFi</span><span>🔋</span></div>
+      </div>
+      <div class="screen">
+        <div class="s2-header">
+          <div class="s2-back">← Back</div>
+          <div class="s2-title">Your MF Match</div>
+          <div class="s2-sub">Matched from your 14-month crypto behaviour</div>
+        </div>
+        <div class="readiness-card" style="margin-top:12px;">
+          <div class="ready-eyebrow">Why you're MF-ready</div>
+          <div class="rs-item"><div class="rs-check">✅</div><div class="rs-text">14 months active portfolio — maturity signal</div><div class="rs-badge badge-bright">Strong</div></div>
+          <div class="rs-item"><div class="rs-check">✅</div><div class="rs-text">DCA behaviour — invested 9 of last 12 months</div><div class="rs-badge badge-bright">Strong</div></div>
+          <div class="rs-item"><div class="rs-check">✅</div><div class="rs-text">Blue-chip heavy (BTC+ETH = 91%) — risk-aware</div><div class="rs-badge badge-bright">Strong</div></div>
+          <div class="rs-item" style="margin-bottom:0;"><div class="rs-check">✅</div><div class="rs-text">Held through 2 market dips — discipline proven</div><div class="rs-badge badge-bright">Strong</div></div>
+        </div>
+        <div class="mf-rec-card">
+          <div class="mfrc-best">⭐ Best match</div>
+          <div class="mfrc-name">Mirae Asset Large Cap Fund</div>
+          <div class="mfrc-sub">Direct Growth · Equity · Large Cap</div>
+          <div class="mfrc-metrics">
+            <div class="mfrc-metric"><div class="mfrc-val">18.4%</div><div class="mfrc-lbl">3-yr CAGR</div></div>
+            <div class="mfrc-metric"><div class="mfrc-val">₹500</div><div class="mfrc-lbl">Min SIP</div></div>
+            <div class="mfrc-metric"><div class="mfrc-val">Low</div><div class="mfrc-lbl">Expense ratio</div></div>
+          </div>
+          <div class="mfrc-fit-row">
+            <div class="mfrc-fit-label">Portfolio fit</div>
+            <div class="mfrc-fit-track"><div class="mfrc-fit-fill" style="width:82%;"></div></div>
+            <div class="mfrc-fit-score">82 / 100</div>
+          </div>
+        </div>
+        <div class="why-bridge">
+          <div class="wb-title">Why this complements your crypto</div>
+          <div class="wb-row"><div class="wb-icon">⚖️</div><div class="wb-text">Equity MF adds stability — your crypto is high-volatility, this balances it</div></div>
+          <div class="wb-row"><div class="wb-icon">📅</div><div class="wb-text">SIP cadence matches your crypto DCA pattern — same discipline, lower risk</div></div>
+          <div class="wb-row"><div class="wb-icon">💰</div><div class="wb-text">Combined portfolio: 60/40 crypto-to-equity is optimal at your wealth stage</div></div>
+        </div>
+        <div class="sip-btn">Start My MF SIP →</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHONE 3: SIP Setup -->
+  <div class="phone-wrap">
+    <div class="screen-label">03 — SIP Setup</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="notch-sensor"></div></div>
+      <div class="statusbar">
+        <span class="sb-time">9:43</span>
+        <div class="sb-icons"><span>●●●</span><span>WiFi</span><span>🔋</span></div>
+      </div>
+      <div class="screen">
+        <div class="s3-header">
+          <div style="font-size:11px;color:var(--c-bright);margin-bottom:5px;">← Back</div>
+          <div class="s3-title">Set Up Your SIP</div>
+          <div class="s3-sub">Mirae Asset Large Cap · Direct Growth</div>
+        </div>
+        <div class="sip-card" style="margin-top:12px;">
+          <div class="sc-label">Monthly SIP Amount</div>
+          <div class="amount-display">
+            <div class="ad-val">₹ 2,000</div>
+            <div class="ad-label">per month · auto-debit on 5th</div>
+          </div>
+          <div class="amount-chips">
+            <div class="amount-chip">₹ 500</div>
+            <div class="amount-chip">₹ 1,000</div>
+            <div class="amount-chip active">₹ 2,000</div>
+            <div class="amount-chip">₹ 5,000</div>
+          </div>
+        </div>
+        <div style="padding:0 18px; font-size:10px; font-weight:700; color:rgba(255,255,255,0.45); letter-spacing:.07em; text-transform:uppercase; margin-bottom:8px;">SIP Frequency</div>
+        <div class="sip-option-row">
+          <div class="so-icon">📅</div>
+          <div class="so-info"><div class="so-name">Monthly SIP</div><div class="so-sub">Auto-debit on 5th · Most popular</div></div>
+          <div class="so-radio"><div class="so-radio-fill"></div></div>
+        </div>
+        <div class="sip-option-row" style="border-color:rgba(255,255,255,0.06);">
+          <div class="so-icon">🗓️</div>
+          <div class="so-info"><div class="so-name">Weekly SIP</div><div class="so-sub">4 smaller debits/month · Reduces timing risk</div></div>
+          <div class="so-radio"></div>
+        </div>
+        <div class="projection-note">
+          📈 <strong style="color:#fff;">At ₹2,000/month for 5 years</strong> with 18.4% CAGR: projected value <strong style="color:var(--c-bright);">₹2.1 lakh</strong> · Double your total investment
+        </div>
+        <div class="confirm-btn">Confirm SIP — ₹2,000/mo →</div>
+        <div style="margin:0 18px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:10px 12px;font-size:10px;color:rgba(255,255,255,0.4);line-height:1.5;">
+          ✅ SEBI-regulated · Direct plan (no distributor commission) · Cancel anytime from app
+        </div>
+        <div style="height:16px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHONE 4: Ops Intelligence -->
+  <div class="phone-wrap">
+    <div class="screen-label">04 — Ops Intelligence</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="notch-sensor"></div></div>
+      <div class="statusbar">
+        <span class="sb-time">9:41</span>
+        <div class="sb-icons"><span>●●●</span><span>WiFi</span><span>🔋</span></div>
+      </div>
+      <div class="screen">
+        <div class="s4-header">
+          <div class="s4-eyebrow">WealthBridge — Ops View</div>
+          <div class="s4-title">Cross-Sell Dashboard</div>
+          <div class="s4-sub">25M crypto users · Updated daily</div>
+        </div>
+        <div class="kpi-grid">
+          <div class="kpi-card"><div class="kpi-val" style="color:var(--c-bright);">2.1M</div><div class="kpi-lbl">Crypto users flagged MF-ready (score ≥ 60)</div></div>
+          <div class="kpi-card"><div class="kpi-val" style="color:#22C55E;">18%</div><div class="kpi-lbl">30-day MF conversion rate from flagged users</div></div>
+          <div class="kpi-card"><div class="kpi-val" style="color:#F7B731;">₹3,200</div><div class="kpi-lbl">Additional annual ARPU per cross-sold user</div></div>
+          <div class="kpi-card"><div class="kpi-val" style="color:#7C3AED;">₹420 Cr</div><div class="kpi-lbl">Projected new MF AUM (year 1)</div></div>
+        </div>
+        <div class="funnel-section">
+          <div class="fn-title">Cross-Sell Funnel — Rolling 30 Days</div>
+          <div class="fn-row">
+            <div class="fn-label">Flagged MF-ready</div>
+            <div class="fn-bar-wrap"><div class="fn-track"><div class="fn-fill" style="width:100%;background:rgba(0,212,170,0.6);"></div></div></div>
+            <div class="fn-count" style="color:var(--c-bright);">2.1M</div>
+          </div>
+          <div class="fn-row">
+            <div class="fn-label">Saw WealthBridge card</div>
+            <div class="fn-bar-wrap"><div class="fn-track"><div class="fn-fill" style="width:72%;background:rgba(0,212,170,0.5);"></div></div></div>
+            <div class="fn-count">1.51M</div>
+          </div>
+          <div class="fn-row">
+            <div class="fn-label">Opened MF match</div>
+            <div class="fn-bar-wrap"><div class="fn-track"><div class="fn-fill" style="width:38%;background:rgba(0,212,170,0.4);"></div></div></div>
+            <div class="fn-count">798K</div>
+          </div>
+          <div class="fn-row">
+            <div class="fn-label">Started SIP</div>
+            <div class="fn-bar-wrap"><div class="fn-track"><div class="fn-fill" style="width:18%;background:#22C55E;"></div></div></div>
+            <div class="fn-count" style="color:#22C55E;">378K</div>
+          </div>
+        </div>
+        <div class="cohort-table">
+          <div class="ct-title">Top Converting Cohorts</div>
+          <div class="ct-row"><div class="ct-name">14+ month · DCA · Blue-chip</div><div class="ct-score">Score 82+</div><div class="ct-conv">24% conv</div></div>
+          <div class="ct-row"><div class="ct-name">8-13 month · Held through dip</div><div class="ct-score">Score 68+</div><div class="ct-conv">16% conv</div></div>
+          <div class="ct-row"><div class="ct-name">3-7 month · High frequency</div><div class="ct-score">Score 55+</div><div class="ct-conv">9% conv</div></div>
+        </div>
+        <div class="summary-box">
+          <div class="sb-row"><div class="sb-label">MF AUM activated (30d)</div><div class="sb-val">₹34.8 Cr</div></div>
+          <div class="sb-row"><div class="sb-label">Projected annual AUM</div><div class="sb-val">₹420 Cr+</div></div>
+          <div class="sb-row" style="margin-bottom:0;"><div class="sb-label">Avg additional ARPU/user</div><div class="sb-val">₹3,200/yr</div></div>
+        </div>
+        <div style="height:12px;"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

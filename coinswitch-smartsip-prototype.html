@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CoinSwitch SmartSIP — Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --c-dark: #0A0E27;
+  --c-hero: #111432;
+  --c-bright: #22C55E;
+  --c-gold: #F7B731;
+  --c-teal: #00D4AA;
+  --c-blue: #3B82F6;
+  --c-red: #EF4444;
+  --c-orange: #F97316;
+  --muted: #8B9CB6;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family:'Sora',sans-serif;
+  background: linear-gradient(135deg, #060F0A 0%, #0A0E27 50%, #060F0A 100%);
+  min-height:100vh; padding:40px 20px 60px;
+  display:flex; flex-direction:column; align-items:center;
+}
+.header-strip { width:100%; max-width:1640px; text-align:center; margin-bottom:36px; }
+.header-strip h1 { font-size:15px; font-weight:700; color:#22C55E; letter-spacing:.08em; text-transform:uppercase; }
+.header-strip p { font-size:12px; color:rgba(255,255,255,0.45); margin-top:4px; }
+.phones-row { display:flex; gap:32px; align-items:flex-start; justify-content:center; flex-wrap:wrap; }
+.phone-wrap { display:flex; flex-direction:column; align-items:center; gap:12px; }
+.screen-label { font-size:11px; font-weight:600; letter-spacing:.1em; color:rgba(34,197,94,0.55); text-transform:uppercase; }
+.phone { width:375px; height:812px; background:#111432; border-radius:46px;
+  box-shadow:0 40px 100px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.07);
+  overflow:hidden; position:relative; display:flex; flex-direction:column; }
+.notch { width:118px; height:28px; background:var(--c-dark); border-radius:0 0 16px 16px;
+  position:absolute; top:0; left:50%; transform:translateX(-50%); z-index:10;
+  display:flex; align-items:center; justify-content:center; gap:6px; }
+.nc { width:10px; height:10px; background:#1a2035; border-radius:50%; }
+.notch-sensor { width:5px; height:5px; background:#0a1020; border-radius:50%; }
+.statusbar { height:44px; background:var(--c-dark); display:flex; align-items:flex-end;
+  justify-content:space-between; padding:0 22px 6px; flex-shrink:0; }
+.sb-time { font-family:'DM Mono',monospace; font-size:12px; color:rgba(255,255,255,0.8); font-weight:500; }
+.sb-icons { display:flex; gap:4px; align-items:center; }
+.sb-icons span { font-size:11px; color:rgba(255,255,255,0.7); }
+.screen { overflow-y:auto; flex:1; scrollbar-width:none; }
+.screen::-webkit-scrollbar { display:none; }
+
+/* ── S1: SIP SETUP WIZARD ── */
+.s1-header { background:var(--c-dark); padding:14px 18px 12px; }
+.s1-title { font-size:18px; font-weight:800; color:#fff; }
+.s1-sub { font-size:11px; color:rgba(255,255,255,0.45); margin-top:2px; }
+.sip-badge { display:inline-flex; align-items:center; gap:5px; background:rgba(34,197,94,0.15); border:1px solid rgba(34,197,94,0.35); border-radius:20px; padding:4px 11px; font-size:9.5px; font-weight:700; color:var(--c-bright); margin-bottom:8px; }
+.wizard-step { margin:12px 18px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:14px; padding:14px; }
+.ws-label { font-size:9.5px; font-weight:700; color:var(--c-bright); letter-spacing:.07em; text-transform:uppercase; margin-bottom:4px; }
+.ws-q { font-size:13.5px; font-weight:700; color:#fff; margin-bottom:10px; }
+.coin-select-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.coin-option { border:1px solid rgba(255,255,255,0.12); border-radius:12px; padding:10px; display:flex; align-items:center; gap:8px; cursor:pointer; }
+.coin-option.selected { border-color:var(--c-bright); background:rgba(34,197,94,0.1); }
+.co-dot { width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; flex-shrink:0; }
+.co-name { font-size:11px; font-weight:600; color:#fff; }
+.co-sub { font-size:9px; color:rgba(255,255,255,0.4); }
+.co-check { margin-left:auto; font-size:13px; color:var(--c-bright); }
+.frequency-row { display:flex; gap:7px; }
+.freq-chip { flex:1; text-align:center; border:1px solid rgba(255,255,255,0.12); border-radius:10px; padding:9px; font-size:11px; color:rgba(255,255,255,0.65); font-weight:600; cursor:pointer; }
+.freq-chip.active { background:rgba(34,197,94,0.15); border-color:var(--c-bright); color:var(--c-bright); }
+.amount-row { display:flex; gap:7px; flex-wrap:wrap; }
+.amt-chip { flex:1; min-width:60px; text-align:center; border:1px solid rgba(255,255,255,0.12); border-radius:10px; padding:9px; font-size:11px; color:rgba(255,255,255,0.65); font-weight:600; cursor:pointer; }
+.amt-chip.active { background:rgba(34,197,94,0.15); border-color:var(--c-bright); color:var(--c-bright); }
+.risk-scan { margin:0 18px 10px; background:rgba(34,197,94,0.07); border:1px solid rgba(34,197,94,0.25); border-radius:12px; padding:11px 13px; display:flex; align-items:center; gap:9px; }
+.rs-dot { width:7px; height:7px; background:var(--c-bright); border-radius:50%; animation:aip 1.2s infinite; flex-shrink:0; }
+@keyframes aip { 0%,100%{transform:scale(1);opacity:1;} 50%{transform:scale(1.5);opacity:0.4;} }
+.rs-msg { font-size:11px; color:rgba(255,255,255,0.65); }
+.cta-btn { margin:0 18px; display:block; background:var(--c-bright); color:var(--c-dark); font-size:13px; font-weight:800; padding:14px; border-radius:14px; text-align:center; cursor:pointer; }
+
+/* ── S2: ACTIVE SIP DASHBOARD ── */
+.s2-bg { background:var(--c-dark); }
+.s2-header { padding:14px 18px 10px; background:var(--c-dark); }
+.s2-title { font-size:17px; font-weight:700; color:#fff; }
+.s2-sub { font-size:11px; color:rgba(255,255,255,0.45); margin-top:1px; }
+.sip-overview { margin:12px 18px; background:linear-gradient(135deg,rgba(34,197,94,0.14),rgba(34,197,94,0.05)); border:1.5px solid rgba(34,197,94,0.35); border-radius:16px; padding:15px; }
+.so-eyebrow { font-size:9.5px; font-weight:700; color:var(--c-bright); letter-spacing:.07em; text-transform:uppercase; margin-bottom:4px; }
+.so-total { font-family:'DM Mono',monospace; font-size:28px; font-weight:800; color:#fff; margin-bottom:2px; }
+.so-sub { font-size:10.5px; color:rgba(255,255,255,0.4); margin-bottom:10px; }
+.so-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
+.so-stat { text-align:center; }
+.so-val { font-family:'DM Mono',monospace; font-size:15px; font-weight:700; color:var(--c-bright); }
+.so-lbl { font-size:9px; color:rgba(255,255,255,0.4); margin-top:1px; }
+.active-sips { padding:0 18px; }
+.as-title { font-size:10px; font-weight:700; color:rgba(255,255,255,0.45); letter-spacing:.07em; text-transform:uppercase; margin-bottom:8px; }
+.sip-row { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:12px 14px; margin-bottom:8px; }
+.sr-top { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+.sr-coin-dot { width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; flex-shrink:0; }
+.sr-name { font-size:12px; font-weight:600; color:#fff; flex:1; }
+.sr-status { font-size:9.5px; font-weight:700; color:var(--c-bright); }
+.sr-track { height:6px; background:rgba(255,255,255,0.08); border-radius:99px; overflow:hidden; margin-bottom:5px; }
+.sr-fill { height:100%; border-radius:99px; background:var(--c-bright); }
+.sr-meta { display:flex; justify-content:space-between; font-size:9.5px; color:rgba(255,255,255,0.4); }
+.sr-gain { font-family:'DM Mono',monospace; font-size:12px; font-weight:700; text-align:right; }
+.projection-strip { margin:8px 18px; background:rgba(247,183,49,0.07); border:1px solid rgba(247,183,49,0.25); border-radius:12px; padding:12px 14px; }
+.ps-label { font-size:9.5px; font-weight:700; color:var(--c-gold); letter-spacing:.07em; text-transform:uppercase; margin-bottom:4px; }
+.ps-val { font-family:'DM Mono',monospace; font-size:22px; font-weight:800; color:#fff; }
+.ps-sub { font-size:10px; color:rgba(255,255,255,0.4); margin-top:1px; }
+.next-sip { margin:0 18px 14px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:10px; padding:10px 12px; display:flex; align-items:center; justify-content:space-between; }
+.ns-label { font-size:10.5px; color:rgba(255,255,255,0.5); }
+.ns-val { font-family:'DM Mono',monospace; font-size:13px; font-weight:700; color:var(--c-bright); }
+
+/* ── S3: DIP NUDGE ── */
+.s3-dip-hero { background:linear-gradient(160deg, #0A150A 0%, #111432 100%); padding:16px 18px 0; }
+.dip-alert { background:linear-gradient(135deg,rgba(34,197,94,0.18),rgba(34,197,94,0.08)); border:1.5px solid rgba(34,197,94,0.45); border-radius:16px; padding:15px; margin-bottom:12px; }
+.da-eyebrow { font-size:9.5px; font-weight:700; color:var(--c-bright); letter-spacing:.07em; text-transform:uppercase; margin-bottom:6px; display:flex; align-items:center; gap:5px; }
+.da-dot { width:6px; height:6px; background:var(--c-bright); border-radius:50%; animation:aip 1s infinite; }
+.da-title { font-size:16px; font-weight:800; color:#fff; margin-bottom:4px; }
+.da-sub { font-size:11.5px; color:rgba(255,255,255,0.65); line-height:1.5; margin-bottom:10px; }
+.dip-stats { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:10px; }
+.ds-card { background:rgba(255,255,255,0.06); border-radius:10px; padding:9px; text-align:center; }
+.ds-val { font-family:'DM Mono',monospace; font-size:18px; font-weight:700; color:var(--c-bright); }
+.ds-lbl { font-size:9px; color:rgba(255,255,255,0.45); margin-top:1px; }
+.dip-cta { display:block; background:var(--c-bright); color:var(--c-dark); font-size:12.5px; font-weight:800; padding:12px; border-radius:12px; text-align:center; }
+.dip-insight { margin:0 18px 10px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:12px 14px; }
+.di-title { font-size:10px; font-weight:700; color:rgba(255,255,255,0.45); letter-spacing:.07em; text-transform:uppercase; margin-bottom:8px; }
+.di-row { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+.di-icon { font-size:13px; flex-shrink:0; }
+.di-text { font-size:11px; color:rgba(255,255,255,0.65); line-height:1.4; }
+.history-chart { margin:0 18px 14px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:12px; }
+.hc-title { font-size:10px; font-weight:700; color:rgba(255,255,255,0.45); letter-spacing:.07em; text-transform:uppercase; margin-bottom:10px; }
+.hc-bars { display:flex; align-items:flex-end; gap:4px; height:50px; }
+.hc-bar-wrap { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; }
+.hc-bar { border-radius:3px 3px 0 0; width:100%; }
+.hc-label { font-size:7.5px; color:rgba(255,255,255,0.3); }
+.hc-note { font-size:9px; color:rgba(255,255,255,0.35); margin-top:6px; text-align:center; }
+
+/* ── S4: OPS / PORTFOLIO PROJECTION ── */
+.s4-header { background:var(--c-dark); padding:14px 18px 10px; }
+.s4-eyebrow { font-size:9.5px; font-weight:700; color:var(--c-bright); letter-spacing:.08em; text-transform:uppercase; margin-bottom:2px; }
+.s4-title { font-size:17px; font-weight:700; color:#fff; }
+.s4-sub { font-size:10.5px; color:rgba(255,255,255,0.4); margin-top:1px; }
+.kpi-grid { padding:12px 18px 0; display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.kpi-card { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:11px 12px; }
+.kpi-val { font-family:'DM Mono',monospace; font-size:22px; font-weight:700; }
+.kpi-lbl { font-size:9.5px; color:rgba(255,255,255,0.4); margin-top:2px; line-height:1.3; }
+.compounding-section { padding:12px 18px 0; }
+.cs-title { font-size:10px; font-weight:700; color:rgba(255,255,255,0.45); letter-spacing:.07em; text-transform:uppercase; margin-bottom:10px; }
+.year-row { display:flex; align-items:center; gap:10px; margin-bottom:9px; }
+.yr-label { font-size:11px; color:#fff; min-width:50px; }
+.yr-bar-wrap { flex:1; }
+.yr-track { height:8px; background:rgba(255,255,255,0.07); border-radius:99px; overflow:hidden; }
+.yr-fill { height:100%; border-radius:99px; }
+.yr-val { font-family:'DM Mono',monospace; font-size:11px; font-weight:700; min-width:62px; text-align:right; }
+.retention-table { padding:10px 18px 0; }
+.rt-title { font-size:10px; font-weight:700; color:rgba(255,255,255,0.45); letter-spacing:.07em; text-transform:uppercase; margin-bottom:8px; }
+.rt-row { display:flex; align-items:center; gap:8px; padding:8px 12px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:10px; margin-bottom:6px; }
+.rt-type { flex:1; font-size:11px; color:#fff; }
+.rt-d90 { font-family:'DM Mono',monospace; font-size:11px; font-weight:700; }
+.rt-arpu { font-family:'DM Mono',monospace; font-size:11px; color:var(--c-bright); }
+.ops-summary { margin:12px 18px 14px; background:rgba(34,197,94,0.07); border:1px solid rgba(34,197,94,0.2); border-radius:12px; padding:12px 14px; }
+.osb-row { display:flex; justify-content:space-between; margin-bottom:4px; }
+.osb-label { font-size:10.5px; color:rgba(255,255,255,0.5); }
+.osb-val { font-family:'DM Mono',monospace; font-size:12px; font-weight:700; color:var(--c-bright); }
+</style>
+</head>
+<body>
+
+<div class="header-strip">
+  <h1>CoinSwitch — SmartSIP &nbsp;·&nbsp; Interactive Prototype</h1>
+  <p>AI-Powered Crypto SIP Optimizer · Systematic Discipline for India's Crypto Investors</p>
+</div>
+
+<div class="phones-row">
+
+  <!-- PHONE 1: SIP Setup Wizard -->
+  <div class="phone-wrap">
+    <div class="screen-label">01 — SIP Setup Wizard</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="notch-sensor"></div></div>
+      <div class="statusbar">
+        <span class="sb-time">9:41</span>
+        <div class="sb-icons"><span>●●●</span><span>WiFi</span><span>🔋</span></div>
+      </div>
+      <div class="screen">
+        <div class="s1-header">
+          <div class="sip-badge">📅 AI-powered</div>
+          <div class="s1-title">Set Up Your Crypto SIP</div>
+          <div class="s1-sub">Invest systematically · Remove emotion · Build wealth</div>
+        </div>
+        <div class="wizard-step">
+          <div class="ws-label">Step 1 — Coins</div>
+          <div class="ws-q">Which coins do you want to invest in?</div>
+          <div class="coin-select-grid">
+            <div class="coin-option selected">
+              <div class="co-dot" style="background:rgba(247,147,26,0.2);color:#F7931A;">₿</div>
+              <div><div class="co-name">Bitcoin</div><div class="co-sub">Store of value</div></div>
+              <div class="co-check">✓</div>
+            </div>
+            <div class="coin-option selected">
+              <div class="co-dot" style="background:rgba(98,126,234,0.2);color:#627EEA;">Ξ</div>
+              <div><div class="co-name">Ethereum</div><div class="co-sub">Smart contracts</div></div>
+              <div class="co-check">✓</div>
+            </div>
+            <div class="coin-option">
+              <div class="co-dot" style="background:rgba(34,197,94,0.2);color:#22C55E;">◎</div>
+              <div><div class="co-name">Solana</div><div class="co-sub">High growth</div></div>
+              <div></div>
+            </div>
+            <div class="coin-option">
+              <div class="co-dot" style="background:rgba(247,183,49,0.2);color:#F7B731;">◈</div>
+              <div><div class="co-name">Polygon</div><div class="co-sub">Layer 2</div></div>
+              <div></div>
+            </div>
+          </div>
+        </div>
+        <div class="wizard-step" style="margin-top:0;">
+          <div class="ws-label">Step 2 — Frequency</div>
+          <div class="ws-q">How often should your SIP run?</div>
+          <div class="frequency-row">
+            <div class="freq-chip">Daily</div>
+            <div class="freq-chip active">Weekly</div>
+            <div class="freq-chip">Monthly</div>
+          </div>
+        </div>
+        <div class="wizard-step" style="margin-top:0;">
+          <div class="ws-label">Step 3 — Amount</div>
+          <div class="ws-q">How much per SIP execution?</div>
+          <div class="amount-row">
+            <div class="amt-chip">₹100</div>
+            <div class="amt-chip active">₹500</div>
+            <div class="amt-chip">₹1,000</div>
+            <div class="amt-chip">₹2,000</div>
+          </div>
+        </div>
+        <div class="risk-scan">
+          <div class="rs-dot"></div>
+          <div class="rs-msg">AI scanning: BTC + ETH · Weekly ₹500 · Medium volatility window detected — good timing</div>
+        </div>
+        <div class="cta-btn">Preview My SmartSIP →</div>
+        <div style="height:16px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHONE 2: Active SIP Dashboard -->
+  <div class="phone-wrap">
+    <div class="screen-label">02 — Active SIP Dashboard</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="notch-sensor"></div></div>
+      <div class="statusbar">
+        <span class="sb-time">9:41</span>
+        <div class="sb-icons"><span>●●●</span><span>WiFi</span><span>🔋</span></div>
+      </div>
+      <div class="screen">
+        <div class="s2-header">
+          <div class="s2-title">My SmartSIPs</div>
+          <div class="s2-sub">2 active · Running 6 months</div>
+        </div>
+        <div class="sip-overview">
+          <div class="so-eyebrow">Total SIP Portfolio</div>
+          <div class="so-total">₹ 14,800</div>
+          <div class="so-sub">Invested ₹12,000 · Gain ₹2,800 (+23.3%)</div>
+          <div class="so-grid">
+            <div class="so-stat"><div class="so-val">48</div><div class="so-lbl">Total executions</div></div>
+            <div class="so-stat"><div class="so-val">₹250</div><div class="so-lbl">Avg buy price (BTC unit)</div></div>
+            <div class="so-stat"><div class="so-val">0</div><div class="so-lbl">Missed payments</div></div>
+          </div>
+        </div>
+        <div class="active-sips">
+          <div class="as-title">Active SIPs</div>
+          <div class="sip-row">
+            <div class="sr-top">
+              <div class="sr-coin-dot" style="background:rgba(247,147,26,0.2);color:#F7931A;">₿</div>
+              <div style="flex:1;"><div style="font-size:12px;font-weight:600;color:#fff;">Bitcoin SIP</div><div style="font-size:9.5px;color:rgba(255,255,255,0.4);">₹300/week · Started 6 months ago</div></div>
+              <div class="sr-status">Active ✓</div>
+            </div>
+            <div class="sr-track"><div class="sr-fill" style="width:68%;"></div></div>
+            <div class="sr-meta"><span>₹7,200 invested</span><span>68% to 1-yr goal</span></div>
+            <div class="sr-gain" style="color:#22C55E;margin-top:4px;">+₹1,840 (+25.6%)</div>
+          </div>
+          <div class="sip-row">
+            <div class="sr-top">
+              <div class="sr-coin-dot" style="background:rgba(98,126,234,0.2);color:#627EEA;">Ξ</div>
+              <div style="flex:1;"><div style="font-size:12px;font-weight:600;color:#fff;">Ethereum SIP</div><div style="font-size:9.5px;color:rgba(255,255,255,0.4);">₹200/week · Started 6 months ago</div></div>
+              <div class="sr-status">Active ✓</div>
+            </div>
+            <div class="sr-track"><div class="sr-fill" style="width:68%;background:#627EEA;"></div></div>
+            <div class="sr-meta"><span>₹4,800 invested</span><span>68% to 1-yr goal</span></div>
+            <div class="sr-gain" style="color:#22C55E;margin-top:4px;">+₹960 (+20.0%)</div>
+          </div>
+        </div>
+        <div class="projection-strip">
+          <div class="ps-label">📈 1-Year Projection (current rate)</div>
+          <div class="ps-val">₹ 34,200</div>
+          <div class="ps-sub">On ₹26,000 total investment · Assumes 12% avg return</div>
+        </div>
+        <div class="next-sip">
+          <div class="ns-label">Next SIP execution</div>
+          <div class="ns-val">Monday, 5 June · ₹500</div>
+        </div>
+        <div style="height:14px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHONE 3: Dip-Buying Nudge -->
+  <div class="phone-wrap">
+    <div class="screen-label">03 — Dip Nudge</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="notch-sensor"></div></div>
+      <div class="statusbar" style="background:#0A150A;">
+        <span class="sb-time">9:41</span>
+        <div class="sb-icons"><span>●●●</span><span>WiFi</span><span>🔋</span></div>
+      </div>
+      <div class="screen">
+        <div class="s3-dip-hero">
+          <div class="dip-alert">
+            <div class="da-eyebrow"><div class="da-dot"></div> SmartSIP Alert</div>
+            <div class="da-title">Market dip = buying opportunity 📉→📈</div>
+            <div class="da-sub">BTC dropped 18% this week. Your SmartSIP ran automatically and bought at a discount. Here's what happened.</div>
+            <div class="dip-stats">
+              <div class="ds-card"><div class="ds-val">−18.2%</div><div class="ds-lbl">BTC this week</div></div>
+              <div class="ds-card"><div class="ds-val">+23%</div><div class="ds-lbl">More BTC bought vs last week</div></div>
+              <div class="ds-card"><div class="ds-val">₹500</div><div class="ds-lbl">Auto-invested today</div></div>
+              <div class="ds-card"><div class="ds-val">₹89</div><div class="ds-lbl">Extra BTC value vs last buy</div></div>
+            </div>
+            <div class="dip-cta">See Dip Buy Breakdown →</div>
+          </div>
+        </div>
+        <div class="dip-insight">
+          <div class="di-title">Why dips are good for SIP investors</div>
+          <div class="di-row"><div class="di-icon">📊</div><div class="di-text">Your cost average drops when you buy dips — lower entry price means higher future gains</div></div>
+          <div class="di-row"><div class="di-icon">🧠</div><div class="di-text">Emotion-free investing: your SIP ran automatically. No panic. No FOMO. No missed buy.</div></div>
+          <div class="di-row" style="margin-bottom:0;"><div class="di-icon">📈</div><div class="di-text">Historical data: SIP investors who held through dips outperformed lump-sum by 34% over 3 years</div></div>
+        </div>
+        <div class="history-chart">
+          <div class="hc-title">Your buy history vs BTC price</div>
+          <div class="hc-bars">
+            <div class="hc-bar-wrap"><div class="hc-bar" style="height:30px;background:rgba(34,197,94,0.5);"></div><div class="hc-label">Jan</div></div>
+            <div class="hc-bar-wrap"><div class="hc-bar" style="height:38px;background:rgba(34,197,94,0.5);"></div><div class="hc-label">Feb</div></div>
+            <div class="hc-bar-wrap"><div class="hc-bar" style="height:45px;background:rgba(34,197,94,0.5);"></div><div class="hc-label">Mar</div></div>
+            <div class="hc-bar-wrap"><div class="hc-bar" style="height:42px;background:rgba(34,197,94,0.5);"></div><div class="hc-label">Apr</div></div>
+            <div class="hc-bar-wrap"><div class="hc-bar" style="height:35px;background:rgba(34,197,94,0.5);"></div><div class="hc-label">May</div></div>
+            <div class="hc-bar-wrap"><div class="hc-bar" style="height:20px;background:rgba(34,197,94,0.9);border:1.5px solid #22C55E;"></div><div class="hc-label" style="color:#22C55E;font-weight:700;">Jun↓</div></div>
+          </div>
+          <div class="hc-note">↑ taller bar = more BTC bought that month · June dip = most BTC ever bought</div>
+        </div>
+        <div style="height:14px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHONE 4: Ops / Portfolio Projection -->
+  <div class="phone-wrap">
+    <div class="screen-label">04 — Ops Intelligence</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="notch-sensor"></div></div>
+      <div class="statusbar">
+        <span class="sb-time">9:41</span>
+        <div class="sb-icons"><span>●●●</span><span>WiFi</span><span>🔋</span></div>
+      </div>
+      <div class="screen">
+        <div class="s4-header">
+          <div class="s4-eyebrow">SmartSIP — Ops View</div>
+          <div class="s4-title">SIP Growth Dashboard</div>
+          <div class="s4-sub">Active SIP base · Updated daily</div>
+        </div>
+        <div class="kpi-grid">
+          <div class="kpi-card"><div class="kpi-val" style="color:var(--c-bright);">4.2M</div><div class="kpi-lbl">Active SmartSIP users</div></div>
+          <div class="kpi-card"><div class="kpi-val" style="color:#F7B731;">₹8,400</div><div class="kpi-lbl">Avg monthly SIP volume per user</div></div>
+          <div class="kpi-card"><div class="kpi-val" style="color:#3B82F6;">+34%</div><div class="kpi-lbl">D90 retention vs non-SIP users</div></div>
+          <div class="kpi-card"><div class="kpi-val" style="color:var(--c-bright);">−52%</div><div class="kpi-lbl">Annual churn for active SIP cohort</div></div>
+        </div>
+        <div class="compounding-section">
+          <div class="cs-title">SIP Cohort Portfolio Growth (₹1K/mo avg)</div>
+          <div class="year-row">
+            <div class="yr-label">Year 1</div>
+            <div class="yr-bar-wrap"><div class="yr-track"><div class="yr-fill" style="width:18%;background:rgba(34,197,94,0.5);"></div></div></div>
+            <div class="yr-val" style="color:var(--c-bright);">₹15,400</div>
+          </div>
+          <div class="year-row">
+            <div class="yr-label">Year 2</div>
+            <div class="yr-bar-wrap"><div class="yr-track"><div class="yr-fill" style="width:35%;background:rgba(34,197,94,0.6);"></div></div></div>
+            <div class="yr-val" style="color:var(--c-bright);">₹32,800</div>
+          </div>
+          <div class="year-row">
+            <div class="yr-label">Year 3</div>
+            <div class="yr-bar-wrap"><div class="yr-track"><div class="yr-fill" style="width:56%;background:rgba(34,197,94,0.7);"></div></div></div>
+            <div class="yr-val" style="color:var(--c-bright);">₹56,200</div>
+          </div>
+          <div class="year-row">
+            <div class="yr-label">Year 5</div>
+            <div class="yr-bar-wrap"><div class="yr-track"><div class="yr-fill" style="width:100%;background:var(--c-bright);"></div></div></div>
+            <div class="yr-val" style="color:var(--c-bright);">₹1,08,000</div>
+          </div>
+        </div>
+        <div class="retention-table">
+          <div class="rt-title">Retention: SIP vs Non-SIP</div>
+          <div style="display:flex;gap:4px;padding:0 0 5px;font-size:9px;color:rgba(255,255,255,0.3);font-weight:700;letter-spacing:.06em;text-transform:uppercase;">
+            <div style="flex:1;">User Type</div><div style="width:52px;text-align:right;">D90</div><div style="width:64px;text-align:right;">Avg ARPU</div>
+          </div>
+          <div class="rt-row"><div class="rt-type">Active SmartSIP</div><div class="rt-d90" style="color:var(--c-bright);">82%</div><div class="rt-arpu">₹8,400/mo</div></div>
+          <div class="rt-row"><div class="rt-type">One-time buyer</div><div class="rt-d90" style="color:#F97316;">48%</div><div class="rt-arpu">₹1,200/mo</div></div>
+          <div class="rt-row"><div class="rt-type">Inactive (no SIP)</div><div class="rt-d90" style="color:#EF4444;">21%</div><div class="rt-arpu">₹180/mo</div></div>
+        </div>
+        <div class="ops-summary">
+          <div class="osb-row"><div class="osb-label">Annual SIP GMV (4.2M users)</div><div class="osb-val">₹4.23K Cr</div></div>
+          <div class="osb-row"><div class="osb-label">D90 retention uplift vs control</div><div class="osb-val">+34 pts</div></div>
+          <div class="osb-row" style="margin-bottom:0;"><div class="osb-label">Avg churn reduction (SIP cohort)</div><div class="osb-val">−52%</div></div>
+        </div>
+        <div style="height:12px;"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
