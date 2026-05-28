@@ -1,6 +1,23 @@
 node_modules/
 .DS_Store
-*.md
 my_resume.txt
 OfferExperience&Checkout/
 .claude/
+
+# Temporary files (LibreOffice/Word locks and Office temp files)
+*.tmp
+.~lock.*
+
+# Root-level PDF/PPTX (these are duplicates; originals live in assets/)
+ai-beauty-match-deck.pdf
+ai-beauty-match-deck.pptx
+steal-deals-deck.pdf
+steal-deals-deck.pptx
+talabat-reels-deck.pdf
+talabat-reels-deck.pptx
+Ajay_Avaghade_Resume.pdf
+
+# LinkedIn high-res images (not used in the portfolio app)
+linkedin-thumbnail-hq.jpg
+linkedin-thumbnail-hq.png
+linkedin-thumbnail.png
