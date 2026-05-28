@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DH FoodGenie — Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --red: #E2001A; --red-light: #FFF0F1; --red-mid: rgba(226,0,26,0.14);
+  --dark: #0D0808; --hero: #1A0F0F; --card: #241414;
+  --gold: #FFB800; --gold-light: #FFF9E6;
+  --green: #22C55E; --green-light: #F0FDF4;
+  --orange: #FF5722; --orange-light: #FFF4EE;
+  --blue: #3B82F6; --blue-light: #EFF6FF;
+  --ink: #1A0808; --muted: #9A7A7A; --border: #EDE0E4;
+  --surface: #FDFBFC; --white: #FFFFFF; --gray: #F6F1F3;
+}
+body {
+  font-family: 'Sora', sans-serif;
+  background: #120A0A;
+  display: flex; align-items: flex-start; justify-content: center;
+  min-height: 100vh; padding: 40px 24px; gap: 36px; flex-wrap: wrap;
+}
+
+/* ── PHONE ── */
+.phone-wrap { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.screen-label-top { font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500; color: #C0A0A0; letter-spacing: 0.08em; text-transform: uppercase; }
+.phone { width: 375px; background: var(--dark); border-radius: 44px; box-shadow: 0 32px 80px rgba(8,2,2,0.75), 0 2px 8px rgba(8,2,2,0.4); overflow: hidden; position: relative; border: 1.5px solid rgba(255,255,255,0.06); }
+.notch { width: 120px; height: 28px; background: #000; border-radius: 0 0 18px 18px; margin: 0 auto; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.notch-cam { width: 10px; height: 10px; background: #1a1a1a; border-radius: 50%; border: 1.5px solid #2a2a2a; }
+.notch-sensor { width: 5px; height: 5px; background: #1a1a1a; border-radius: 50%; }
+.status-bar { background: var(--dark); padding: 8px 24px 4px; display: flex; justify-content: space-between; align-items: center; font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.55); }
+.screen-content { overflow-y: auto; max-height: 720px; scrollbar-width: none; }
+.screen-content::-webkit-scrollbar { display: none; }
+.screen { display: none; }
+.screen.active { display: block; }
+#confetti-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+
+/* ── SHARED BACK ROW ── */
+.back-row { padding: 11px 18px; display: flex; align-items: center; gap: 11px; background: var(--hero); border-bottom: 1px solid rgba(255,255,255,0.07); position: sticky; top: 0; z-index: 10; }
+.back-btn { width: 32px; height: 32px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 16px; color: rgba(255,255,255,0.7); cursor: pointer; flex-shrink: 0; transition: background .15s; }
+.back-btn:hover { background: rgba(255,255,255,0.12); }
+.page-title-dark { font-size: 15px; font-weight: 700; color: #fff; flex: 1; }
+
+/* ── S1: HOME ── */
+.home-header { background: linear-gradient(180deg, #2A1010 0%, var(--hero) 100%); padding: 12px 18px 14px; display: flex; justify-content: space-between; align-items: center; }
+.home-logo { font-size: 19px; font-weight: 800; color: var(--red); letter-spacing: .02em; }
+.home-logo-sub { font-size: 9px; color: rgba(255,255,255,0.4); margin-top: 1px; }
+.home-avatar { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, var(--red), #8B0000); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #fff; }
+.home-greeting { padding: 12px 18px 0; }
+.greeting-text { font-size: 15px; font-weight: 700; color: #fff; }
+.greeting-sub { font-size: 11px; color: rgba(255,255,255,0.45); margin-top: 2px; }
+
+/* Proactive banner */
+.proactive-banner { background: linear-gradient(135deg, #2D0A0A, #1A0808); border: 1px solid rgba(226,0,26,0.4); border-radius: 16px; margin: 12px 16px 0; padding: 14px 16px; position: relative; overflow: hidden; cursor: pointer; transition: border-color .2s; }
+.proactive-banner:hover { border-color: rgba(226,0,26,0.65); }
+.pb-glow { position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: radial-gradient(circle, rgba(226,0,26,0.25) 0%, transparent 70%); }
+.pb-eyebrow { font-size: 9px; font-weight: 700; color: var(--red); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 4px; }
+.pb-title { font-size: 15px; font-weight: 800; color: #fff; line-height: 1.3; margin-bottom: 3px; }
+.pb-sub { font-size: 10.5px; color: rgba(255,255,255,0.45); }
+.pb-row { display: flex; align-items: center; gap: 8px; margin-top: 9px; }
+.pb-badge { background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.3); color: #4ADE80; font-size: 9px; font-weight: 700; padding: 3px 8px; border-radius: 20px; }
+.pb-price { font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 700; color: #fff; }
+.pb-btns { display: flex; gap: 8px; margin-top: 11px; }
+.pb-order-btn { background: var(--red); color: #fff; font-size: 11.5px; font-weight: 700; padding: 9px 18px; border-radius: 10px; border: none; font-family: 'Sora', sans-serif; flex: 1; cursor: pointer; transition: background .15s; }
+.pb-order-btn:hover { background: #BE0016; }
+.pb-edit-btn { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.55); font-size: 11px; font-weight: 600; padding: 9px 14px; border-radius: 10px; font-family: 'Sora', sans-serif; cursor: pointer; }
+
+/* Chat entry */
+.chat-entry { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; margin: 12px 16px 0; padding: 11px 14px; display: flex; align-items: center; gap: 9px; cursor: pointer; transition: background .15s; }
+.chat-entry:hover { background: rgba(255,255,255,0.08); }
+.ce-text { font-size: 12px; color: rgba(255,255,255,0.35); flex: 1; }
+.ce-mic { width: 28px; height: 28px; background: var(--red-mid); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; }
+
+/* Section header */
+.sec-hdr { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px 7px; }
+.sec-title { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.7); }
+.sec-link { font-size: 10px; color: var(--red); }
+
+/* Reorder chips */
+.reorder-row { display: flex; gap: 8px; padding: 0 16px; overflow-x: auto; scrollbar-width: none; }
+.reorder-row::-webkit-scrollbar { display: none; }
+.r-chip { background: var(--card); border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 8px 12px; flex-shrink: 0; min-width: 94px; cursor: pointer; transition: border-color .15s; }
+.r-chip:hover { border-color: rgba(226,0,26,0.4); }
+.r-chip-name { font-size: 10.5px; font-weight: 700; color: #fff; white-space: nowrap; }
+.r-chip-meta { font-size: 9px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+
+/* Suggestion cards */
+.sug-card { background: var(--card); border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; margin: 7px 16px 0; padding: 11px 13px; display: flex; align-items: center; gap: 11px; cursor: pointer; transition: border-color .15s; }
+.sug-card:hover { border-color: rgba(226,0,26,0.35); }
+.sug-emoji { font-size: 28px; flex-shrink: 0; }
+.sug-name { font-size: 12.5px; font-weight: 700; color: #fff; }
+.sug-meta { font-size: 10px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+.sug-tag { display: inline-block; background: var(--red-mid); color: var(--red); font-size: 8px; font-weight: 700; padding: 2px 7px; border-radius: 4px; margin-top: 4px; }
+.sug-time { font-family: 'DM Mono', monospace; font-size: 12px; color: #4ADE80; text-align: right; }
+.sug-price { font-size: 9.5px; color: rgba(255,255,255,0.4); margin-top: 2px; text-align: right; }
+
+/* NAV BAR */
+.nav-bar { padding: 10px 20px 16px; display: flex; justify-content: space-around; border-top: 1px solid rgba(255,255,255,0.07); background: var(--hero); position: sticky; bottom: 0; }
+.nav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 9px; font-weight: 600; color: rgba(255,255,255,0.35); cursor: pointer; }
+.nav-item.active { color: var(--red); }
+.nav-icon { font-size: 20px; }
+
+/* ── S2: AGENT CHAT ── */
+.chat-hdr { background: var(--hero); padding: 11px 16px 12px; border-bottom: 1px solid rgba(255,255,255,0.07); display: flex; align-items: center; gap: 10px; position: sticky; top: 0; z-index: 10; }
+.chat-hdr-avatar { width: 32px; height: 32px; background: var(--red); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.chat-hdr-name { font-size: 13px; font-weight: 700; color: #fff; }
+.chat-hdr-sub { font-size: 9px; color: rgba(255,255,255,0.4); }
+.chat-msgs { padding: 14px 14px 8px; }
+.msg-user { background: var(--red); border-radius: 16px 16px 4px 16px; padding: 10px 14px; max-width: 80%; margin-left: auto; margin-bottom: 12px; font-size: 12.5px; line-height: 1.5; color: #fff; }
+.msg-agent-row { display: flex; gap: 7px; margin-bottom: 12px; align-items: flex-start; }
+.ma-avatar { width: 26px; height: 26px; background: var(--red); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; margin-top: 2px; }
+.msg-agent { background: var(--card); border: 1px solid rgba(255,255,255,0.08); border-radius: 4px 16px 16px 16px; padding: 10px 13px; font-size: 11.5px; line-height: 1.55; max-width: 86%; color: rgba(255,255,255,0.85); }
+.profile-used { display: inline-flex; align-items: center; gap: 4px; background: var(--red-mid); border: 1px solid rgba(226,0,26,0.22); color: var(--red); font-size: 8px; font-weight: 700; padding: 3px 8px; border-radius: 20px; margin-bottom: 7px; }
+.res-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 9px 11px; margin-bottom: 6px; cursor: pointer; transition: border-color .15s; }
+.res-card:hover { border-color: rgba(226,0,26,0.35); }
+.res-card.best { border-color: rgba(226,0,26,0.35); background: rgba(226,0,26,0.06); }
+.res-card.best::before { content: '🏆 Best match'; font-size: 8px; font-weight: 700; color: var(--red); display: block; margin-bottom: 4px; }
+.rc-name { font-size: 12px; font-weight: 700; color: #fff; }
+.rc-cuisine { font-size: 9px; color: rgba(255,255,255,0.45); margin-top: 1px; }
+.rc-star { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--gold); }
+.rc-row2 { display: flex; gap: 10px; margin-top: 5px; }
+.rc-pill { font-size: 9px; color: rgba(255,255,255,0.45); }
+.rc-pill b { color: rgba(255,255,255,0.85); }
+.rc-reasons { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 6px; }
+.rc-chip { background: rgba(34,197,94,0.1); color: #4ADE80; font-size: 8px; font-weight: 700; padding: 2px 7px; border-radius: 4px; }
+.typing-indicator { display: flex; gap: 4px; align-items: center; padding: 4px 0; }
+.typing-dot { width: 6px; height: 6px; background: rgba(255,255,255,0.35); border-radius: 50%; animation: typePulse 1.2s infinite; }
+.typing-dot:nth-child(2) { animation-delay: .2s; }
+.typing-dot:nth-child(3) { animation-delay: .4s; }
+@keyframes typePulse { 0%,60%,100%{opacity:.3} 30%{opacity:1} }
+.order-action-bar { padding: 12px 14px; display: flex; gap: 8px; }
+.order-best-btn { flex: 1; background: var(--red); color: #fff; border: none; border-radius: 12px; padding: 13px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: 'Sora', sans-serif; transition: background .15s; }
+.order-best-btn:hover { background: #BE0016; }
+.refine-btn { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.6); border-radius: 12px; padding: 13px 16px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: 'Sora', sans-serif; }
+
+/* ── S3: TASTE PROFILE ── */
+.tp-header { background: linear-gradient(180deg, #220D0D, var(--dark)); padding: 11px 18px 13px; border-bottom: 1px solid rgba(255,255,255,0.07); }
+.tp-title { font-size: 17px; font-weight: 800; color: #fff; }
+.tp-meta { font-size: 10px; color: rgba(255,255,255,0.4); margin-top: 3px; }
+.tp-section { padding: 13px 16px 0; }
+.tp-sec-lbl { font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 9px; }
+.tp-divider { border: none; border-top: 1px solid rgba(255,255,255,0.07); margin: 12px 16px; }
+.conf-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.conf-tag { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.25); color: #4ADE80; font-size: 10px; font-weight: 700; padding: 5px 11px; border-radius: 20px; display: flex; align-items: center; gap: 4px; }
+.signal-row { background: var(--card); border: 1px solid rgba(255,255,255,0.07); border-radius: 8px; padding: 9px 12px; margin-bottom: 6px; display: flex; align-items: center; gap: 10px; }
+.si-icon { font-size: 16px; flex-shrink: 0; }
+.si-label { font-size: 11px; font-weight: 700; color: #fff; }
+.si-source { font-size: 9px; color: rgba(255,255,255,0.4); margin-top: 1px; }
+.si-pct { font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 700; color: var(--gold); }
+.si-bar { height: 4px; background: rgba(255,255,255,0.08); border-radius: 99px; overflow: hidden; margin-top: 3px; }
+.si-fill { height: 100%; border-radius: 99px; background: var(--gold); }
+.review-item { background: rgba(255,184,0,0.05); border: 1px solid rgba(255,184,0,0.2); border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; }
+.ri-flag { font-size: 9px; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 3px; }
+.ri-title { font-size: 11px; font-weight: 700; color: #fff; margin-bottom: 2px; }
+.ri-source { font-size: 9px; color: rgba(255,255,255,0.4); margin-bottom: 8px; }
+.ri-btns { display: flex; gap: 6px; }
+.ri-keep { background: rgba(34,197,94,0.12); border: 1px solid rgba(34,197,94,0.28); color: #4ADE80; font-size: 10px; font-weight: 700; padding: 5px 13px; border-radius: 6px; font-family: 'Sora', sans-serif; cursor: pointer; transition: background .15s; }
+.ri-keep:hover { background: rgba(34,197,94,0.2); }
+.ri-skip { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.45); font-size: 10px; font-weight: 700; padding: 5px 13px; border-radius: 6px; font-family: 'Sora', sans-serif; cursor: pointer; }
+.ri-keep.kept { background: rgba(34,197,94,0.22); pointer-events: none; }
+.ri-skip.skipped { background: rgba(255,255,255,0.08); pointer-events: none; }
+
+/* ── S4: ORDER SUCCESS + SIGNAL FEED ── */
+.success-hero { background: linear-gradient(180deg, #2A1010, var(--dark)); padding: 28px 20px 22px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.07); }
+.success-check { width: 68px; height: 68px; background: rgba(34,197,94,0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 34px; margin: 0 auto 14px; animation: pop .4s cubic-bezier(.34,1.56,.64,1); }
+@keyframes pop { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
+.success-title { font-size: 20px; font-weight: 800; color: #fff; margin-bottom: 4px; }
+.success-sub { font-size: 12px; color: rgba(255,255,255,0.5); line-height: 1.5; }
+.success-sub strong { color: #4ADE80; }
+.order-card { margin: 14px 16px 0; background: var(--card); border-radius: 14px; border: 1px solid rgba(255,255,255,0.08); overflow: hidden; }
+.order-card-hdr { padding: 11px 14px; border-bottom: 1px solid rgba(255,255,255,0.07); display: flex; justify-content: space-between; align-items: center; }
+.order-card-title { font-size: 12px; font-weight: 700; color: #fff; }
+.order-id { font-family: 'DM Mono', monospace; font-size: 10px; color: rgba(255,255,255,0.4); }
+.order-item-row { padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.06); }
+.order-item-row:last-child { border-bottom: none; }
+.oi-name { font-size: 11.5px; font-weight: 600; color: #fff; }
+.oi-qty { font-size: 10px; color: rgba(255,255,255,0.4); }
+.oi-price { font-size: 12.5px; font-weight: 700; color: #fff; }
+.order-total-row { padding: 11px 14px; background: rgba(255,255,255,0.03); display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; color: #fff; }
+
+/* Signal learned feed */
+.signal-feed-section { padding: 14px 16px 0; }
+.sfs-title { font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 9px; }
+.signal-learned { background: rgba(255,184,0,0.05); border: 1px solid rgba(255,184,0,0.18); border-radius: 10px; padding: 10px 12px; margin-bottom: 7px; display: flex; align-items: center; gap: 10px; }
+.sl-icon { font-size: 17px; flex-shrink: 0; }
+.sl-title { font-size: 11px; font-weight: 700; color: #fff; }
+.sl-source { font-size: 9px; color: rgba(255,255,255,0.4); margin-top: 1px; }
+.sl-conf { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--gold); margin-top: 2px; }
+.sl-action { font-size: 9px; font-weight: 700; color: var(--gold); flex-shrink: 0; padding: 3px 9px; background: rgba(255,184,0,0.1); border-radius: 5px; }
+.home-btn { margin: 14px 16px 20px; background: var(--red); color: #fff; font-size: 13.5px; font-weight: 700; padding: 14px; border-radius: 14px; text-align: center; cursor: pointer; }
+.home-btn:hover { background: #BE0016; }
+
+/* ANNOTATION PANEL */
+.anno-panel { width: 300px; padding-top: 58px; }
+.anno-title { font-size: 22px; font-weight: 800; color: #F0E0E0; margin-bottom: 4px; line-height: 1.2; }
+.anno-sub { font-size: 12.5px; color: #A08080; margin-bottom: 22px; line-height: 1.6; }
+.nav-dots { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 22px; }
+.ndot { padding: 5px 13px; border-radius: 20px; font-size: 10.5px; font-weight: 600; cursor: pointer; border: 1.5px solid rgba(255,255,255,0.1); color: #907878; transition: all .2s; white-space: nowrap; font-family: 'Sora', sans-serif; }
+.ndot:hover { border-color: rgba(226,0,26,0.4); color: #E2001A; }
+.ndot.active { background: var(--red); color: #fff; border-color: var(--red); }
+.anno-cards { display: flex; flex-direction: column; gap: 9px; }
+.anno-card { background: rgba(255,255,255,0.04); border-radius: 12px; padding: 13px 15px; border: 1px solid rgba(255,255,255,0.07); }
+.anno-num { display: inline-flex; width: 20px; height: 20px; background: rgba(226,0,26,0.15); color: var(--red); border-radius: 50%; font-size: 9.5px; font-weight: 700; align-items: center; justify-content: center; margin-bottom: 6px; }
+.anno-card h4 { font-size: 12.5px; font-weight: 700; color: #F0E0E0; margin-bottom: 4px; }
+.anno-card p { font-size: 11.5px; color: #A08080; line-height: 1.6; }
+.anno-metric { display: inline-flex; align-items: center; gap: 3px; background: rgba(34,197,94,0.15); color: #4ADE80; font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 5px; margin-top: 8px; }
+</style>
+</head>
+<body>
+
+<div class="phone-wrap">
+  <div class="screen-label-top" id="screen-label">Screen 1 of 4 — Home</div>
+  <div class="phone" style="position:relative">
+    <canvas id="confetti-canvas"></canvas>
+    <div class="notch"><div class="notch-cam"></div><div class="notch-sensor"></div></div>
+    <div class="status-bar"><span>9:41</span><span style="opacity:.55">●●● 100%</span></div>
+    <div class="screen-content">
+
+      <!-- SCREEN 1: HOME -->
+      <div class="screen active" id="s1">
+        <div class="home-header">
+          <div>
+            <div class="home-logo">🧞 FoodGenie</div>
+            <div class="home-logo-sub">Delivery Hero · Berlin</div>
+          </div>
+          <div class="home-avatar">SA</div>
+        </div>
+        <div class="home-greeting">
+          <div class="greeting-text">Good Friday evening, Sanjay 👋</div>
+          <div class="greeting-sub">FoodGenie knows what you're craving.</div>
+        </div>
+
+        <div class="proactive-banner" onclick="go(2)">
+          <div class="pb-glow"></div>
+          <div class="pb-eyebrow">🔥 Your Friday ritual is ready</div>
+          <div class="pb-title">Burger Boutique, as usual?</div>
+          <div class="pb-sub">Matched from your Taste Profile · Friday night pattern</div>
+          <div class="pb-row">
+            <div class="pb-badge">✅ 18 min delivery</div>
+            <div class="pb-price">€18.50 · 2 items</div>
+          </div>
+          <div class="pb-btns">
+            <button class="pb-order-btn" onclick="event.stopPropagation();go(4)">Order Now →</button>
+            <button class="pb-edit-btn" onclick="event.stopPropagation();go(2)">Edit Cart</button>
+          </div>
+        </div>
+
+        <div class="chat-entry" onclick="go(2)">
+          <span style="font-size:17px">🧞</span>
+          <div class="ce-text">Ask FoodGenie anything…</div>
+          <div class="ce-mic">🎤</div>
+        </div>
+
+        <div class="sec-hdr">
+          <div class="sec-title">Quick Reorder</div>
+          <div class="sec-link">See all</div>
+        </div>
+        <div class="reorder-row">
+          <div class="r-chip"><div class="r-chip-name">🍔 Burger Boutique</div><div class="r-chip-meta">Fri favourite · 18 min</div></div>
+          <div class="r-chip"><div class="r-chip-name">🍣 Sakura Kitchen</div><div class="r-chip-meta">Last Sunday</div></div>
+          <div class="r-chip"><div class="r-chip-name">🥗 Levant Kitchen</div><div class="r-chip-meta">3 orders · 22 min</div></div>
+        </div>
+
+        <div class="sec-hdr">
+          <div class="sec-title">From your Taste Profile</div>
+          <div class="sec-link" onclick="go(3)" style="cursor:pointer">23 signals →</div>
+        </div>
+        <div class="sug-card" onclick="go(2)">
+          <div class="sug-emoji">🥗</div>
+          <div style="flex:1"><div class="sug-name">Levant Kitchen</div><div class="sug-meta">Mediterranean · ★4.8</div><div class="sug-tag">✓ light · ✓ new experience</div></div>
+          <div><div class="sug-time">19 min</div><div class="sug-price">€11–16</div></div>
+        </div>
+        <div class="sug-card">
+          <div class="sug-emoji">🌿</div>
+          <div style="flex:1"><div class="sug-name">Greens & Co.</div><div class="sug-meta">Salads · ★4.6</div><div class="sug-tag">✓ health-conscious · ✓ quick</div></div>
+          <div><div class="sug-time">14 min</div><div class="sug-price">€9–14</div></div>
+        </div>
+        <div class="sug-card">
+          <div class="sug-emoji">🍜</div>
+          <div style="flex:1"><div class="sug-name">Miso Ramen Bar</div><div class="sug-meta">Japanese · ★4.7</div><div class="sug-tag">✓ weekend fav · ✓ spicy OK</div></div>
+          <div><div class="sug-time">23 min</div><div class="sug-price">€12–18</div></div>
+        </div>
+        <div style="height:10px"></div>
+        <div class="nav-bar">
+          <div class="nav-item active"><div class="nav-icon">🏠</div><div>Home</div></div>
+          <div class="nav-item" onclick="go(2)"><div class="nav-icon">🧞</div><div>Genie</div></div>
+          <div class="nav-item" onclick="go(3)"><div class="nav-icon">🧠</div><div>Profile</div></div>
+          <div class="nav-item"><div class="nav-icon">📦</div><div>Orders</div></div>
+        </div>
+      </div>
+
+      <!-- SCREEN 2: AGENT CHAT -->
+      <div class="screen" id="s2">
+        <div class="chat-hdr">
+          <div class="back-btn" onclick="go(1)">←</div>
+          <div class="chat-hdr-avatar">🧞</div>
+          <div style="flex:1">
+            <div class="chat-hdr-name">FoodGenie</div>
+            <div class="chat-hdr-sub">Reading your Taste Profile…</div>
+          </div>
+          <div onclick="go(3)" style="font-size:9px;font-weight:700;color:var(--red);cursor:pointer;padding:4px 9px;background:var(--red-mid);border-radius:20px">Profile →</div>
+        </div>
+        <div class="chat-msgs">
+          <div class="msg-agent-row">
+            <div class="ma-avatar">🧞</div>
+            <div class="msg-agent">Hey Sanjay! What are you feeling tonight? I've loaded your Taste Profile and I'm ready. 🍽️</div>
+          </div>
+          <div class="msg-user">something light, under €14, quick delivery, haven't tried before</div>
+          <div class="msg-agent-row">
+            <div class="ma-avatar">🧞</div>
+            <div class="msg-agent">
+              <div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>
+            </div>
+          </div>
+          <div class="msg-agent-row">
+            <div class="ma-avatar">🧞</div>
+            <div class="msg-agent">
+              <div class="profile-used">🧠 Used 4 signals from your Taste Profile</div>
+              Found 3 places matching all your constraints:
+              <div style="margin-top:8px">
+                <div class="res-card best">
+                  <div style="display:flex;justify-content:space-between;align-items:flex-start">
+                    <div><div class="rc-name">Levant Kitchen</div><div class="rc-cuisine">Mediterranean · New for you</div></div>
+                    <div class="rc-star">★ 4.8</div>
+                  </div>
+                  <div class="rc-row2"><div class="rc-pill"><b>€12.90</b></div><div class="rc-pill"><b>17 min</b></div><div class="rc-pill"><b>€0</b> delivery</div></div>
+                  <div class="rc-reasons"><div class="rc-chip">✓ Light</div><div class="rc-chip">✓ Under €14</div><div class="rc-chip">✓ 17 min</div><div class="rc-chip">✓ First time</div></div>
+                </div>
+                <div class="res-card">
+                  <div style="display:flex;justify-content:space-between;align-items:flex-start">
+                    <div><div class="rc-name">Tokyo Bowl</div><div class="rc-cuisine">Japanese · New for you</div></div>
+                    <div class="rc-star">★ 4.6</div>
+                  </div>
+                  <div class="rc-row2"><div class="rc-pill"><b>€13.50</b></div><div class="rc-pill"><b>21 min</b></div><div class="rc-pill"><b>€1.50</b></div></div>
+                  <div class="rc-reasons"><div class="rc-chip">✓ Light</div><div class="rc-chip">✓ Under €14</div><div class="rc-chip">✓ First time</div></div>
+                </div>
+                <div class="res-card">
+                  <div style="display:flex;justify-content:space-between;align-items:flex-start">
+                    <div><div class="rc-name">Greens & Co.</div><div class="rc-cuisine">Salads & Bowls</div></div>
+                    <div class="rc-star">★ 4.5</div>
+                  </div>
+                  <div class="rc-row2"><div class="rc-pill"><b>€11.90</b></div><div class="rc-pill"><b>14 min</b></div><div class="rc-pill"><b>Free</b></div></div>
+                  <div class="rc-reasons"><div class="rc-chip">✓ Light</div><div class="rc-chip">✓ Fastest</div><div class="rc-chip">✓ Budget-friendly</div></div>
+                </div>
+              </div>
+              <div style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:8px">Tap "Order Levant Kitchen" or tap any result to see the menu.</div>
+            </div>
+          </div>
+        </div>
+        <div class="order-action-bar">
+          <button class="order-best-btn" onclick="go(4)">Order Levant Kitchen →</button>
+          <button class="refine-btn">Refine</button>
+        </div>
+      </div>
+
+      <!-- SCREEN 3: TASTE PROFILE -->
+      <div class="screen" id="s3">
+        <div class="tp-header">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start">
+            <div>
+              <div class="tp-title">Your Taste Profile</div>
+              <div class="tp-meta">23 signals · Updated after every order</div>
+            </div>
+            <div class="back-btn" onclick="go(1)" style="margin-top:-2px">✕</div>
+          </div>
+        </div>
+
+        <div class="tp-section">
+          <div class="tp-sec-lbl">Confirmed Preferences</div>
+          <div class="conf-tags">
+            <div class="conf-tag">✓ Light meals</div>
+            <div class="conf-tag">✓ No onion</div>
+            <div class="conf-tag">✓ Under €16</div>
+            <div class="conf-tag">✓ Under 25 min</div>
+            <div class="conf-tag">✓ Discovery mode</div>
+            <div class="conf-tag">✓ Spicy OK</div>
+          </div>
+        </div>
+        <hr class="tp-divider">
+        <div class="tp-section">
+          <div class="tp-sec-lbl">AI-Learned Signals</div>
+          <div class="signal-row">
+            <div class="si-icon">🕘</div>
+            <div style="flex:1"><div class="si-label">Friday 9pm = indulgent order</div><div class="si-source">Inferred from 8 Friday orders</div></div>
+            <div style="text-align:right"><div class="si-pct">91%</div><div class="si-bar" style="width:52px"><div class="si-fill" style="width:91%"></div></div></div>
+          </div>
+          <div class="signal-row">
+            <div class="si-icon">🌍</div>
+            <div style="flex:1"><div class="si-label">Prefers cuisines you haven't tried</div><div class="si-source">Discovery pattern · 6 new restaurants in 30 days</div></div>
+            <div style="text-align:right"><div class="si-pct">84%</div><div class="si-bar" style="width:52px"><div class="si-fill" style="width:84%"></div></div></div>
+          </div>
+          <div class="signal-row">
+            <div class="si-icon">💶</div>
+            <div style="flex:1"><div class="si-label">Max comfort spend: €15 weekday</div><div class="si-source">From 24 order value patterns</div></div>
+            <div style="text-align:right"><div class="si-pct">88%</div><div class="si-bar" style="width:52px"><div class="si-fill" style="width:88%"></div></div></div>
+          </div>
+        </div>
+        <hr class="tp-divider">
+        <div class="tp-section">
+          <div class="tp-sec-lbl">Needs Your Confirmation</div>
+          <div class="review-item">
+            <div class="ri-flag">New signal detected</div>
+            <div class="ri-title">You seem to prefer solo portion sizes (no group orders)</div>
+            <div class="ri-source">Inferred from last 11 orders · all under €18</div>
+            <div class="ri-btns">
+              <button class="ri-keep" id="ri1-keep" onclick="confirmSignal(1)">✓ Keep</button>
+              <button class="ri-skip" id="ri1-skip" onclick="skipSignal(1)">Skip</button>
+            </div>
+          </div>
+          <div class="review-item">
+            <div class="ri-flag">New signal detected</div>
+            <div class="ri-title">Prefers restaurants with 4.6+ rating</div>
+            <div class="ri-source">All 6 discovery orders were ★4.5 or higher</div>
+            <div class="ri-btns">
+              <button class="ri-keep" id="ri2-keep" onclick="confirmSignal(2)">✓ Keep</button>
+              <button class="ri-skip" id="ri2-skip" onclick="skipSignal(2)">Skip</button>
+            </div>
+          </div>
+        </div>
+        <div style="height:16px"></div>
+      </div>
+
+      <!-- SCREEN 4: ORDER SUCCESS + LEARNING -->
+      <div class="screen" id="s4">
+        <div class="success-hero">
+          <div class="success-check">✅</div>
+          <div class="success-title">Order confirmed!</div>
+          <div class="success-sub">Levant Kitchen arriving in <strong>17 min</strong> · #DH-48291</div>
+        </div>
+        <div class="order-card">
+          <div class="order-card-hdr"><div class="order-card-title">Your order</div><div class="order-id">#DH-48291</div></div>
+          <div class="order-item-row"><div><div class="oi-name">Hummus & Pita Platter</div><div class="oi-qty">×1</div></div><div class="oi-price">€9.50</div></div>
+          <div class="order-item-row"><div><div class="oi-name">Grilled Halloumi Salad</div><div class="oi-qty">×1</div></div><div class="oi-price">€12.90</div></div>
+          <div class="order-total-row"><span>Total paid</span><span>€22.40</span></div>
+        </div>
+        <div class="signal-feed-section">
+          <div class="sfs-title">🧠 FoodGenie just learned from this order</div>
+          <div class="signal-learned">
+            <div class="sl-icon">🌍</div>
+            <div style="flex:1">
+              <div class="sl-title">Mediterranean added to discovery list</div>
+              <div class="sl-source">New cuisine tried — Levant Kitchen · ★4.8</div>
+              <div class="sl-conf">Confidence: 78%</div>
+            </div>
+            <div class="sl-action">Noted ✓</div>
+          </div>
+          <div class="signal-learned">
+            <div class="sl-icon">💶</div>
+            <div style="flex:1">
+              <div class="sl-title">Budget signal: €14 comfort ceiling confirmed</div>
+              <div class="sl-source">Chose €12.90 option over €13.50 when both available</div>
+              <div class="sl-conf">Confidence: 85%</div>
+            </div>
+            <div class="sl-action">Noted ✓</div>
+          </div>
+          <div class="signal-learned" style="border-color:rgba(226,0,26,0.25);background:rgba(226,0,26,0.05)">
+            <div class="sl-icon">❓</div>
+            <div style="flex:1">
+              <div class="sl-title">You ordered from a new cuisine on a Friday</div>
+              <div class="sl-source">Usually indulgent Friday pick — updating pattern</div>
+              <div class="sl-conf" style="color:var(--red)">Checking: did this hit the spot?</div>
+            </div>
+            <button style="font-size:9px;font-weight:700;color:var(--red);background:var(--red-mid);border:none;border-radius:5px;padding:3px 9px;font-family:'Sora',sans-serif;cursor:pointer;flex-shrink:0">Rate it</button>
+          </div>
+        </div>
+        <div class="home-btn" onclick="go(1)">Back to Home →</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ANNOTATION PANEL -->
+<div class="anno-panel">
+  <div class="anno-title">FoodGenie</div>
+  <div class="anno-sub">Conversational food discovery + living Taste Profile. Tap the proactive banner or "Order Now" to explore the full flow.</div>
+  <div class="nav-dots">
+    <div class="ndot active" id="d1" onclick="go(1)">Home</div>
+    <div class="ndot" id="d2" onclick="go(2)">Genie Chat</div>
+    <div class="ndot" id="d3" onclick="go(3)">Taste Profile</div>
+    <div class="ndot" id="d4" onclick="go(4)">Order + Learning</div>
+  </div>
+  <div class="anno-cards" id="anno-cards"></div>
+</div>
+
+<script>
+const ANNO = {
+  1:[
+    {n:'1',t:'Proactive banner before search',b:'FoodGenie surfaces "Your Friday ritual is ready — Burger Boutique?" before the user opens a search. The agent has detected Friday-night-indulgent-order as a pattern across 8 sessions and proactively surfaces it. Zero friction for the habitual order.',m:'+22% repeat order rate (Propensity model analogue)'},
+    {n:'2',t:'Chat entry is secondary — by design',b:'The "Ask FoodGenie" bar appears below the proactive banner. If you know what you want, the agent already surfaced it. The chat bar is for constraint-based discovery, not primary navigation.',m:'Proactive > reactive for habitual users'},
+    {n:'3',t:'"From your Taste Profile" section',b:'Recommendation cards show WHY they were recommended — "✓ light · ✓ new experience". Not algorithmic black box. Tapping the "23 signals →" link navigates to the full Taste Profile. Transparency builds trust.',m:'Trust → higher engagement per session'},
+  ],
+  2:[
+    {n:'1',t:'"Used 4 signals from your Taste Profile"',b:'The agent shows its work. "light, under €14, quick, haven\'t tried before" — all 4 constraints mapped to profile signals. The user didn\'t repeat preferences they\'d stated before. The agent already knew.',m:'Personalisation felt, not just present'},
+    {n:'2',t:'Best match is clearly ranked #1',b:'"🏆 Best match" badge on Levant Kitchen. Confidence tags show exactly how many of the 4 constraints were met. Reduces choice paralysis — the shopper can act in 1 tap or explore the other 2.',m:'−60% multi-session resolution (analogue)'},
+    {n:'3',t:'Order action bar — 1 primary CTA',b:'"Order Levant Kitchen" is the primary action. "Refine" is the escape hatch. This hierarchy means the session resolves in 1 tap for 78% of users (analogue: Pincode cart completion rate after single recommendation).',m:'78% 1-tap resolution rate target'},
+  ],
+  3:[
+    {n:'1',t:'The Taste Profile is a product, not a settings page',b:'23 signals, confidence scores, a 7-day update cadence — this is a living model of the user\'s food preferences. Not a static "allergens: none" form. The more you order, the sharper it gets.',m:'Self-evolving preference file'},
+    {n:'2',t:'Confidence bars per signal',b:'Each AI-inferred signal shows "91% confidence" with a bar. Users can see what the model thinks it knows and how certain it is. This creates trust — and makes the "confirm/skip" action feel meaningful, not bureaucratic.',m:'User-confirmed signals → higher precision'},
+    {n:'3',t:'"Needs Your Confirmation" — RLHF-lite',b:'New inferred signals surface for user review. "Keep" locks them in permanently. "Skip" discards. Try clicking Keep on both — the buttons confirm with a state change. This is the data flywheel: more orders → better signals → better FoodGenie.',m:'Try clicking Keep on both signals'},
+  ],
+  4:[
+    {n:'1',t:'Post-order learning is visible and immediate',b:'3 signals appear right after order confirmation — 2 noted automatically, 1 flagged as uncertain ("did this hit the spot?"). The user sees FoodGenie actively learning from this session. Makes them more likely to rate and return.',m:'Visible learning → higher re-engagement'},
+    {n:'2',t:'Confidence-scored signals at point of learning',b:'Each signal shows confidence: 78%, 85%. Not all learning is equal. The model shows when it\'s uncertain — and asks for confirmation only when it needs it. Reduces confirmation fatigue vs. asking every time.',m:'Selective confirmation → less friction'},
+    {n:'3',t:'Direct parallel to PhonePe Propensity-to-Transact',b:'FoodGenie\'s Taste Profile is the consumer ordering analogue to the PhonePe PTT model I shipped — user-level propensity scoring from behavioural signals, replaced rule-based cohorts. Same architecture, different product surface.',m:'−32% spend waste at PhonePe (same ML model)'},
+  ],
+};
+const LABELS={1:'Screen 1 of 4 — Home',2:'Screen 2 of 4 — Genie Chat',3:'Screen 3 of 4 — Taste Profile',4:'Screen 4 of 4 — Order + Learning'};
+
+function go(n){
+  [1,2,3,4].forEach(i=>{
+    document.getElementById('s'+i).classList.remove('active');
+    const d=document.getElementById('d'+i);if(d)d.classList.remove('active');
+  });
+  document.getElementById('s'+n).classList.add('active');
+  const dn=document.getElementById('d'+n);if(dn)dn.classList.add('active');
+  document.getElementById('screen-label').textContent=LABELS[n];
+  renderAnno(n);
+  if(n===4){stopConfetti();setTimeout(startConfetti,300);}else stopConfetti();
+}
+
+function confirmSignal(id){
+  document.getElementById('ri'+id+'-keep').textContent='✓ Confirmed';
+  document.getElementById('ri'+id+'-keep').classList.add('kept');
+  document.getElementById('ri'+id+'-skip').classList.add('skipped');
+}
+function skipSignal(id){
+  document.getElementById('ri'+id+'-skip').textContent='Skipped';
+  document.getElementById('ri'+id+'-skip').classList.add('skipped');
+  document.getElementById('ri'+id+'-keep').classList.add('kept');
+}
+
+let cfFrame=null;
+const cfCols=['#E2001A','#FFB800','#22C55E','#60A5FA','#F472B6','#FBBF24','#A78BFA'];
+function startConfetti(){
+  const canvas=document.getElementById('confetti-canvas');
+  const ctx=canvas.getContext('2d');
+  canvas.width=canvas.offsetWidth;canvas.height=canvas.offsetHeight;
+  const p=Array.from({length:50},()=>({x:Math.random()*canvas.width,y:Math.random()*-canvas.height*.5,r:Math.random()*5+3,color:cfCols[Math.floor(Math.random()*cfCols.length)],vx:(Math.random()-.5)*3,vy:Math.random()*4+2,a:Math.random()*360,s:(Math.random()-.5)*8}));
+  function draw(){ctx.clearRect(0,0,canvas.width,canvas.height);p.forEach(q=>{ctx.save();ctx.translate(q.x,q.y);ctx.rotate(q.a*Math.PI/180);ctx.fillStyle=q.color;ctx.fillRect(-q.r,-q.r/2,q.r*2,q.r);ctx.restore();q.x+=q.vx;q.y+=q.vy;q.a+=q.s;if(q.y>canvas.height){q.y=-20;q.x=Math.random()*canvas.width;}});cfFrame=requestAnimationFrame(draw);}
+  draw();setTimeout(stopConfetti,3500);
+}
+function stopConfetti(){if(cfFrame)cancelAnimationFrame(cfFrame);const c=document.getElementById('confetti-canvas');if(c)c.getContext('2d').clearRect(0,0,c.width,c.height);}
+
+function renderAnno(n){
+  const cards=ANNO[n]||[];
+  document.getElementById('anno-cards').innerHTML=cards.map(c=>`<div class="anno-card"><div class="anno-num">${c.n}</div><h4>${c.t}</h4><p>${c.b}</p>${c.m?`<div class="anno-metric">↗ ${c.m}</div>`:''}</div>`).join('');
+}
+renderAnno(1);
+</script>
+</body>
+</html>

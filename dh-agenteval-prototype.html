@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Delivery Hero — AgentEval · Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --red:    #E2001A;
+  --gold:   #FFB800;
+  --green:  #22C55E;
+  --blue:   #3B82F6;
+  --purple: #8B5CF6;
+  --orange: #F97316;
+  --dark:   #120A0A;
+  --hero:   #1A0F0F;
+  --card:   #241414;
+  --lift:   #2E1A1A;
+  --muted:  #8B7070;
+  --border: rgba(255,255,255,0.08);
+  --white:  #FFF8F8;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  font-family:'Sora',sans-serif;
+  background:#0D0606;
+  color:var(--white);
+  min-height:100vh;
+  padding:32px 24px 60px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+/* ── header strip ── */
+.strip{
+  width:100%;max-width:980px;
+  background:var(--hero);
+  border:1px solid var(--border);
+  border-radius:10px 10px 0 0;
+  padding:10px 20px;
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:0;
+}
+.strip-left{display:flex;align-items:center;gap:10px;}
+.strip-logo{width:24px;height:24px;border-radius:6px;background:var(--red);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;color:#fff;}
+.strip-title{font-size:13px;font-weight:700;color:var(--white);}
+.strip-sub{font-size:11px;color:var(--muted);}
+.strip-tag{font-size:10px;font-weight:600;background:rgba(226,0,26,0.15);color:var(--red);border:1px solid rgba(226,0,26,0.3);padding:3px 10px;border-radius:20px;letter-spacing:.5px;}
+/* ── layout ── */
+.layout{
+  display:flex;gap:0;
+  width:100%;max-width:980px;
+  align-items:flex-start;
+}
+/* ── browser frame ── */
+.browser{
+  width:640px;flex-shrink:0;
+  background:#1A1A2E;
+  border-radius:0 0 0 12px;
+  border:1px solid var(--border);
+  border-top:none;
+  overflow:hidden;
+}
+.chrome{
+  background:#1F1F30;
+  padding:9px 14px;
+  display:flex;align-items:center;gap:10px;
+  border-bottom:1px solid var(--border);
+}
+.dots{display:flex;gap:5px;}
+.dot{width:11px;height:11px;border-radius:50%;}
+.dot-r{background:#FF5F56;}
+.dot-y{background:#FFBD2E;}
+.dot-g{background:#27C93F;}
+.url-bar{
+  flex:1;background:rgba(255,255,255,0.06);border:1px solid var(--border);
+  border-radius:5px;padding:3px 10px;
+  font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);
+}
+.nav-tabs{
+  display:flex;gap:0;
+  background:var(--hero);
+  border-bottom:1px solid var(--border);
+}
+.nav-tab{
+  padding:8px 14px;font-size:11px;font-weight:600;color:var(--muted);
+  cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;
+  white-space:nowrap;letter-spacing:.3px;
+}
+.nav-tab.active{color:var(--red);border-bottom-color:var(--red);background:rgba(226,0,26,0.06);}
+.nav-tab:hover:not(.active){color:var(--white);background:rgba(255,255,255,0.04);}
+.browser-body{
+  max-height:580px;overflow-y:auto;scrollbar-width:none;
+  background:var(--dark);
+}
+.browser-body::-webkit-scrollbar{display:none;}
+/* screens */
+.screen{display:none;padding:20px;}
+.screen.active{display:block;}
+/* ── annotation panel ── */
+.anno-panel{
+  width:300px;flex-shrink:0;
+  background:var(--hero);
+  border:1px solid var(--border);
+  border-left:none;border-top:none;
+  border-radius:0 0 12px 0;
+  padding:20px 18px;
+  max-height:648px;overflow-y:auto;scrollbar-width:none;
+}
+.anno-panel::-webkit-scrollbar{display:none;}
+.anno-screen-label{
+  font-family:'DM Mono',monospace;font-size:10px;color:var(--red);
+  font-weight:500;letter-spacing:1px;margin-bottom:14px;
+  text-transform:uppercase;
+}
+.anno-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:8px;padding:12px 14px;margin-bottom:12px;
+}
+.anno-card-n{
+  font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);
+  margin-bottom:5px;letter-spacing:.5px;
+}
+.anno-card-t{font-size:12px;font-weight:700;color:var(--white);margin-bottom:6px;}
+.anno-card-b{font-size:11px;color:var(--muted);line-height:1.55;}
+.anno-metric{
+  margin-top:9px;padding:8px 10px;
+  background:rgba(226,0,26,0.1);border-radius:6px;
+  border-left:3px solid var(--red);
+}
+.anno-metric span{font-family:'DM Mono',monospace;font-size:12px;font-weight:600;color:var(--gold);}
+.anno-metric p{font-size:10px;color:var(--muted);margin-top:2px;}
+/* ── nav dots ── */
+.ndots{display:flex;gap:6px;justify-content:center;padding:10px 0 6px;background:var(--hero);}
+.ndot{
+  width:28px;height:6px;border-radius:3px;
+  background:var(--border);cursor:pointer;transition:all .2s;
+}
+.ndot.active{background:var(--red);width:40px;}
+
+/* ─── shared UI components ─── */
+.section-label{font-size:9px;font-weight:700;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;}
+.kpi-row{display:flex;gap:10px;margin-bottom:16px;}
+.kpi-card{
+  flex:1;background:var(--card);border:1px solid var(--border);border-radius:8px;
+  padding:12px 14px;
+}
+.kpi-card.alert{border-color:rgba(226,0,26,0.4);background:rgba(226,0,26,0.06);}
+.kpi-card.warn{border-color:rgba(255,184,0,0.4);background:rgba(255,184,0,0.06);}
+.kpi-card.good{border-color:rgba(34,197,94,0.4);background:rgba(34,197,94,0.06);}
+.kpi-val{font-family:'DM Mono',monospace;font-size:26px;font-weight:700;line-height:1;margin-bottom:4px;}
+.kpi-val.red{color:var(--red);}
+.kpi-val.gold{color:var(--gold);}
+.kpi-val.green{color:var(--green);}
+.kpi-val.blue{color:var(--blue);}
+.kpi-lbl{font-size:10px;color:var(--muted);}
+.kpi-delta{font-size:10px;font-weight:600;margin-top:3px;}
+.kpi-delta.up{color:var(--green);}
+.kpi-delta.dn{color:var(--red);}
+.kpi-delta.flat{color:var(--gold);}
+
+.card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px;}
+.card-title{font-size:12px;font-weight:700;color:var(--white);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;}
+.badge{font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px;letter-spacing:.5px;}
+.badge-red{background:rgba(226,0,26,0.2);color:var(--red);border:1px solid rgba(226,0,26,0.3);}
+.badge-gold{background:rgba(255,184,0,0.15);color:var(--gold);border:1px solid rgba(255,184,0,0.3);}
+.badge-green{background:rgba(34,197,94,0.15);color:var(--green);border:1px solid rgba(34,197,94,0.3);}
+.badge-blue{background:rgba(59,130,246,0.15);color:var(--blue);border:1px solid rgba(59,130,246,0.3);}
+
+.prog-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.prog-label{font-size:10px;color:var(--muted);width:130px;flex-shrink:0;}
+.prog-track{flex:1;height:6px;background:rgba(255,255,255,0.07);border-radius:99px;overflow:visible;position:relative;}
+.prog-fill{height:100%;border-radius:99px;position:relative;}
+.prog-val{font-family:'DM Mono',monospace;font-size:10px;color:var(--white);width:40px;text-align:right;flex-shrink:0;}
+
+.row-item{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 10px;border-radius:6px;margin-bottom:6px;
+  background:var(--lift);border:1px solid var(--border);cursor:pointer;
+  transition:all .18s;
+}
+.row-item:hover{background:rgba(226,0,26,0.08);border-color:rgba(226,0,26,0.3);}
+.row-icon{width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.row-main{flex:1;}
+.row-title{font-size:11px;font-weight:600;color:var(--white);}
+.row-sub{font-size:10px;color:var(--muted);}
+.row-right{text-align:right;}
+.row-val{font-family:'DM Mono',monospace;font-size:13px;font-weight:700;}
+.row-change{font-size:9px;}
+
+btn-sm{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:6px;font-size:10px;font-weight:600;cursor:pointer;border:none;transition:all .18s;}
+.action-btn{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:5px 12px;border-radius:6px;font-size:11px;font-weight:600;
+  cursor:pointer;border:1px solid;transition:all .18s;
+  font-family:'Sora',sans-serif;
+}
+.action-btn.primary{background:var(--red);border-color:var(--red);color:#fff;}
+.action-btn.primary:hover{background:#c0001a;}
+.action-btn.secondary{background:transparent;border-color:var(--border);color:var(--muted);}
+.action-btn.secondary:hover{border-color:var(--red);color:var(--red);}
+.action-btn.sent{background:rgba(34,197,94,0.12);border-color:var(--green);color:var(--green);pointer-events:none;}
+.action-btn.done{background:rgba(34,197,94,0.12);border-color:var(--green);color:var(--green);pointer-events:none;}
+
+.divider{height:1px;background:var(--border);margin:14px 0;}
+
+/* heat cell */
+.heat-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:6px;}
+.heat-cell{height:26px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:9px;font-weight:600;cursor:pointer;transition:all .18s;}
+.heat-cell:hover{transform:scale(1.1);}
+
+/* session replay bubble */
+.msg-row{display:flex;gap:8px;margin-bottom:10px;}
+.msg-row.user{flex-direction:row-reverse;}
+.avatar{width:28px;height:28px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;}
+.bubble{
+  max-width:78%;padding:9px 12px;border-radius:10px;font-size:11px;line-height:1.5;
+}
+.user .bubble{background:var(--red);color:#fff;border-radius:10px 3px 10px 10px;}
+.agent .bubble{background:var(--lift);color:var(--white);border-radius:3px 10px 10px 10px;border:1px solid var(--border);}
+
+.score-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.score-lbl{font-size:10px;color:var(--muted);width:110px;}
+.score-bar{flex:1;height:5px;background:rgba(255,255,255,0.07);border-radius:3px;overflow:hidden;}
+.score-fill{height:100%;border-radius:3px;transition:.4s ease;}
+.score-num{font-family:'DM Mono',monospace;font-size:10px;font-weight:600;width:35px;text-align:right;}
+
+/* ab table */
+.ab-row{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:0;border-bottom:1px solid var(--border);}
+.ab-row.head{background:rgba(255,255,255,0.04);}
+.ab-cell{padding:8px 10px;font-size:11px;color:var(--muted);}
+.ab-row.head .ab-cell{font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);}
+.ab-row:not(.head) .ab-cell:first-child{color:var(--white);font-weight:600;}
+.variant-a{color:var(--blue)!important;}
+.variant-b{color:var(--gold)!important;}
+.winner-tag{display:inline-flex;align-items:center;gap:3px;font-size:9px;font-weight:700;background:rgba(34,197,94,0.15);color:var(--green);border:1px solid rgba(34,197,94,0.3);padding:2px 6px;border-radius:10px;margin-left:6px;}
+</style>
+</head>
+<body>
+
+<!-- header strip -->
+<div class="strip">
+  <div class="strip-left">
+    <div class="strip-logo">DH</div>
+    <div>
+      <div class="strip-title">Delivery Hero — AgentEval</div>
+      <div class="strip-sub">AI Quality Intelligence Platform · Interactive Prototype</div>
+    </div>
+  </div>
+  <div class="strip-tag">CASE STUDY 02</div>
+</div>
+
+<!-- main layout -->
+<div class="layout">
+
+  <!-- browser frame -->
+  <div class="browser">
+    <div class="chrome">
+      <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+      <div class="url-bar" id="url-bar">agenteval.deliveryhero.internal / quality / overview</div>
+    </div>
+    <!-- nav tabs -->
+    <div class="nav-tabs">
+      <div class="nav-tab active" id="d1" onclick="go(1)">Quality Overview</div>
+      <div class="nav-tab" id="d2" onclick="go(2)">Session Inspector</div>
+      <div class="nav-tab" id="d3" onclick="go(3)">Intent Heatmap</div>
+      <div class="nav-tab" id="d4" onclick="go(4)">A/B Test Runner</div>
+    </div>
+    <div class="browser-body">
+
+      <!-- ══ SCREEN 1: QUALITY OVERVIEW ══ -->
+      <div class="screen active" id="s1">
+        <div class="section-label">Quality Overview — All Markets · Live</div>
+
+        <!-- KPI row -->
+        <div class="kpi-row">
+          <div class="kpi-card warn">
+            <div class="kpi-val gold">76.4</div>
+            <div class="kpi-lbl">Avg Quality Score</div>
+            <div class="kpi-delta dn">▼ 2.1 pts vs last week</div>
+          </div>
+          <div class="kpi-card alert">
+            <div class="kpi-val red">18.3%</div>
+            <div class="kpi-lbl">Hallucination Rate</div>
+            <div class="kpi-delta dn">▲ +4.2% this week</div>
+          </div>
+          <div class="kpi-card good">
+            <div class="kpi-val green">61%</div>
+            <div class="kpi-lbl">Intent Resolution</div>
+            <div class="kpi-delta up">▲ +3% from patch v2.4</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-val blue">1.24s</div>
+            <div class="kpi-lbl">Avg Response Time</div>
+            <div class="kpi-delta flat">— Stable</div>
+          </div>
+        </div>
+
+        <!-- anomaly alerts -->
+        <div class="card" style="margin-bottom:14px;">
+          <div class="card-title">
+            Active Anomalies
+            <span class="badge badge-red">3 CRITICAL</span>
+          </div>
+
+          <div class="row-item" onclick="go(2)">
+            <div class="row-icon" style="background:rgba(226,0,26,0.15);">🔥</div>
+            <div class="row-main">
+              <div class="row-title">FoodGenie v2.1 — Hallucination spike · Turkey cluster</div>
+              <div class="row-sub">+11.4% vs baseline · 847 affected sessions in last 4h · Cuisine tag misattribution</div>
+            </div>
+            <div class="row-right">
+              <div class="row-val red" style="color:var(--red);">11.4%</div>
+              <div class="row-change" style="color:var(--muted);">Click to inspect →</div>
+            </div>
+          </div>
+
+          <div class="row-item">
+            <div class="row-icon" style="background:rgba(255,184,0,0.15);">⚠️</div>
+            <div class="row-main">
+              <div class="row-title">OrderAgent — Intent misclassification · "Cancel" mapped to "Modify"</div>
+              <div class="row-sub">3.2% error rate · 214 sessions affected · Berlin, Amsterdam</div>
+            </div>
+            <div class="row-right">
+              <div class="row-val" style="color:var(--gold);">3.2%</div>
+              <div class="row-change" style="color:var(--muted);">Medium</div>
+            </div>
+          </div>
+
+          <div class="row-item">
+            <div class="row-icon" style="background:rgba(255,184,0,0.15);">📉</div>
+            <div class="row-main">
+              <div class="row-title">SupportBot — Resolution rate dip · Weekend pattern</div>
+              <div class="row-sub">Sat–Sun resolution 48% vs 61% weekday avg · 7-day rolling trend</div>
+            </div>
+            <div class="row-right">
+              <div class="row-val" style="color:var(--gold);">48%</div>
+              <div class="row-change" style="color:var(--muted);">Low-Med</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- quality score breakdown -->
+        <div class="card" style="margin-bottom:14px;">
+          <div class="card-title">Quality Score Breakdown — FoodGenie v2.1</div>
+          <div class="prog-row">
+            <div class="prog-label">Factual Accuracy</div>
+            <div class="prog-track"><div class="prog-fill" style="width:71%;background:var(--gold);"></div></div>
+            <div class="prog-val">71%</div>
+          </div>
+          <div class="prog-row">
+            <div class="prog-label">Intent Resolution</div>
+            <div class="prog-track"><div class="prog-fill" style="width:61%;background:var(--blue);"></div></div>
+            <div class="prog-val">61%</div>
+          </div>
+          <div class="prog-row">
+            <div class="prog-label">Relevance</div>
+            <div class="prog-track"><div class="prog-fill" style="width:84%;background:var(--green);"></div></div>
+            <div class="prog-val">84%</div>
+          </div>
+          <div class="prog-row">
+            <div class="prog-label">Hallucination-Free</div>
+            <div class="prog-track"><div class="prog-fill" style="width:81%;background:var(--green);"></div></div>
+            <div class="prog-val">81%</div>
+          </div>
+          <div class="prog-row">
+            <div class="prog-label">Tone + Safety</div>
+            <div class="prog-track"><div class="prog-fill" style="width:96%;background:var(--green);"></div></div>
+            <div class="prog-val">96%</div>
+          </div>
+        </div>
+
+        <!-- market summary -->
+        <div class="card">
+          <div class="card-title">Market Leaderboard — Avg Quality Score</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div class="row-item" style="cursor:default;">
+              <div class="row-main"><div class="row-title">🇩🇪 Germany</div><div class="row-sub">12.4K sessions/day</div></div>
+              <div class="row-val green" style="color:var(--green);">82.1</div>
+            </div>
+            <div class="row-item" style="cursor:default;">
+              <div class="row-main"><div class="row-title">🇸🇦 Saudi Arabia</div><div class="row-sub">9.8K sessions/day</div></div>
+              <div class="row-val green" style="color:var(--green);">79.4</div>
+            </div>
+            <div class="row-item" style="cursor:default;">
+              <div class="row-main"><div class="row-title">🇦🇪 UAE</div><div class="row-sub">7.2K sessions/day</div></div>
+              <div class="row-val" style="color:var(--gold);">74.8</div>
+            </div>
+            <div class="row-item" style="cursor:default;">
+              <div class="row-main"><div class="row-title">🇹🇷 Turkey</div><div class="row-sub">11.1K sessions/day</div></div>
+              <div class="row-val red" style="color:var(--red);">61.3</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ SCREEN 2: SESSION INSPECTOR ══ -->
+      <div class="screen" id="s2">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+          <div>
+            <div class="section-label">Session Inspector</div>
+            <div style="font-size:13px;font-weight:700;color:var(--white);">Session #TK-847291 · FoodGenie v2.1 · Turkey</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px;">2026-05-29 · 14:23 UTC · User: anon_tr_4821 · Duration: 2m 14s</div>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <span class="badge badge-red">FLAGGED</span>
+            <span class="badge badge-gold">HALLUCINATION</span>
+          </div>
+        </div>
+
+        <!-- scores summary -->
+        <div class="card" style="margin-bottom:12px;">
+          <div class="card-title">Session Quality Scores</div>
+          <div class="score-row">
+            <div class="score-lbl">Factual Accuracy</div>
+            <div class="score-bar"><div class="score-fill" style="width:38%;background:var(--red);"></div></div>
+            <div class="score-num" style="color:var(--red);">38%</div>
+          </div>
+          <div class="score-row">
+            <div class="score-lbl">Intent Resolution</div>
+            <div class="score-bar"><div class="score-fill" style="width:65%;background:var(--gold);"></div></div>
+            <div class="score-num" style="color:var(--gold);">65%</div>
+          </div>
+          <div class="score-row">
+            <div class="score-lbl">Relevance</div>
+            <div class="score-bar"><div class="score-fill" style="width:72%;background:var(--gold);"></div></div>
+            <div class="score-num" style="color:var(--gold);">72%</div>
+          </div>
+          <div class="score-row">
+            <div class="score-lbl">Hallucination-Free</div>
+            <div class="score-bar"><div class="score-fill" style="width:22%;background:var(--red);"></div></div>
+            <div class="score-num" style="color:var(--red);">22%</div>
+          </div>
+          <div class="score-row">
+            <div class="score-lbl">Tone + Safety</div>
+            <div class="score-bar"><div class="score-fill" style="width:98%;background:var(--green);"></div></div>
+            <div class="score-num" style="color:var(--green);">98%</div>
+          </div>
+        </div>
+
+        <!-- session replay -->
+        <div class="card" style="margin-bottom:12px;">
+          <div class="card-title">Session Replay</div>
+
+          <div class="msg-row user">
+            <div class="avatar" style="background:var(--red);color:#fff;">U</div>
+            <div class="bubble">Zeytinburnu civarında iyi bir döner dükkanı önerir misin?</div>
+          </div>
+          <div style="font-size:9px;color:var(--muted);text-align:right;margin:-6px 40px 10px 0;">User asks for döner near Zeytinburnu, Istanbul</div>
+
+          <div class="msg-row agent">
+            <div class="avatar" style="background:var(--card);border:1px solid var(--border);">🤖</div>
+            <div class="bubble">
+              Zeytinburnu'nda en iyi seçenek <strong>Sultanahmet Köftecisi</strong> — 4.8⭐ puan, 18 dakika teslimat, mönüde börek ve lahmacun da var. Bütçenize göre AED 14–22 arası bir fiyat aralığı sunuyor.
+              <div style="margin-top:6px;padding:6px 8px;background:rgba(226,0,26,0.1);border-left:3px solid var(--red);border-radius:4px;font-size:10px;color:var(--red);">⚠️ AgentEval flag: Currency hallucination — AED used instead of TRY. Restaurant exists in Sultanahmet district, not Zeytinburnu (+4.2km). Delivery time fabricated (restaurant on separate platform).</div>
+            </div>
+          </div>
+
+          <div class="msg-row user">
+            <div class="avatar" style="background:var(--red);color:#fff;">U</div>
+            <div class="bubble">Fiyatlar AED mi? Bu mantıklı değil, ben İstanbul'dayım.</div>
+          </div>
+          <div style="font-size:9px;color:var(--muted);margin:-6px 0 10px 40px;">User flags currency error — trust broken</div>
+
+          <div class="msg-row agent">
+            <div class="avatar" style="background:var(--card);border:1px solid var(--border);">🤖</div>
+            <div class="bubble">Özür dilerim, hata yaptım. Fiyatlar Türk Lirası cinsinden: 185–340 TRY arası. Teslimat süresi yaklaşık 25 dakika olacaktır.</div>
+          </div>
+        </div>
+
+        <!-- root cause + actions -->
+        <div class="card">
+          <div class="card-title">Root Cause Analysis</div>
+          <div style="font-size:11px;color:var(--white);margin-bottom:8px;">AgentEval 3σ Classifier: <span style="color:var(--red);font-weight:700;">Currency Context Bleed</span></div>
+          <div style="font-size:10px;color:var(--muted);margin-bottom:12px;">Model context window retained UAE/Gulf market currency token (AED) from preceding session batch. Geo-intent parser failed to override with TR locale. Confidence: 91%.</div>
+
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="action-btn primary" id="jira-btn" onclick="createJira()">🔧 Create Jira Bug</button>
+            <button class="action-btn secondary" id="retrain-btn" onclick="flagRetrain()">🧠 Flag for Retraining</button>
+            <button class="action-btn secondary" onclick="go(3)">📊 See Heatmap →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ SCREEN 3: INTENT HEATMAP ══ -->
+      <div class="screen" id="s3">
+        <div class="section-label">Intent & Failure Heatmap — Last 7 Days</div>
+
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+          <div style="font-size:13px;font-weight:700;color:var(--white);">Where FoodGenie Fails, by Intent × Market</div>
+          <div style="display:flex;gap:6px;align-items:center;font-size:9px;color:var(--muted);">
+            <div style="width:12px;height:12px;border-radius:3px;background:rgba(34,197,94,0.7);"></div> &lt;5% fail
+            <div style="width:12px;height:12px;border-radius:3px;background:rgba(255,184,0,0.7);margin-left:6px;"></div> 5–15%
+            <div style="width:12px;height:12px;border-radius:3px;background:rgba(226,0,26,0.85);margin-left:6px;"></div> &gt;15%
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:14px;overflow-x:auto;">
+          <!-- header row -->
+          <div style="display:grid;grid-template-columns:140px repeat(7,1fr);gap:4px;margin-bottom:4px;">
+            <div style="font-size:9px;color:var(--muted);"></div>
+            <div style="font-size:9px;color:var(--muted);text-align:center;">🇩🇪 DE</div>
+            <div style="font-size:9px;color:var(--muted);text-align:center;">🇸🇦 SA</div>
+            <div style="font-size:9px;color:var(--muted);text-align:center;">🇦🇪 AE</div>
+            <div style="font-size:9px;color:var(--muted);text-align:center;">🇹🇷 TR</div>
+            <div style="font-size:9px;color:var(--muted);text-align:center;">🇳🇱 NL</div>
+            <div style="font-size:9px;color:var(--muted);text-align:center;">🇵🇱 PL</div>
+            <div style="font-size:9px;color:var(--muted);text-align:center;">🇬🇷 GR</div>
+          </div>
+          <!-- heatmap data rows -->
+          <div id="heatmap-rows">
+          </div>
+        </div>
+
+        <!-- top failure patterns -->
+        <div class="card" style="margin-bottom:14px;">
+          <div class="card-title">Top Failure Patterns (click to inspect)</div>
+          <div class="row-item" onclick="go(2)">
+            <div class="row-icon" style="background:rgba(226,0,26,0.15);">🔥</div>
+            <div class="row-main">
+              <div class="row-title">Currency hallucination — Gulf context bleed into TR market</div>
+              <div class="row-sub">847 sessions · Pattern: AED used in TR sessions · Root: context window leak</div>
+            </div>
+            <div class="row-val red" style="color:var(--red);">Critical</div>
+          </div>
+          <div class="row-item">
+            <div class="row-icon" style="background:rgba(255,184,0,0.15);">🗺️</div>
+            <div class="row-main">
+              <div class="row-title">Geo-distance hallucination — restaurants placed in wrong district</div>
+              <div class="row-sub">312 sessions · Pattern: Landmark name match ignores geo-coord · Affects DE, TR</div>
+            </div>
+            <div class="row-val" style="color:var(--gold);">High</div>
+          </div>
+          <div class="row-item">
+            <div class="row-icon" style="background:rgba(59,130,246,0.15);">🍱</div>
+            <div class="row-main">
+              <div class="row-title">Cuisine tag mismatch — "Italian" returns pizza + sushi clusters</div>
+              <div class="row-sub">189 sessions · Pattern: Taxonomy loose match on training data · Affects SA, AE</div>
+            </div>
+            <div class="row-val" style="color:var(--blue);">Medium</div>
+          </div>
+        </div>
+
+        <!-- proposed fixes -->
+        <div class="card">
+          <div class="card-title">AgentEval Recommended Fixes</div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div style="display:flex;align-items:flex-start;gap:10px;padding:8px 10px;background:var(--lift);border-radius:6px;border:1px solid var(--border);">
+              <div style="font-size:14px;margin-top:1px;">🔧</div>
+              <div style="flex:1;">
+                <div style="font-size:11px;font-weight:600;color:var(--white);">Context isolation: clear currency/locale token on each new session</div>
+                <div style="font-size:10px;color:var(--muted);">Est. impact: −11.4% hallucination rate in TR · 1 sprint</div>
+              </div>
+              <button class="action-btn primary" style="padding:4px 10px;font-size:10px;" id="fix1-btn" onclick="applyFix(1)">Apply Fix</button>
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:10px;padding:8px 10px;background:var(--lift);border-radius:6px;border:1px solid var(--border);">
+              <div style="font-size:14px;margin-top:1px;">🧠</div>
+              <div style="flex:1;">
+                <div style="font-size:11px;font-weight:600;color:var(--white);">Geo-intent validator: enforce geo-coord distance filter before restaurant recall</div>
+                <div style="font-size:10px;color:var(--muted);">Est. impact: −8.2% factual accuracy gap · 2 sprints</div>
+              </div>
+              <button class="action-btn secondary" style="padding:4px 10px;font-size:10px;" id="fix2-btn" onclick="applyFix(2)">Apply Fix</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ SCREEN 4: A/B TEST RUNNER ══ -->
+      <div class="screen" id="s4">
+        <div class="section-label">A/B Test Runner — Active Experiments</div>
+
+        <!-- active test -->
+        <div class="card" style="margin-bottom:14px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+            <div>
+              <div style="font-size:13px;font-weight:700;color:var(--white);">EXP-041: FoodGenie v2.1 vs v2.2</div>
+              <div style="font-size:10px;color:var(--muted);margin-top:3px;">Started: 2026-05-22 · Berlin only · n = 124,800 sessions · p-value: 0.031</div>
+            </div>
+            <span class="badge badge-green">SIGNIFICANT</span>
+          </div>
+
+          <!-- ab comparison table -->
+          <div style="border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:12px;">
+            <div class="ab-row head">
+              <div class="ab-cell">Metric</div>
+              <div class="ab-cell">v2.1 (Control)</div>
+              <div class="ab-cell">v2.2 (FoodGenie+)</div>
+              <div class="ab-cell">Δ Lift</div>
+            </div>
+            <div class="ab-row">
+              <div class="ab-cell">Session resolution rate</div>
+              <div class="ab-cell variant-a">61.2%</div>
+              <div class="ab-cell variant-b">74.8%</div>
+              <div class="ab-cell" style="color:var(--green);font-weight:700;">+13.6% ✓</div>
+            </div>
+            <div class="ab-row">
+              <div class="ab-cell">Avg quality score</div>
+              <div class="ab-cell variant-a">74.1</div>
+              <div class="ab-cell variant-b">81.4</div>
+              <div class="ab-cell" style="color:var(--green);font-weight:700;">+7.3 pts ✓</div>
+            </div>
+            <div class="ab-row">
+              <div class="ab-cell">Hallucination rate</div>
+              <div class="ab-cell variant-a">18.3%</div>
+              <div class="ab-cell variant-b">6.9%</div>
+              <div class="ab-cell" style="color:var(--green);font-weight:700;">−11.4% ✓</div>
+            </div>
+            <div class="ab-row">
+              <div class="ab-cell">Order conversion</div>
+              <div class="ab-cell variant-a">34.1%</div>
+              <div class="ab-cell variant-b">41.2%</div>
+              <div class="ab-cell" style="color:var(--green);font-weight:700;">+7.1% ✓</div>
+            </div>
+            <div class="ab-row">
+              <div class="ab-cell">Avg response time</div>
+              <div class="ab-cell variant-a">1.24s</div>
+              <div class="ab-cell variant-b">1.31s</div>
+              <div class="ab-cell" style="color:var(--gold);">+0.07s —</div>
+            </div>
+          </div>
+
+          <!-- winner declaration -->
+          <div style="background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.3);border-radius:8px;padding:12px;margin-bottom:12px;">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+              <span style="font-size:18px;">🏆</span>
+              <div style="font-size:13px;font-weight:700;color:var(--green);">v2.2 (FoodGenie+) is the winner</div>
+            </div>
+            <div style="font-size:10px;color:var(--muted);">All 4 primary metrics statistically significant (p &lt; 0.05). Hallucination rate improvement driven by context isolation fix. +7.1% order conversion = est. +€1.8M GMV/month at Berlin scale. Recommend full rollout.</div>
+          </div>
+
+          <div style="display:flex;gap:8px;">
+            <button class="action-btn primary" id="promote-btn" onclick="promoteWinner()">🚀 Promote v2.2 to Production</button>
+            <button class="action-btn secondary" onclick="go(1)">← Back to Overview</button>
+          </div>
+        </div>
+
+        <!-- queued tests -->
+        <div class="card">
+          <div class="card-title">Queued Experiments</div>
+          <div class="row-item" style="cursor:default;">
+            <div class="row-icon" style="background:rgba(59,130,246,0.15);">🧪</div>
+            <div class="row-main">
+              <div class="row-title">EXP-042: Taste Profile v1 vs Collaborative Filter</div>
+              <div class="row-sub">Starting Jun 2 · Saudi Arabia · 80K sessions target</div>
+            </div>
+            <span class="badge badge-blue">QUEUED</span>
+          </div>
+          <div class="row-item" style="cursor:default;">
+            <div class="row-icon" style="background:rgba(139,92,246,0.15);">🔬</div>
+            <div class="row-main">
+              <div class="row-title">EXP-043: Proactive banner copy A vs B</div>
+              <div class="row-sub">Awaiting copy finalization · UAE market</div>
+            </div>
+            <span class="badge" style="background:rgba(139,92,246,0.15);color:var(--purple);border:1px solid rgba(139,92,246,0.3);">DRAFT</span>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /browser-body -->
+
+    <!-- nav dots -->
+    <div class="ndots">
+      <div class="ndot active" id="n1" onclick="go(1)"></div>
+      <div class="ndot" id="n2" onclick="go(2)"></div>
+      <div class="ndot" id="n3" onclick="go(3)"></div>
+      <div class="ndot" id="n4" onclick="go(4)"></div>
+    </div>
+  </div><!-- /browser -->
+
+  <!-- annotation panel -->
+  <div class="anno-panel" id="anno-panel">
+    <div class="anno-screen-label" id="screen-label">01 — QUALITY OVERVIEW</div>
+    <div id="anno-cards"></div>
+  </div>
+
+</div><!-- /layout -->
+
+<script>
+const URLS = {
+  1:'agenteval.deliveryhero.internal / quality / overview',
+  2:'agenteval.deliveryhero.internal / sessions / TK-847291',
+  3:'agenteval.deliveryhero.internal / quality / heatmap',
+  4:'agenteval.deliveryhero.internal / experiments / EXP-041',
+};
+const LABELS = {
+  1:'01 — QUALITY OVERVIEW',
+  2:'02 — SESSION INSPECTOR',
+  3:'03 — INTENT HEATMAP',
+  4:'04 — A/B TEST RUNNER',
+};
+const ANNO = {
+  1:[
+    { n:'INSIGHT 01', t:'Why a quality score, not just error rate', b:'Traditional AI monitoring flags crashes. AgentEval measures what users actually experience: did the agent resolve the intent correctly, without hallucinating? A composite quality score lets one number represent the full picture.' },
+    { n:'INSIGHT 02', t:'Anomaly detection at the source', b:'The 3σ classifier surfaces critical spikes (like Turkey\'s hallucination rate) before they compound into user trust damage. PM and eng see them in one place — no Slack threads, no Excel lag.', metric:{ v:'11.4%', l:'Hallucination spike detected automatically — no manual monitoring required' } },
+    { n:'DESIGN DECISION', t:'Market leaderboard = accountability surface', b:'Ranking markets by quality score creates healthy internal competition and makes regional PM ownership visible. Low scores are tied to specific anomalies, not vague "AI problems."' },
+  ],
+  2:[
+    { n:'INSIGHT 01', t:'Session replay: the exact failure moment', b:'Instead of aggregate stats, AgentEval shows the actual conversation where quality broke. PM and eng can read the exact turn — "AED used in Istanbul context" — and understand root cause in 30 seconds.' },
+    { n:'INSIGHT 02', t:'Automated root cause classification', b:'The 3σ classifier labels the failure type: currency context bleed, geo-distance hallucination, taxonomy mismatch. This turns hours of investigation into a 30-second triage.', metric:{ v:'91%', l:'Root cause classifier confidence on this session' } },
+    { n:'DESIGN DECISION', t:'One-click action from inspector', b:'From the session view, the PM can create a Jira bug or flag for retraining without switching tools. The action is tied to the exact session ID and root cause — pre-filled context, no copy-paste.' },
+  ],
+  3:[
+    { n:'INSIGHT 01', t:'Failure heatmap = where to fix first', b:'Quality issues are not uniform. The heatmap shows that Turkey\'s cuisine intent has a 31% failure rate while Germany\'s is 8%. This makes resource allocation obvious: fix TR currency bleed first, then geo-distance.' },
+    { n:'INSIGHT 02', t:'Pattern detection before the meeting', b:'The top failure patterns are auto-ranked by session volume × severity. PM doesn\'t need to dig through logs — AgentEval surfaces the fix candidate and the estimated impact in one view.', metric:{ v:'−11.4%', l:'Est. hallucination reduction from context isolation fix' } },
+    { n:'DESIGN DECISION', t:'Recommended fixes as first-class features', b:'AgentEval doesn\'t just describe problems — it recommends the fix, estimates the sprint cost, and lets the PM apply it directly. This collapses the loop from anomaly → fix from weeks to days.' },
+  ],
+  4:[
+    { n:'INSIGHT 01', t:'A/B test runner built into the quality layer', b:'Most teams run A/B tests in a separate analytics tool, then reconcile with quality dashboards manually. AgentEval combines both: the quality score, session resolution, and business conversion are tracked together per variant.' },
+    { n:'INSIGHT 02', t:'Statistical significance as a first-class signal', b:'p-value and winner badge are shown prominently. When AgentEval flags significance, the PM has one clear action: Promote. No committee, no ambiguity.', metric:{ v:'p=0.031', l:'Statistically significant — safe to promote v2.2 to production' } },
+    { n:'DESIGN DECISION', t:'GMV impact tied to quality improvement', b:'The winner panel translates "+7.1% order conversion" into "est. +€1.8M GMV/month at Berlin scale." This is the bridge between AI quality metrics and business outcomes — the language CEOs and investors care about.' },
+  ],
+};
+
+function renderAnno(n){
+  const cards = ANNO[n]||[];
+  document.getElementById('anno-cards').innerHTML = cards.map(c=>`
+    <div class="anno-card">
+      <div class="anno-card-n">${c.n}</div>
+      <div class="anno-card-t">${c.t}</div>
+      <div class="anno-card-b">${c.b}</div>
+      ${c.metric?`<div class="anno-metric"><span>${c.metric.v}</span><p>${c.metric.l}</p></div>`:''}
+    </div>
+  `).join('');
+}
+
+function go(n){
+  [1,2,3,4].forEach(i=>{
+    document.getElementById('s'+i).classList.remove('active');
+    const d=document.getElementById('d'+i);if(d)d.classList.remove('active');
+    const nd=document.getElementById('n'+i);if(nd)nd.classList.remove('active');
+  });
+  document.getElementById('s'+n).classList.add('active');
+  const dn=document.getElementById('d'+n);if(dn)dn.classList.add('active');
+  const nn=document.getElementById('n'+n);if(nn)nn.classList.add('active');
+  document.getElementById('screen-label').textContent=LABELS[n];
+  document.getElementById('url-bar').textContent=URLS[n];
+  renderAnno(n);
+}
+
+// ── interactions ──
+
+function createJira(){
+  const b = document.getElementById('jira-btn');
+  b.textContent='✅ Jira TK-2891 Created';
+  b.classList.add('done');
+}
+function flagRetrain(){
+  const b = document.getElementById('retrain-btn');
+  b.textContent='✅ Flagged for Retraining';
+  b.classList.add('sent');
+}
+function applyFix(n){
+  const b = document.getElementById('fix'+n+'-btn');
+  b.textContent = n===1 ? '✅ Fix Queued' : '✅ Queued';
+  b.classList.remove('primary','secondary');
+  b.classList.add('sent');
+}
+function promoteWinner(){
+  const b = document.getElementById('promote-btn');
+  b.textContent='✅ v2.2 Promoted to Production';
+  b.classList.remove('primary');
+  b.classList.add('done');
+}
+
+// ── build heatmap ──
+const INTENTS = ['Cuisine Discovery','Location Search','Budget Filter','Novelty Request','Repeat Order','Cancel / Modify','Support Query'];
+const MARKETS = ['DE','SA','AE','TR','NL','PL','GR'];
+const DATA = [
+  [4,7,9,31,6,8,11],
+  [3,5,6,28,4,7,12],
+  [2,4,5,18,3,5,8],
+  [6,8,11,22,7,9,14],
+  [2,4,6,9,3,5,7],
+  [5,9,13,26,6,11,16],
+  [7,6,8,19,5,7,10],
+];
+function heatColor(v){
+  if(v<5) return `rgba(34,197,94,${0.3+v*0.06})`;
+  if(v<15) return `rgba(255,184,0,${0.3+(v-5)*0.04})`;
+  return `rgba(226,0,26,${0.4+(v-15)*0.02})`;
+}
+function buildHeatmap(){
+  const container = document.getElementById('heatmap-rows');
+  INTENTS.forEach((intent,ri)=>{
+    const row = document.createElement('div');
+    row.style.cssText='display:grid;grid-template-columns:140px repeat(7,1fr);gap:4px;margin-bottom:4px;';
+    const lbl = document.createElement('div');
+    lbl.style.cssText='font-size:9px;color:var(--muted);display:flex;align-items:center;padding-right:4px;';
+    lbl.textContent=intent;
+    row.appendChild(lbl);
+    DATA[ri].forEach((v,ci)=>{
+      const cell = document.createElement('div');
+      cell.className='heat-cell';
+      cell.style.background=heatColor(v);
+      cell.style.color = v>12 ? '#fff' : v>5 ? '#1a0f00' : '#0a2010';
+      cell.textContent=v+'%';
+      cell.title=`${intent} · ${MARKETS[ci]}: ${v}% failure rate`;
+      cell.onclick=()=>go(2);
+      row.appendChild(cell);
+    });
+    container.appendChild(row);
+  });
+}
+
+// init
+buildHeatmap();
+renderAnno(1);
+</script>
+</body>
+</html>
