@@ -2,417 +2,401 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>MAF Retail — SellerOS · Interactive Prototype</title>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:ital,wght@0,400;0,500&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MAF SellerOS — Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
-  --dark: #0C0408;
-  --hero: #180C12;
-  --red: #E8001B;
-  --red-soft: rgba(232,0,27,0.10);
-  --gold: #C8952A;
-  --gold-soft: rgba(200,149,42,0.12);
-  --green: #16A34A;
-  --green-soft: rgba(22,163,74,0.10);
-  --orange: #EA580C;
-  --orange-soft: rgba(234,88,12,0.10);
-  --white: #FFFFFF;
-  --light: #FDFBFC;
-  --ink: #18100E;
-  --muted: #9B8B90;
-  --border: #EDE0E4;
-  --gray: #F6F1F3;
+  --red: #E8001B; --red-light: #FFF0F1; --red-mid: rgba(232,0,27,0.15);
+  --gold: #C8952A; --gold-light: #FEF6E8; --gold-mid: rgba(200,149,42,0.15);
+  --green: #16A34A; --green-light: #F0FDF4;
+  --orange: #EA580C; --orange-light: #FFF4EE;
+  --dark: #0C0408; --hero: #1A0C12;
+  --ink: #18100E; --muted: #9B8B90; --border: #EDE0E4;
+  --surface: #FDFBFC; --white: #FFFFFF; --gray: #F6F1F3;
 }
-* { margin:0; padding:0; box-sizing:border-box; }
 body {
-  background: var(--dark);
   font-family: 'Sora', sans-serif;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 40px 28px 60px;
-}
-.header { text-align:center; margin-bottom:36px; }
-.header-tag {
-  font-family:'DM Mono',monospace; font-size:9.5px;
-  letter-spacing:.18em; text-transform:uppercase;
-  color: var(--red); margin-bottom:8px;
-}
-.header h1 { font-size:21px; font-weight:800; color:#fff; margin-bottom:5px; }
-.header p { font-size:12.5px; color:#A09298; }
-.screens-row {
-  display:flex; gap:24px; align-items:flex-start;
-  overflow-x:auto; padding-bottom:12px;
-  width:100%; justify-content:center;
-}
-.screen-wrap { display:flex; flex-direction:column; align-items:center; gap:10px; flex-shrink:0; }
-.screen-label {
-  font-family:'DM Mono',monospace; font-size:9px;
-  letter-spacing:.12em; text-transform:uppercase; color:#9B8B90;
+  background: #1A0F14;
+  display: flex; align-items: flex-start; justify-content: center;
+  min-height: 100vh; padding: 40px 24px; gap: 36px; flex-wrap: wrap;
 }
 
-/* Browser frame */
+/* ── BROWSER FRAME ── */
+.frame-wrap { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.screen-label-top {
+  font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500;
+  color: #C0A0A8; letter-spacing: 0.08em; text-transform: uppercase;
+}
 .browser {
-  width:460px; border-radius:14px; overflow:hidden;
-  box-shadow:0 28px 72px rgba(0,0,0,0.55);
-  border:1px solid rgba(255,255,255,0.07);
+  width: 580px; border-radius: 12px; overflow: hidden;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.55), 0 2px 8px rgba(0,0,0,0.3);
+  border: 1px solid rgba(255,255,255,0.07);
 }
 .browser-chrome {
-  background:#1A0F14; padding:9px 12px;
-  display:flex; align-items:center; gap:10px;
-  border-bottom:1px solid rgba(255,255,255,0.06);
+  background: #120B0E; padding: 9px 14px;
+  display: flex; align-items: center; gap: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
 }
-.dots { display:flex; gap:5px; }
-.dot { width:9px; height:9px; border-radius:50%; }
-.dot-r { background:#FF5F57; }
-.dot-y { background:#FFBD2D; }
-.dot-g { background:#28CA41; }
+.dots { display: flex; gap: 5px; }
+.dot { width: 9px; height: 9px; border-radius: 50%; }
+.dot-r { background: #FF5F57; } .dot-y { background: #FFBD2D; } .dot-g { background: #28CA41; }
 .url-bar {
-  flex:1; background:rgba(255,255,255,0.06); border-radius:5px;
-  padding:4px 10px; font-family:'DM Mono',monospace;
-  font-size:9px; color:#7A6A70;
+  flex: 1; background: rgba(255,255,255,0.06); border-radius: 5px;
+  padding: 4px 10px; font-family: 'DM Mono', monospace;
+  font-size: 9px; color: #7A6070; letter-spacing: 0.02em;
 }
 .browser-body {
-  background:var(--light); max-height:600px;
-  overflow-y:auto; scrollbar-width:none;
+  background: var(--surface); max-height: 580px;
+  overflow-y: auto; scrollbar-width: none;
 }
-.browser-body::-webkit-scrollbar { display:none; }
+.browser-body::-webkit-scrollbar { display: none; }
 
-/* ===== SCREEN 1 — SELLER DASHBOARD ===== */
-.s1-topbar {
-  background:#fff; border-bottom:1px solid var(--border);
-  padding:10px 16px; display:flex; align-items:center; justify-content:space-between;
-}
-.s1-brand { display:flex; align-items:center; gap:8px; }
-.s1-logo {
-  width:28px; height:28px; border-radius:7px;
-  background:var(--red); display:flex; align-items:center; justify-content:center;
-  font-size:10px; font-weight:800; color:#fff;
-}
-.s1-brand-name { font-size:11px; font-weight:700; color:var(--ink); }
-.s1-brand-sub { font-size:9px; color:var(--muted); }
-.s1-seller-pill {
-  background:var(--gold-soft); border:1px solid var(--gold);
-  border-radius:20px; padding:3px 10px;
-  font-size:9px; font-weight:600; color:var(--gold);
-}
-.s1-body { padding:14px 16px; background:var(--gray); }
-.s1-welcome { font-size:12px; font-weight:700; color:var(--ink); margin-bottom:2px; }
-.s1-welcome-sub { font-size:10px; color:var(--muted); margin-bottom:12px; }
+/* ── SCREENS ── */
+.screen { display: none; }
+.screen.active { display: block; }
 
-.kpi-row { display:flex; gap:8px; margin-bottom:12px; }
+/* ── TOPBAR SHARED ── */
+.topbar {
+  background: var(--white); border-bottom: 1px solid var(--border);
+  padding: 10px 18px; display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 10;
+}
+.brand-row { display: flex; align-items: center; gap: 9px; }
+.brand-logo {
+  width: 30px; height: 30px; border-radius: 8px;
+  background: var(--red); display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 800; color: #fff; flex-shrink: 0;
+}
+.brand-name { font-size: 12px; font-weight: 700; color: var(--ink); }
+.brand-sub { font-size: 9px; color: var(--muted); }
+.pill {
+  border-radius: 20px; padding: 3px 10px;
+  font-size: 9px; font-weight: 600;
+}
+.pill-gold { background: var(--gold-light); color: var(--gold); border: 1px solid var(--gold); }
+.pill-red { background: var(--red-light); color: var(--red); border: 1px solid rgba(232,0,27,0.3); }
+.pill-green { background: var(--green-light); color: var(--green); border: 1px solid rgba(22,163,74,0.3); }
+
+/* NAV TABS */
+.nav-tabs { display: flex; gap: 0; background: var(--white); border-bottom: 1px solid var(--border); padding: 0 18px; }
+.nav-tab {
+  font-size: 10px; font-weight: 600; color: var(--muted);
+  padding: 9px 12px; cursor: pointer; border-bottom: 2px solid transparent;
+  transition: all .15s; white-space: nowrap;
+}
+.nav-tab.active { color: var(--red); border-bottom-color: var(--red); }
+.nav-tab:hover { color: var(--ink); }
+
+/* ── S1: SELLER HOME ── */
+.page-body { padding: 16px 18px; background: var(--gray); min-height: 500px; }
+.welcome { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 1px; }
+.welcome-sub { font-size: 9.5px; color: var(--muted); margin-bottom: 14px; }
+
+.kpi-row { display: flex; gap: 8px; margin-bottom: 12px; }
 .kpi-card {
-  flex:1; background:#fff; border-radius:10px; padding:10px 11px;
-  border:1px solid var(--border);
-  box-shadow:0 1px 4px rgba(0,0,0,0.04);
+  flex: 1; background: var(--white); border-radius: 10px; padding: 11px 12px;
+  border: 1px solid var(--border); box-shadow: 0 1px 4px rgba(0,0,0,0.04);
 }
-.kpi-label { font-size:8.5px; color:var(--muted); margin-bottom:3px; text-transform:uppercase; letter-spacing:.06em; }
-.kpi-val { font-family:'DM Mono',monospace; font-size:15px; font-weight:700; color:var(--ink); }
-.kpi-sub { font-size:8px; color:var(--muted); margin-top:1px; }
-.kpi-target { font-size:8px; color:var(--orange); font-weight:600; }
+.kpi-label { font-size: 8px; color: var(--muted); margin-bottom: 3px; text-transform: uppercase; letter-spacing: .06em; }
+.kpi-val { font-family: 'DM Mono', monospace; font-size: 16px; font-weight: 700; color: var(--ink); }
+.kpi-sub { font-size: 8px; color: var(--muted); margin-top: 2px; }
+.kpi-target { font-size: 8px; color: var(--orange); font-weight: 600; margin-top: 2px; }
 
 .health-card {
-  background:#fff; border-radius:10px; padding:12px 14px;
-  border:1px solid var(--border); margin-bottom:10px;
-  display:flex; align-items:center; gap:14px;
-  box-shadow:0 1px 4px rgba(0,0,0,0.04);
+  background: var(--white); border-radius: 10px; padding: 13px 15px;
+  border: 1px solid var(--border); margin-bottom: 10px;
+  display: flex; align-items: center; gap: 14px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
 }
 .health-circle {
-  width:54px; height:54px; border-radius:50%; flex-shrink:0;
+  width: 56px; height: 56px; border-radius: 50%; flex-shrink: 0;
   background: conic-gradient(#E8001B 0% 72%, #EDE0E4 72% 100%);
-  display:flex; align-items:center; justify-content:center;
-  position:relative;
+  display: flex; align-items: center; justify-content: center;
 }
 .health-inner {
-  width:40px; height:40px; border-radius:50%; background:#fff;
-  display:flex; align-items:center; justify-content:center;
-  flex-direction:column;
+  width: 42px; height: 42px; border-radius: 50%; background: var(--white);
+  display: flex; align-items: center; justify-content: center; flex-direction: column;
 }
-.health-num { font-family:'DM Mono',monospace; font-size:13px; font-weight:700; color:var(--ink); line-height:1; }
-.health-denom { font-size:7px; color:var(--muted); }
-.health-info { flex:1; }
-.health-title { font-size:11px; font-weight:700; color:var(--ink); margin-bottom:2px; }
-.health-desc { font-size:9px; color:var(--muted); line-height:1.4; }
-.health-badge {
-  background:var(--orange-soft); border:1px solid var(--orange);
-  border-radius:20px; padding:3px 8px;
-  font-size:8px; font-weight:700; color:var(--orange);
-}
+.health-num { font-family: 'DM Mono', monospace; font-size: 14px; font-weight: 700; color: var(--ink); line-height: 1; }
+.health-denom { font-size: 7px; color: var(--muted); }
+.health-info { flex: 1; }
+.health-title { font-size: 11px; font-weight: 700; color: var(--ink); margin-bottom: 2px; }
+.health-desc { font-size: 9px; color: var(--muted); line-height: 1.45; }
 
 .milestone-card {
   background: linear-gradient(135deg, #1A0C12 0%, #2C1020 100%);
-  border-radius:10px; padding:12px 14px; margin-bottom:10px;
-  border:1px solid rgba(232,0,27,0.25);
+  border-radius: 10px; padding: 13px 15px; margin-bottom: 10px;
+  border: 1px solid rgba(232,0,27,0.2);
 }
-.ms-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
-.ms-title { font-size:10px; font-weight:700; color:#fff; }
-.ms-badge {
-  background:var(--red); border-radius:20px; padding:2px 8px;
-  font-size:8px; font-weight:700; color:#fff;
-}
-.ms-desc { font-size:8.5px; color:#C0A8B0; margin-bottom:8px; line-height:1.4; }
-.ms-track {
-  height:7px; background:rgba(255,255,255,0.12); border-radius:99px; overflow:visible; position:relative; margin-bottom:5px;
-}
-.ms-fill {
-  height:100%; width:70%; border-radius:99px;
-  background: linear-gradient(90deg, var(--red), var(--gold));
-  position:relative;
-}
+.ms-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 7px; }
+.ms-title { font-size: 10.5px; font-weight: 700; color: #fff; }
+.ms-badge { background: var(--red); border-radius: 20px; padding: 2px 8px; font-size: 8px; font-weight: 700; color: #fff; }
+.ms-desc { font-size: 8.5px; color: #C0A8B0; margin-bottom: 9px; line-height: 1.5; }
+.ms-track { height: 7px; background: rgba(255,255,255,0.12); border-radius: 99px; overflow: visible; position: relative; margin-bottom: 6px; }
+.ms-fill { height: 100%; width: 70%; border-radius: 99px; background: linear-gradient(90deg, var(--red), var(--gold)); position: relative; }
 .ms-fill-badge {
-  position:absolute; right:-2px; top:-9px;
-  background:var(--gold); color:var(--dark);
-  font-size:8px; font-weight:700; padding:1px 5px; border-radius:5px;
-  font-family:'DM Mono',monospace;
+  position: absolute; right: -2px; top: -9px;
+  background: var(--gold); color: var(--dark);
+  font-size: 8px; font-weight: 700; padding: 1px 5px; border-radius: 5px;
+  font-family: 'DM Mono', monospace;
 }
-.ms-footer { display:flex; justify-content:space-between; font-size:8px; color:#A08088; }
-.ms-footer strong { color:var(--gold); }
+.ms-footer { display: flex; justify-content: space-between; font-size: 8px; color: #A08088; }
+.ms-footer strong { color: var(--gold); }
 
 .alerts-card {
-  background:#fff; border-radius:10px; padding:11px 14px;
-  border:1px solid var(--border); margin-bottom:10px;
+  background: var(--white); border-radius: 10px; padding: 12px 15px;
+  border: 1px solid var(--border); margin-bottom: 10px;
 }
-.alerts-title { font-size:10px; font-weight:700; color:var(--ink); margin-bottom:8px; }
+.alerts-title { font-size: 10.5px; font-weight: 700; color: var(--ink); margin-bottom: 9px; }
 .alert-item {
-  display:flex; align-items:center; gap:8px;
-  padding:6px 8px; border-radius:7px; margin-bottom:4px;
+  display: flex; align-items: center; gap: 9px;
+  padding: 7px 9px; border-radius: 8px; margin-bottom: 5px; cursor: pointer;
+  transition: opacity .15s;
 }
-.alert-item.red { background:var(--red-soft); }
-.alert-item.orange { background:var(--orange-soft); }
-.alert-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
-.alert-dot.red { background:var(--red); }
-.alert-dot.orange { background:var(--orange); }
-.alert-text { font-size:9px; color:var(--ink); flex:1; }
-.alert-action { font-size:8.5px; font-weight:700; color:var(--red); }
+.alert-item:hover { opacity: .85; }
+.alert-item.red { background: var(--red-light); }
+.alert-item.orange { background: var(--orange-light); }
+.alert-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.alert-dot.red { background: var(--red); }
+.alert-dot.orange { background: var(--orange); }
+.alert-text { font-size: 9px; color: var(--ink); flex: 1; }
+.alert-cta { font-size: 9px; font-weight: 700; color: var(--red); flex-shrink: 0; }
 
-/* ===== SCREEN 2 — AI PRICING ENGINE ===== */
-.s2-topbar {
-  background:#fff; border-bottom:1px solid var(--border);
-  padding:10px 16px; display:flex; align-items:center; justify-content:space-between;
-}
-.s2-nav { display:flex; gap:12px; align-items:center; }
-.s2-nav-item { font-size:9.5px; color:var(--muted); cursor:pointer; padding:4px 0; }
-.s2-nav-item.active { color:var(--red); font-weight:700; border-bottom:2px solid var(--red); }
-.s2-body { padding:14px 16px; }
-.s2-heading { font-size:12px; font-weight:800; color:var(--ink); margin-bottom:3px; }
-.s2-sub { font-size:9px; color:var(--muted); margin-bottom:12px; }
-.s2-summary-row { display:flex; gap:8px; margin-bottom:12px; }
+/* ── S2: AI PRICING ── */
+.s2-summary { display: flex; gap: 8px; margin-bottom: 14px; }
 .s2-sum-card {
-  flex:1; background:var(--gray); border-radius:8px; padding:9px 10px;
-  text-align:center; border:1px solid var(--border);
+  flex: 1; background: var(--white); border-radius: 9px; padding: 10px 11px;
+  text-align: center; border: 1px solid var(--border);
 }
-.s2-sum-val { font-family:'DM Mono',monospace; font-size:16px; font-weight:700; margin-bottom:1px; }
-.s2-sum-lbl { font-size:8px; color:var(--muted); }
+.s2-sum-val { font-family: 'DM Mono', monospace; font-size: 17px; font-weight: 700; margin-bottom: 2px; }
+.s2-sum-lbl { font-size: 8px; color: var(--muted); }
+.s2-heading { font-size: 13px; font-weight: 800; color: var(--ink); margin-bottom: 2px; }
+.s2-sub { font-size: 9px; color: var(--muted); margin-bottom: 12px; }
 
 .sku-card {
-  background:#fff; border-radius:10px; padding:11px 13px;
-  border:1px solid var(--border); margin-bottom:8px;
-  box-shadow:0 1px 4px rgba(0,0,0,0.04);
+  background: var(--white); border-radius: 10px; padding: 12px 14px;
+  border: 1px solid var(--border); margin-bottom: 9px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04); transition: border-color .2s;
 }
-.sku-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
-.sku-name { font-size:10px; font-weight:700; color:var(--ink); }
-.sku-category { font-size:8px; color:var(--muted); }
-.sku-badge-overpriced {
-  background:var(--red-soft); border:1px solid rgba(232,0,27,0.3);
-  border-radius:20px; padding:2px 8px;
-  font-size:8px; font-weight:700; color:var(--red);
-}
-.sku-badge-ok {
-  background:var(--green-soft); border:1px solid rgba(22,163,74,0.3);
-  border-radius:20px; padding:2px 8px;
-  font-size:8px; font-weight:700; color:var(--green);
-}
-.price-row { display:flex; gap:6px; align-items:center; margin-bottom:8px; }
-.price-box {
-  flex:1; border-radius:7px; padding:7px 8px; text-align:center;
-}
-.price-box.current { background:#FFF5F5; border:1px solid rgba(232,0,27,0.2); }
-.price-box.median { background:#F5F5FF; border:1px solid rgba(99,102,241,0.2); }
-.price-box.rec { background:#F0FDF4; border:1px solid rgba(22,163,74,0.2); }
-.price-lbl { font-size:7.5px; color:var(--muted); margin-bottom:2px; }
-.price-val { font-family:'DM Mono',monospace; font-size:13px; font-weight:700; }
-.price-val.current { color:var(--red); }
-.price-val.median { color:#6366F1; }
-.price-val.rec { color:var(--green); }
-.price-arrow { font-size:12px; color:var(--muted); }
-.impact-row { display:flex; align-items:center; justify-content:space-between; }
-.impact-label { font-size:8.5px; color:var(--muted); }
-.impact-val { font-family:'DM Mono',monospace; font-size:10px; font-weight:700; color:var(--green); }
+.sku-card.applied { border-color: rgba(22,163,74,0.4); background: #FAFFFE; }
+.sku-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 9px; gap: 8px; }
+.sku-name { font-size: 10.5px; font-weight: 700; color: var(--ink); }
+.sku-cat { font-size: 8px; color: var(--muted); margin-top: 1px; }
+.sku-badge-over { background: var(--red-light); border: 1px solid rgba(232,0,27,0.25); border-radius: 20px; padding: 2px 8px; font-size: 8px; font-weight: 700; color: var(--red); white-space: nowrap; }
+.sku-badge-ok { background: var(--green-light); border: 1px solid rgba(22,163,74,0.25); border-radius: 20px; padding: 2px 8px; font-size: 8px; font-weight: 700; color: var(--green); white-space: nowrap; }
+.price-row { display: flex; gap: 6px; align-items: stretch; margin-bottom: 9px; }
+.price-box { flex: 1; border-radius: 8px; padding: 8px 9px; text-align: center; }
+.price-box.cur { background: #FFF5F5; border: 1px solid rgba(232,0,27,0.18); }
+.price-box.med { background: #F5F5FF; border: 1px solid rgba(99,102,241,0.18); }
+.price-box.rec { background: var(--green-light); border: 1px solid rgba(22,163,74,0.18); }
+.price-lbl { font-size: 7.5px; color: var(--muted); margin-bottom: 3px; }
+.price-val { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 700; }
+.price-val.cur { color: var(--red); }
+.price-val.med { color: #6366F1; }
+.price-val.rec { color: var(--green); }
+.price-arrow { display: flex; align-items: center; font-size: 12px; color: var(--muted); padding-bottom: 4px; }
+.impact-row { display: flex; align-items: center; justify-content: space-between; }
+.impact-lbl { font-size: 8.5px; color: var(--muted); }
+.impact-val { font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 700; color: var(--green); }
 .apply-btn {
-  background:var(--green); color:#fff; border:none; border-radius:7px;
-  padding:5px 12px; font-size:8.5px; font-weight:700; cursor:pointer;
-  font-family:'Sora',sans-serif;
+  background: var(--green); color: #fff; border: none; border-radius: 7px;
+  padding: 5px 13px; font-size: 9px; font-weight: 700; cursor: pointer;
+  font-family: 'Sora', sans-serif; transition: all .15s;
 }
-.total-uplift-box {
+.apply-btn:hover { background: #15803D; }
+.apply-btn.applied-state { background: #D1FAE5; color: var(--green); cursor: default; }
+.uplift-box {
   background: linear-gradient(135deg, #F0FDF4, #DCFCE7);
-  border:1px solid rgba(22,163,74,0.3); border-radius:10px;
-  padding:11px 14px; margin-top:4px; text-align:center;
+  border: 1px solid rgba(22,163,74,0.3); border-radius: 10px;
+  padding: 12px 15px; margin-top: 2px; text-align: center;
 }
-.total-uplift-lbl { font-size:9px; color:#166534; margin-bottom:3px; }
-.total-uplift-val { font-family:'DM Mono',monospace; font-size:20px; font-weight:800; color:var(--green); }
-.total-uplift-sub { font-size:8px; color:#166534; margin-top:2px; }
+.uplift-lbl { font-size: 9px; color: #166534; margin-bottom: 3px; }
+.uplift-val { font-family: 'DM Mono', monospace; font-size: 22px; font-weight: 800; color: var(--green); }
+.uplift-sub { font-size: 8px; color: #166534; margin-top: 2px; }
 
-/* ===== SCREEN 3 — CAMPAIGN BUILDER (SUCCESS) ===== */
-.s3-body { background:var(--gray); }
-.s3-success {
+/* ── S3: CAMPAIGN SUCCESS ── */
+.s3-hero {
   background: linear-gradient(135deg, #1A0C12 0%, #2C1020 100%);
-  padding:20px 16px; text-align:center; position:relative; overflow:hidden;
+  padding: 28px 18px 24px; text-align: center; position: relative; overflow: hidden;
 }
-.s3-confetti-area { position:absolute; inset:0; pointer-events:none; }
-.cp {
-  position:absolute;
-  border-radius:2px;
-  animation:fall linear infinite;
+#conf-area { position: absolute; inset: 0; pointer-events: none; }
+.conf-piece {
+  position: absolute; border-radius: 2px;
+  animation: cffall linear infinite;
 }
-@keyframes fall {
-  0%   { transform:translateY(-10%) rotate(0deg); opacity:1; }
-  100% { transform:translateY(110%) rotate(360deg); opacity:0; }
+@keyframes cffall {
+  0% { transform: translateY(-10%) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(110%) rotate(360deg); opacity: 0; }
 }
 .s3-check {
-  width:52px; height:52px; border-radius:50%;
-  background:var(--green); display:flex; align-items:center; justify-content:center;
-  margin:0 auto 10px; font-size:24px;
+  width: 54px; height: 54px; border-radius: 50%;
+  background: var(--green); display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 12px; font-size: 26px;
+  animation: pop .4s cubic-bezier(.34,1.56,.64,1);
 }
-.s3-live { font-size:8.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--gold); margin-bottom:6px; font-family:'DM Mono',monospace; }
-.s3-title { font-size:16px; font-weight:800; color:#fff; margin-bottom:4px; }
-.s3-subtitle { font-size:9.5px; color:#C0A8B0; }
+@keyframes pop { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
+.s3-live { font-size: 9px; letter-spacing: .14em; text-transform: uppercase; color: var(--gold); margin-bottom: 7px; font-family: 'DM Mono', monospace; }
+.s3-title { font-size: 18px; font-weight: 800; color: #fff; margin-bottom: 5px; }
+.s3-subtitle { font-size: 10px; color: #C0A8B0; }
+.s3-stats { display: flex; gap: 0; border-top: 1px solid rgba(255,255,255,0.08); margin-top: 20px; }
+.s3-stat { flex: 1; padding: 13px; text-align: center; border-right: 1px solid rgba(255,255,255,0.08); }
+.s3-stat:last-child { border-right: none; }
+.s3-stat-val { font-family: 'DM Mono', monospace; font-size: 17px; font-weight: 700; color: var(--gold); }
+.s3-stat-lbl { font-size: 8px; color: #C0A8B0; margin-top: 3px; }
 
-.s3-stats { display:flex; gap:0; border-top:1px solid rgba(255,255,255,0.08); }
-.s3-stat {
-  flex:1; padding:12px; text-align:center;
-  border-right:1px solid rgba(255,255,255,0.08);
+.s3-details { padding: 15px 18px; }
+.detail-card {
+  background: var(--white); border-radius: 10px; padding: 13px 15px;
+  border: 1px solid var(--border); margin-bottom: 9px;
 }
-.s3-stat:last-child { border-right:none; }
-.s3-stat-val { font-family:'DM Mono',monospace; font-size:16px; font-weight:700; color:var(--gold); }
-.s3-stat-lbl { font-size:8px; color:#C0A8B0; margin-top:2px; }
-
-.s3-details { padding:14px 16px; }
-.s3-detail-card {
-  background:#fff; border-radius:10px; padding:12px 14px;
-  border:1px solid var(--border); margin-bottom:8px;
+.detail-title { font-size: 10.5px; font-weight: 700; color: var(--ink); margin-bottom: 9px; }
+.detail-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px solid var(--border); }
+.detail-row:last-child { border-bottom: none; }
+.detail-key { font-size: 9px; color: var(--muted); }
+.detail-val { font-size: 9.5px; font-weight: 600; color: var(--ink); }
+.btn-row { display: flex; gap: 9px; }
+.btn-primary {
+  flex: 1; background: var(--red); color: #fff; border: none; border-radius: 9px;
+  padding: 11px; font-size: 10.5px; font-weight: 700; cursor: pointer; font-family: 'Sora', sans-serif;
+  transition: background .15s;
 }
-.s3-detail-title { font-size:10px; font-weight:700; color:var(--ink); margin-bottom:8px; }
-.s3-detail-row { display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px solid var(--border); }
-.s3-detail-row:last-child { border-bottom:none; }
-.s3-detail-key { font-size:9px; color:var(--muted); }
-.s3-detail-val { font-size:9.5px; font-weight:600; color:var(--ink); }
-.s3-btn-row { display:flex; gap:8px; }
-.s3-btn-primary {
-  flex:1; background:var(--red); color:#fff; border:none; border-radius:8px;
-  padding:10px; font-size:10px; font-weight:700; cursor:pointer;
-  font-family:'Sora',sans-serif;
-}
-.s3-btn-secondary {
-  flex:1; background:transparent; color:var(--red); border:1.5px solid var(--red); border-radius:8px;
-  padding:10px; font-size:10px; font-weight:700; cursor:pointer;
-  font-family:'Sora',sans-serif;
+.btn-primary:hover { background: #C4001A; }
+.btn-outline {
+  flex: 1; background: transparent; color: var(--red); border: 1.5px solid var(--red);
+  border-radius: 9px; padding: 11px; font-size: 10.5px; font-weight: 700;
+  cursor: pointer; font-family: 'Sora', sans-serif;
 }
 
-/* ===== SCREEN 4 — CATEGORY MANAGER CONSOLE ===== */
-.s4-topbar {
+/* ── S4: OPS CONSOLE ── */
+.ops-topbar {
   background: linear-gradient(135deg, #1A0C12, #2C1020);
-  padding:10px 16px; display:flex; align-items:center; justify-content:space-between;
+  padding: 11px 18px; display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 10;
 }
-.s4-brand-row { display:flex; align-items:center; gap:8px; }
-.s4-logo { font-size:10px; font-weight:800; color:var(--gold); }
-.s4-role { font-size:9px; color:#C0A8B0; }
-.s4-alert-badge {
-  background:var(--red); color:#fff; border-radius:20px;
-  padding:3px 8px; font-size:8px; font-weight:700;
+.ops-brand { font-size: 10.5px; font-weight: 700; color: var(--gold); }
+.ops-role { font-size: 9px; color: #C0A8B0; margin-top: 1px; }
+.ops-summary-row { display: flex; background: #0C0408; }
+.ops-sum-cell {
+  flex: 1; padding: 10px 13px; text-align: center;
+  border-right: 1px solid rgba(255,255,255,0.06);
 }
-.s4-summary-row { display:flex; gap:0; background:var(--dark); }
-.s4-sum-cell {
-  flex:1; padding:10px 12px; text-align:center;
-  border-right:1px solid rgba(255,255,255,0.06);
+.ops-sum-cell:last-child { border-right: none; }
+.ops-sum-val { font-family: 'DM Mono', monospace; font-size: 19px; font-weight: 700; }
+.ops-sum-val.r { color: var(--red); }
+.ops-sum-val.o { color: var(--orange); }
+.ops-sum-val.g { color: var(--green); }
+.ops-sum-val.w { color: #fff; font-size: 14px; }
+.ops-sum-lbl { font-size: 8px; color: #80686E; margin-top: 2px; }
+
+.ops-body { padding: 13px 16px; background: var(--gray); }
+.ops-sec-title {
+  font-size: 10px; font-weight: 700; color: var(--ink); margin-bottom: 9px;
+  display: flex; align-items: center; justify-content: space-between;
 }
-.s4-sum-cell:last-child { border-right:none; }
-.s4-sum-val { font-family:'DM Mono',monospace; font-size:18px; font-weight:700; }
-.s4-sum-val.red { color:var(--red); }
-.s4-sum-val.orange { color:var(--orange); }
-.s4-sum-val.green { color:var(--green); }
-.s4-sum-val.white { color:#fff; }
-.s4-sum-lbl { font-size:8px; color:#80686E; margin-top:2px; }
-.s4-body { padding:12px 14px; background:var(--gray); }
-.s4-section-title { font-size:9.5px; font-weight:700; color:var(--ink); margin-bottom:8px; display:flex; align-items:center; justify-content:space-between; }
-.s4-filter-pill {
-  background:#fff; border:1px solid var(--border); border-radius:20px;
-  padding:3px 10px; font-size:8px; color:var(--muted);
+.filter-pill {
+  background: var(--white); border: 1px solid var(--border); border-radius: 20px;
+  padding: 3px 10px; font-size: 8px; color: var(--muted); cursor: pointer;
 }
 .seller-row {
-  background:#fff; border-radius:9px; padding:10px 12px;
-  border:1px solid var(--border); margin-bottom:6px;
-  display:flex; align-items:center; gap:10px;
-  box-shadow:0 1px 3px rgba(0,0,0,0.04);
+  background: var(--white); border-radius: 9px; padding: 10px 12px;
+  border: 1px solid var(--border); margin-bottom: 7px;
+  display: flex; align-items: center; gap: 10px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
 }
-.seller-row.breach { border-color:rgba(232,0,27,0.4); background:#FFF5F5; }
-.seller-row.at-risk { border-color:rgba(234,88,12,0.3); background:#FFF9F5; }
-.seller-avatar {
-  width:30px; height:30px; border-radius:8px;
-  display:flex; align-items:center; justify-content:center;
-  font-size:9px; font-weight:800; color:#fff; flex-shrink:0;
+.seller-row.breach { border-color: rgba(232,0,27,0.35); background: #FFF5F5; }
+.seller-row.risk { border-color: rgba(234,88,12,0.3); background: #FFF9F5; }
+.s-avatar {
+  width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 800; color: #fff;
 }
-.seller-name { font-size:9.5px; font-weight:700; color:var(--ink); }
-.seller-category { font-size:8px; color:var(--muted); }
-.seller-gmv { font-family:'DM Mono',monospace; font-size:10px; font-weight:700; color:var(--ink); }
-.seller-gmv-lbl { font-size:7.5px; color:var(--muted); }
-.status-badge {
-  border-radius:20px; padding:3px 8px; font-size:8px; font-weight:700; white-space:nowrap;
+.s-name { font-size: 10px; font-weight: 700; color: var(--ink); }
+.s-cat { font-size: 8px; color: var(--muted); }
+.s-gmv { font-family: 'DM Mono', monospace; font-size: 10.5px; font-weight: 700; color: var(--ink); text-align: right; }
+.s-gmv-lbl { font-size: 7.5px; color: var(--muted); text-align: right; }
+.status-chip { border-radius: 20px; padding: 3px 9px; font-size: 8px; font-weight: 700; white-space: nowrap; }
+.chip-breach { background: var(--red-light); color: var(--red); border: 1px solid rgba(232,0,27,0.2); }
+.chip-risk { background: var(--orange-light); color: var(--orange); border: 1px solid rgba(234,88,12,0.2); }
+.chip-ok { background: var(--green-light); color: var(--green); border: 1px solid rgba(22,163,74,0.2); }
+.action-btn {
+  border: none; border-radius: 6px; padding: 4px 9px;
+  font-size: 8.5px; font-weight: 700; cursor: pointer; font-family: 'Sora', sans-serif;
+  transition: all .15s; white-space: nowrap;
 }
-.status-breach { background:var(--red-soft); color:var(--red); border:1px solid rgba(232,0,27,0.2); }
-.status-risk { background:var(--orange-soft); color:var(--orange); border:1px solid rgba(234,88,12,0.2); }
-.status-ok { background:var(--green-soft); color:var(--green); border:1px solid rgba(22,163,74,0.2); }
-.action-btn-sm {
-  background:var(--red); color:#fff; border:none; border-radius:6px;
-  padding:4px 8px; font-size:8px; font-weight:700; cursor:pointer;
-  font-family:'Sora',sans-serif; white-space:nowrap;
+.action-btn.red { background: var(--red); color: #fff; }
+.action-btn.red:hover { background: #C4001A; }
+.action-btn.ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+.action-btn.nudge { background: var(--orange-light); color: var(--orange); border: 1px solid rgba(234,88,12,0.25); }
+.action-btn.nudge:hover { background: #FFEADC; }
+.action-btn.sent { background: var(--green-light); color: var(--green); border: 1px solid rgba(22,163,74,0.25); pointer-events: none; }
+
+/* ── ANNOTATION PANEL ── */
+.anno-panel { width: 300px; padding-top: 58px; }
+.anno-title { font-size: 22px; font-weight: 800; color: #F0E4E8; margin-bottom: 4px; line-height: 1.2; }
+.anno-sub { font-size: 12.5px; color: #A08090; margin-bottom: 22px; line-height: 1.6; }
+.nav-dots { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 22px; }
+.ndot {
+  padding: 5px 13px; border-radius: 20px; font-size: 10.5px; font-weight: 600;
+  cursor: pointer; border: 1.5px solid rgba(255,255,255,0.1); color: #9080888;
+  color: #908088; transition: all .2s; white-space: nowrap;
+  font-family: 'Sora', sans-serif;
 }
-.action-btn-sm.outline {
-  background:transparent; color:var(--muted); border:1px solid var(--border);
+.ndot:hover { border-color: rgba(232,0,27,0.4); color: #E8001B; }
+.ndot.active { background: var(--red); color: #fff; border-color: var(--red); }
+.anno-cards { display: flex; flex-direction: column; gap: 9px; }
+.anno-card {
+  background: rgba(255,255,255,0.04); border-radius: 12px; padding: 13px 15px;
+  border: 1px solid rgba(255,255,255,0.07);
 }
-.s4-health-pill {
-  display:flex; align-items:center; gap:3px;
-  font-family:'DM Mono',monospace; font-size:9px; font-weight:700;
+.anno-num {
+  display: inline-flex; width: 20px; height: 20px; background: var(--red-mid);
+  color: var(--red); border-radius: 50%; font-size: 9.5px; font-weight: 700;
+  align-items: center; justify-content: center; margin-bottom: 6px;
+}
+.anno-card h4 { font-size: 12.5px; font-weight: 700; color: #F0E4E8; margin-bottom: 4px; }
+.anno-card p { font-size: 11.5px; color: #A08090; line-height: 1.6; }
+.anno-metric {
+  display: inline-flex; align-items: center; gap: 3px;
+  background: rgba(22,163,74,0.15); color: #4ADE80;
+  font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 5px; margin-top: 8px;
 }
 </style>
 </head>
 <body>
 
-<div class="header">
-  <div class="header-tag">MAF Retail — Marketplace · Interactive Prototype</div>
-  <h1>SellerOS — Marketplace Seller Intelligence</h1>
-  <p>AI-powered growth tools for MAF marketplace sellers · Built by Ajay Avaghade</p>
-</div>
+<!-- ── BROWSER FRAME ── -->
+<div class="frame-wrap">
+  <div class="screen-label-top" id="screen-label">Screen 1 of 4 — Seller Home</div>
 
-<div class="screens-row">
+  <div class="browser">
+    <div class="browser-chrome">
+      <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+      <div class="url-bar" id="url-bar">seller.carrefouruae.com/dashboard</div>
+    </div>
+    <div class="browser-body">
 
-  <!-- SCREEN 1 — SELLER DASHBOARD -->
-  <div class="screen-wrap">
-    <div class="screen-label">01 — Seller Home</div>
-    <div class="browser">
-      <div class="browser-chrome">
-        <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
-        <div class="url-bar">seller.carrefouruae.com/dashboard</div>
-      </div>
-      <div class="browser-body">
-        <div class="s1-topbar">
-          <div class="s1-brand">
-            <div class="s1-logo">S</div>
+      <!-- ══ SCREEN 1: SELLER HOME ══ -->
+      <div class="screen active" id="s1">
+        <div class="topbar">
+          <div class="brand-row">
+            <div class="brand-logo">S</div>
             <div>
-              <div class="s1-brand-name">SellerOS</div>
-              <div class="s1-brand-sub">MAF Retail Marketplace</div>
+              <div class="brand-name">SellerOS</div>
+              <div class="brand-sub">MAF Retail Marketplace</div>
             </div>
           </div>
-          <div class="s1-seller-pill">Al Waha Foods</div>
+          <div class="pill pill-gold">Al Waha Foods</div>
         </div>
-        <div class="s1-body">
-          <div class="s1-welcome">Good morning, Al Waha Foods 👋</div>
-          <div class="s1-welcome-sub">June 2026 · Gourmet & Specialty Foods</div>
+        <div class="page-body">
+          <div class="welcome">Good morning, Al Waha Foods 👋</div>
+          <div class="welcome-sub">June 2026 · Gourmet & Specialty Foods</div>
 
           <div class="kpi-row">
             <div class="kpi-card">
               <div class="kpi-label">GMV (Jun)</div>
-              <div class="kpi-val" style="color:var(--ink)">AED 8,450</div>
+              <div class="kpi-val">AED 8,450</div>
               <div class="kpi-target">▲ AED 12K target</div>
             </div>
             <div class="kpi-card">
@@ -438,7 +422,7 @@ body {
               <div class="health-title">Seller Health Score</div>
               <div class="health-desc">2 pricing alerts dragging score. Fix overpriced SKUs to reach 85+.</div>
             </div>
-            <div class="health-badge">Needs Action</div>
+            <div class="pill pill-red" style="flex-shrink:0">Needs Action</div>
           </div>
 
           <div class="milestone-card">
@@ -448,9 +432,7 @@ body {
             </div>
             <div class="ms-desc">Hit <strong style="color:var(--gold)">AED 12,000 GMV</strong> by Jun 30 → earn <strong style="color:var(--gold)">AED 200 commission credit</strong> applied instantly to your next invoice.</div>
             <div class="ms-track">
-              <div class="ms-fill">
-                <div class="ms-fill-badge">70%</div>
-              </div>
+              <div class="ms-fill"><div class="ms-fill-badge">70%</div></div>
             </div>
             <div class="ms-footer">
               <span>AED 8,450 earned</span>
@@ -460,43 +442,42 @@ body {
 
           <div class="alerts-card">
             <div class="alerts-title">⚠️ Action Required</div>
-            <div class="alert-item red">
+            <div class="alert-item red" onclick="go(2)">
               <div class="alert-dot red"></div>
               <div class="alert-text"><strong>2 SKUs overpriced</strong> vs category median — losing Buy Box position</div>
-              <div class="alert-action">Fix →</div>
+              <div class="alert-cta">Fix →</div>
             </div>
             <div class="alert-item orange">
               <div class="alert-dot orange"></div>
               <div class="alert-text"><strong>Dried Apricots</strong> stock at 12 units — reorder recommended</div>
-              <div class="alert-action">Reorder →</div>
+              <div class="alert-cta">Reorder →</div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </div>
 
-  <!-- SCREEN 2 — AI PRICING ENGINE -->
-  <div class="screen-wrap">
-    <div class="screen-label">02 — AI Pricing Engine</div>
-    <div class="browser">
-      <div class="browser-chrome">
-        <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
-        <div class="url-bar">seller.carrefouruae.com/pricing</div>
-      </div>
-      <div class="browser-body">
-        <div class="s2-topbar">
-          <div class="s2-nav">
-            <div class="s2-nav-item">Dashboard</div>
-            <div class="s2-nav-item active">Pricing AI</div>
-            <div class="s2-nav-item">Campaigns</div>
-            <div class="s2-nav-item">Analytics</div>
+      <!-- ══ SCREEN 2: AI PRICING ENGINE ══ -->
+      <div class="screen" id="s2">
+        <div class="topbar">
+          <div class="brand-row">
+            <div class="brand-logo">S</div>
+            <div>
+              <div class="brand-name">SellerOS</div>
+              <div class="brand-sub">MAF Retail Marketplace</div>
+            </div>
           </div>
+          <div class="pill pill-gold">Al Waha Foods</div>
         </div>
-        <div class="s2-body">
+        <div class="nav-tabs">
+          <div class="nav-tab" onclick="go(1)">Dashboard</div>
+          <div class="nav-tab active">Pricing AI</div>
+          <div class="nav-tab" onclick="go(3)">Campaigns</div>
+          <div class="nav-tab" onclick="go(4)">Ops Console</div>
+        </div>
+        <div class="page-body">
           <div class="s2-heading">AI Pricing Recommendations</div>
           <div class="s2-sub">3 SKUs need attention · Updated 4 mins ago</div>
-          <div class="s2-summary-row">
+          <div class="s2-summary">
             <div class="s2-sum-card">
               <div class="s2-sum-val" style="color:var(--red)">3</div>
               <div class="s2-sum-lbl">Overpriced SKUs</div>
@@ -511,330 +492,340 @@ body {
             </div>
           </div>
 
-          <!-- SKU 1 -->
-          <div class="sku-card">
+          <div class="sku-card" id="sku1">
             <div class="sku-header">
               <div>
                 <div class="sku-name">Al Waha Dates 500g Premium</div>
-                <div class="sku-category">Gourmet · Dates & Nuts</div>
+                <div class="sku-cat">Gourmet · Dates & Nuts</div>
               </div>
-              <div class="sku-badge-overpriced">18.75% above median</div>
+              <div id="sku1-badge" class="sku-badge-over">18.75% above median</div>
             </div>
             <div class="price-row">
-              <div class="price-box current">
-                <div class="price-lbl">Your Price</div>
-                <div class="price-val current">AED 28.50</div>
-              </div>
+              <div class="price-box cur"><div class="price-lbl">Your Price</div><div class="price-val cur">AED 28.50</div></div>
               <div class="price-arrow">→</div>
-              <div class="price-box median">
-                <div class="price-lbl">Cat. Median</div>
-                <div class="price-val median">AED 24.00</div>
-              </div>
+              <div class="price-box med"><div class="price-lbl">Cat. Median</div><div class="price-val med">AED 24.00</div></div>
               <div class="price-arrow">→</div>
-              <div class="price-box rec">
-                <div class="price-lbl">Recommended</div>
-                <div class="price-val rec">AED 25.50</div>
-              </div>
+              <div class="price-box rec"><div class="price-lbl">Recommended</div><div class="price-val rec">AED 25.50</div></div>
             </div>
             <div class="impact-row">
-              <div class="impact-label">Est. revenue impact if applied:</div>
-              <div style="display:flex;gap:8px;align-items:center;">
+              <div class="impact-lbl">Est. revenue impact if applied:</div>
+              <div style="display:flex;gap:8px;align-items:center">
                 <div class="impact-val">+AED 340/mo</div>
-                <button class="apply-btn">Apply</button>
+                <button class="apply-btn" id="btn1" onclick="applyPrice(1)">Apply</button>
               </div>
             </div>
           </div>
 
-          <!-- SKU 2 -->
-          <div class="sku-card">
+          <div class="sku-card" id="sku2">
             <div class="sku-header">
               <div>
                 <div class="sku-name">Mixed Almond Bag 250g</div>
-                <div class="sku-category">Gourmet · Nuts & Seeds</div>
+                <div class="sku-cat">Gourmet · Nuts & Seeds</div>
               </div>
-              <div class="sku-badge-overpriced">7.7% above median</div>
+              <div id="sku2-badge" class="sku-badge-over">7.7% above median</div>
             </div>
             <div class="price-row">
-              <div class="price-box current">
-                <div class="price-lbl">Your Price</div>
-                <div class="price-val current">AED 18.00</div>
-              </div>
+              <div class="price-box cur"><div class="price-lbl">Your Price</div><div class="price-val cur">AED 18.00</div></div>
               <div class="price-arrow">→</div>
-              <div class="price-box median">
-                <div class="price-lbl">Cat. Median</div>
-                <div class="price-val median">AED 19.50</div>
-              </div>
+              <div class="price-box med"><div class="price-lbl">Cat. Median</div><div class="price-val med">AED 19.50</div></div>
               <div class="price-arrow">→</div>
-              <div class="price-box rec">
-                <div class="price-lbl">Recommended</div>
-                <div class="price-val rec">AED 18.75</div>
-              </div>
+              <div class="price-box rec"><div class="price-lbl">Recommended</div><div class="price-val rec">AED 18.75</div></div>
             </div>
             <div class="impact-row">
-              <div class="impact-label">Est. revenue impact if applied:</div>
-              <div style="display:flex;gap:8px;align-items:center;">
+              <div class="impact-lbl">Est. revenue impact if applied:</div>
+              <div style="display:flex;gap:8px;align-items:center">
                 <div class="impact-val">+AED 180/mo</div>
-                <button class="apply-btn">Apply</button>
+                <button class="apply-btn" id="btn2" onclick="applyPrice(2)">Apply</button>
               </div>
             </div>
           </div>
 
-          <!-- SKU 3 -->
-          <div class="sku-card">
+          <div class="sku-card" id="sku3">
             <div class="sku-header">
               <div>
                 <div class="sku-name">Turkish Dried Apricots 300g</div>
-                <div class="sku-category">Gourmet · Dried Fruits</div>
+                <div class="sku-cat">Gourmet · Dried Fruits</div>
               </div>
-              <div class="sku-badge-overpriced">7.3% above median</div>
+              <div id="sku3-badge" class="sku-badge-over">7.3% above median</div>
             </div>
             <div class="price-row">
-              <div class="price-box current">
-                <div class="price-lbl">Your Price</div>
-                <div class="price-val current">AED 22.00</div>
-              </div>
+              <div class="price-box cur"><div class="price-lbl">Your Price</div><div class="price-val cur">AED 22.00</div></div>
               <div class="price-arrow">→</div>
-              <div class="price-box median">
-                <div class="price-lbl">Cat. Median</div>
-                <div class="price-val median">AED 20.50</div>
-              </div>
+              <div class="price-box med"><div class="price-lbl">Cat. Median</div><div class="price-val med">AED 20.50</div></div>
               <div class="price-arrow">→</div>
-              <div class="price-box rec">
-                <div class="price-lbl">Recommended</div>
-                <div class="price-val rec">AED 21.00</div>
-              </div>
+              <div class="price-box rec"><div class="price-lbl">Recommended</div><div class="price-val rec">AED 21.00</div></div>
             </div>
             <div class="impact-row">
-              <div class="impact-label">Est. revenue impact if applied:</div>
-              <div style="display:flex;gap:8px;align-items:center;">
+              <div class="impact-lbl">Est. revenue impact if applied:</div>
+              <div style="display:flex;gap:8px;align-items:center">
                 <div class="impact-val">+AED 120/mo</div>
-                <button class="apply-btn">Apply</button>
+                <button class="apply-btn" id="btn3" onclick="applyPrice(3)">Apply</button>
               </div>
             </div>
           </div>
 
-          <div class="total-uplift-box">
-            <div class="total-uplift-lbl">Apply all 3 recommendations →</div>
-            <div class="total-uplift-val">+AED 640/month</div>
-            <div class="total-uplift-sub">projected GMV uplift · 5.3% additional commission</div>
+          <div class="uplift-box">
+            <div class="uplift-lbl">Apply all 3 recommendations →</div>
+            <div class="uplift-val">+AED 640/month</div>
+            <div class="uplift-sub">projected GMV uplift · 5.3% additional commission</div>
           </div>
         </div>
       </div>
-    </div>
-  </div>
 
-  <!-- SCREEN 3 — CAMPAIGN SUCCESS -->
-  <div class="screen-wrap">
-    <div class="screen-label">03 — Campaign Live</div>
-    <div class="browser">
-      <div class="browser-chrome">
-        <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
-        <div class="url-bar">seller.carrefouruae.com/campaigns/new</div>
-      </div>
-      <div class="browser-body">
-        <div class="s3-body">
-          <div class="s3-success">
-            <div class="s3-confetti-area" id="conf"></div>
-            <div class="s3-check">✓</div>
-            <div class="s3-live">Campaign Live</div>
-            <div class="s3-title">Eid Bundle — Dates & Nuts</div>
-            <div class="s3-subtitle">Your campaign is now live for Carrefour shoppers</div>
-            <div class="s3-stats">
-              <div class="s3-stat">
-                <div class="s3-stat-val">45K</div>
-                <div class="s3-stat-lbl">Targeted shoppers</div>
-              </div>
-              <div class="s3-stat">
-                <div class="s3-stat-val">3 days</div>
-                <div class="s3-stat-lbl">Jun 5 – Jun 8</div>
-              </div>
-              <div class="s3-stat">
-                <div class="s3-stat-val">+AED 1.2K</div>
-                <div class="s3-stat-lbl">Expected GMV uplift</div>
-              </div>
+      <!-- ══ SCREEN 3: CAMPAIGN LIVE ══ -->
+      <div class="screen" id="s3">
+        <div class="s3-hero">
+          <div id="conf-area"></div>
+          <div class="s3-check">✓</div>
+          <div class="s3-live">Campaign Live</div>
+          <div class="s3-title">Eid Bundle — Dates & Nuts</div>
+          <div class="s3-subtitle">Your campaign is live for Carrefour shoppers right now</div>
+          <div class="s3-stats">
+            <div class="s3-stat">
+              <div class="s3-stat-val">45K</div>
+              <div class="s3-stat-lbl">Targeted shoppers</div>
+            </div>
+            <div class="s3-stat">
+              <div class="s3-stat-val">Jun 5–8</div>
+              <div class="s3-stat-lbl">3 days live</div>
+            </div>
+            <div class="s3-stat">
+              <div class="s3-stat-val">+AED 1.2K</div>
+              <div class="s3-stat-lbl">Expected GMV uplift</div>
+            </div>
+            <div class="s3-stat">
+              <div class="s3-stat-val">+AED 1,200</div>
+              <div class="s3-stat-lbl">Toward AED 12K goal</div>
             </div>
           </div>
+        </div>
+        <div class="s3-details">
+          <div class="detail-card">
+            <div class="detail-title">Campaign Details</div>
+            <div class="detail-row"><div class="detail-key">Campaign name</div><div class="detail-val">Eid Bundle — Dates & Nuts</div></div>
+            <div class="detail-row"><div class="detail-key">Discount</div><div class="detail-val" style="color:var(--red)">15% off entire bundle</div></div>
+            <div class="detail-row"><div class="detail-key">SKUs included</div><div class="detail-val">3 SKUs (Dates, Almonds, Apricots)</div></div>
+            <div class="detail-row"><div class="detail-key">Audience targeting</div><div class="detail-val">Gourmet + Eid intent shoppers</div></div>
+            <div class="detail-row"><div class="detail-key">Milestone contribution</div><div class="detail-val" style="color:var(--green)">+AED 1,200 toward AED 12K goal</div></div>
+          </div>
+          <div class="btn-row">
+            <button class="btn-primary" onclick="go(4)">Ops Console →</button>
+            <button class="btn-outline" onclick="go(1)">Back to Dashboard</button>
+          </div>
+        </div>
+      </div>
 
-          <div class="s3-details">
-            <div class="s3-detail-card">
-              <div class="s3-detail-title">Campaign Details</div>
-              <div class="s3-detail-row">
-                <div class="s3-detail-key">Campaign name</div>
-                <div class="s3-detail-val">Eid Bundle — Dates & Nuts</div>
-              </div>
-              <div class="s3-detail-row">
-                <div class="s3-detail-key">Discount</div>
-                <div class="s3-detail-val" style="color:var(--red)">15% off entire bundle</div>
-              </div>
-              <div class="s3-detail-row">
-                <div class="s3-detail-key">SKUs included</div>
-                <div class="s3-detail-val">3 SKUs (Dates, Almonds, Apricots)</div>
-              </div>
-              <div class="s3-detail-row">
-                <div class="s3-detail-key">Audience targeting</div>
-                <div class="s3-detail-val">Gourmet + Eid intent shoppers</div>
-              </div>
-              <div class="s3-detail-row">
-                <div class="s3-detail-key">Milestone contribution</div>
-                <div class="s3-detail-val" style="color:var(--green)">+AED 1,200 toward AED 12K goal</div>
-              </div>
-            </div>
-            <div class="s3-btn-row">
-              <button class="s3-btn-primary">Track Performance →</button>
-              <button class="s3-btn-secondary">New Campaign</button>
-            </div>
+      <!-- ══ SCREEN 4: OPS CONSOLE ══ -->
+      <div class="screen" id="s4">
+        <div class="ops-topbar">
+          <div>
+            <div class="ops-brand">SellerOS · Category Manager</div>
+            <div class="ops-role">Gourmet & Specialty Foods · 24 active sellers</div>
           </div>
+          <div class="pill pill-red">3 Alerts</div>
         </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- SCREEN 4 — CATEGORY MANAGER CONSOLE -->
-  <div class="screen-wrap">
-    <div class="screen-label">04 — Ops Console</div>
-    <div class="browser">
-      <div class="browser-chrome">
-        <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
-        <div class="url-bar">ops.carrefouruae.com/seller-health</div>
-      </div>
-      <div class="browser-body">
-        <div class="s4-topbar">
-          <div class="s4-brand-row">
-            <div>
-              <div class="s4-logo">SellerOS · Category Manager</div>
-              <div class="s4-role">Gourmet & Specialty Foods · 24 active sellers</div>
-            </div>
-          </div>
-          <div class="s4-alert-badge">3 Alerts</div>
+        <div class="ops-summary-row">
+          <div class="ops-sum-cell"><div class="ops-sum-val r">1</div><div class="ops-sum-lbl">SLA Breach</div></div>
+          <div class="ops-sum-cell"><div class="ops-sum-val o">2</div><div class="ops-sum-lbl">At Risk</div></div>
+          <div class="ops-sum-cell"><div class="ops-sum-val g">21</div><div class="ops-sum-lbl">Healthy</div></div>
+          <div class="ops-sum-cell"><div class="ops-sum-val w">AED 284K</div><div class="ops-sum-lbl">Cat. GMV Jun</div></div>
         </div>
-        <div class="s4-summary-row">
-          <div class="s4-sum-cell">
-            <div class="s4-sum-val red">1</div>
-            <div class="s4-sum-lbl">SLA Breach</div>
-          </div>
-          <div class="s4-sum-cell">
-            <div class="s4-sum-val orange">2</div>
-            <div class="s4-sum-lbl">At Risk</div>
-          </div>
-          <div class="s4-sum-cell">
-            <div class="s4-sum-val green">21</div>
-            <div class="s4-sum-lbl">Healthy</div>
-          </div>
-          <div class="s4-sum-cell">
-            <div class="s4-sum-val white">AED 284K</div>
-            <div class="s4-sum-lbl">Cat. GMV (Jun)</div>
-          </div>
-        </div>
-        <div class="s4-body">
-          <div class="s4-section-title">
+        <div class="ops-body">
+          <div class="ops-sec-title">
             <span>Seller Health Grid</span>
-            <div class="s4-filter-pill">Filter: Breach first ▼</div>
+            <div class="filter-pill">Breach first ▼</div>
           </div>
 
-          <!-- Breach seller -->
           <div class="seller-row breach">
-            <div class="seller-avatar" style="background:var(--red)">ZA</div>
-            <div style="flex:1">
-              <div class="seller-name">Zaitoun Arabia Co.</div>
-              <div class="seller-category">Olive Oil & Condiments</div>
+            <div class="s-avatar" style="background:var(--red)">ZA</div>
+            <div style="flex:1;min-width:0">
+              <div class="s-name">Zaitoun Arabia Co.</div>
+              <div class="s-cat">Olive Oil & Condiments</div>
             </div>
-            <div style="text-align:right">
-              <div class="seller-gmv">AED 1,240</div>
-              <div class="seller-gmv-lbl">Jun GMV</div>
-            </div>
-            <div class="status-badge status-breach">SLA Breach</div>
-            <button class="action-btn-sm">Escalate</button>
+            <div style="flex-shrink:0"><div class="s-gmv">AED 1,240</div><div class="s-gmv-lbl">Jun GMV</div></div>
+            <div class="status-chip chip-breach">SLA Breach</div>
+            <button class="action-btn red" id="esc-btn" onclick="escalate()">Escalate</button>
           </div>
 
-          <!-- At risk seller 1 -->
-          <div class="seller-row at-risk">
-            <div class="seller-avatar" style="background:var(--orange)">NF</div>
-            <div style="flex:1">
-              <div class="seller-name">Nakheel Farms LLC</div>
-              <div class="seller-category">Dates & Organic Produce</div>
+          <div class="seller-row risk">
+            <div class="s-avatar" style="background:var(--orange)">NF</div>
+            <div style="flex:1;min-width:0">
+              <div class="s-name">Nakheel Farms LLC</div>
+              <div class="s-cat">Dates & Organic Produce</div>
             </div>
-            <div style="text-align:right">
-              <div class="seller-gmv">AED 3,850</div>
-              <div class="seller-gmv-lbl">Jun GMV</div>
-            </div>
-            <div class="status-badge status-risk">At Risk</div>
-            <button class="action-btn-sm">Nudge</button>
+            <div style="flex-shrink:0"><div class="s-gmv">AED 3,850</div><div class="s-gmv-lbl">Jun GMV</div></div>
+            <div class="status-chip chip-risk">At Risk</div>
+            <button class="action-btn nudge" id="nudge1-btn" onclick="sendNudge(1)">Nudge</button>
           </div>
 
-          <!-- At risk seller 2 -->
-          <div class="seller-row at-risk">
-            <div class="seller-avatar" style="background:#6366F1">BH</div>
-            <div style="flex:1">
-              <div class="seller-name">Bashar Home Goods</div>
-              <div class="seller-category">Kitchen & Specialty</div>
+          <div class="seller-row risk">
+            <div class="s-avatar" style="background:#6366F1">BH</div>
+            <div style="flex:1;min-width:0">
+              <div class="s-name">Bashar Home Goods</div>
+              <div class="s-cat">Kitchen & Specialty</div>
             </div>
-            <div style="text-align:right">
-              <div class="seller-gmv">AED 2,100</div>
-              <div class="seller-gmv-lbl">Jun GMV</div>
-            </div>
-            <div class="status-badge status-risk">At Risk</div>
-            <button class="action-btn-sm">Nudge</button>
+            <div style="flex-shrink:0"><div class="s-gmv">AED 2,100</div><div class="s-gmv-lbl">Jun GMV</div></div>
+            <div class="status-chip chip-risk">At Risk</div>
+            <button class="action-btn nudge" id="nudge2-btn" onclick="sendNudge(2)">Nudge</button>
           </div>
 
-          <!-- Healthy sellers -->
           <div class="seller-row">
-            <div class="seller-avatar" style="background:var(--green)">AW</div>
-            <div style="flex:1">
-              <div class="seller-name">Al Waha Foods</div>
-              <div class="seller-category">Gourmet & Nuts</div>
+            <div class="s-avatar" style="background:var(--green)">AW</div>
+            <div style="flex:1;min-width:0">
+              <div class="s-name">Al Waha Foods</div>
+              <div class="s-cat">Gourmet & Nuts</div>
             </div>
-            <div style="text-align:right">
-              <div class="seller-gmv">AED 8,450</div>
-              <div class="seller-gmv-lbl">Jun GMV</div>
-            </div>
-            <div class="status-badge status-ok">Healthy</div>
-            <button class="action-btn-sm outline">View</button>
+            <div style="flex-shrink:0"><div class="s-gmv">AED 8,450</div><div class="s-gmv-lbl">Jun GMV</div></div>
+            <div class="status-chip chip-ok">Healthy</div>
+            <button class="action-btn ghost">View</button>
           </div>
+
           <div class="seller-row">
-            <div class="seller-avatar" style="background:#0891B2">DG</div>
-            <div style="flex:1">
-              <div class="seller-name">Dubai Gourmet House</div>
-              <div class="seller-category">Premium Confectionery</div>
+            <div class="s-avatar" style="background:#0891B2">DG</div>
+            <div style="flex:1;min-width:0">
+              <div class="s-name">Dubai Gourmet House</div>
+              <div class="s-cat">Premium Confectionery</div>
             </div>
-            <div style="text-align:right">
-              <div class="seller-gmv">AED 14,200</div>
-              <div class="seller-gmv-lbl">Jun GMV</div>
-            </div>
-            <div class="status-badge status-ok">Healthy</div>
-            <button class="action-btn-sm outline">View</button>
+            <div style="flex-shrink:0"><div class="s-gmv">AED 14,200</div><div class="s-gmv-lbl">Jun GMV</div></div>
+            <div class="status-chip chip-ok">Healthy</div>
+            <button class="action-btn ghost">View</button>
           </div>
+
           <div class="seller-row">
-            <div class="seller-avatar" style="background:#7C3AED">LB</div>
-            <div style="flex:1">
-              <div class="seller-name">Lebanese Pantry UAE</div>
-              <div class="seller-category">Mezze & Specialty Foods</div>
+            <div class="s-avatar" style="background:#7C3AED">LP</div>
+            <div style="flex:1;min-width:0">
+              <div class="s-name">Lebanese Pantry UAE</div>
+              <div class="s-cat">Mezze & Specialty Foods</div>
             </div>
-            <div style="text-align:right">
-              <div class="seller-gmv">AED 9,800</div>
-              <div class="seller-gmv-lbl">Jun GMV</div>
-            </div>
-            <div class="status-badge status-ok">Healthy</div>
-            <button class="action-btn-sm outline">View</button>
+            <div style="flex-shrink:0"><div class="s-gmv">AED 9,800</div><div class="s-gmv-lbl">Jun GMV</div></div>
+            <div class="status-chip chip-ok">Healthy</div>
+            <button class="action-btn ghost">View</button>
           </div>
         </div>
       </div>
-    </div>
+
+    </div><!-- /browser-body -->
+  </div><!-- /browser -->
+</div><!-- /frame-wrap -->
+
+<!-- ── ANNOTATION PANEL ── -->
+<div class="anno-panel">
+  <div class="anno-title">SellerOS</div>
+  <div class="anno-sub">Marketplace seller intelligence — health score, AI pricing, milestone credit, ops console. Click the alert or nav tabs to navigate.</div>
+
+  <div class="nav-dots">
+    <div class="ndot active" id="d1" onclick="go(1)">Seller Home</div>
+    <div class="ndot" id="d2" onclick="go(2)">Pricing AI</div>
+    <div class="ndot" id="d3" onclick="go(3)">Campaign Live</div>
+    <div class="ndot" id="d4" onclick="go(4)">Ops Console</div>
   </div>
 
+  <div class="anno-cards" id="anno-cards"></div>
 </div>
 
 <script>
-// Confetti on screen 3
-const c = document.getElementById('conf');
-const cols = ['#E8001B','#C8952A','#16A34A','#60A5FA','#F472B6','#FBBF24','#A78BFA'];
-for(let i=0;i<36;i++){
-  const p = document.createElement('div');
-  p.className='cp';
-  const size = 4+Math.random()*7;
-  p.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*120-10}%;width:${size}px;height:${size}px;background:${cols[Math.floor(Math.random()*cols.length)]};border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${1.4+Math.random()*1.8}s;animation-delay:${Math.random()*2.4}s;`;
-  c.appendChild(p);
-}
-</script>
+const ANNO = {
+  1: [
+    { n:'1', t:'Health score as the north star', b:'72/100 surfaces immediately — not buried in a settings page. One number tells the seller exactly where they stand and what\'s costing them the Buy Box.', m:'Score visibility → immediate action' },
+    { n:'2', t:'Milestone progress visible on home', b:'The AED 8,450 / AED 12,000 progress bar creates a game mechanic. Sellers can see exactly how far they are from the commission credit. 70% at 18 days left creates urgency without spam.', m:'+60% 90-day activation vs control' },
+    { n:'3', t:'Alert taps navigate to fix', b:'The "2 SKUs overpriced" alert is clickable — it takes you directly to the AI Pricing screen. Zero extra navigation. Problem → fix in one tap.', m:'Reduces time-to-action' },
+  ],
+  2: [
+    { n:'1', t:'Three-column price comparison', b:'Your price vs category median vs recommended — side by side, in one row. No mental math required. The seller instantly sees they\'re 18.75% above median and that\'s costing them the Buy Box.', m:'Decision in under 3 seconds' },
+    { n:'2', t:'Revenue impact shown per SKU', b:'"Apply → +AED 340/mo" ties the recommendation directly to money. Not "improve your score" — actual projected revenue. This is the language sellers respond to.', m:'Revenue-led framing' },
+    { n:'3', t:'1-click apply with confirmation state', b:'Tap Apply, button changes to "✓ Applied" and card turns green. Instant visual confirmation — no page reload, no modal. The interaction resolves in under 200ms.', m:'Try clicking Apply on any SKU' },
+  ],
+  3: [
+    { n:'1', t:'3-click campaign builder result', b:'Seller never saw a complex form — just Product → Discount % → Audience → Confirm. This screen is the celebration: 45K shoppers targeted, 3-day window, expected AED 1.2K GMV uplift.', m:'3 clicks to live campaign' },
+    { n:'2', t:'Milestone contribution is explicit', b:'"AED 1,200 toward AED 12K goal" is shown as a campaign detail. The campaign builder and the milestone engine are one system — the seller sees the connection immediately.', m:'Campaign → Milestone linkage visible' },
+    { n:'3', t:'Confetti moment', b:'The animated success screen is a deliberate emotional beat. Launching a campaign is an achievement — treating it as such makes sellers more likely to launch the next one.', m:'Seller engagement → repeat behaviour' },
+  ],
+  4: [
+    { n:'1', t:'Health grid sorted by urgency', b:'Category managers see breaches first, then at-risk, then healthy. No scrolling required to find the problem. The summary bar (1 breach / 2 at-risk / 21 healthy) gives the full picture in 2 seconds.', m:'Time-to-triage: < 30 seconds' },
+    { n:'2', t:'1-click escalate and nudge', b:'"Escalate" fires an alert to the seller account team. "Nudge" sends a pre-written WhatsApp/email to the seller. Try clicking them — both show confirmation state.', m:'Try clicking Escalate and Nudge' },
+    { n:'3', t:'No Excel, no lag', b:'This replaces the category manager\'s weekly Excel health review. Same data, real-time, with actions built in. TAT from detection to intervention drops from 2 days to under 30 minutes.', m:'−82% fix cycle time' },
+  ],
+};
 
+const URLS = {
+  1: 'seller.carrefouruae.com/dashboard',
+  2: 'seller.carrefouruae.com/pricing-ai',
+  3: 'seller.carrefouruae.com/campaigns/eid-bundle-live',
+  4: 'ops.carrefouruae.com/seller-health',
+};
+const LABELS = {
+  1: 'Screen 1 of 4 — Seller Home',
+  2: 'Screen 2 of 4 — AI Pricing Engine',
+  3: 'Screen 3 of 4 — Campaign Live',
+  4: 'Screen 4 of 4 — Ops Console',
+};
+
+function go(n) {
+  [1,2,3,4].forEach(i => {
+    document.getElementById('s'+i).classList.remove('active');
+    const d = document.getElementById('d'+i);
+    if(d) d.classList.remove('active');
+  });
+  document.getElementById('s'+n).classList.add('active');
+  const dn = document.getElementById('d'+n);
+  if(dn) dn.classList.add('active');
+  document.getElementById('screen-label').textContent = LABELS[n];
+  document.getElementById('url-bar').textContent = URLS[n];
+  renderAnno(n);
+  if(n === 3) spawnConfetti();
+}
+
+function applyPrice(id) {
+  const btn = document.getElementById('btn'+id);
+  const card = document.getElementById('sku'+id);
+  const badge = document.getElementById('sku'+id+'-badge');
+  if(btn.classList.contains('applied-state')) return;
+  btn.textContent = '✓ Applied';
+  btn.classList.add('applied-state');
+  card.classList.add('applied');
+  badge.className = 'sku-badge-ok';
+  badge.textContent = '✓ Price updated';
+}
+
+function escalate() {
+  const btn = document.getElementById('esc-btn');
+  btn.textContent = '✓ Escalated';
+  btn.classList.remove('red');
+  btn.classList.add('sent');
+}
+
+function sendNudge(id) {
+  const btn = document.getElementById('nudge'+id+'-btn');
+  btn.textContent = '✓ Sent';
+  btn.classList.remove('nudge');
+  btn.classList.add('sent');
+}
+
+function spawnConfetti() {
+  const area = document.getElementById('conf-area');
+  area.innerHTML = '';
+  const cols = ['#E8001B','#C8952A','#16A34A','#60A5FA','#F472B6','#FBBF24','#A78BFA'];
+  for(let i = 0; i < 40; i++) {
+    const p = document.createElement('div');
+    p.className = 'conf-piece';
+    const sz = 4 + Math.random() * 7;
+    p.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*120-10}%;width:${sz}px;height:${sz}px;background:${cols[Math.floor(Math.random()*cols.length)]};border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${1.4+Math.random()*1.8}s;animation-delay:${Math.random()*2}s;`;
+    area.appendChild(p);
+  }
+}
+
+function renderAnno(n) {
+  const cards = ANNO[n] || [];
+  document.getElementById('anno-cards').innerHTML = cards.map(c => `
+    <div class="anno-card">
+      <div class="anno-num">${c.n}</div>
+      <h4>${c.t}</h4>
+      <p>${c.b}</p>
+      ${c.m ? `<div class="anno-metric">↗ ${c.m}</div>` : ''}
+    </div>`).join('');
+}
+
+renderAnno(1);
+</script>
 </body>
 </html>
