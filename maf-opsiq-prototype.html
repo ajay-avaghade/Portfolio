@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>MAF Retail — OpsIQ · Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:ital,wght@0,400;0,500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --dark: #0C0408;
+  --hero: #180C12;
+  --red: #E8001B;
+  --red-soft: rgba(232,0,27,0.10);
+  --gold: #C8952A;
+  --gold-soft: rgba(200,149,42,0.12);
+  --green: #16A34A;
+  --green-soft: rgba(22,163,74,0.10);
+  --orange: #EA580C;
+  --orange-soft: rgba(234,88,12,0.10);
+  --blue: #0070C9;
+  --blue-soft: rgba(0,112,201,0.10);
+  --purple: #7C3AED;
+  --purple-soft: rgba(124,58,237,0.10);
+  --white: #FFFFFF;
+  --light: #FDFBFC;
+  --ink: #18100E;
+  --muted: #9B8B90;
+  --border: #EDE0E4;
+  --gray: #F6F1F3;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background:var(--dark);
+  font-family:'Sora',sans-serif;
+  min-height:100vh;
+  display:flex; flex-direction:column; align-items:center;
+  padding:40px 28px 60px;
+}
+.header { text-align:center; margin-bottom:36px; }
+.header-tag {
+  font-family:'DM Mono',monospace; font-size:9.5px;
+  letter-spacing:.18em; text-transform:uppercase;
+  color:var(--red); margin-bottom:8px;
+}
+.header h1 { font-size:21px; font-weight:800; color:#fff; margin-bottom:5px; }
+.header p { font-size:12.5px; color:#A09298; }
+.screens-row {
+  display:flex; gap:24px; align-items:flex-start;
+  overflow-x:auto; padding-bottom:12px;
+  width:100%; justify-content:center;
+}
+.screen-wrap { display:flex; flex-direction:column; align-items:center; gap:10px; flex-shrink:0; }
+.screen-label {
+  font-family:'DM Mono',monospace; font-size:9px;
+  letter-spacing:.12em; text-transform:uppercase; color:#9B8B90;
+}
+
+/* Browser frame */
+.browser {
+  width:460px; border-radius:14px; overflow:hidden;
+  box-shadow:0 28px 72px rgba(0,0,0,0.55);
+  border:1px solid rgba(255,255,255,0.07);
+}
+.browser-chrome {
+  background:#1A0F14; padding:9px 12px;
+  display:flex; align-items:center; gap:10px;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+}
+.dots { display:flex; gap:5px; }
+.dot { width:9px; height:9px; border-radius:50%; }
+.dot-r { background:#FF5F57; }
+.dot-y { background:#FFBD2D; }
+.dot-g { background:#28CA41; }
+.url-bar {
+  flex:1; background:rgba(255,255,255,0.06); border-radius:5px;
+  padding:4px 10px; font-family:'DM Mono',monospace;
+  font-size:9px; color:#7A6A70;
+}
+.browser-body { background:var(--light); max-height:600px; overflow-y:auto; scrollbar-width:none; }
+.browser-body::-webkit-scrollbar { display:none; }
+
+/* === SHARED COMPONENTS === */
+.topbar {
+  background: linear-gradient(135deg, #1A0C12 0%, #2C1020 100%);
+  padding:10px 16px; display:flex; align-items:center; justify-content:space-between;
+}
+.tb-brand { font-size:11px; font-weight:700; color:var(--gold); }
+.tb-sub { font-size:8px; color:#A09298; }
+.tb-badge {
+  border-radius:20px; padding:3px 9px; font-size:8px; font-weight:700;
+}
+.tb-badge.red { background:var(--red); color:#fff; }
+.tb-badge.green { background:var(--green); color:#fff; }
+.tb-badge.gold { background:var(--gold); color:var(--dark); }
+
+/* ===== SCREEN 1 — MARKETPLACE HEALTH DASHBOARD ===== */
+.s1-summary-strip { background:var(--dark); display:flex; }
+.s1-kpi-cell {
+  flex:1; padding:10px 12px; text-align:center;
+  border-right:1px solid rgba(255,255,255,0.06);
+}
+.s1-kpi-cell:last-child { border-right:none; }
+.s1-kpi-val { font-family:'DM Mono',monospace; font-size:17px; font-weight:700; line-height:1; }
+.s1-kpi-lbl { font-size:8px; color:#80686E; margin-top:3px; }
+.s1-kpi-delta { font-family:'DM Mono',monospace; font-size:8px; margin-top:2px; }
+.s1-body { padding:12px 14px; background:var(--gray); }
+.s1-section-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+.s1-section-title { font-size:10px; font-weight:700; color:var(--ink); }
+.s1-see-all { font-size:8.5px; color:var(--red); font-weight:600; }
+
+/* KPI cards grid */
+.kpi-grid { display:grid; grid-template-columns:1fr 1fr; gap:7px; margin-bottom:10px; }
+.kpi-card {
+  background:#fff; border-radius:10px; padding:10px 11px;
+  border:1px solid var(--border); box-shadow:0 1px 4px rgba(0,0,0,0.04);
+}
+.kpi-card.alert { border-color:rgba(232,0,27,0.3); background:#FFF5F5; }
+.kpi-card.warn { border-color:rgba(234,88,12,0.25); background:#FFF9F5; }
+.kc-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:5px; }
+.kc-label { font-size:8px; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; }
+.kc-dot { width:7px; height:7px; border-radius:50%; }
+.kc-dot.green { background:var(--green); }
+.kc-dot.red { background:var(--red); }
+.kc-dot.orange { background:var(--orange); }
+.kc-val { font-family:'DM Mono',monospace; font-size:19px; font-weight:700; line-height:1; }
+.kc-delta { font-family:'DM Mono',monospace; font-size:8px; margin-top:3px; }
+.kc-delta.up { color:var(--green); }
+.kc-delta.down { color:var(--red); }
+.kc-delta.warn { color:var(--orange); }
+
+/* Anomaly feed */
+.anomaly-feed { }
+.anomaly-item {
+  background:#fff; border-radius:10px; padding:10px 12px;
+  border:1px solid var(--border); margin-bottom:6px;
+  display:flex; gap:10px; align-items:flex-start;
+  box-shadow:0 1px 3px rgba(0,0,0,0.04);
+}
+.anomaly-item.critical { border-color:rgba(232,0,27,0.35); background:#FFF5F5; }
+.anomaly-item.warning { border-color:rgba(234,88,12,0.25); background:#FFF9F5; }
+.anomaly-icon {
+  width:30px; height:30px; border-radius:8px; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center; font-size:14px;
+}
+.anomaly-icon.red { background:var(--red-soft); }
+.anomaly-icon.orange { background:var(--orange-soft); }
+.anomaly-icon.blue { background:var(--blue-soft); }
+.anomaly-content { flex:1; }
+.anomaly-headline { font-size:9.5px; font-weight:700; color:var(--ink); margin-bottom:2px; }
+.anomaly-meta { font-size:8px; color:var(--muted); }
+.anomaly-time { font-family:'DM Mono',monospace; font-size:8px; color:var(--muted); white-space:nowrap; }
+.anomaly-badge {
+  border-radius:20px; padding:2px 7px; font-size:7.5px; font-weight:700; white-space:nowrap;
+}
+.ab-critical { background:var(--red-soft); color:var(--red); border:1px solid rgba(232,0,27,0.2); }
+.ab-warning { background:var(--orange-soft); color:var(--orange); border:1px solid rgba(234,88,12,0.2); }
+.ab-info { background:var(--blue-soft); color:var(--blue); border:1px solid rgba(0,112,201,0.2); }
+
+/* ===== SCREEN 2 — ANOMALY DRILL-DOWN ===== */
+.s2-breadcrumb {
+  background:#fff; padding:8px 14px; font-size:8.5px; color:var(--muted);
+  border-bottom:1px solid var(--border);
+}
+.s2-breadcrumb span { color:var(--red); font-weight:700; }
+.s2-alert-hero {
+  background: linear-gradient(135deg, #3B0010 0%, #5C0018 100%);
+  padding:14px 16px;
+}
+.s2-severity-row { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+.s2-severity-badge {
+  background:var(--red); color:#fff; border-radius:20px;
+  padding:3px 9px; font-size:8px; font-weight:700;
+}
+.s2-alert-time { font-size:8px; color:#E0A0A8; font-family:'DM Mono',monospace; }
+.s2-alert-title { font-size:14px; font-weight:800; color:#fff; margin-bottom:4px; }
+.s2-alert-desc { font-size:9px; color:#E0A0A8; line-height:1.5; }
+.s2-impact-row { display:flex; gap:8px; margin-top:10px; }
+.s2-impact-chip {
+  background:rgba(255,255,255,0.1); border-radius:8px;
+  padding:7px 10px; text-align:center; flex:1;
+}
+.s2-impact-val { font-family:'DM Mono',monospace; font-size:14px; font-weight:700; color:#fff; }
+.s2-impact-lbl { font-size:7.5px; color:#E0A0A8; margin-top:2px; }
+.s2-body { padding:12px 14px; background:var(--gray); }
+.s2-section-title { font-size:10px; font-weight:700; color:var(--ink); margin-bottom:8px; }
+
+/* NLP tags */
+.nlp-grid { display:flex; flex-wrap:wrap; gap:5px; margin-bottom:10px; }
+.nlp-tag {
+  border-radius:20px; padding:4px 10px; font-size:8.5px; font-weight:600;
+  cursor:pointer;
+}
+.nlp-tag.t1 { background:var(--red-soft); color:var(--red); border:1px solid rgba(232,0,27,0.2); }
+.nlp-tag.t2 { background:var(--orange-soft); color:var(--orange); border:1px solid rgba(234,88,12,0.2); }
+.nlp-tag.t3 { background:var(--blue-soft); color:var(--blue); border:1px solid rgba(0,112,201,0.2); }
+.nlp-tag.t4 { background:var(--purple-soft); color:var(--purple); border:1px solid rgba(124,58,237,0.2); }
+
+/* Timeline */
+.timeline { position:relative; padding-left:20px; }
+.timeline::before {
+  content:''; position:absolute; left:6px; top:6px; bottom:6px;
+  width:2px; background:var(--border);
+}
+.tl-item { position:relative; margin-bottom:10px; }
+.tl-dot {
+  position:absolute; left:-17px; top:4px;
+  width:10px; height:10px; border-radius:50%; border:2px solid #fff;
+}
+.tl-dot.red { background:var(--red); }
+.tl-dot.orange { background:var(--orange); }
+.tl-dot.blue { background:var(--blue); }
+.tl-card {
+  background:#fff; border-radius:9px; padding:9px 11px;
+  border:1px solid var(--border);
+}
+.tl-time { font-family:'DM Mono',monospace; font-size:7.5px; color:var(--muted); margin-bottom:3px; }
+.tl-event { font-size:9px; font-weight:600; color:var(--ink); }
+.tl-detail { font-size:8px; color:var(--muted); margin-top:2px; line-height:1.4; }
+
+/* ===== SCREEN 3 — AI ROOT CAUSE + ACTIONS ===== */
+.s3-header-card {
+  background: linear-gradient(135deg, #180A0E 0%, #2C1020 100%);
+  padding:14px 16px;
+}
+.s3-ai-badge {
+  display:inline-flex; align-items:center; gap:5px;
+  background:rgba(200,149,42,0.2); border:1px solid rgba(200,149,42,0.35);
+  border-radius:20px; padding:3px 10px; margin-bottom:8px;
+}
+.s3-ai-badge-text { font-size:8px; font-weight:700; color:var(--gold); font-family:'DM Mono',monospace; }
+.s3-rca-title { font-size:13px; font-weight:800; color:#fff; margin-bottom:4px; }
+.s3-rca-desc { font-size:9px; color:#C0A8B0; line-height:1.5; }
+.s3-body { padding:12px 14px; background:var(--gray); }
+.s3-section-title { font-size:10px; font-weight:700; color:var(--ink); margin-bottom:8px; }
+
+/* Root cause cards */
+.rca-card {
+  background:#fff; border-radius:10px; padding:11px 13px;
+  border:1px solid var(--border); margin-bottom:7px;
+  display:flex; gap:10px; align-items:flex-start;
+}
+.rca-rank {
+  width:26px; height:26px; border-radius:7px; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'DM Mono',monospace; font-size:11px; font-weight:800;
+}
+.rca-rank.r1 { background:var(--red-soft); color:var(--red); }
+.rca-rank.r2 { background:var(--orange-soft); color:var(--orange); }
+.rca-rank.r3 { background:var(--blue-soft); color:var(--blue); }
+.rca-content { flex:1; }
+.rca-driver { font-size:9.5px; font-weight:700; color:var(--ink); margin-bottom:2px; }
+.rca-evidence { font-size:8.5px; color:var(--muted); line-height:1.4; margin-bottom:5px; }
+.rca-confidence-row { display:flex; align-items:center; gap:6px; }
+.rca-conf-track { flex:1; height:5px; background:var(--border); border-radius:99px; overflow:hidden; }
+.rca-conf-fill { height:100%; border-radius:99px; }
+.rca-conf-fill.high { background:var(--red); }
+.rca-conf-fill.med { background:var(--orange); }
+.rca-conf-fill.low { background:var(--blue); }
+.rca-conf-pct { font-family:'DM Mono',monospace; font-size:8px; font-weight:700; }
+.rca-conf-pct.high { color:var(--red); }
+.rca-conf-pct.med { color:var(--orange); }
+.rca-conf-pct.low { color:var(--blue); }
+
+/* Recommended actions */
+.action-card {
+  background:#fff; border-radius:10px; padding:11px 13px;
+  border:1px solid var(--border); margin-bottom:6px;
+  display:flex; gap:10px; align-items:center;
+}
+.action-icon {
+  width:30px; height:30px; border-radius:8px; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center; font-size:14px;
+}
+.action-icon.green { background:var(--green-soft); }
+.action-icon.orange { background:var(--orange-soft); }
+.action-icon.blue { background:var(--blue-soft); }
+.action-content { flex:1; }
+.action-title { font-size:9.5px; font-weight:700; color:var(--ink); margin-bottom:2px; }
+.action-desc { font-size:8px; color:var(--muted); }
+.action-btn {
+  border:none; border-radius:7px; padding:5px 10px;
+  font-size:8px; font-weight:700; cursor:pointer; white-space:nowrap;
+  font-family:'Sora',sans-serif;
+}
+.action-btn.primary { background:var(--red); color:#fff; }
+.action-btn.secondary { background:var(--green); color:#fff; }
+.action-btn.tertiary { background:var(--blue); color:#fff; }
+
+/* ===== SCREEN 4 — SELLER ESCALATION CONSOLE ===== */
+.s4-filter-bar {
+  background:#fff; padding:8px 14px;
+  display:flex; gap:6px; align-items:center;
+  border-bottom:1px solid var(--border); overflow-x:auto; scrollbar-width:none;
+}
+.s4-filter-bar::-webkit-scrollbar { display:none; }
+.filter-pill {
+  border-radius:20px; padding:4px 10px; font-size:8.5px; font-weight:600;
+  white-space:nowrap; cursor:pointer; border:1px solid var(--border);
+}
+.filter-pill.active { background:var(--red); color:#fff; border-color:var(--red); }
+.filter-pill.default { background:var(--gray); color:var(--muted); }
+.s4-body { padding:12px 14px; background:var(--gray); }
+.s4-section-title { font-size:9.5px; font-weight:700; color:var(--ink); margin-bottom:7px; display:flex; justify-content:space-between; align-items:center; }
+.s4-generate-btn {
+  background:var(--red); color:#fff; border:none; border-radius:20px;
+  padding:4px 12px; font-size:8px; font-weight:700; cursor:pointer;
+  font-family:'Sora',sans-serif;
+}
+
+/* Escalation tickets */
+.ticket {
+  background:#fff; border-radius:10px; padding:11px 13px;
+  border:1px solid var(--border); margin-bottom:6px;
+  box-shadow:0 1px 3px rgba(0,0,0,0.04);
+}
+.ticket.critical { border-color:rgba(232,0,27,0.35); }
+.ticket.warning { border-color:rgba(234,88,12,0.25); }
+.ticket-header { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+.ticket-id { font-family:'DM Mono',monospace; font-size:8.5px; color:var(--muted); }
+.ticket-priority {
+  border-radius:20px; padding:2px 7px; font-size:7.5px; font-weight:700;
+}
+.tp-critical { background:var(--red-soft); color:var(--red); border:1px solid rgba(232,0,27,0.2); }
+.tp-high { background:var(--orange-soft); color:var(--orange); border:1px solid rgba(234,88,12,0.2); }
+.tp-medium { background:var(--blue-soft); color:var(--blue); border:1px solid rgba(0,112,201,0.2); }
+.ticket-age { font-size:7.5px; color:var(--muted); font-family:'DM Mono',monospace; }
+.ticket-title { font-size:10px; font-weight:700; color:var(--ink); margin-bottom:3px; }
+.ticket-meta { font-size:8px; color:var(--muted); margin-bottom:6px; line-height:1.4; }
+.ticket-footer { display:flex; gap:6px; align-items:center; }
+.ticket-tag {
+  background:var(--gray); border-radius:20px; padding:2px 8px;
+  font-size:7.5px; color:var(--muted); border:1px solid var(--border);
+}
+.ticket-action-btn {
+  margin-left:auto; background:var(--red); color:#fff; border:none;
+  border-radius:6px; padding:4px 10px; font-size:8px; font-weight:700;
+  cursor:pointer; font-family:'Sora',sans-serif;
+}
+.ticket-action-btn.outline {
+  background:transparent; color:var(--muted); border:1px solid var(--border);
+}
+
+/* Jira preview */
+.jira-preview {
+  background: linear-gradient(135deg, #0A1F5C, #0047AB);
+  border-radius:10px; padding:11px 13px; margin-bottom:6px;
+  border:1px solid rgba(0,112,201,0.3);
+}
+.jira-header { display:flex; align-items:center; gap:6px; margin-bottom:6px; }
+.jira-icon { font-size:14px; }
+.jira-title { font-size:9.5px; font-weight:700; color:#fff; }
+.jira-auto-badge {
+  background:rgba(255,255,255,0.15); border-radius:20px;
+  padding:2px 7px; font-size:7.5px; color:#A0C4FF; font-weight:700;
+}
+.jira-tickets-list { }
+.jira-ticket-row {
+  display:flex; align-items:center; gap:7px; padding:5px 0;
+  border-bottom:1px solid rgba(255,255,255,0.08);
+}
+.jira-ticket-row:last-child { border-bottom:none; }
+.jira-ticket-key { font-family:'DM Mono',monospace; font-size:8.5px; color:#60A5FA; }
+.jira-ticket-desc { font-size:8.5px; color:#C0D8F8; flex:1; }
+.jira-ticket-status {
+  border-radius:20px; padding:2px 7px; font-size:7px; font-weight:700;
+}
+.jts-auto { background:rgba(22,163,74,0.2); color:#86EFAC; }
+.jts-manual { background:rgba(200,149,42,0.2); color:#FCD34D; }
+.jira-create-btn {
+  width:100%; background:rgba(255,255,255,0.1); color:#fff; border:1px solid rgba(255,255,255,0.2);
+  border-radius:8px; padding:9px; font-size:10px; font-weight:700;
+  cursor:pointer; font-family:'Sora',sans-serif; margin-top:8px;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-tag">MAF Retail — Marketplace Operations · Interactive Prototype</div>
+  <h1>OpsIQ — Marketplace Intelligence Layer</h1>
+  <p>Real-time anomaly detection · AI root-cause analysis · Auto-generated Jira · Built by Ajay Avaghade</p>
+</div>
+
+<div class="screens-row">
+
+  <!-- SCREEN 1 — MARKETPLACE HEALTH DASHBOARD -->
+  <div class="screen-wrap">
+    <div class="screen-label">01 — Health Dashboard</div>
+    <div class="browser">
+      <div class="browser-chrome">
+        <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+        <div class="url-bar">ops.mafretail.com/marketplace/health</div>
+      </div>
+      <div class="browser-body">
+        <div class="topbar">
+          <div>
+            <div class="tb-brand">OpsIQ — Marketplace Intelligence</div>
+            <div class="tb-sub">MAF Retail · Jun 29, 2026 · 09:41 GST</div>
+          </div>
+          <div class="tb-badge red">3 Active Anomalies</div>
+        </div>
+        <div class="s1-summary-strip">
+          <div class="s1-kpi-cell">
+            <div class="s1-kpi-val" style="color:#fff">AED 2.84M</div>
+            <div class="s1-kpi-lbl">GMV Today</div>
+            <div class="s1-kpi-delta" style="color:var(--green)">↑ 4.2% vs yesterday</div>
+          </div>
+          <div class="s1-kpi-cell">
+            <div class="s1-kpi-val" style="color:var(--red)">76.4%</div>
+            <div class="s1-kpi-lbl">Fill Rate</div>
+            <div class="s1-kpi-delta" style="color:var(--red)">↓ −18.3pts · Alert</div>
+          </div>
+          <div class="s1-kpi-cell">
+            <div class="s1-kpi-val" style="color:var(--orange)">91.2%</div>
+            <div class="s1-kpi-lbl">Seller SLA</div>
+            <div class="s1-kpi-delta" style="color:var(--orange)">↓ −6.1pts · Watch</div>
+          </div>
+          <div class="s1-kpi-cell">
+            <div class="s1-kpi-val" style="color:#fff">4.28</div>
+            <div class="s1-kpi-lbl">Avg Rating</div>
+            <div class="s1-kpi-delta" style="color:var(--green)">↑ stable</div>
+          </div>
+        </div>
+        <div class="s1-body">
+          <div class="kpi-grid">
+            <div class="kpi-card alert">
+              <div class="kc-header">
+                <div class="kc-label">Chilled Foods Fill Rate</div>
+                <div class="kc-dot red"></div>
+              </div>
+              <div class="kc-val" style="color:var(--red)">61%</div>
+              <div class="kc-delta down">↓ −33pts in 4 hours · Critical</div>
+            </div>
+            <div class="kpi-card warn">
+              <div class="kc-header">
+                <div class="kc-label">Same-Day Delivery SLA</div>
+                <div class="kc-dot orange"></div>
+              </div>
+              <div class="kc-val" style="color:var(--orange)">88%</div>
+              <div class="kc-delta warn">↓ −9pts vs 7-day avg</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kc-header">
+                <div class="kc-label">Return Rate</div>
+                <div class="kc-dot green"></div>
+              </div>
+              <div class="kc-val" style="color:var(--ink)">2.1%</div>
+              <div class="kc-delta up">↑ within normal band</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kc-header">
+                <div class="kc-label">New Sellers (Jun)</div>
+                <div class="kc-dot green"></div>
+              </div>
+              <div class="kc-val" style="color:var(--ink)">142</div>
+              <div class="kc-delta up">↑ 18% vs last month</div>
+            </div>
+          </div>
+
+          <div class="s1-section-row">
+            <div class="s1-section-title">⚠️ Live Anomaly Feed</div>
+            <div class="s1-see-all">See all →</div>
+          </div>
+
+          <div class="anomaly-feed">
+            <div class="anomaly-item critical">
+              <div class="anomaly-icon red">🥶</div>
+              <div class="anomaly-content">
+                <div class="anomaly-headline">Chilled Foods fill rate −33pts in 4 hours</div>
+                <div class="anomaly-meta">3 root causes identified · Al Barsha & JBR hubs affected · 847 orders at risk</div>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
+                <div class="anomaly-badge ab-critical">Critical</div>
+                <div class="anomaly-time">09:12 GST</div>
+              </div>
+            </div>
+            <div class="anomaly-item warning">
+              <div class="anomaly-icon orange">🚚</div>
+              <div class="anomaly-content">
+                <div class="anomaly-headline">Same-day delivery SLA drop — JBR cluster</div>
+                <div class="anomaly-meta">Avg delay: 34 min over SLA window · 2 sellers implicated</div>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
+                <div class="anomaly-badge ab-warning">High</div>
+                <div class="anomaly-time">08:55 GST</div>
+              </div>
+            </div>
+            <div class="anomaly-item">
+              <div class="anomaly-icon blue">📦</div>
+              <div class="anomaly-content">
+                <div class="anomaly-headline">Baby Products category — 3 OOS SKUs trending</div>
+                <div class="anomaly-meta">Weekend demand spike detected · reorder recommended</div>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
+                <div class="anomaly-badge ab-info">Watch</div>
+                <div class="anomaly-time">08:30 GST</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 2 — ANOMALY DRILL-DOWN -->
+  <div class="screen-wrap">
+    <div class="screen-label">02 — Anomaly Drill-Down</div>
+    <div class="browser">
+      <div class="browser-chrome">
+        <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+        <div class="url-bar">ops.mafretail.com/anomaly/AN-2847</div>
+      </div>
+      <div class="browser-body">
+        <div class="topbar">
+          <div>
+            <div class="tb-brand">OpsIQ · Anomaly Detail</div>
+            <div class="tb-sub">AN-2847 · Chilled Foods Fill Rate Drop</div>
+          </div>
+          <div class="tb-badge red">Active · Critical</div>
+        </div>
+        <div class="s2-breadcrumb">Health Dashboard → Anomaly Feed → <span>AN-2847 Chilled Foods</span></div>
+        <div class="s2-alert-hero">
+          <div class="s2-severity-row">
+            <div class="s2-severity-badge">🔴 CRITICAL</div>
+            <div class="s2-alert-time">Detected: 09:12 GST · 29 min ago</div>
+          </div>
+          <div class="s2-alert-title">Chilled Foods Fill Rate — −33pts in 4 Hours</div>
+          <div class="s2-alert-desc">Fill rate dropped from 94% baseline to 61% between 05:00–09:00 GST. Al Barsha and JBR fulfilment hubs affected. 847 active orders currently at risk of SLA breach.</div>
+          <div class="s2-impact-row">
+            <div class="s2-impact-chip">
+              <div class="s2-impact-val">847</div>
+              <div class="s2-impact-lbl">Orders at risk</div>
+            </div>
+            <div class="s2-impact-chip">
+              <div class="s2-impact-val">AED 68K</div>
+              <div class="s2-impact-lbl">GMV exposure</div>
+            </div>
+            <div class="s2-impact-chip">
+              <div class="s2-impact-val">−0.4pt</div>
+              <div class="s2-impact-lbl">Projected NPS impact</div>
+            </div>
+          </div>
+        </div>
+        <div class="s2-body">
+          <div class="s2-section-title">NLP Issue Classification</div>
+          <div class="nlp-grid">
+            <div class="nlp-tag t1">Stock-out · 312 orders</div>
+            <div class="nlp-tag t2">Fulfilment delay · 284 orders</div>
+            <div class="nlp-tag t3">Seller inactive · 168 orders</div>
+            <div class="nlp-tag t4">Wrong temperature class · 83 orders</div>
+          </div>
+
+          <div class="s2-section-title">Event Timeline</div>
+          <div class="timeline">
+            <div class="tl-item">
+              <div class="tl-dot red"></div>
+              <div class="tl-card">
+                <div class="tl-time">09:12 GST — Anomaly Detected</div>
+                <div class="tl-event">Fill rate crossed −15pt threshold → OpsIQ alert triggered</div>
+                <div class="tl-detail">ML anomaly detector fired at 3σ deviation from 30-day baseline</div>
+              </div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-dot orange"></div>
+              <div class="tl-card">
+                <div class="tl-time">07:30 GST — First Signal</div>
+                <div class="tl-event">Al Barsha hub reporting 40% of Chilled SKUs unavailable</div>
+                <div class="tl-detail">Overnight restock cycle appears to have failed for 3 seller accounts</div>
+              </div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-dot orange"></div>
+              <div class="tl-card">
+                <div class="tl-time">05:00 GST — Baseline</div>
+                <div class="tl-event">Fill rate normal at 94% · No alerts active</div>
+                <div class="tl-detail">Morning demand surge began 06:00 GST exposing inventory gaps</div>
+              </div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-dot blue"></div>
+              <div class="tl-card">
+                <div class="tl-time">Yesterday 22:00 GST — Warning Signal</div>
+                <div class="tl-event">2 sellers in Chilled Foods showed <72hr stock level flag</div>
+                <div class="tl-detail">Auto-nudge sent · No seller response recorded</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 3 — AI ROOT CAUSE + ACTIONS -->
+  <div class="screen-wrap">
+    <div class="screen-label">03 — AI Root Cause</div>
+    <div class="browser">
+      <div class="browser-chrome">
+        <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+        <div class="url-bar">ops.mafretail.com/anomaly/AN-2847/rca</div>
+      </div>
+      <div class="browser-body">
+        <div class="topbar">
+          <div>
+            <div class="tb-brand">OpsIQ · AI Root Cause Analysis</div>
+            <div class="tb-sub">AN-2847 · Generated in 4.2s</div>
+          </div>
+          <div class="tb-badge gold">AI Generated</div>
+        </div>
+        <div class="s3-header-card">
+          <div class="s3-ai-badge">
+            <span>🤖</span>
+            <span class="s3-ai-badge-text">OpsIQ AI · Confidence 91%</span>
+          </div>
+          <div class="s3-rca-title">3 Root Causes Identified</div>
+          <div class="s3-rca-desc">Based on order data, seller inventory signals, and hub capacity logs. Confidence weighted by historical pattern match against 6,200 prior Chilled Foods anomalies.</div>
+        </div>
+        <div class="s3-body">
+          <div class="s3-section-title">Ranked Root Causes</div>
+
+          <div class="rca-card">
+            <div class="rca-rank r1">#1</div>
+            <div class="rca-content">
+              <div class="rca-driver">Seller restock failure — 3 accounts (Chilled Foods cluster)</div>
+              <div class="rca-evidence">Al Waha Dairy, Gulf Fresh, and NaturalBio missed overnight restock cycle. Combined: 488 OOS SKUs. Pattern matches 5 prior Tuesday incidents correlated with Monday warehouse closures.</div>
+              <div class="rca-confidence-row">
+                <div class="rca-conf-track"><div class="rca-conf-fill high" style="width:84%"></div></div>
+                <div class="rca-conf-pct high">84%</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="rca-card">
+            <div class="rca-rank r2">#2</div>
+            <div class="rca-content">
+              <div class="rca-driver">JBR hub capacity overloaded — +22% demand surge</div>
+              <div class="rca-evidence">JBR hub processed 22% more orders than 30-day average this morning, likely driven by Eid weekend demand tail. 3 delivery vehicles reassigned from Chilled zone.</div>
+              <div class="rca-confidence-row">
+                <div class="rca-conf-track"><div class="rca-conf-fill med" style="width:71%"></div></div>
+                <div class="rca-conf-pct med">71%</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="rca-card">
+            <div class="rca-rank r3">#3</div>
+            <div class="rca-content">
+              <div class="rca-driver">Temperature classification error — 83 SKUs miscategorised</div>
+              <div class="rca-evidence">83 SKUs show "ambient" routing but require chilled fulfilment. Likely a category taxonomy update from Jun 24 that wasn't propagated to hub routing logic.</div>
+              <div class="rca-confidence-row">
+                <div class="rca-conf-track"><div class="rca-conf-fill low" style="width:58%"></div></div>
+                <div class="rca-conf-pct low">58%</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="s3-section-title" style="margin-top:10px;">Recommended Actions</div>
+
+          <div class="action-card">
+            <div class="action-icon green">📞</div>
+            <div class="action-content">
+              <div class="action-title">Contact 3 sellers — immediate restock escalation</div>
+              <div class="action-desc">Al Waha Dairy, Gulf Fresh, NaturalBio · Auto-draft WhatsApp + email ready</div>
+            </div>
+            <button class="action-btn secondary">Send Now</button>
+          </div>
+          <div class="action-card">
+            <div class="action-icon orange">🔀</div>
+            <div class="action-content">
+              <div class="action-title">Reroute 156 JBR orders to Marina hub</div>
+              <div class="action-desc">Marina hub at 62% capacity · Estimated SLA save: 134 of 156 orders</div>
+            </div>
+            <button class="action-btn primary">Approve Reroute</button>
+          </div>
+          <div class="action-card">
+            <div class="action-icon blue">🏷️</div>
+            <div class="action-content">
+              <div class="action-title">Fix taxonomy for 83 miscategorised SKUs</div>
+              <div class="action-desc">Auto-Jira ticket drafted · Assign to Platform team · Est. fix: 2h</div>
+            </div>
+            <button class="action-btn tertiary">Create Jira</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 4 — ESCALATION CONSOLE -->
+  <div class="screen-wrap">
+    <div class="screen-label">04 — Escalation Console</div>
+    <div class="browser">
+      <div class="browser-chrome">
+        <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+        <div class="url-bar">ops.mafretail.com/escalations</div>
+      </div>
+      <div class="browser-body">
+        <div class="topbar">
+          <div>
+            <div class="tb-brand">OpsIQ · Seller Escalation Console</div>
+            <div class="tb-sub">Live SLA monitoring · Auto-notification engine</div>
+          </div>
+          <div class="tb-badge red">5 Open</div>
+        </div>
+        <div class="s4-filter-bar">
+          <div class="filter-pill active">All (5)</div>
+          <div class="filter-pill default">Critical (1)</div>
+          <div class="filter-pill default">High (2)</div>
+          <div class="filter-pill default">Medium (2)</div>
+          <div class="filter-pill default">Auto-notified</div>
+        </div>
+        <div class="s4-body">
+          <div class="s4-section-title">
+            <span>Open Escalations</span>
+            <button class="s4-generate-btn">Generate Jira →</button>
+          </div>
+
+          <!-- Ticket 1 — Critical -->
+          <div class="ticket critical">
+            <div class="ticket-header">
+              <div class="ticket-id">ESC-1042</div>
+              <div class="ticket-priority tp-critical">Critical</div>
+              <div class="ticket-age">29m open</div>
+            </div>
+            <div class="ticket-title">Al Waha Dairy — Restock Failure · 162 OOS SKUs</div>
+            <div class="ticket-meta">Account inactive since 22:00 GST yesterday. Auto-nudge sent at 07:30 GST — no response. 162 Chilled SKUs out of stock affecting 312 live orders.</div>
+            <div class="ticket-footer">
+              <div class="ticket-tag">Chilled Foods</div>
+              <div class="ticket-tag">AN-2847</div>
+              <button class="ticket-action-btn">Escalate</button>
+            </div>
+          </div>
+
+          <!-- Ticket 2 — High -->
+          <div class="ticket warning">
+            <div class="ticket-header">
+              <div class="ticket-id">ESC-1041</div>
+              <div class="ticket-priority tp-high">High</div>
+              <div class="ticket-age">1h 12m open</div>
+            </div>
+            <div class="ticket-title">JBR Hub — Delivery Delay 34min Over SLA</div>
+            <div class="ticket-meta">Peak demand surge detected. 3 vehicles reassigned from Chilled zone. 284 orders experiencing average 34-min SLA breach.</div>
+            <div class="ticket-footer">
+              <div class="ticket-tag">Fulfilment</div>
+              <div class="ticket-tag">JBR Hub</div>
+              <button class="ticket-action-btn">Reroute</button>
+            </div>
+          </div>
+
+          <!-- Ticket 3 — Medium -->
+          <div class="ticket">
+            <div class="ticket-header">
+              <div class="ticket-id">ESC-1040</div>
+              <div class="ticket-priority tp-medium">Medium</div>
+              <div class="ticket-age">3h 5m open</div>
+            </div>
+            <div class="ticket-title">Taxonomy Error — 83 Chilled SKUs Routed as Ambient</div>
+            <div class="ticket-meta">Platform taxonomy update Jun 24 not propagated to hub routing. Auto-Jira drafted below.</div>
+            <div class="ticket-footer">
+              <div class="ticket-tag">Platform</div>
+              <div class="ticket-tag">Taxonomy</div>
+              <button class="ticket-action-btn outline">View Jira</button>
+            </div>
+          </div>
+
+          <!-- Auto-Jira preview -->
+          <div class="jira-preview">
+            <div class="jira-header">
+              <div class="jira-icon">⧈</div>
+              <div class="jira-title">Auto-Generated Jira Backlog</div>
+              <div class="jira-auto-badge">3 tickets ready</div>
+            </div>
+            <div class="jira-tickets-list">
+              <div class="jira-ticket-row">
+                <div class="jira-ticket-key">MAF-4182</div>
+                <div class="jira-ticket-desc">Fix Chilled Foods taxonomy routing for 83 SKUs</div>
+                <div class="jira-ticket-status jts-auto">Auto-drafted</div>
+              </div>
+              <div class="jira-ticket-row">
+                <div class="jira-ticket-key">MAF-4183</div>
+                <div class="jira-ticket-desc">SLA alert: JBR hub capacity — add vehicle buffer rule</div>
+                <div class="jira-ticket-status jts-auto">Auto-drafted</div>
+              </div>
+              <div class="jira-ticket-row">
+                <div class="jira-ticket-key">MAF-4184</div>
+                <div class="jira-ticket-desc">Seller restock SLA enforcement — 3 chilled accounts</div>
+                <div class="jira-ticket-status jts-manual">Needs review</div>
+              </div>
+            </div>
+            <button class="jira-create-btn">Create All 3 Tickets in Jira →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

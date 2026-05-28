@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>MAF Retail — SellerOS · Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:ital,wght@0,400;0,500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --dark: #0C0408;
+  --hero: #180C12;
+  --red: #E8001B;
+  --red-soft: rgba(232,0,27,0.10);
+  --gold: #C8952A;
+  --gold-soft: rgba(200,149,42,0.12);
+  --green: #16A34A;
+  --green-soft: rgba(22,163,74,0.10);
+  --orange: #EA580C;
+  --orange-soft: rgba(234,88,12,0.10);
+  --white: #FFFFFF;
+  --light: #FDFBFC;
+  --ink: #18100E;
+  --muted: #9B8B90;
+  --border: #EDE0E4;
+  --gray: #F6F1F3;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: var(--dark);
+  font-family: 'Sora', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 28px 60px;
+}
+.header { text-align:center; margin-bottom:36px; }
+.header-tag {
+  font-family:'DM Mono',monospace; font-size:9.5px;
+  letter-spacing:.18em; text-transform:uppercase;
+  color: var(--red); margin-bottom:8px;
+}
+.header h1 { font-size:21px; font-weight:800; color:#fff; margin-bottom:5px; }
+.header p { font-size:12.5px; color:#A09298; }
+.screens-row {
+  display:flex; gap:24px; align-items:flex-start;
+  overflow-x:auto; padding-bottom:12px;
+  width:100%; justify-content:center;
+}
+.screen-wrap { display:flex; flex-direction:column; align-items:center; gap:10px; flex-shrink:0; }
+.screen-label {
+  font-family:'DM Mono',monospace; font-size:9px;
+  letter-spacing:.12em; text-transform:uppercase; color:#9B8B90;
+}
+
+/* Browser frame */
+.browser {
+  width:460px; border-radius:14px; overflow:hidden;
+  box-shadow:0 28px 72px rgba(0,0,0,0.55);
+  border:1px solid rgba(255,255,255,0.07);
+}
+.browser-chrome {
+  background:#1A0F14; padding:9px 12px;
+  display:flex; align-items:center; gap:10px;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+}
+.dots { display:flex; gap:5px; }
+.dot { width:9px; height:9px; border-radius:50%; }
+.dot-r { background:#FF5F57; }
+.dot-y { background:#FFBD2D; }
+.dot-g { background:#28CA41; }
+.url-bar {
+  flex:1; background:rgba(255,255,255,0.06); border-radius:5px;
+  padding:4px 10px; font-family:'DM Mono',monospace;
+  font-size:9px; color:#7A6A70;
+}
+.browser-body {
+  background:var(--light); max-height:600px;
+  overflow-y:auto; scrollbar-width:none;
+}
+.browser-body::-webkit-scrollbar { display:none; }
+
+/* ===== SCREEN 1 — SELLER DASHBOARD ===== */
+.s1-topbar {
+  background:#fff; border-bottom:1px solid var(--border);
+  padding:10px 16px; display:flex; align-items:center; justify-content:space-between;
+}
+.s1-brand { display:flex; align-items:center; gap:8px; }
+.s1-logo {
+  width:28px; height:28px; border-radius:7px;
+  background:var(--red); display:flex; align-items:center; justify-content:center;
+  font-size:10px; font-weight:800; color:#fff;
+}
+.s1-brand-name { font-size:11px; font-weight:700; color:var(--ink); }
+.s1-brand-sub { font-size:9px; color:var(--muted); }
+.s1-seller-pill {
+  background:var(--gold-soft); border:1px solid var(--gold);
+  border-radius:20px; padding:3px 10px;
+  font-size:9px; font-weight:600; color:var(--gold);
+}
+.s1-body { padding:14px 16px; background:var(--gray); }
+.s1-welcome { font-size:12px; font-weight:700; color:var(--ink); margin-bottom:2px; }
+.s1-welcome-sub { font-size:10px; color:var(--muted); margin-bottom:12px; }
+
+.kpi-row { display:flex; gap:8px; margin-bottom:12px; }
+.kpi-card {
+  flex:1; background:#fff; border-radius:10px; padding:10px 11px;
+  border:1px solid var(--border);
+  box-shadow:0 1px 4px rgba(0,0,0,0.04);
+}
+.kpi-label { font-size:8.5px; color:var(--muted); margin-bottom:3px; text-transform:uppercase; letter-spacing:.06em; }
+.kpi-val { font-family:'DM Mono',monospace; font-size:15px; font-weight:700; color:var(--ink); }
+.kpi-sub { font-size:8px; color:var(--muted); margin-top:1px; }
+.kpi-target { font-size:8px; color:var(--orange); font-weight:600; }
+
+.health-card {
+  background:#fff; border-radius:10px; padding:12px 14px;
+  border:1px solid var(--border); margin-bottom:10px;
+  display:flex; align-items:center; gap:14px;
+  box-shadow:0 1px 4px rgba(0,0,0,0.04);
+}
+.health-circle {
+  width:54px; height:54px; border-radius:50%; flex-shrink:0;
+  background: conic-gradient(#E8001B 0% 72%, #EDE0E4 72% 100%);
+  display:flex; align-items:center; justify-content:center;
+  position:relative;
+}
+.health-inner {
+  width:40px; height:40px; border-radius:50%; background:#fff;
+  display:flex; align-items:center; justify-content:center;
+  flex-direction:column;
+}
+.health-num { font-family:'DM Mono',monospace; font-size:13px; font-weight:700; color:var(--ink); line-height:1; }
+.health-denom { font-size:7px; color:var(--muted); }
+.health-info { flex:1; }
+.health-title { font-size:11px; font-weight:700; color:var(--ink); margin-bottom:2px; }
+.health-desc { font-size:9px; color:var(--muted); line-height:1.4; }
+.health-badge {
+  background:var(--orange-soft); border:1px solid var(--orange);
+  border-radius:20px; padding:3px 8px;
+  font-size:8px; font-weight:700; color:var(--orange);
+}
+
+.milestone-card {
+  background: linear-gradient(135deg, #1A0C12 0%, #2C1020 100%);
+  border-radius:10px; padding:12px 14px; margin-bottom:10px;
+  border:1px solid rgba(232,0,27,0.25);
+}
+.ms-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+.ms-title { font-size:10px; font-weight:700; color:#fff; }
+.ms-badge {
+  background:var(--red); border-radius:20px; padding:2px 8px;
+  font-size:8px; font-weight:700; color:#fff;
+}
+.ms-desc { font-size:8.5px; color:#C0A8B0; margin-bottom:8px; line-height:1.4; }
+.ms-track {
+  height:7px; background:rgba(255,255,255,0.12); border-radius:99px; overflow:visible; position:relative; margin-bottom:5px;
+}
+.ms-fill {
+  height:100%; width:70%; border-radius:99px;
+  background: linear-gradient(90deg, var(--red), var(--gold));
+  position:relative;
+}
+.ms-fill-badge {
+  position:absolute; right:-2px; top:-9px;
+  background:var(--gold); color:var(--dark);
+  font-size:8px; font-weight:700; padding:1px 5px; border-radius:5px;
+  font-family:'DM Mono',monospace;
+}
+.ms-footer { display:flex; justify-content:space-between; font-size:8px; color:#A08088; }
+.ms-footer strong { color:var(--gold); }
+
+.alerts-card {
+  background:#fff; border-radius:10px; padding:11px 14px;
+  border:1px solid var(--border); margin-bottom:10px;
+}
+.alerts-title { font-size:10px; font-weight:700; color:var(--ink); margin-bottom:8px; }
+.alert-item {
+  display:flex; align-items:center; gap:8px;
+  padding:6px 8px; border-radius:7px; margin-bottom:4px;
+}
+.alert-item.red { background:var(--red-soft); }
+.alert-item.orange { background:var(--orange-soft); }
+.alert-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+.alert-dot.red { background:var(--red); }
+.alert-dot.orange { background:var(--orange); }
+.alert-text { font-size:9px; color:var(--ink); flex:1; }
+.alert-action { font-size:8.5px; font-weight:700; color:var(--red); }
+
+/* ===== SCREEN 2 — AI PRICING ENGINE ===== */
+.s2-topbar {
+  background:#fff; border-bottom:1px solid var(--border);
+  padding:10px 16px; display:flex; align-items:center; justify-content:space-between;
+}
+.s2-nav { display:flex; gap:12px; align-items:center; }
+.s2-nav-item { font-size:9.5px; color:var(--muted); cursor:pointer; padding:4px 0; }
+.s2-nav-item.active { color:var(--red); font-weight:700; border-bottom:2px solid var(--red); }
+.s2-body { padding:14px 16px; }
+.s2-heading { font-size:12px; font-weight:800; color:var(--ink); margin-bottom:3px; }
+.s2-sub { font-size:9px; color:var(--muted); margin-bottom:12px; }
+.s2-summary-row { display:flex; gap:8px; margin-bottom:12px; }
+.s2-sum-card {
+  flex:1; background:var(--gray); border-radius:8px; padding:9px 10px;
+  text-align:center; border:1px solid var(--border);
+}
+.s2-sum-val { font-family:'DM Mono',monospace; font-size:16px; font-weight:700; margin-bottom:1px; }
+.s2-sum-lbl { font-size:8px; color:var(--muted); }
+
+.sku-card {
+  background:#fff; border-radius:10px; padding:11px 13px;
+  border:1px solid var(--border); margin-bottom:8px;
+  box-shadow:0 1px 4px rgba(0,0,0,0.04);
+}
+.sku-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+.sku-name { font-size:10px; font-weight:700; color:var(--ink); }
+.sku-category { font-size:8px; color:var(--muted); }
+.sku-badge-overpriced {
+  background:var(--red-soft); border:1px solid rgba(232,0,27,0.3);
+  border-radius:20px; padding:2px 8px;
+  font-size:8px; font-weight:700; color:var(--red);
+}
+.sku-badge-ok {
+  background:var(--green-soft); border:1px solid rgba(22,163,74,0.3);
+  border-radius:20px; padding:2px 8px;
+  font-size:8px; font-weight:700; color:var(--green);
+}
+.price-row { display:flex; gap:6px; align-items:center; margin-bottom:8px; }
+.price-box {
+  flex:1; border-radius:7px; padding:7px 8px; text-align:center;
+}
+.price-box.current { background:#FFF5F5; border:1px solid rgba(232,0,27,0.2); }
+.price-box.median { background:#F5F5FF; border:1px solid rgba(99,102,241,0.2); }
+.price-box.rec { background:#F0FDF4; border:1px solid rgba(22,163,74,0.2); }
+.price-lbl { font-size:7.5px; color:var(--muted); margin-bottom:2px; }
+.price-val { font-family:'DM Mono',monospace; font-size:13px; font-weight:700; }
+.price-val.current { color:var(--red); }
+.price-val.median { color:#6366F1; }
+.price-val.rec { color:var(--green); }
+.price-arrow { font-size:12px; color:var(--muted); }
+.impact-row { display:flex; align-items:center; justify-content:space-between; }
+.impact-label { font-size:8.5px; color:var(--muted); }
+.impact-val { font-family:'DM Mono',monospace; font-size:10px; font-weight:700; color:var(--green); }
+.apply-btn {
+  background:var(--green); color:#fff; border:none; border-radius:7px;
+  padding:5px 12px; font-size:8.5px; font-weight:700; cursor:pointer;
+  font-family:'Sora',sans-serif;
+}
+.total-uplift-box {
+  background: linear-gradient(135deg, #F0FDF4, #DCFCE7);
+  border:1px solid rgba(22,163,74,0.3); border-radius:10px;
+  padding:11px 14px; margin-top:4px; text-align:center;
+}
+.total-uplift-lbl { font-size:9px; color:#166534; margin-bottom:3px; }
+.total-uplift-val { font-family:'DM Mono',monospace; font-size:20px; font-weight:800; color:var(--green); }
+.total-uplift-sub { font-size:8px; color:#166534; margin-top:2px; }
+
+/* ===== SCREEN 3 — CAMPAIGN BUILDER (SUCCESS) ===== */
+.s3-body { background:var(--gray); }
+.s3-success {
+  background: linear-gradient(135deg, #1A0C12 0%, #2C1020 100%);
+  padding:20px 16px; text-align:center; position:relative; overflow:hidden;
+}
+.s3-confetti-area { position:absolute; inset:0; pointer-events:none; }
+.cp {
+  position:absolute;
+  border-radius:2px;
+  animation:fall linear infinite;
+}
+@keyframes fall {
+  0%   { transform:translateY(-10%) rotate(0deg); opacity:1; }
+  100% { transform:translateY(110%) rotate(360deg); opacity:0; }
+}
+.s3-check {
+  width:52px; height:52px; border-radius:50%;
+  background:var(--green); display:flex; align-items:center; justify-content:center;
+  margin:0 auto 10px; font-size:24px;
+}
+.s3-live { font-size:8.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--gold); margin-bottom:6px; font-family:'DM Mono',monospace; }
+.s3-title { font-size:16px; font-weight:800; color:#fff; margin-bottom:4px; }
+.s3-subtitle { font-size:9.5px; color:#C0A8B0; }
+
+.s3-stats { display:flex; gap:0; border-top:1px solid rgba(255,255,255,0.08); }
+.s3-stat {
+  flex:1; padding:12px; text-align:center;
+  border-right:1px solid rgba(255,255,255,0.08);
+}
+.s3-stat:last-child { border-right:none; }
+.s3-stat-val { font-family:'DM Mono',monospace; font-size:16px; font-weight:700; color:var(--gold); }
+.s3-stat-lbl { font-size:8px; color:#C0A8B0; margin-top:2px; }
+
+.s3-details { padding:14px 16px; }
+.s3-detail-card {
+  background:#fff; border-radius:10px; padding:12px 14px;
+  border:1px solid var(--border); margin-bottom:8px;
+}
+.s3-detail-title { font-size:10px; font-weight:700; color:var(--ink); margin-bottom:8px; }
+.s3-detail-row { display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px solid var(--border); }
+.s3-detail-row:last-child { border-bottom:none; }
+.s3-detail-key { font-size:9px; color:var(--muted); }
+.s3-detail-val { font-size:9.5px; font-weight:600; color:var(--ink); }
+.s3-btn-row { display:flex; gap:8px; }
+.s3-btn-primary {
+  flex:1; background:var(--red); color:#fff; border:none; border-radius:8px;
+  padding:10px; font-size:10px; font-weight:700; cursor:pointer;
+  font-family:'Sora',sans-serif;
+}
+.s3-btn-secondary {
+  flex:1; background:transparent; color:var(--red); border:1.5px solid var(--red); border-radius:8px;
+  padding:10px; font-size:10px; font-weight:700; cursor:pointer;
+  font-family:'Sora',sans-serif;
+}
+
+/* ===== SCREEN 4 — CATEGORY MANAGER CONSOLE ===== */
+.s4-topbar {
+  background: linear-gradient(135deg, #1A0C12, #2C1020);
+  padding:10px 16px; display:flex; align-items:center; justify-content:space-between;
+}
+.s4-brand-row { display:flex; align-items:center; gap:8px; }
+.s4-logo { font-size:10px; font-weight:800; color:var(--gold); }
+.s4-role { font-size:9px; color:#C0A8B0; }
+.s4-alert-badge {
+  background:var(--red); color:#fff; border-radius:20px;
+  padding:3px 8px; font-size:8px; font-weight:700;
+}
+.s4-summary-row { display:flex; gap:0; background:var(--dark); }
+.s4-sum-cell {
+  flex:1; padding:10px 12px; text-align:center;
+  border-right:1px solid rgba(255,255,255,0.06);
+}
+.s4-sum-cell:last-child { border-right:none; }
+.s4-sum-val { font-family:'DM Mono',monospace; font-size:18px; font-weight:700; }
+.s4-sum-val.red { color:var(--red); }
+.s4-sum-val.orange { color:var(--orange); }
+.s4-sum-val.green { color:var(--green); }
+.s4-sum-val.white { color:#fff; }
+.s4-sum-lbl { font-size:8px; color:#80686E; margin-top:2px; }
+.s4-body { padding:12px 14px; background:var(--gray); }
+.s4-section-title { font-size:9.5px; font-weight:700; color:var(--ink); margin-bottom:8px; display:flex; align-items:center; justify-content:space-between; }
+.s4-filter-pill {
+  background:#fff; border:1px solid var(--border); border-radius:20px;
+  padding:3px 10px; font-size:8px; color:var(--muted);
+}
+.seller-row {
+  background:#fff; border-radius:9px; padding:10px 12px;
+  border:1px solid var(--border); margin-bottom:6px;
+  display:flex; align-items:center; gap:10px;
+  box-shadow:0 1px 3px rgba(0,0,0,0.04);
+}
+.seller-row.breach { border-color:rgba(232,0,27,0.4); background:#FFF5F5; }
+.seller-row.at-risk { border-color:rgba(234,88,12,0.3); background:#FFF9F5; }
+.seller-avatar {
+  width:30px; height:30px; border-radius:8px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:9px; font-weight:800; color:#fff; flex-shrink:0;
+}
+.seller-name { font-size:9.5px; font-weight:700; color:var(--ink); }
+.seller-category { font-size:8px; color:var(--muted); }
+.seller-gmv { font-family:'DM Mono',monospace; font-size:10px; font-weight:700; color:var(--ink); }
+.seller-gmv-lbl { font-size:7.5px; color:var(--muted); }
+.status-badge {
+  border-radius:20px; padding:3px 8px; font-size:8px; font-weight:700; white-space:nowrap;
+}
+.status-breach { background:var(--red-soft); color:var(--red); border:1px solid rgba(232,0,27,0.2); }
+.status-risk { background:var(--orange-soft); color:var(--orange); border:1px solid rgba(234,88,12,0.2); }
+.status-ok { background:var(--green-soft); color:var(--green); border:1px solid rgba(22,163,74,0.2); }
+.action-btn-sm {
+  background:var(--red); color:#fff; border:none; border-radius:6px;
+  padding:4px 8px; font-size:8px; font-weight:700; cursor:pointer;
+  font-family:'Sora',sans-serif; white-space:nowrap;
+}
+.action-btn-sm.outline {
+  background:transparent; color:var(--muted); border:1px solid var(--border);
+}
+.s4-health-pill {
+  display:flex; align-items:center; gap:3px;
+  font-family:'DM Mono',monospace; font-size:9px; font-weight:700;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-tag">MAF Retail — Marketplace · Interactive Prototype</div>
+  <h1>SellerOS — Marketplace Seller Intelligence</h1>
+  <p>AI-powered growth tools for MAF marketplace sellers · Built by Ajay Avaghade</p>
+</div>
+
+<div class="screens-row">
+
+  <!-- SCREEN 1 — SELLER DASHBOARD -->
+  <div class="screen-wrap">
+    <div class="screen-label">01 — Seller Home</div>
+    <div class="browser">
+      <div class="browser-chrome">
+        <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+        <div class="url-bar">seller.carrefouruae.com/dashboard</div>
+      </div>
+      <div class="browser-body">
+        <div class="s1-topbar">
+          <div class="s1-brand">
+            <div class="s1-logo">S</div>
+            <div>
+              <div class="s1-brand-name">SellerOS</div>
+              <div class="s1-brand-sub">MAF Retail Marketplace</div>
+            </div>
+          </div>
+          <div class="s1-seller-pill">Al Waha Foods</div>
+        </div>
+        <div class="s1-body">
+          <div class="s1-welcome">Good morning, Al Waha Foods 👋</div>
+          <div class="s1-welcome-sub">June 2026 · Gourmet & Specialty Foods</div>
+
+          <div class="kpi-row">
+            <div class="kpi-card">
+              <div class="kpi-label">GMV (Jun)</div>
+              <div class="kpi-val" style="color:var(--ink)">AED 8,450</div>
+              <div class="kpi-target">▲ AED 12K target</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Orders</div>
+              <div class="kpi-val">234</div>
+              <div class="kpi-sub">↑ 18% vs last month</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Conversion</div>
+              <div class="kpi-val">3.2%</div>
+              <div class="kpi-sub">Cat. avg: 2.8%</div>
+            </div>
+          </div>
+
+          <div class="health-card">
+            <div class="health-circle">
+              <div class="health-inner">
+                <div class="health-num">72</div>
+                <div class="health-denom">/100</div>
+              </div>
+            </div>
+            <div class="health-info">
+              <div class="health-title">Seller Health Score</div>
+              <div class="health-desc">2 pricing alerts dragging score. Fix overpriced SKUs to reach 85+.</div>
+            </div>
+            <div class="health-badge">Needs Action</div>
+          </div>
+
+          <div class="milestone-card">
+            <div class="ms-header">
+              <div class="ms-title">🏆 Activation Milestone</div>
+              <div class="ms-badge">70% Done</div>
+            </div>
+            <div class="ms-desc">Hit <strong style="color:var(--gold)">AED 12,000 GMV</strong> by Jun 30 → earn <strong style="color:var(--gold)">AED 200 commission credit</strong> applied instantly to your next invoice.</div>
+            <div class="ms-track">
+              <div class="ms-fill">
+                <div class="ms-fill-badge">70%</div>
+              </div>
+            </div>
+            <div class="ms-footer">
+              <span>AED 8,450 earned</span>
+              <span><strong>AED 3,550 to go</strong> · 18 days left</span>
+            </div>
+          </div>
+
+          <div class="alerts-card">
+            <div class="alerts-title">⚠️ Action Required</div>
+            <div class="alert-item red">
+              <div class="alert-dot red"></div>
+              <div class="alert-text"><strong>2 SKUs overpriced</strong> vs category median — losing Buy Box position</div>
+              <div class="alert-action">Fix →</div>
+            </div>
+            <div class="alert-item orange">
+              <div class="alert-dot orange"></div>
+              <div class="alert-text"><strong>Dried Apricots</strong> stock at 12 units — reorder recommended</div>
+              <div class="alert-action">Reorder →</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 2 — AI PRICING ENGINE -->
+  <div class="screen-wrap">
+    <div class="screen-label">02 — AI Pricing Engine</div>
+    <div class="browser">
+      <div class="browser-chrome">
+        <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+        <div class="url-bar">seller.carrefouruae.com/pricing</div>
+      </div>
+      <div class="browser-body">
+        <div class="s2-topbar">
+          <div class="s2-nav">
+            <div class="s2-nav-item">Dashboard</div>
+            <div class="s2-nav-item active">Pricing AI</div>
+            <div class="s2-nav-item">Campaigns</div>
+            <div class="s2-nav-item">Analytics</div>
+          </div>
+        </div>
+        <div class="s2-body">
+          <div class="s2-heading">AI Pricing Recommendations</div>
+          <div class="s2-sub">3 SKUs need attention · Updated 4 mins ago</div>
+          <div class="s2-summary-row">
+            <div class="s2-sum-card">
+              <div class="s2-sum-val" style="color:var(--red)">3</div>
+              <div class="s2-sum-lbl">Overpriced SKUs</div>
+            </div>
+            <div class="s2-sum-card">
+              <div class="s2-sum-val" style="color:var(--green)">+AED 640</div>
+              <div class="s2-sum-lbl">Est. monthly uplift</div>
+            </div>
+            <div class="s2-sum-card">
+              <div class="s2-sum-val" style="color:var(--ink)">24h</div>
+              <div class="s2-sum-lbl">Avg. reaction time</div>
+            </div>
+          </div>
+
+          <!-- SKU 1 -->
+          <div class="sku-card">
+            <div class="sku-header">
+              <div>
+                <div class="sku-name">Al Waha Dates 500g Premium</div>
+                <div class="sku-category">Gourmet · Dates & Nuts</div>
+              </div>
+              <div class="sku-badge-overpriced">18.75% above median</div>
+            </div>
+            <div class="price-row">
+              <div class="price-box current">
+                <div class="price-lbl">Your Price</div>
+                <div class="price-val current">AED 28.50</div>
+              </div>
+              <div class="price-arrow">→</div>
+              <div class="price-box median">
+                <div class="price-lbl">Cat. Median</div>
+                <div class="price-val median">AED 24.00</div>
+              </div>
+              <div class="price-arrow">→</div>
+              <div class="price-box rec">
+                <div class="price-lbl">Recommended</div>
+                <div class="price-val rec">AED 25.50</div>
+              </div>
+            </div>
+            <div class="impact-row">
+              <div class="impact-label">Est. revenue impact if applied:</div>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <div class="impact-val">+AED 340/mo</div>
+                <button class="apply-btn">Apply</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- SKU 2 -->
+          <div class="sku-card">
+            <div class="sku-header">
+              <div>
+                <div class="sku-name">Mixed Almond Bag 250g</div>
+                <div class="sku-category">Gourmet · Nuts & Seeds</div>
+              </div>
+              <div class="sku-badge-overpriced">7.7% above median</div>
+            </div>
+            <div class="price-row">
+              <div class="price-box current">
+                <div class="price-lbl">Your Price</div>
+                <div class="price-val current">AED 18.00</div>
+              </div>
+              <div class="price-arrow">→</div>
+              <div class="price-box median">
+                <div class="price-lbl">Cat. Median</div>
+                <div class="price-val median">AED 19.50</div>
+              </div>
+              <div class="price-arrow">→</div>
+              <div class="price-box rec">
+                <div class="price-lbl">Recommended</div>
+                <div class="price-val rec">AED 18.75</div>
+              </div>
+            </div>
+            <div class="impact-row">
+              <div class="impact-label">Est. revenue impact if applied:</div>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <div class="impact-val">+AED 180/mo</div>
+                <button class="apply-btn">Apply</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- SKU 3 -->
+          <div class="sku-card">
+            <div class="sku-header">
+              <div>
+                <div class="sku-name">Turkish Dried Apricots 300g</div>
+                <div class="sku-category">Gourmet · Dried Fruits</div>
+              </div>
+              <div class="sku-badge-overpriced">7.3% above median</div>
+            </div>
+            <div class="price-row">
+              <div class="price-box current">
+                <div class="price-lbl">Your Price</div>
+                <div class="price-val current">AED 22.00</div>
+              </div>
+              <div class="price-arrow">→</div>
+              <div class="price-box median">
+                <div class="price-lbl">Cat. Median</div>
+                <div class="price-val median">AED 20.50</div>
+              </div>
+              <div class="price-arrow">→</div>
+              <div class="price-box rec">
+                <div class="price-lbl">Recommended</div>
+                <div class="price-val rec">AED 21.00</div>
+              </div>
+            </div>
+            <div class="impact-row">
+              <div class="impact-label">Est. revenue impact if applied:</div>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <div class="impact-val">+AED 120/mo</div>
+                <button class="apply-btn">Apply</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="total-uplift-box">
+            <div class="total-uplift-lbl">Apply all 3 recommendations →</div>
+            <div class="total-uplift-val">+AED 640/month</div>
+            <div class="total-uplift-sub">projected GMV uplift · 5.3% additional commission</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 3 — CAMPAIGN SUCCESS -->
+  <div class="screen-wrap">
+    <div class="screen-label">03 — Campaign Live</div>
+    <div class="browser">
+      <div class="browser-chrome">
+        <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+        <div class="url-bar">seller.carrefouruae.com/campaigns/new</div>
+      </div>
+      <div class="browser-body">
+        <div class="s3-body">
+          <div class="s3-success">
+            <div class="s3-confetti-area" id="conf"></div>
+            <div class="s3-check">✓</div>
+            <div class="s3-live">Campaign Live</div>
+            <div class="s3-title">Eid Bundle — Dates & Nuts</div>
+            <div class="s3-subtitle">Your campaign is now live for Carrefour shoppers</div>
+            <div class="s3-stats">
+              <div class="s3-stat">
+                <div class="s3-stat-val">45K</div>
+                <div class="s3-stat-lbl">Targeted shoppers</div>
+              </div>
+              <div class="s3-stat">
+                <div class="s3-stat-val">3 days</div>
+                <div class="s3-stat-lbl">Jun 5 – Jun 8</div>
+              </div>
+              <div class="s3-stat">
+                <div class="s3-stat-val">+AED 1.2K</div>
+                <div class="s3-stat-lbl">Expected GMV uplift</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="s3-details">
+            <div class="s3-detail-card">
+              <div class="s3-detail-title">Campaign Details</div>
+              <div class="s3-detail-row">
+                <div class="s3-detail-key">Campaign name</div>
+                <div class="s3-detail-val">Eid Bundle — Dates & Nuts</div>
+              </div>
+              <div class="s3-detail-row">
+                <div class="s3-detail-key">Discount</div>
+                <div class="s3-detail-val" style="color:var(--red)">15% off entire bundle</div>
+              </div>
+              <div class="s3-detail-row">
+                <div class="s3-detail-key">SKUs included</div>
+                <div class="s3-detail-val">3 SKUs (Dates, Almonds, Apricots)</div>
+              </div>
+              <div class="s3-detail-row">
+                <div class="s3-detail-key">Audience targeting</div>
+                <div class="s3-detail-val">Gourmet + Eid intent shoppers</div>
+              </div>
+              <div class="s3-detail-row">
+                <div class="s3-detail-key">Milestone contribution</div>
+                <div class="s3-detail-val" style="color:var(--green)">+AED 1,200 toward AED 12K goal</div>
+              </div>
+            </div>
+            <div class="s3-btn-row">
+              <button class="s3-btn-primary">Track Performance →</button>
+              <button class="s3-btn-secondary">New Campaign</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 4 — CATEGORY MANAGER CONSOLE -->
+  <div class="screen-wrap">
+    <div class="screen-label">04 — Ops Console</div>
+    <div class="browser">
+      <div class="browser-chrome">
+        <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+        <div class="url-bar">ops.carrefouruae.com/seller-health</div>
+      </div>
+      <div class="browser-body">
+        <div class="s4-topbar">
+          <div class="s4-brand-row">
+            <div>
+              <div class="s4-logo">SellerOS · Category Manager</div>
+              <div class="s4-role">Gourmet & Specialty Foods · 24 active sellers</div>
+            </div>
+          </div>
+          <div class="s4-alert-badge">3 Alerts</div>
+        </div>
+        <div class="s4-summary-row">
+          <div class="s4-sum-cell">
+            <div class="s4-sum-val red">1</div>
+            <div class="s4-sum-lbl">SLA Breach</div>
+          </div>
+          <div class="s4-sum-cell">
+            <div class="s4-sum-val orange">2</div>
+            <div class="s4-sum-lbl">At Risk</div>
+          </div>
+          <div class="s4-sum-cell">
+            <div class="s4-sum-val green">21</div>
+            <div class="s4-sum-lbl">Healthy</div>
+          </div>
+          <div class="s4-sum-cell">
+            <div class="s4-sum-val white">AED 284K</div>
+            <div class="s4-sum-lbl">Cat. GMV (Jun)</div>
+          </div>
+        </div>
+        <div class="s4-body">
+          <div class="s4-section-title">
+            <span>Seller Health Grid</span>
+            <div class="s4-filter-pill">Filter: Breach first ▼</div>
+          </div>
+
+          <!-- Breach seller -->
+          <div class="seller-row breach">
+            <div class="seller-avatar" style="background:var(--red)">ZA</div>
+            <div style="flex:1">
+              <div class="seller-name">Zaitoun Arabia Co.</div>
+              <div class="seller-category">Olive Oil & Condiments</div>
+            </div>
+            <div style="text-align:right">
+              <div class="seller-gmv">AED 1,240</div>
+              <div class="seller-gmv-lbl">Jun GMV</div>
+            </div>
+            <div class="status-badge status-breach">SLA Breach</div>
+            <button class="action-btn-sm">Escalate</button>
+          </div>
+
+          <!-- At risk seller 1 -->
+          <div class="seller-row at-risk">
+            <div class="seller-avatar" style="background:var(--orange)">NF</div>
+            <div style="flex:1">
+              <div class="seller-name">Nakheel Farms LLC</div>
+              <div class="seller-category">Dates & Organic Produce</div>
+            </div>
+            <div style="text-align:right">
+              <div class="seller-gmv">AED 3,850</div>
+              <div class="seller-gmv-lbl">Jun GMV</div>
+            </div>
+            <div class="status-badge status-risk">At Risk</div>
+            <button class="action-btn-sm">Nudge</button>
+          </div>
+
+          <!-- At risk seller 2 -->
+          <div class="seller-row at-risk">
+            <div class="seller-avatar" style="background:#6366F1">BH</div>
+            <div style="flex:1">
+              <div class="seller-name">Bashar Home Goods</div>
+              <div class="seller-category">Kitchen & Specialty</div>
+            </div>
+            <div style="text-align:right">
+              <div class="seller-gmv">AED 2,100</div>
+              <div class="seller-gmv-lbl">Jun GMV</div>
+            </div>
+            <div class="status-badge status-risk">At Risk</div>
+            <button class="action-btn-sm">Nudge</button>
+          </div>
+
+          <!-- Healthy sellers -->
+          <div class="seller-row">
+            <div class="seller-avatar" style="background:var(--green)">AW</div>
+            <div style="flex:1">
+              <div class="seller-name">Al Waha Foods</div>
+              <div class="seller-category">Gourmet & Nuts</div>
+            </div>
+            <div style="text-align:right">
+              <div class="seller-gmv">AED 8,450</div>
+              <div class="seller-gmv-lbl">Jun GMV</div>
+            </div>
+            <div class="status-badge status-ok">Healthy</div>
+            <button class="action-btn-sm outline">View</button>
+          </div>
+          <div class="seller-row">
+            <div class="seller-avatar" style="background:#0891B2">DG</div>
+            <div style="flex:1">
+              <div class="seller-name">Dubai Gourmet House</div>
+              <div class="seller-category">Premium Confectionery</div>
+            </div>
+            <div style="text-align:right">
+              <div class="seller-gmv">AED 14,200</div>
+              <div class="seller-gmv-lbl">Jun GMV</div>
+            </div>
+            <div class="status-badge status-ok">Healthy</div>
+            <button class="action-btn-sm outline">View</button>
+          </div>
+          <div class="seller-row">
+            <div class="seller-avatar" style="background:#7C3AED">LB</div>
+            <div style="flex:1">
+              <div class="seller-name">Lebanese Pantry UAE</div>
+              <div class="seller-category">Mezze & Specialty Foods</div>
+            </div>
+            <div style="text-align:right">
+              <div class="seller-gmv">AED 9,800</div>
+              <div class="seller-gmv-lbl">Jun GMV</div>
+            </div>
+            <div class="status-badge status-ok">Healthy</div>
+            <button class="action-btn-sm outline">View</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// Confetti on screen 3
+const c = document.getElementById('conf');
+const cols = ['#E8001B','#C8952A','#16A34A','#60A5FA','#F472B6','#FBBF24','#A78BFA'];
+for(let i=0;i<36;i++){
+  const p = document.createElement('div');
+  p.className='cp';
+  const size = 4+Math.random()*7;
+  p.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*120-10}%;width:${size}px;height:${size}px;background:${cols[Math.floor(Math.random()*cols.length)]};border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${1.4+Math.random()*1.8}s;animation-delay:${Math.random()*2.4}s;`;
+  c.appendChild(p);
+}
+</script>
+
+</body>
+</html>
