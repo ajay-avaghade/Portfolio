@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bolt — LaunchKit · Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --green:  #34D186;
+  --lime:   #86EFAC;
+  --gold:   #F59E0B;
+  --red:    #EF4444;
+  --blue:   #3B82F6;
+  --dark:   #0D1A10;
+  --hero:   #162815;
+  --card:   #1E3422;
+  --lift:   #264830;
+  --muted:  #687A70;
+  --border: rgba(52,209,134,0.12);
+  --white:  #F8FFF9;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Sora',sans-serif;background:#080F09;color:var(--white);min-height:100vh;padding:32px 24px 60px;display:flex;flex-direction:column;align-items:center;}
+.strip{width:100%;max-width:980px;background:var(--hero);border:1px solid var(--border);border-radius:10px 10px 0 0;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;}
+.strip-left{display:flex;align-items:center;gap:10px;}
+.strip-logo{width:26px;height:26px;border-radius:6px;background:var(--green);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:10px;color:#000;}
+.strip-title{font-size:13px;font-weight:700;color:var(--white);}
+.strip-sub{font-size:11px;color:var(--muted);}
+.strip-tag{font-size:10px;font-weight:600;background:rgba(52,209,134,0.12);color:var(--green);border:1px solid rgba(52,209,134,0.3);padding:3px 10px;border-radius:20px;letter-spacing:.5px;}
+.layout{display:flex;gap:0;width:100%;max-width:980px;align-items:flex-start;}
+.browser{width:640px;flex-shrink:0;background:#1A2E1E;border-radius:0 0 0 12px;border:1px solid var(--border);border-top:none;overflow:hidden;}
+.chrome{background:#1E3422;padding:9px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);}
+.dots{display:flex;gap:5px;}
+.dot{width:11px;height:11px;border-radius:50%;}
+.dot-r{background:#FF5F56;}.dot-y{background:#FFBD2E;}.dot-g{background:#27C93F;}
+.url-bar{flex:1;background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:5px;padding:3px 10px;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);}
+.nav-tabs{display:flex;gap:0;background:var(--hero);border-bottom:1px solid var(--border);}
+.nav-tab{padding:8px 14px;font-size:11px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;letter-spacing:.3px;}
+.nav-tab.active{color:var(--green);border-bottom-color:var(--green);background:rgba(52,209,134,0.06);}
+.nav-tab:hover:not(.active){color:var(--white);background:rgba(255,255,255,0.04);}
+.browser-body{max-height:580px;overflow-y:auto;scrollbar-width:none;background:var(--dark);}
+.browser-body::-webkit-scrollbar{display:none;}
+.screen{display:none;padding:20px;}
+.screen.active{display:block;}
+.anno-panel{width:300px;flex-shrink:0;background:var(--hero);border:1px solid var(--border);border-left:none;border-top:none;border-radius:0 0 12px 0;padding:20px 18px;max-height:660px;overflow-y:auto;scrollbar-width:none;}
+.anno-panel::-webkit-scrollbar{display:none;}
+.anno-screen-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--green);font-weight:500;letter-spacing:1px;margin-bottom:14px;text-transform:uppercase;}
+.anno-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:12px;}
+.anno-card-n{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:5px;letter-spacing:.5px;}
+.anno-card-t{font-size:12px;font-weight:700;color:var(--white);margin-bottom:6px;}
+.anno-card-b{font-size:11px;color:var(--muted);line-height:1.55;}
+.anno-metric{margin-top:9px;padding:8px 10px;background:rgba(52,209,134,0.08);border-radius:6px;border-left:3px solid var(--green);}
+.anno-metric span{font-family:'DM Mono',monospace;font-size:12px;font-weight:600;color:var(--green);}
+.anno-metric p{font-size:10px;color:var(--muted);margin-top:2px;}
+.ndots{display:flex;gap:6px;justify-content:center;padding:10px 0 6px;background:var(--hero);}
+.ndot{width:28px;height:6px;border-radius:3px;background:rgba(52,209,134,0.15);cursor:pointer;transition:all .2s;}
+.ndot.active{background:var(--green);width:40px;}
+
+/* shared components */
+.section-label{font-size:9px;font-weight:700;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:14px;}
+.card-title{font-size:12px;font-weight:700;color:var(--white);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;}
+.badge{font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px;letter-spacing:.5px;}
+.badge-green{background:rgba(52,209,134,0.15);color:var(--green);border:1px solid rgba(52,209,134,0.3);}
+.badge-gold{background:rgba(245,158,11,0.15);color:var(--gold);border:1px solid rgba(245,158,11,0.3);}
+.badge-red{background:rgba(239,68,68,0.15);color:var(--red);border:1px solid rgba(239,68,68,0.3);}
+.badge-blue{background:rgba(59,130,246,0.15);color:var(--blue);border:1px solid rgba(59,130,246,0.3);}
+.kpi-row{display:flex;gap:10px;margin-bottom:14px;}
+.kpi-card{flex:1;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px 14px;}
+.kpi-val{font-family:'DM Mono',monospace;font-size:26px;font-weight:700;line-height:1;margin-bottom:4px;}
+.kpi-lbl{font-size:10px;color:var(--muted);}
+.kpi-delta{font-size:10px;font-weight:600;margin-top:3px;}
+.kpi-delta.up{color:var(--green);}
+.kpi-delta.dn{color:var(--red);}
+.row-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:6px;margin-bottom:6px;background:var(--lift);border:1px solid var(--border);transition:all .18s;}
+.row-icon{width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.row-main{flex:1;}
+.row-title{font-size:11px;font-weight:600;color:var(--white);}
+.row-sub{font-size:10px;color:var(--muted);}
+.prog-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
+.prog-label{font-size:10px;color:var(--muted);width:130px;flex-shrink:0;}
+.prog-track{flex:1;height:6px;background:rgba(255,255,255,0.07);border-radius:99px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:99px;}
+.prog-val{font-family:'DM Mono',monospace;font-size:10px;color:var(--white);width:40px;text-align:right;flex-shrink:0;}
+.action-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid;transition:all .18s;font-family:'Sora',sans-serif;}
+.btn-primary{background:var(--green);border-color:var(--green);color:#000;}
+.btn-primary:hover{background:#2bc578;}
+.btn-secondary{background:transparent;border-color:var(--border);color:var(--muted);}
+.btn-secondary:hover{border-color:var(--green);color:var(--green);}
+.btn-done{background:rgba(52,209,134,0.12);border-color:var(--green);color:var(--green);pointer-events:none;}
+.divider{height:1px;background:var(--border);margin:12px 0;}
+.toggle{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-radius:6px;background:var(--lift);border:1px solid var(--border);margin-bottom:6px;}
+.toggle-label{font-size:11px;color:var(--white);}
+.toggle-sub{font-size:9px;color:var(--muted);}
+.toggle-switch{width:36px;height:20px;border-radius:10px;background:var(--green);position:relative;cursor:pointer;flex-shrink:0;}
+.toggle-switch.off{background:rgba(255,255,255,0.1);}
+.toggle-knob{position:absolute;top:3px;right:3px;width:14px;height:14px;border-radius:50%;background:#fff;transition:.2s;}
+.toggle-switch.off .toggle-knob{right:auto;left:3px;}
+
+/* zone type pills */
+.zone-type{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:6px;font-size:10px;font-weight:700;cursor:pointer;transition:all .18s;margin:3px;}
+.zt-speed{background:rgba(245,158,11,0.15);color:var(--gold);border:1px solid rgba(245,158,11,0.3);}
+.zt-speed.selected{background:var(--gold);color:#000;}
+.zt-park{background:rgba(52,209,134,0.15);color:var(--green);border:1px solid rgba(52,209,134,0.3);}
+.zt-park.selected{background:var(--green);color:#000;}
+.zt-restrict{background:rgba(239,68,68,0.15);color:var(--red);border:1px solid rgba(239,68,68,0.3);}
+.zt-restrict.selected{background:var(--red);color:#fff;}
+
+/* checklist */
+.check-row{display:flex;align-items:flex-start;gap:10px;padding:9px 10px;border-radius:6px;margin-bottom:6px;border:1px solid var(--border);}
+.check-box{width:20px;height:20px;border-radius:5px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;margin-top:1px;}
+.check-done{background:var(--green);color:#000;}
+.check-pending{background:rgba(255,255,255,0.06);border:1.5px solid var(--border);color:var(--muted);}
+.check-warn{background:rgba(245,158,11,0.2);color:var(--gold);}
+.check-text{flex:1;}
+.check-title{font-size:11px;font-weight:600;color:var(--white);}
+.check-sub{font-size:10px;color:var(--muted);margin-top:1px;}
+</style>
+</head>
+<body>
+
+<div class="strip">
+  <div class="strip-left">
+    <div class="strip-logo">⚡</div>
+    <div>
+      <div class="strip-title">Bolt — LaunchKit</div>
+      <div class="strip-sub">Self-Serve City Configuration Engine · Interactive Prototype</div>
+    </div>
+  </div>
+  <div class="strip-tag">CASE STUDY 02</div>
+</div>
+
+<div class="layout">
+  <div class="browser">
+    <div class="chrome">
+      <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+      <div class="url-bar" id="url-bar">launchkit.bolt.eu / cities / new</div>
+    </div>
+    <div class="nav-tabs">
+      <div class="nav-tab active" id="d1" onclick="go(1)">Zone Configurator</div>
+      <div class="nav-tab" id="d2" onclick="go(2)">Rule Library</div>
+      <div class="nav-tab" id="d3" onclick="go(3)">Launch Checklist</div>
+      <div class="nav-tab" id="d4" onclick="go(4)">Compliance Health</div>
+    </div>
+    <div class="browser-body">
+
+      <!-- S1: ZONE MAP CONFIGURATOR -->
+      <div class="screen active" id="s1">
+        <div class="section-label">Zone Configurator — Tallinn, Estonia · Draft</div>
+
+        <!-- city header -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+          <div>
+            <div style="font-size:15px;font-weight:700;color:var(--white);">🇪🇪 Tallinn, Estonia</div>
+            <div style="font-size:11px;color:var(--muted);">New city · Estimated launch: Jun 12 · 3 days from now</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <span class="badge badge-gold">DRAFT</span>
+            <button class="action-btn btn-primary" onclick="go(3)">Run Checklist →</button>
+          </div>
+        </div>
+
+        <!-- zone type selector -->
+        <div class="card" style="margin-bottom:14px;">
+          <div class="card-title">Draw Zones <span style="font-size:10px;color:var(--muted);font-weight:400;">Upload GeoJSON or draw on map</span></div>
+          <div style="margin-bottom:10px;">
+            <span style="font-size:10px;color:var(--muted);">Zone type:</span>
+            <div style="display:flex;flex-wrap:wrap;margin-top:4px;">
+              <div class="zone-type zt-speed selected" id="zt1" onclick="selectZT(1)">⚡ Speed Limit</div>
+              <div class="zone-type zt-park" id="zt2" onclick="selectZT(2)">🅿️ Parking Zone</div>
+              <div class="zone-type zt-restrict" id="zt3" onclick="selectZT(3)">🚫 Restricted</div>
+              <div class="zone-type" style="background:rgba(59,130,246,0.15);color:var(--blue);border:1px solid rgba(59,130,246,0.3);" id="zt4" onclick="selectZT(4)">📦 Ops Depot</div>
+            </div>
+          </div>
+          <!-- Map simulation -->
+          <div style="width:100%;height:220px;background:linear-gradient(135deg,#0f2214 0%,#142818 60%,#0e1e12 100%);border-radius:8px;position:relative;overflow:hidden;border:1px solid var(--border);">
+            <!-- grid roads -->
+            <div style="position:absolute;top:35%;left:0;right:0;height:10px;background:rgba(52,209,134,0.06);"></div>
+            <div style="position:absolute;top:58%;left:0;right:0;height:7px;background:rgba(52,209,134,0.04);"></div>
+            <div style="position:absolute;top:75%;left:0;right:0;height:5px;background:rgba(52,209,134,0.04);"></div>
+            <div style="position:absolute;left:20%;top:0;bottom:0;width:8px;background:rgba(52,209,134,0.05);"></div>
+            <div style="position:absolute;left:50%;top:0;bottom:0;width:9px;background:rgba(52,209,134,0.06);"></div>
+            <div style="position:absolute;left:75%;top:0;bottom:0;width:6px;background:rgba(52,209,134,0.04);"></div>
+            <!-- speed zone overlay -->
+            <div style="position:absolute;top:0;left:0;right:55%;bottom:45%;background:rgba(245,158,11,0.12);border:1.5px dashed rgba(245,158,11,0.4);border-radius:4px;">
+              <div style="position:absolute;bottom:4px;right:6px;font-size:8px;font-weight:700;color:var(--gold);font-family:'DM Mono',monospace;">25km/h</div>
+            </div>
+            <!-- parking zone -->
+            <div style="position:absolute;top:50%;left:50%;right:0;bottom:0;background:rgba(52,209,134,0.1);border:1.5px dashed rgba(52,209,134,0.4);border-radius:4px;">
+              <div style="position:absolute;top:4px;left:6px;font-size:8px;font-weight:700;color:var(--green);font-family:'DM Mono',monospace;">🅿️ Zone A</div>
+            </div>
+            <!-- restricted zone -->
+            <div style="position:absolute;top:55%;left:15%;width:28%;height:30%;background:rgba(239,68,68,0.1);border:1.5px dashed rgba(239,68,68,0.4);border-radius:4px;">
+              <div style="position:absolute;top:3px;left:4px;font-size:8px;font-weight:700;color:var(--red);font-family:'DM Mono',monospace;">🚫 No-ride</div>
+            </div>
+            <!-- city center marker -->
+            <div style="position:absolute;top:38%;left:47%;width:12px;height:12px;border-radius:50%;background:var(--green);box-shadow:0 0 0 4px rgba(52,209,134,0.2);"></div>
+            <!-- legend -->
+            <div style="position:absolute;top:8px;right:8px;background:rgba(13,26,16,0.9);border-radius:6px;padding:6px 8px;border:1px solid var(--border);">
+              <div style="font-size:8px;color:var(--muted);margin-bottom:3px;font-weight:700;">LEGEND</div>
+              <div style="font-size:8px;color:var(--gold);margin-bottom:2px;">▣ Speed zone</div>
+              <div style="font-size:8px;color:var(--green);margin-bottom:2px;">▣ Parking zone</div>
+              <div style="font-size:8px;color:var(--red);">▣ Restricted</div>
+            </div>
+            <div style="position:absolute;bottom:8px;left:8px;font-size:9px;color:var(--muted);">Click to draw · Drag to resize · Right-click to delete</div>
+          </div>
+        </div>
+
+        <!-- zones summary table -->
+        <div class="card">
+          <div class="card-title">Configured Zones <span class="badge badge-green">3 zones</span></div>
+          <div class="row-item">
+            <div class="row-icon" style="background:rgba(245,158,11,0.15);">⚡</div>
+            <div class="row-main">
+              <div class="row-title">Old Town Speed Zone</div>
+              <div class="row-sub">25 km/h limit · 1.2 km² · Pedestrian area</div>
+            </div>
+            <button class="action-btn btn-secondary" style="padding:4px 10px;font-size:10px;" onclick="editZone(1)">Edit</button>
+          </div>
+          <div class="row-item">
+            <div class="row-icon" style="background:rgba(52,209,134,0.15);">🅿️</div>
+            <div class="row-main">
+              <div class="row-title">Central Parking Zone A</div>
+              <div class="row-sub">Designated docking area · 24 valid spots</div>
+            </div>
+            <button class="action-btn btn-secondary" style="padding:4px 10px;font-size:10px;" onclick="editZone(2)">Edit</button>
+          </div>
+          <div class="row-item">
+            <div class="row-icon" style="background:rgba(239,68,68,0.15);">🚫</div>
+            <div class="row-main">
+              <div class="row-title">Airport Restricted Zone</div>
+              <div class="row-sub">No-ride area · Airport authority requirement</div>
+            </div>
+            <button class="action-btn btn-secondary" style="padding:4px 10px;font-size:10px;" onclick="editZone(3)">Edit</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- S2: RULE LIBRARY -->
+      <div class="screen" id="s2">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+          <div>
+            <div class="section-label">Rule Library — Tallinn, Estonia</div>
+            <div style="font-size:13px;font-weight:700;color:var(--white);">Regulatory Configuration</div>
+          </div>
+          <button class="action-btn btn-primary" onclick="go(3)">Save &amp; Check Launch →</button>
+        </div>
+
+        <!-- age verification -->
+        <div class="card">
+          <div class="card-title">Age Verification <span class="badge badge-green">Configured</span></div>
+          <div class="toggle">
+            <div>
+              <div class="toggle-label">Minimum age requirement</div>
+              <div class="toggle-sub">Estonian law: 16+ for e-scooters</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-family:'DM Mono',monospace;font-size:14px;font-weight:700;color:var(--green);">18+</span>
+              <button class="action-btn btn-secondary" style="padding:3px 8px;font-size:10px;">Change</button>
+            </div>
+          </div>
+          <div class="toggle">
+            <div>
+              <div class="toggle-label">Verification method</div>
+              <div class="toggle-sub">Selfie liveness · Faster onboarding</div>
+            </div>
+            <div class="toggle-switch" onclick="this.classList.toggle('off')"><div class="toggle-knob"></div></div>
+          </div>
+          <div class="toggle">
+            <div>
+              <div class="toggle-label">Document fallback</div>
+              <div class="toggle-sub">Allow ID upload if selfie fails 3×</div>
+            </div>
+            <div class="toggle-switch" onclick="this.classList.toggle('off')"><div class="toggle-knob"></div></div>
+          </div>
+        </div>
+
+        <!-- speed config -->
+        <div class="card">
+          <div class="card-title">Speed Limits <span class="badge badge-gold">2 zones</span></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+            <div style="background:var(--lift);border-radius:8px;padding:10px;border:1px solid var(--border);">
+              <div style="font-size:9px;color:var(--muted);margin-bottom:4px;">DEFAULT SPEED</div>
+              <div style="display:flex;align-items:baseline;gap:4px;">
+                <span style="font-family:'DM Mono',monospace;font-size:28px;font-weight:700;color:var(--white);">25</span>
+                <span style="font-size:11px;color:var(--muted);">km/h</span>
+              </div>
+            </div>
+            <div style="background:rgba(245,158,11,0.08);border-radius:8px;padding:10px;border:1px solid rgba(245,158,11,0.2);">
+              <div style="font-size:9px;color:var(--gold);margin-bottom:4px;">OLD TOWN ZONE</div>
+              <div style="display:flex;align-items:baseline;gap:4px;">
+                <span style="font-family:'DM Mono',monospace;font-size:28px;font-weight:700;color:var(--gold);">15</span>
+                <span style="font-size:11px;color:var(--muted);">km/h</span>
+              </div>
+            </div>
+          </div>
+          <div class="toggle">
+            <div>
+              <div class="toggle-label">Gradual deceleration (RideGuide)</div>
+              <div class="toggle-sub">12-second curve instead of instant cutoff</div>
+            </div>
+            <div class="toggle-switch" onclick="this.classList.toggle('off')"><div class="toggle-knob"></div></div>
+          </div>
+        </div>
+
+        <!-- ride caps + fees -->
+        <div class="card">
+          <div class="card-title">Ride Caps &amp; Pricing</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px;">
+            <div style="background:var(--lift);border-radius:8px;padding:10px;border:1px solid var(--border);text-align:center;">
+              <div style="font-size:9px;color:var(--muted);margin-bottom:3px;">UNLOCK FEE</div>
+              <div style="font-family:'DM Mono',monospace;font-size:18px;font-weight:700;color:var(--white);">€0.99</div>
+            </div>
+            <div style="background:var(--lift);border-radius:8px;padding:10px;border:1px solid var(--border);text-align:center;">
+              <div style="font-size:9px;color:var(--muted);margin-bottom:3px;">PER MINUTE</div>
+              <div style="font-family:'DM Mono',monospace;font-size:18px;font-weight:700;color:var(--white);">€0.22</div>
+            </div>
+            <div style="background:var(--lift);border-radius:8px;padding:10px;border:1px solid var(--border);text-align:center;">
+              <div style="font-size:9px;color:var(--muted);margin-bottom:3px;">FLEET SIZE</div>
+              <div style="font-family:'DM Mono',monospace;font-size:18px;font-weight:700;color:var(--white);">150</div>
+            </div>
+          </div>
+          <div class="toggle">
+            <div>
+              <div class="toggle-label">Dynamic pricing (surge)</div>
+              <div class="toggle-sub">Peak-hour multiplier up to 1.5×</div>
+            </div>
+            <div class="toggle-switch off" onclick="this.classList.toggle('off')"><div class="toggle-knob"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- S3: LAUNCH CHECKLIST -->
+      <div class="screen" id="s3">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+          <div>
+            <div class="section-label">Launch Checklist — Tallinn, Estonia</div>
+            <div style="font-size:13px;font-weight:700;color:var(--white);">Pre-Launch Compliance Gate</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <span class="badge badge-gold">4/7 COMPLETE</span>
+            <button class="action-btn btn-primary" id="launch-btn" onclick="activateLaunch()">Activate City →</button>
+          </div>
+        </div>
+
+        <!-- checklist items -->
+        <div class="card">
+          <div class="card-title">Regulatory Requirements</div>
+          <div class="check-row" style="background:rgba(52,209,134,0.04);">
+            <div class="check-box check-done">✓</div>
+            <div class="check-text">
+              <div class="check-title">Speed zones configured</div>
+              <div class="check-sub">3 zones defined · Old Town (15 km/h) + city default (25 km/h)</div>
+            </div>
+          </div>
+          <div class="check-row" style="background:rgba(52,209,134,0.04);">
+            <div class="check-box check-done">✓</div>
+            <div class="check-text">
+              <div class="check-title">Parking zones configured</div>
+              <div class="check-sub">24 valid spots in Zone A · Matches city authority requirement</div>
+            </div>
+          </div>
+          <div class="check-row" style="background:rgba(52,209,134,0.04);">
+            <div class="check-box check-done">✓</div>
+            <div class="check-text">
+              <div class="check-title">Restricted zones active</div>
+              <div class="check-sub">Airport no-ride zone enforced · GeoJSON uploaded</div>
+            </div>
+          </div>
+          <div class="check-row" style="background:rgba(52,209,134,0.04);">
+            <div class="check-box check-done">✓</div>
+            <div class="check-text">
+              <div class="check-title">Age verification enabled</div>
+              <div class="check-sub">18+ · Selfie liveness · Fallback document available</div>
+            </div>
+          </div>
+          <div class="check-row" style="background:rgba(245,158,11,0.04);">
+            <div class="check-box check-warn">!</div>
+            <div class="check-text">
+              <div class="check-title" style="color:var(--gold);">Insurance certificate pending</div>
+              <div class="check-sub">Upload required before activation · Est. 1 day</div>
+            </div>
+            <button class="action-btn btn-secondary" style="padding:3px 8px;font-size:10px;" id="upload-ins" onclick="uploadInsurance()">Upload</button>
+          </div>
+          <div class="check-row">
+            <div class="check-box check-pending">—</div>
+            <div class="check-text">
+              <div class="check-title" style="color:var(--muted);">City authority sign-off</div>
+              <div class="check-sub">Awaiting email confirmation from Tallinn Transport Authority</div>
+            </div>
+          </div>
+          <div class="check-row">
+            <div class="check-box check-pending">—</div>
+            <div class="check-text">
+              <div class="check-title" style="color:var(--muted);">Fleet activation test</div>
+              <div class="check-sub">5-scooter test ride required 48h before launch</div>
+            </div>
+            <button class="action-btn btn-secondary" style="padding:3px 8px;font-size:10px;" onclick="scheduleTest()">Schedule</button>
+          </div>
+        </div>
+
+        <!-- launch ETA -->
+        <div class="card">
+          <div class="card-title">Launch Timeline</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <span style="font-size:11px;color:var(--muted);">Engineering config time</span>
+            <span style="font-family:'DM Mono',monospace;font-size:12px;"><span style="color:var(--muted);text-decoration:line-through;">6 weeks</span> <span style="color:var(--green);font-weight:700;">3 days</span></span>
+          </div>
+          <div class="prog-row">
+            <div class="prog-label">Completion</div>
+            <div class="prog-track"><div class="prog-fill" style="width:57%;background:var(--green);"></div></div>
+            <div class="prog-val">4/7</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- S4: COMPLIANCE HEALTH DASHBOARD -->
+      <div class="screen" id="s4">
+        <div class="section-label">Compliance Health — All Active Cities · Live</div>
+
+        <div class="kpi-row">
+          <div class="kpi-card" style="border-color:rgba(52,209,134,0.3);">
+            <div class="kpi-val" style="color:var(--green);">14</div>
+            <div class="kpi-lbl">Active cities</div>
+            <div class="kpi-delta up">▲ +3 this quarter</div>
+          </div>
+          <div class="kpi-card" style="border-color:rgba(52,209,134,0.3);">
+            <div class="kpi-val" style="color:var(--green);">84%</div>
+            <div class="kpi-lbl">Avg compliance score</div>
+            <div class="kpi-delta up">▲ +6% from LaunchKit</div>
+          </div>
+          <div class="kpi-card" style="border-color:rgba(245,158,11,0.3);">
+            <div class="kpi-val" style="color:var(--gold);">3 days</div>
+            <div class="kpi-lbl">Avg launch time</div>
+            <div class="kpi-delta up">▼ from 6 weeks</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-val" style="color:var(--blue);">€0</div>
+            <div class="kpi-lbl">Eng cost per city</div>
+            <div class="kpi-delta up">▼ from €18K avg</div>
+          </div>
+        </div>
+
+        <!-- city leaderboard -->
+        <div class="card">
+          <div class="card-title">City Compliance Leaderboard</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div class="row-item" style="cursor:default;">
+              <div style="font-size:16px;">🇪🇪</div>
+              <div class="row-main"><div class="row-title">Tallinn</div><div class="row-sub">Launching Jun 12</div></div>
+              <span class="badge badge-gold">SETUP</span>
+            </div>
+            <div class="row-item" style="cursor:default;">
+              <div style="font-size:16px;">🇵🇱</div>
+              <div class="row-main"><div class="row-title">Warsaw</div><div class="row-sub">2.1K rides/day</div></div>
+              <div style="font-family:'DM Mono',monospace;font-size:14px;font-weight:700;color:var(--green);">91</div>
+            </div>
+            <div class="row-item" style="cursor:default;">
+              <div style="font-size:16px;">🇷🇴</div>
+              <div class="row-main"><div class="row-title">Bucharest</div><div class="row-sub">3.4K rides/day</div></div>
+              <div style="font-family:'DM Mono',monospace;font-size:14px;font-weight:700;color:var(--green);">88</div>
+            </div>
+            <div class="row-item" style="cursor:default;">
+              <div style="font-size:16px;">🇳🇬</div>
+              <div class="row-main"><div class="row-title">Lagos</div><div class="row-sub">1.8K rides/day</div></div>
+              <div style="font-family:'DM Mono',monospace;font-size:14px;font-weight:700;color:var(--gold);">74</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- breakdown bars -->
+        <div class="card">
+          <div class="card-title">Global Compliance Breakdown</div>
+          <div class="prog-row">
+            <div class="prog-label">Speed zone adherence</div>
+            <div class="prog-track"><div class="prog-fill" style="width:88%;background:var(--green);"></div></div>
+            <div class="prog-val">88%</div>
+          </div>
+          <div class="prog-row">
+            <div class="prog-label">Valid parking rate</div>
+            <div class="prog-track"><div class="prog-fill" style="width:82%;background:var(--green);"></div></div>
+            <div class="prog-val">82%</div>
+          </div>
+          <div class="prog-row">
+            <div class="prog-label">Age verified riders</div>
+            <div class="prog-track"><div class="prog-fill" style="width:96%;background:var(--green);"></div></div>
+            <div class="prog-val">96%</div>
+          </div>
+          <div class="prog-row">
+            <div class="prog-label">Restricted zone breaches</div>
+            <div class="prog-track"><div class="prog-fill" style="width:4%;background:var(--red);"></div></div>
+            <div class="prog-val" style="color:var(--red);">4%</div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /browser-body -->
+    <div class="ndots">
+      <div class="ndot active" id="n1" onclick="go(1)"></div>
+      <div class="ndot" id="n2" onclick="go(2)"></div>
+      <div class="ndot" id="n3" onclick="go(3)"></div>
+      <div class="ndot" id="n4" onclick="go(4)"></div>
+    </div>
+  </div>
+
+  <!-- annotation panel -->
+  <div class="anno-panel">
+    <div class="anno-screen-label" id="screen-label">01 — ZONE CONFIGURATOR</div>
+    <div id="anno-cards"></div>
+  </div>
+</div>
+
+<script>
+const URLS={1:'launchkit.bolt.eu / cities / tallinn / zones',2:'launchkit.bolt.eu / cities / tallinn / rules',3:'launchkit.bolt.eu / cities / tallinn / checklist',4:'launchkit.bolt.eu / dashboard / compliance'};
+const LABELS={1:'01 — ZONE CONFIGURATOR',2:'02 — RULE LIBRARY',3:'03 — LAUNCH CHECKLIST',4:'04 — COMPLIANCE HEALTH'};
+const ANNO={
+  1:[
+    {n:'DESIGN INSIGHT 01',t:'GeoJSON import vs manual draw',b:'Ops teams can upload GeoJSON from city authorities directly — most regulators provide boundary files. For cities without them, ops draws freehand on the map. Both paths supported. This removes the engineering bottleneck entirely: no code, no PR, no deploy.'},
+    {n:'DESIGN INSIGHT 02',t:'Three zone types, one interface',b:'Speed zones, parking zones, and restricted areas are all configured in one map view. The old workflow: three separate engineering tickets, three separate deploys. LaunchKit unifies them into a drag-draw interface any ops analyst can use in 30 minutes.',metric:{v:'−85%',l:'engineering hours per city launch vs prior manual process'}},
+    {n:'PM RATIONALE',t:'Why the zone summary table matters',b:'The zone list below the map serves as a config audit trail. When city authorities ask "show us your geofence configuration," the ops team exports this view as PDF — same data that feeds CityScore tender reports (Case Study 3). LaunchKit is the config layer; CityScore is the reporting layer.'},
+  ],
+  2:[
+    {n:'DESIGN INSIGHT 01',t:'Toggles, not code — the key design principle',b:'Every rule (age verification method, deceleration curve, dynamic pricing, fleet cap) is a UI toggle. The alternative — engineering tickets — takes 3-5 days per rule change. Toggles take 30 seconds. LaunchKit\'s rule library is the config API made visual.',metric:{v:'3 days',l:'city launch time vs 6 weeks with engineering dependency'}},
+    {n:'DESIGN INSIGHT 02',t:'Template inheritance from peer cities',b:'When a new city is configured, LaunchKit pre-fills rules from the nearest peer city (similar market size, similar regulation regime). Ops team reviews and adjusts. 80% of rules are identical across similar cities — the template saves most of the configuration work.'},
+    {n:'PM RATIONALE',t:'Non-product compliance solutions',b:'The JD asks for PMs who can solve compliance without always requiring product changes. The pricing toggle and fleet cap are config-layer solutions — they meet regulatory requirements (ride caps, pricing transparency) without any new product features. The product is the config layer itself.'},
+  ],
+  3:[
+    {n:'DESIGN INSIGHT 01',t:'Checklist as launch gate, not afterthought',b:'Most teams use a shared doc checklist that lives in Notion and gets ignored. LaunchKit\'s checklist is machine-enforced: the "Activate City" button is locked until all Required items are green. Optional items (like the insurance certificate) can be pending — the PM makes the call.',metric:{v:'40%',l:'more cities launched per quarter at same team headcount'}},
+    {n:'DESIGN INSIGHT 02',t:'Progress bar vs traffic light',b:'A single "4/7 complete" progress bar communicates launch readiness better than a red/yellow/green traffic light. The ops lead can see at a glance: 57% ready, 2 blockers. The checklist items sort automatically: Done → Warning → Pending. No manual sorting.'},
+    {n:'PM RATIONALE',t:'The 6-week → 3-day compression',b:'The old process: PM writes a spec → eng ticket → sprint planning → QA → deploy → city test. Each city = one full sprint. LaunchKit collapses this to: ops configures zones + rules (3 hours) → checklist passes → activate (1 click). The engineering work was never the bottleneck — it was the handoff.'},
+  ],
+  4:[
+    {n:'DESIGN INSIGHT 01',t:'Compliance health as a business metric',b:'Compliance scores are usually buried in ops reports. LaunchKit surfaces them as primary KPIs alongside active cities and launch velocity. When "Avg compliance score" rises from 78% to 84% after LaunchKit rollout, that\'s the PM\'s north star metric — not just an ops number.',metric:{v:'€0',l:'incremental engineering cost per new city launch'}},
+    {n:'DESIGN INSIGHT 02',t:'City leaderboard creates accountability',b:'Ranking cities by compliance score does two things: (1) regional ops leads see their city vs peers — healthy competition; (2) city authorities can be shown their city\'s score during tender discussions. Transparency at the compliance layer is a competitive advantage.'},
+    {n:'PM RATIONALE',t:'LaunchKit → CityScore pipeline',b:'LaunchKit generates the compliance configuration. CityScore (Case Study 3) consumes it. Every zone, rule, and launch event flows into CityScore\'s real-time dashboard. LaunchKit is the write layer; CityScore is the read layer. Together they form Bolt\'s compliance data platform.'},
+  ],
+};
+function renderAnno(n){
+  const cards=ANNO[n]||[];
+  document.getElementById('anno-cards').innerHTML=cards.map(c=>`
+    <div class="anno-card">
+      <div class="anno-card-n">${c.n}</div>
+      <div class="anno-card-t">${c.t}</div>
+      <div class="anno-card-b">${c.b}</div>
+      ${c.metric?`<div class="anno-metric"><span>${c.metric.v}</span><p>${c.metric.l}</p></div>`:''}
+    </div>
+  `).join('');
+}
+function go(n){
+  [1,2,3,4].forEach(i=>{
+    document.getElementById('s'+i).classList.remove('active');
+    const d=document.getElementById('d'+i);if(d)d.classList.remove('active');
+    const nd=document.getElementById('n'+i);if(nd)nd.classList.remove('active');
+  });
+  document.getElementById('s'+n).classList.add('active');
+  const dn=document.getElementById('d'+n);if(dn)dn.classList.add('active');
+  const nn=document.getElementById('n'+n);if(nn)nn.classList.add('active');
+  document.getElementById('screen-label').textContent=LABELS[n];
+  document.getElementById('url-bar').textContent=URLS[n];
+  renderAnno(n);
+}
+function selectZT(n){
+  [1,2,3,4].forEach(i=>{
+    const el=document.getElementById('zt'+i);
+    if(el){el.classList.remove('selected');}
+  });
+  document.getElementById('zt'+n)?.classList.add('selected');
+}
+function editZone(n){
+  alert('Zone editor for Zone #'+n+' — draw or reshape on map');
+}
+function uploadInsurance(){
+  const btn=document.getElementById('upload-ins');
+  btn.textContent='✅ Uploaded';btn.classList.add('btn-done');
+  const row=btn.closest('.check-row');
+  row.querySelector('.check-box').className='check-box check-done';
+  row.querySelector('.check-box').textContent='✓';
+  row.querySelector('.check-title').style.color='var(--white)';
+}
+function scheduleTest(){alert('Test ride scheduled for Jun 10, 10:00 AM');}
+function activateLaunch(){
+  const btn=document.getElementById('launch-btn');
+  btn.textContent='🚀 Launched!';btn.classList.remove('btn-primary');btn.classList.add('btn-done');
+}
+renderAnno(1);
+</script>
+</body>
+</html>

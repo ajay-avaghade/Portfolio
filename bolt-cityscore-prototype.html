@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bolt — CityScore · Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--green:#34D186;--gold:#F59E0B;--red:#EF4444;--blue:#3B82F6;--purple:#8B5CF6;--dark:#0D1A10;--hero:#162815;--card:#1E3422;--lift:#264830;--muted:#687A70;--border:rgba(52,209,134,0.12);--white:#F8FFF9;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Sora',sans-serif;background:#080F09;color:var(--white);min-height:100vh;padding:32px 24px 60px;display:flex;flex-direction:column;align-items:center;}
+.strip{width:100%;max-width:980px;background:var(--hero);border:1px solid var(--border);border-radius:10px 10px 0 0;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;}
+.strip-left{display:flex;align-items:center;gap:10px;}
+.strip-logo{width:26px;height:26px;border-radius:6px;background:var(--green);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:10px;color:#000;}
+.strip-title{font-size:13px;font-weight:700;}
+.strip-sub{font-size:11px;color:var(--muted);}
+.strip-tag{font-size:10px;font-weight:600;background:rgba(52,209,134,0.12);color:var(--green);border:1px solid rgba(52,209,134,0.3);padding:3px 10px;border-radius:20px;letter-spacing:.5px;}
+.layout{display:flex;gap:0;width:100%;max-width:980px;align-items:flex-start;}
+.browser{width:640px;flex-shrink:0;background:#1A2E1E;border-radius:0 0 0 12px;border:1px solid var(--border);border-top:none;overflow:hidden;}
+.chrome{background:#1E3422;padding:9px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);}
+.dots{display:flex;gap:5px;}
+.dot{width:11px;height:11px;border-radius:50%;}
+.dot-r{background:#FF5F56;}.dot-y{background:#FFBD2E;}.dot-g{background:#27C93F;}
+.url-bar{flex:1;background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:5px;padding:3px 10px;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);}
+.nav-tabs{display:flex;background:var(--hero);border-bottom:1px solid var(--border);}
+.nav-tab{padding:8px 14px;font-size:11px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;}
+.nav-tab.active{color:var(--green);border-bottom-color:var(--green);background:rgba(52,209,134,0.06);}
+.nav-tab:hover:not(.active){color:var(--white);background:rgba(255,255,255,0.04);}
+.browser-body{max-height:580px;overflow-y:auto;scrollbar-width:none;background:var(--dark);}
+.browser-body::-webkit-scrollbar{display:none;}
+.screen{display:none;padding:20px;}
+.screen.active{display:block;}
+.anno-panel{width:300px;flex-shrink:0;background:var(--hero);border:1px solid var(--border);border-left:none;border-top:none;border-radius:0 0 12px 0;padding:20px 18px;max-height:660px;overflow-y:auto;scrollbar-width:none;}
+.anno-panel::-webkit-scrollbar{display:none;}
+.anno-screen-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--green);font-weight:500;letter-spacing:1px;margin-bottom:14px;text-transform:uppercase;}
+.anno-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:12px;}
+.anno-card-n{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:5px;}
+.anno-card-t{font-size:12px;font-weight:700;color:var(--white);margin-bottom:6px;}
+.anno-card-b{font-size:11px;color:var(--muted);line-height:1.55;}
+.anno-metric{margin-top:9px;padding:8px 10px;background:rgba(52,209,134,0.08);border-radius:6px;border-left:3px solid var(--green);}
+.anno-metric span{font-family:'DM Mono',monospace;font-size:12px;font-weight:600;color:var(--green);}
+.anno-metric p{font-size:10px;color:var(--muted);margin-top:2px;}
+.ndots{display:flex;gap:6px;justify-content:center;padding:10px 0 6px;background:var(--hero);}
+.ndot{width:28px;height:6px;border-radius:3px;background:rgba(52,209,134,0.15);cursor:pointer;transition:all .2s;}
+.ndot.active{background:var(--green);width:40px;}
+.section-label{font-size:9px;font-weight:700;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:14px;}
+.card-title{font-size:12px;font-weight:700;color:var(--white);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;}
+.badge{font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px;letter-spacing:.5px;}
+.badge-green{background:rgba(52,209,134,0.15);color:var(--green);border:1px solid rgba(52,209,134,0.3);}
+.badge-gold{background:rgba(245,158,11,0.15);color:var(--gold);border:1px solid rgba(245,158,11,0.3);}
+.badge-red{background:rgba(239,68,68,0.15);color:var(--red);border:1px solid rgba(239,68,68,0.3);}
+.kpi-row{display:flex;gap:10px;margin-bottom:14px;}
+.kpi-card{flex:1;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px 14px;}
+.kpi-val{font-family:'DM Mono',monospace;font-size:26px;font-weight:700;line-height:1;margin-bottom:4px;}
+.kpi-lbl{font-size:10px;color:var(--muted);}
+.kpi-delta{font-size:10px;font-weight:600;margin-top:3px;}
+.kpi-delta.up{color:var(--green);}
+.kpi-delta.dn{color:var(--red);}
+.row-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:6px;margin-bottom:6px;background:var(--lift);border:1px solid var(--border);cursor:pointer;transition:all .18s;}
+.row-item:hover{border-color:rgba(52,209,134,0.3);}
+.row-main{flex:1;}
+.row-title{font-size:11px;font-weight:600;color:var(--white);}
+.row-sub{font-size:10px;color:var(--muted);}
+.prog-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
+.prog-label{font-size:10px;color:var(--muted);width:130px;flex-shrink:0;}
+.prog-track{flex:1;height:6px;background:rgba(255,255,255,0.07);border-radius:99px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:99px;}
+.prog-val{font-family:'DM Mono',monospace;font-size:10px;color:var(--white);width:40px;text-align:right;}
+.action-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid;transition:all .18s;font-family:'Sora',sans-serif;}
+.btn-primary{background:var(--green);border-color:var(--green);color:#000;}
+.btn-primary:hover{background:#2bc578;}
+.btn-secondary{background:transparent;border-color:var(--border);color:var(--muted);}
+.btn-done{background:rgba(52,209,134,0.12);border-color:var(--green);color:var(--green);pointer-events:none;}
+/* score ring */
+.score-ring{position:relative;display:inline-flex;align-items:center;justify-content:center;}
+.score-ring svg{transform:rotate(-90deg);}
+.score-ring .val{position:absolute;font-family:'DM Mono',monospace;font-size:22px;font-weight:700;}
+/* heat cell */
+.heat-cell{height:24px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:9px;font-weight:600;cursor:pointer;transition:all .18s;}
+.heat-cell:hover{transform:scale(1.08);}
+</style>
+</head>
+<body>
+<div class="strip">
+  <div class="strip-left">
+    <div class="strip-logo">⚡</div>
+    <div><div class="strip-title">Bolt — CityScore</div><div class="strip-sub">Compliance Intelligence & Tender Dashboard · Interactive Prototype</div></div>
+  </div>
+  <div class="strip-tag">CASE STUDY 03</div>
+</div>
+<div class="layout">
+  <div class="browser">
+    <div class="chrome">
+      <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+      <div class="url-bar" id="url-bar">cityscore.bolt.eu / overview</div>
+    </div>
+    <div class="nav-tabs">
+      <div class="nav-tab active" id="d1" onclick="go(1)">City Overview</div>
+      <div class="nav-tab" id="d2" onclick="go(2)">Violation Heatmap</div>
+      <div class="nav-tab" id="d3" onclick="go(3)">Rider Segments</div>
+      <div class="nav-tab" id="d4" onclick="go(4)">Tender Report</div>
+    </div>
+    <div class="browser-body">
+
+      <!-- S1: CITY OVERVIEW -->
+      <div class="screen active" id="s1">
+        <div class="section-label">CityScore — All Active Cities · Live</div>
+        <div class="kpi-row">
+          <div class="kpi-card" style="border-color:rgba(52,209,134,0.3);">
+            <div class="kpi-val" style="color:var(--green);">84</div>
+            <div class="kpi-lbl">Avg compliance score</div>
+            <div class="kpi-delta up">▲ +6 pts this quarter</div>
+          </div>
+          <div class="kpi-card" style="border-color:rgba(52,209,134,0.3);">
+            <div class="kpi-val" style="color:var(--green);">91%</div>
+            <div class="kpi-lbl">Speed zone adherence</div>
+            <div class="kpi-delta up">▲ +4% from RideGuide</div>
+          </div>
+          <div class="kpi-card" style="border-color:rgba(245,158,11,0.3);">
+            <div class="kpi-val" style="color:var(--gold);">78%</div>
+            <div class="kpi-lbl">Valid parking rate</div>
+            <div class="kpi-delta dn">▼ −2% · Lagos anomaly</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-val" style="color:var(--blue);">12 min</div>
+            <div class="kpi-lbl">Anomaly detection</div>
+            <div class="kpi-delta up">▼ from 4h manual</div>
+          </div>
+        </div>
+
+        <!-- city cards grid -->
+        <div class="card">
+          <div class="card-title">City Compliance Scores <button class="action-btn btn-secondary" style="padding:3px 8px;font-size:10px;" onclick="go(4)">Export Tender PDF →</button></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <!-- Warsaw -->
+            <div style="background:var(--lift);border-radius:8px;padding:12px;border:1px solid var(--border);cursor:pointer;" onclick="go(2)">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+                <div><div style="font-size:13px;font-weight:700;">🇵🇱 Warsaw</div><div style="font-size:10px;color:var(--muted);">2.1K rides/day</div></div>
+                <div class="score-ring">
+                  <svg width="50" height="50" viewBox="0 0 50 50">
+                    <circle class="track" cx="25" cy="25" r="20" stroke="rgba(52,209,134,0.15)" stroke-width="5" fill="none"/>
+                    <circle cx="25" cy="25" r="20" fill="none" stroke="var(--green)" stroke-width="5" stroke-dasharray="125.6" stroke-dashoffset="11" stroke-linecap="round"/>
+                  </svg>
+                  <div class="val" style="font-size:13px;color:var(--green);">91</div>
+                </div>
+              </div>
+              <div class="prog-row"><div class="prog-label" style="width:90px;">Speed adherence</div><div class="prog-track"><div class="prog-fill" style="width:94%;background:var(--green);"></div></div><div class="prog-val">94%</div></div>
+              <div class="prog-row"><div class="prog-label" style="width:90px;">Valid parking</div><div class="prog-track"><div class="prog-fill" style="width:88%;background:var(--green);"></div></div><div class="prog-val">88%</div></div>
+            </div>
+            <!-- Bucharest -->
+            <div style="background:var(--lift);border-radius:8px;padding:12px;border:1px solid var(--border);cursor:pointer;" onclick="go(2)">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+                <div><div style="font-size:13px;font-weight:700;">🇷🇴 Bucharest</div><div style="font-size:10px;color:var(--muted);">3.4K rides/day</div></div>
+                <div class="score-ring">
+                  <svg width="50" height="50" viewBox="0 0 50 50">
+                    <circle cx="25" cy="25" r="20" fill="none" stroke="rgba(52,209,134,0.15)" stroke-width="5"/>
+                    <circle cx="25" cy="25" r="20" fill="none" stroke="var(--green)" stroke-width="5" stroke-dasharray="125.6" stroke-dashoffset="15" stroke-linecap="round"/>
+                  </svg>
+                  <div class="val" style="font-size:13px;color:var(--green);">88</div>
+                </div>
+              </div>
+              <div class="prog-row"><div class="prog-label" style="width:90px;">Speed adherence</div><div class="prog-track"><div class="prog-fill" style="width:91%;background:var(--green);"></div></div><div class="prog-val">91%</div></div>
+              <div class="prog-row"><div class="prog-label" style="width:90px;">Valid parking</div><div class="prog-track"><div class="prog-fill" style="width:84%;background:var(--green);"></div></div><div class="prog-val">84%</div></div>
+            </div>
+            <!-- Nairobi -->
+            <div style="background:var(--lift);border-radius:8px;padding:12px;border:1px solid var(--border);cursor:pointer;" onclick="go(2)">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+                <div><div style="font-size:13px;font-weight:700;">🇰🇪 Nairobi</div><div style="font-size:10px;color:var(--muted);">1.2K rides/day</div></div>
+                <div class="score-ring">
+                  <svg width="50" height="50" viewBox="0 0 50 50">
+                    <circle cx="25" cy="25" r="20" fill="none" stroke="rgba(245,158,11,0.15)" stroke-width="5"/>
+                    <circle cx="25" cy="25" r="20" fill="none" stroke="var(--gold)" stroke-width="5" stroke-dasharray="125.6" stroke-dashoffset="32" stroke-linecap="round"/>
+                  </svg>
+                  <div class="val" style="font-size:13px;color:var(--gold);">75</div>
+                </div>
+              </div>
+              <div class="prog-row"><div class="prog-label" style="width:90px;">Speed adherence</div><div class="prog-track"><div class="prog-fill" style="width:78%;background:var(--gold);"></div></div><div class="prog-val">78%</div></div>
+              <div class="prog-row"><div class="prog-label" style="width:90px;">Valid parking</div><div class="prog-track"><div class="prog-fill" style="width:71%;background:var(--gold);"></div></div><div class="prog-val">71%</div></div>
+            </div>
+            <!-- Lagos (anomaly) -->
+            <div style="background:rgba(239,68,68,0.05);border-radius:8px;padding:12px;border:1.5px solid rgba(239,68,68,0.3);cursor:pointer;" onclick="go(2)">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+                <div><div style="font-size:13px;font-weight:700;">🇳🇬 Lagos</div><div style="font-size:10px;color:var(--red);">⚠ Anomaly detected</div></div>
+                <div class="score-ring">
+                  <svg width="50" height="50" viewBox="0 0 50 50">
+                    <circle cx="25" cy="25" r="20" fill="none" stroke="rgba(239,68,68,0.15)" stroke-width="5"/>
+                    <circle cx="25" cy="25" r="20" fill="none" stroke="var(--red)" stroke-width="5" stroke-dasharray="125.6" stroke-dashoffset="50" stroke-linecap="round"/>
+                  </svg>
+                  <div class="val" style="font-size:13px;color:var(--red);">61</div>
+                </div>
+              </div>
+              <div class="prog-row"><div class="prog-label" style="width:90px;">Speed adherence</div><div class="prog-track"><div class="prog-fill" style="width:65%;background:var(--red);"></div></div><div class="prog-val" style="color:var(--red);">65%</div></div>
+              <div class="prog-row"><div class="prog-label" style="width:90px;">Valid parking</div><div class="prog-track"><div class="prog-fill" style="width:58%;background:var(--red);"></div></div><div class="prog-val" style="color:var(--red);">58%</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- anomaly alert -->
+        <div style="background:rgba(239,68,68,0.07);border:1.5px solid rgba(239,68,68,0.3);border-radius:8px;padding:12px 14px;display:flex;align-items:flex-start;gap:10px;">
+          <span style="font-size:18px;">🚨</span>
+          <div style="flex:1;">
+            <div style="font-size:12px;font-weight:700;color:var(--red);">Anomaly: Lagos valid parking rate dropped 18% in last 4h</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px;">Root cause: 3 parking zone signs removed by Lagos State Works — riders can't find valid zones</div>
+          </div>
+          <button class="action-btn" style="background:var(--red);border-color:var(--red);color:#fff;padding:4px 10px;font-size:10px;" onclick="go(2)">Investigate →</button>
+        </div>
+      </div>
+
+      <!-- S2: VIOLATION HEATMAP -->
+      <div class="screen" id="s2">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+          <div>
+            <div class="section-label">Violation Heatmap — Lagos, Nigeria</div>
+            <div style="font-size:13px;font-weight:700;">Where compliance breaks down · Last 7 days</div>
+          </div>
+          <span class="badge badge-red">ANOMALY ACTIVE</span>
+        </div>
+
+        <!-- heatmap grid header -->
+        <div class="card" style="overflow-x:auto;">
+          <div style="display:grid;grid-template-columns:120px repeat(6,1fr);gap:4px;margin-bottom:4px;">
+            <div style="font-size:9px;color:var(--muted);"></div>
+            <div style="font-size:9px;color:var(--muted);text-align:center;">Mon</div>
+            <div style="font-size:9px;color:var(--muted);text-align:center;">Tue</div>
+            <div style="font-size:9px;color:var(--muted);text-align:center;">Wed</div>
+            <div style="font-size:9px;color:var(--muted);text-align:center;">Thu</div>
+            <div style="font-size:9px;color:var(--muted);text-align:center;">Fri</div>
+            <div style="font-size:9px;color:var(--muted);text-align:center;">Sat</div>
+          </div>
+          <div id="heatmap-container"></div>
+          <div style="display:flex;align-items:center;gap:12px;margin-top:8px;font-size:9px;color:var(--muted);">
+            <div style="display:flex;align-items:center;gap:4px;"><div style="width:12px;height:12px;border-radius:3px;background:rgba(52,209,134,0.6);"></div>&lt;5%</div>
+            <div style="display:flex;align-items:center;gap:4px;"><div style="width:12px;height:12px;border-radius:3px;background:rgba(245,158,11,0.7);"></div>5–15%</div>
+            <div style="display:flex;align-items:center;gap:4px;"><div style="width:12px;height:12px;border-radius:3px;background:rgba(239,68,68,0.8);"></div>&gt;15%</div>
+          </div>
+        </div>
+
+        <!-- top violations -->
+        <div class="card">
+          <div class="card-title">Top Violation Patterns</div>
+          <div class="row-item" onclick="alert('Root cause: 3 parking zone signs removed. Fix: ops team to re-mark + CityScore alert sent to city authority')">
+            <div style="width:32px;height:32px;border-radius:6px;background:rgba(239,68,68,0.15);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;">🅿️</div>
+            <div class="row-main">
+              <div class="row-title">Invalid parking — Lagos Island cluster</div>
+              <div class="row-sub">312 violations · 4h window · Signs removed by Lagos Works Dept</div>
+            </div>
+            <span class="badge badge-red">Critical</span>
+          </div>
+          <div class="row-item">
+            <div style="width:32px;height:32px;border-radius:6px;background:rgba(245,158,11,0.15);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;">⚡</div>
+            <div class="row-main">
+              <div class="row-title">Speed limit — Victoria Island pedestrian zone</div>
+              <div class="row-sub">89 violations · Weekend pattern · Signage unclear at zone entry</div>
+            </div>
+            <span class="badge badge-gold">High</span>
+          </div>
+          <div class="row-item">
+            <div style="width:32px;height:32px;border-radius:6px;background:rgba(59,130,246,0.15);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;">🚫</div>
+            <div class="row-main">
+              <div class="row-title">Restricted zone entry — Airport approach</div>
+              <div class="row-sub">23 breaches · GPS accuracy issue at boundary · Eng fix queued</div>
+            </div>
+            <span class="badge" style="background:rgba(59,130,246,0.15);color:var(--blue);border:1px solid rgba(59,130,246,0.3);">Medium</span>
+          </div>
+        </div>
+
+        <!-- recommended actions -->
+        <div class="card">
+          <div class="card-title">CityScore Recommended Actions</div>
+          <div style="display:flex;flex-direction:column;gap:7px;">
+            <div style="display:flex;align-items:flex-start;gap:10px;padding:8px 10px;background:var(--lift);border-radius:6px;border:1px solid var(--border);">
+              <span style="font-size:14px;">📧</span>
+              <div style="flex:1;"><div style="font-size:11px;font-weight:600;">Notify Lagos Transport Authority re: missing signs</div><div style="font-size:10px;color:var(--muted);">Auto-drafted email with violation evidence + map</div></div>
+              <button class="action-btn btn-primary" style="padding:4px 10px;font-size:10px;" id="notify-btn" onclick="sendNotification()">Send</button>
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:10px;padding:8px 10px;background:var(--lift);border-radius:6px;border:1px solid var(--border);">
+              <span style="font-size:14px;">🔔</span>
+              <div style="flex:1;"><div style="font-size:11px;font-weight:600;">Push rider nudge in Lagos Island cluster</div><div style="font-size:10px;color:var(--muted);">"Parking zones moved — tap to see nearest valid spots"</div></div>
+              <button class="action-btn btn-secondary" style="padding:4px 10px;font-size:10px;" id="nudge-btn" onclick="sendNudge()">Send</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- S3: RIDER SEGMENTS -->
+      <div class="screen" id="s3">
+        <div class="section-label">Rider Compliance Segments — All Cities</div>
+        <div class="kpi-row">
+          <div class="kpi-card" style="border-color:rgba(52,209,134,0.3);">
+            <div class="kpi-val" style="color:var(--green);">62%</div>
+            <div class="kpi-lbl">Compliant riders</div>
+            <div class="kpi-delta up">▲ +8% post-RideGuide</div>
+          </div>
+          <div class="kpi-card" style="border-color:rgba(245,158,11,0.3);">
+            <div class="kpi-val" style="color:var(--gold);">28%</div>
+            <div class="kpi-lbl">Occasional violations</div>
+            <div class="kpi-delta dn">▼ Target: &lt;20%</div>
+          </div>
+          <div class="kpi-card" style="border-color:rgba(239,68,68,0.3);">
+            <div class="kpi-val" style="color:var(--red);">10%</div>
+            <div class="kpi-lbl">Repeat violators</div>
+            <div class="kpi-delta up">▼ from 18% (bans effective)</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Compliance by Rider Age Group</div>
+          <div class="prog-row"><div class="prog-label">18–24</div><div class="prog-track"><div class="prog-fill" style="width:58%;background:var(--gold);"></div></div><div class="prog-val">58%</div></div>
+          <div class="prog-row"><div class="prog-label">25–34</div><div class="prog-track"><div class="prog-fill" style="width:74%;background:var(--green);"></div></div><div class="prog-val">74%</div></div>
+          <div class="prog-row"><div class="prog-label">35–44</div><div class="prog-track"><div class="prog-fill" style="width:81%;background:var(--green);"></div></div><div class="prog-val">81%</div></div>
+          <div class="prog-row"><div class="prog-label">45+</div><div class="prog-track"><div class="prog-fill" style="width:88%;background:var(--green);"></div></div><div class="prog-val">88%</div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">New Rider Cohorts (First 30 days) <span class="badge badge-gold">High priority</span></div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:10px;">New riders have 3× higher violation rate in first week — the critical intervention window.</div>
+          <div class="prog-row"><div class="prog-label">Day 1–3</div><div class="prog-track"><div class="prog-fill" style="width:42%;background:var(--red);"></div></div><div class="prog-val" style="color:var(--red);">42%</div></div>
+          <div class="prog-row"><div class="prog-label">Day 4–7</div><div class="prog-track"><div class="prog-fill" style="width:58%;background:var(--gold);"></div></div><div class="prog-val">58%</div></div>
+          <div class="prog-row"><div class="prog-label">Day 8–14</div><div class="prog-track"><div class="prog-fill" style="width:71%;background:var(--gold);"></div></div><div class="prog-val">71%</div></div>
+          <div class="prog-row"><div class="prog-label">Day 15–30</div><div class="prog-track"><div class="prog-fill" style="width:82%;background:var(--green);"></div></div><div class="prog-val">82%</div></div>
+          <div style="margin-top:8px;padding:8px 10px;background:rgba(52,209,134,0.06);border-radius:6px;border-left:3px solid var(--green);font-size:10px;color:var(--muted);">
+            Action: RideGuide contextual warnings have higher impact on Day 1–7 cohort — age verification onboarding adds compliance tutorial step.
+          </div>
+        </div>
+      </div>
+
+      <!-- S4: TENDER REPORT EXPORT -->
+      <div class="screen" id="s4">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+          <div>
+            <div class="section-label">Tender Report — Warsaw, Poland</div>
+            <div style="font-size:13px;font-weight:700;">City Authority Submission · Q2 2026</div>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="action-btn btn-primary" id="export-btn" onclick="exportReport()">📄 Export PDF</button>
+          </div>
+        </div>
+
+        <!-- tender summary card — simulated document -->
+        <div style="background:#fff;border-radius:10px;padding:20px 24px;color:#1a1a1a;border:1px solid rgba(0,0,0,0.1);">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid #34D186;">
+            <div>
+              <div style="font-size:16px;font-weight:800;color:#0D1A10;">Bolt Compliance Report</div>
+              <div style="font-size:11px;color:#687A70;">Warsaw, Poland · January – June 2026 · Prepared for City Transport Authority</div>
+            </div>
+            <div style="width:36px;height:36px;border-radius:8px;background:#34D186;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:#000;">⚡</div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;">
+            <div style="text-align:center;padding:10px;background:#f0fff4;border-radius:6px;">
+              <div style="font-family:'DM Mono',monospace;font-size:20px;font-weight:700;color:#34D186;">91</div>
+              <div style="font-size:9px;color:#687A70;">Compliance Score</div>
+            </div>
+            <div style="text-align:center;padding:10px;background:#f0fff4;border-radius:6px;">
+              <div style="font-family:'DM Mono',monospace;font-size:20px;font-weight:700;color:#0D1A10;">94%</div>
+              <div style="font-size:9px;color:#687A70;">Speed adherence</div>
+            </div>
+            <div style="text-align:center;padding:10px;background:#f0fff4;border-radius:6px;">
+              <div style="font-family:'DM Mono',monospace;font-size:20px;font-weight:700;color:#0D1A10;">88%</div>
+              <div style="font-size:9px;color:#687A70;">Valid parking rate</div>
+            </div>
+            <div style="text-align:center;padding:10px;background:#f0fff4;border-radius:6px;">
+              <div style="font-family:'DM Mono',monospace;font-size:20px;font-weight:700;color:#0D1A10;">96%</div>
+              <div style="font-size:9px;color:#687A70;">Age verified</div>
+            </div>
+          </div>
+
+          <div style="font-size:11px;color:#374151;line-height:1.6;margin-bottom:12px;">
+            Bolt Warsaw operated <strong>614,200 rides</strong> across Q2 2026 with a 91/100 compliance score — the highest of any micromobility operator in the Warsaw metropolitan area. Speed zone adherence of 94% represents a 6-point improvement vs Q1, driven by the RideGuide proactive deceleration feature. Invalid parking events decreased by 18% following the launch of the parking validator UI.
+          </div>
+
+          <div style="font-size:10px;color:#9CA3AF;text-align:center;border-top:1px solid #e5e7eb;padding-top:10px;">
+            Generated by CityScore · cityscore.bolt.eu · Certified compliant data · Not manipulable · Contact: compliance@bolt.eu
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /browser-body -->
+    <div class="ndots">
+      <div class="ndot active" id="n1" onclick="go(1)"></div>
+      <div class="ndot" id="n2" onclick="go(2)"></div>
+      <div class="ndot" id="n3" onclick="go(3)"></div>
+      <div class="ndot" id="n4" onclick="go(4)"></div>
+    </div>
+  </div>
+
+  <!-- annotation panel -->
+  <div class="anno-panel">
+    <div class="anno-screen-label" id="screen-label">01 — CITY OVERVIEW</div>
+    <div id="anno-cards"></div>
+  </div>
+</div>
+
+<script>
+const URLS={1:'cityscore.bolt.eu / overview',2:'cityscore.bolt.eu / cities / lagos / violations',3:'cityscore.bolt.eu / riders / segments',4:'cityscore.bolt.eu / tender / warsaw-q2-2026'};
+const LABELS={1:'01 — CITY OVERVIEW',2:'02 — VIOLATION HEATMAP',3:'03 — RIDER SEGMENTS',4:'04 — TENDER REPORT'};
+const ANNO={
+  1:[
+    {n:'DESIGN INSIGHT 01',t:'Score ring vs progress bar',b:'A circular score ring communicates 84/100 at a glance and scales from green to amber to red based on the value. Unlike a bar chart, it carries emotional weight — a 61 in red feels urgent in a way that "61%" in a table does not. City PMs feel accountability when they see their city\'s ring.'},
+    {n:'DESIGN INSIGHT 02',t:'Anomaly alert as primary surface',b:'The Lagos anomaly alert at the bottom of S1 auto-surfaces when compliance drops >10% within a 4-hour window. It\'s the first thing city ops sees on login. This replaces the "check the spreadsheet every morning" workflow that misses fast-moving issues.',metric:{v:'12 min',l:'anomaly detection time vs 4h manual review lag'}},
+    {n:'PM RATIONALE',t:'Why compliance is a tender asset',b:'The JD mentions "contributing to tenders and supporting engagement with city authorities." CityScore turns compliance data into a competitive advantage in procurement — Bolt can show a city authority: "Here is our 91/100 score, here is our violation trend, here is the PDF." Competitors cannot.'},
+  ],
+  2:[
+    {n:'DESIGN INSIGHT 01',t:'Heatmap vs table — the spatial insight',b:'A table of violation counts tells you what happened. A heatmap tells you where. The Lagos Island parking cluster shows up immediately as a hot zone — ops knows exactly which streets to fix, not just a city-wide aggregate. Location intelligence is the missing layer in most compliance reporting.'},
+    {n:'DESIGN INSIGHT 02',t:'Root cause classification',b:'CityScore doesn\'t just surface violations — it classifies root cause: "Signs removed by Lagos Works Dept." This auto-classification (from GPS clustering + ops log cross-reference) turns 3 hours of investigation into 3 seconds. PM and ops act, not investigate.',metric:{v:'−60%',l:'compliance investigation time per anomaly'}},
+    {n:'PM RATIONALE',t:'Recommended actions as product features',b:'The "notify authority" and "push rider nudge" actions are built into CityScore — not copied into Slack. Clicking Send drafts and sends an authority email with the violation evidence map attached. This makes CityScore an operational tool, not just a dashboard.'},
+  ],
+  3:[
+    {n:'DESIGN INSIGHT 01',t:'New rider cohort = the most impactful intervention window',b:'Day 1–7 riders have a 42% violation rate vs 82% compliance rate at Day 15–30. The biggest compliance improvement is an onboarding problem, not an enforcement problem. RideGuide tutorials + age verification tutorial in the first week compress the learning curve.',metric:{v:'3×',l:'higher violation rate in Day 1–7 vs Day 15–30 cohorts'}},
+    {n:'DESIGN INSIGHT 02',t:'Age group breakdown informs product decisions',b:'18–24 year olds have 58% compliance vs 88% for 45+ riders. This drives two product decisions: (1) stronger in-app education for younger cohorts; (2) city authority conversations are more productive with segment data than aggregate numbers.'},
+    {n:'PM RATIONALE',t:'Compliance is a lifecycle problem',b:'Most PMs treat compliance as a one-time feature (add the geofence, done). CityScore frames it as a lifecycle: first ride → Day 7 → repeat rider → power user. Different interventions for each phase. This is the same cohort retention framework from PhonePe\'s offers lifecycle thinking.'},
+  ],
+  4:[
+    {n:'DESIGN INSIGHT 01',t:'Tender PDF = a product feature, not an export',b:'The tender report is auto-generated from live CityScore data — it cannot be manipulated or cherry-picked. This is its key value to city authorities: they know Bolt cannot edit the numbers. The "not manipulable" footer line signals integrity, not just data.',metric:{v:'+35%',l:'estimated tender win rate with CityScore evidence vs verbal-only submissions'}},
+    {n:'DESIGN INSIGHT 02',t:'Compliance as competitive moat',b:'When Bolt goes into a tender with a 91/100 score and competitors have no equivalent, the decision becomes easy for city authorities. The tender report turns CityScore from an internal ops tool into a sales document — the PM who built CityScore enabled every tender team without writing a single sales slide.'},
+    {n:'PM RATIONALE',t:'The B2G product dimension',b:'Business-to-government products are rare in PM portfolios. CityScore is designed for two audiences: internal ops (S1, S2, S3) and external authorities (S4). The same underlying data serves both — a product architecture decision that multiplies the value of every data point captured.'},
+  ],
+};
+function renderAnno(n){
+  document.getElementById('anno-cards').innerHTML=(ANNO[n]||[]).map(c=>`
+    <div class="anno-card"><div class="anno-card-n">${c.n}</div><div class="anno-card-t">${c.t}</div><div class="anno-card-b">${c.b}</div>${c.metric?`<div class="anno-metric"><span>${c.metric.v}</span><p>${c.metric.l}</p></div>`:''}</div>
+  `).join('');
+}
+function go(n){
+  [1,2,3,4].forEach(i=>{
+    document.getElementById('s'+i).classList.remove('active');
+    const d=document.getElementById('d'+i);if(d)d.classList.remove('active');
+    const nd=document.getElementById('n'+i);if(nd)nd.classList.remove('active');
+  });
+  document.getElementById('s'+n).classList.add('active');
+  const dn=document.getElementById('d'+n);if(dn)dn.classList.add('active');
+  const nn=document.getElementById('n'+n);if(nn)nn.classList.add('active');
+  document.getElementById('screen-label').textContent=LABELS[n];
+  document.getElementById('url-bar').textContent=URLS[n];
+  renderAnno(n);
+}
+function sendNotification(){const b=document.getElementById('notify-btn');b.textContent='✅ Sent';b.classList.add('btn-done');}
+function sendNudge(){const b=document.getElementById('nudge-btn');b.textContent='✅ Pushed';b.classList.add('btn-done');}
+function exportReport(){const b=document.getElementById('export-btn');b.textContent='✅ PDF Exported';b.classList.add('btn-done');}
+// build heatmap
+const VTYPES=['Speed violations','Invalid parking','Zone breaches','No-helmet starts'];
+const VDATA=[[8,6,12,9,18,22],[12,14,9,11,8,31],[3,2,4,3,5,6],[1,2,1,2,1,4]];
+function heatCol(v){if(v<5)return`rgba(52,209,134,${0.3+v*0.05})`;if(v<15)return`rgba(245,158,11,${0.3+(v-5)*0.04})`;return`rgba(239,68,68,${0.4+(v-15)*0.02})`;}
+function buildHeatmap(){
+  const c=document.getElementById('heatmap-container');
+  VTYPES.forEach((t,ri)=>{
+    const row=document.createElement('div');
+    row.style.cssText='display:grid;grid-template-columns:120px repeat(6,1fr);gap:4px;margin-bottom:4px;';
+    const lbl=document.createElement('div');
+    lbl.style.cssText='font-size:9px;color:var(--muted);display:flex;align-items:center;';
+    lbl.textContent=t;row.appendChild(lbl);
+    VDATA[ri].forEach(v=>{
+      const cell=document.createElement('div');
+      cell.className='heat-cell';
+      cell.style.background=heatCol(v);
+      cell.style.color=v>12?'#fff':v>5?'#1a0f00':'#0a2010';
+      cell.textContent=v;
+      cell.onclick=()=>go(2);
+      row.appendChild(cell);
+    });
+    c.appendChild(row);
+  });
+}
+buildHeatmap();
+renderAnno(1);
+</script>
+</body>
+</html>

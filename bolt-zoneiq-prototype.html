@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bolt — ZoneIQ · Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --green:#34D186;--gold:#F59E0B;--red:#EF4444;--blue:#3B82F6;--purple:#8B5CF6;
+  --dark:#0D1A10;--hero:#162815;--card:#1E3422;--lift:#264830;
+  --muted:#687A70;--border:rgba(52,209,134,0.12);--white:#F8FFF9;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Sora',sans-serif;background:#080F09;color:var(--white);min-height:100vh;padding:32px 24px 60px;display:flex;flex-direction:column;align-items:center;}
+.strip{width:100%;max-width:700px;background:var(--hero);border:1px solid var(--border);border-radius:10px 10px 0 0;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;}
+.strip-left{display:flex;align-items:center;gap:10px;}
+.strip-logo{width:26px;height:26px;border-radius:6px;background:var(--purple);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:10px;color:#fff;}
+.strip-title{font-size:13px;font-weight:700;}.strip-sub{font-size:11px;color:var(--muted);}
+.strip-tag{font-size:10px;font-weight:600;background:rgba(139,92,246,0.12);color:var(--purple);border:1px solid rgba(139,92,246,0.3);padding:3px 10px;border-radius:20px;letter-spacing:.5px;}
+.layout{display:flex;gap:0;width:100%;max-width:700px;align-items:flex-start;}
+.phone-wrap{width:375px;flex-shrink:0;background:var(--dark);border-radius:0 0 0 44px;border:1px solid var(--border);border-top:none;overflow:hidden;}
+.notch{width:120px;height:28px;background:var(--dark);border-radius:0 0 16px 16px;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:6px;}
+.nc{width:10px;height:10px;border-radius:50%;background:#1a2e1f;}
+.ndot-n{width:5px;height:5px;border-radius:50%;background:#1e3524;}
+.status{display:flex;align-items:center;justify-content:space-between;padding:6px 18px 4px;background:var(--dark);font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;}
+.screen-content{max-height:580px;overflow-y:auto;scrollbar-width:none;}
+.screen-content::-webkit-scrollbar{display:none;}
+.screen{display:none;}.screen.active{display:block;}
+.ndots{display:flex;gap:6px;justify-content:center;padding:10px 0 8px;background:var(--hero);}
+.ndot-nav{width:28px;height:6px;border-radius:3px;background:rgba(139,92,246,0.2);cursor:pointer;transition:all .2s;}
+.ndot-nav.active{background:var(--purple);width:40px;}
+.anno-panel{width:300px;flex-shrink:0;background:var(--hero);border:1px solid var(--border);border-left:none;border-top:none;border-radius:0 0 12px 0;padding:20px 18px;max-height:700px;overflow-y:auto;scrollbar-width:none;}
+.anno-panel::-webkit-scrollbar{display:none;}
+.anno-screen-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--purple);font-weight:500;letter-spacing:1px;margin-bottom:14px;text-transform:uppercase;}
+.anno-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:12px;}
+.anno-card-n{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:5px;}
+.anno-card-t{font-size:12px;font-weight:700;color:var(--white);margin-bottom:6px;}
+.anno-card-b{font-size:11px;color:var(--muted);line-height:1.55;}
+.anno-metric{margin-top:9px;padding:8px 10px;background:rgba(139,92,246,0.08);border-radius:6px;border-left:3px solid var(--purple);}
+.anno-metric span{font-family:'DM Mono',monospace;font-size:12px;font-weight:600;color:var(--purple);}
+.anno-metric p{font-size:10px;color:var(--muted);margin-top:2px;}
+.action-btn{width:100%;padding:13px;border-radius:12px;border:none;font-family:'Sora',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .18s;}
+.btn-green{background:var(--green);color:#000;}.btn-green:hover{background:#2bc578;}
+.btn-purple{background:var(--purple);color:#fff;}.btn-purple:hover{background:#7c3aed;}
+.btn-outline-g{background:transparent;border:1.5px solid var(--green);color:var(--green);}
+.btn-done{background:rgba(52,209,134,0.15);border:1.5px solid var(--green);color:var(--green);pointer-events:none;}
+
+/* map */
+.map-bg{width:100%;height:240px;background:linear-gradient(135deg,#0f2214 0%,#142818 50%,#0e1e12 100%);position:relative;overflow:hidden;}
+.road{position:absolute;background:rgba(52,209,134,0.055);}
+.road.h1{top:42%;left:0;right:0;height:12px;}
+.road.h2{top:65%;left:0;right:0;height:8px;}
+.road.v1{left:28%;top:0;bottom:0;width:10px;}
+.road.v2{left:60%;top:0;bottom:0;width:7px;}
+.scooter{position:absolute;width:16px;height:16px;border-radius:50%;background:var(--green);box-shadow:0 0 0 5px rgba(52,209,134,0.2),0 0 0 10px rgba(52,209,134,0.08);}
+
+/* zone prediction arc */
+.arc-label{position:absolute;font-size:8px;font-weight:700;font-family:'DM Mono',monospace;}
+
+/* confidence badge */
+.conf-badge{
+  position:absolute;bottom:10px;left:50%;transform:translateX(-50%);
+  background:rgba(139,92,246,0.9);border:1px solid rgba(139,92,246,0.5);
+  border-radius:20px;padding:4px 12px;
+  display:flex;align-items:center;gap:6px;
+}
+.conf-dot{width:7px;height:7px;border-radius:50%;background:#fff;animation:blink 1s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
+
+/* alert panel */
+.alert-panel{
+  margin:10px;border-radius:12px;overflow:hidden;
+  border:2px solid var(--purple);
+  background:linear-gradient(135deg,rgba(139,92,246,0.1) 0%,rgba(139,92,246,0.05) 100%);
+}
+.alert-header{background:rgba(139,92,246,0.2);padding:12px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(139,92,246,0.2);}
+.alert-body{padding:12px 14px;}
+
+/* countdown ring */
+.ring-wrap{position:relative;display:inline-flex;align-items:center;justify-content:center;}
+.ring-wrap svg{transform:rotate(-90deg);}
+.ring-val{position:absolute;font-family:'DM Mono',monospace;font-size:20px;font-weight:800;color:var(--purple);}
+@keyframes dashAnim{from{stroke-dashoffset:110;}to{stroke-dashoffset:0;}}
+
+/* end-ride spot cards */
+.spot-card{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 12px;border-radius:8px;margin-bottom:8px;
+  background:var(--lift);border:1px solid var(--border);cursor:pointer;
+  transition:all .18s;
+}
+.spot-card.best{border-color:rgba(52,209,134,0.4);background:rgba(52,209,134,0.06);}
+.spot-card:hover{border-color:rgba(52,209,134,0.4);}
+.spot-dot{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+
+/* ops zone editor */
+.zone-rule-row{display:flex;align-items:center;justify-content:space-between;padding:9px 10px;border-radius:6px;margin-bottom:6px;background:var(--lift);border:1px solid var(--border);}
+.zr-label{font-size:11px;color:var(--white);}
+.zr-sub{font-size:9px;color:var(--muted);}
+.slider-wrap{display:flex;align-items:center;gap:8px;}
+.slider{-webkit-appearance:none;width:80px;height:4px;border-radius:2px;background:rgba(139,92,246,0.3);outline:none;cursor:pointer;}
+.slider::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--purple);cursor:pointer;}
+.slider-val{font-family:'DM Mono',monospace;font-size:11px;color:var(--purple);width:36px;}
+
+/* confetti */
+canvas#conf-z{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:10;}
+.s4-success{position:relative;padding:18px;}
+</style>
+</head>
+<body>
+<div class="strip">
+  <div class="strip-left">
+    <div class="strip-logo">🧠</div>
+    <div><div class="strip-title">Bolt — ZoneIQ</div><div class="strip-sub">ML-Powered Smart Geofence Engine · Interactive Prototype</div></div>
+  </div>
+  <div class="strip-tag">CASE STUDY 04</div>
+</div>
+<div class="layout">
+  <div class="phone-wrap">
+    <div class="notch"><div class="nc"></div><div class="ndot-n"></div></div>
+    <div class="status"><span>9:41</span><span>●●●● ⚡</span></div>
+    <div class="screen-content">
+
+      <!-- S1: RIDE MAP WITH TRAJECTORY ARC -->
+      <div class="screen active" id="s1">
+        <div class="map-bg">
+          <div class="road h1"></div><div class="road h2"></div>
+          <div class="road v1"></div><div class="road v2"></div>
+          <!-- speed zone overlay -->
+          <div style="position:absolute;top:0;right:0;width:38%;bottom:0;background:rgba(245,158,11,0.1);border-left:2px dashed rgba(245,158,11,0.35);">
+            <div class="arc-label" style="top:10px;right:6px;color:var(--gold);">25 km/h</div>
+          </div>
+          <!-- scooter -->
+          <div class="scooter" style="top:45%;left:46%;transform:translate(-50%,-50%);"></div>
+          <!-- trajectory arc (SVG) -->
+          <svg style="position:absolute;inset:0;width:100%;height:100%;" viewBox="0 0 375 240">
+            <!-- predicted path -->
+            <path d="M 172 108 Q 230 95 280 110" stroke="rgba(139,92,246,0.7)" stroke-width="2.5" stroke-dasharray="7 4" fill="none"/>
+            <!-- 30s prediction point -->
+            <circle cx="280" cy="110" r="6" fill="none" stroke="var(--purple)" stroke-width="2"/>
+            <circle cx="280" cy="110" r="3" fill="var(--purple)" opacity=".8"/>
+            <!-- zone entry label -->
+            <text x="263" y="105" font-size="8" fill="var(--purple)" font-family="DM Mono" font-weight="700">30s</text>
+            <!-- alert radius arc -->
+            <path d="M 172 108 m -30 0 a 30 30 0 0 1 60 0" stroke="rgba(52,209,134,0.3)" stroke-width="1.5" fill="none" stroke-dasharray="4 3"/>
+          </svg>
+          <!-- ZoneIQ badge -->
+          <div style="position:absolute;top:10px;left:50%;transform:translateX(-50%);background:rgba(13,26,16,0.92);border:1px solid rgba(139,92,246,0.4);border-radius:20px;padding:5px 12px;display:flex;align-items:center;gap:6px;">
+            <div style="width:7px;height:7px;border-radius:50%;background:var(--purple);animation:blink 1.8s infinite;"></div>
+            <span style="font-size:10px;font-weight:700;color:var(--purple);">ZoneIQ · Trajectory Active</span>
+          </div>
+          <div class="conf-badge">
+            <div class="conf-dot"></div>
+            <span style="font-size:9px;font-weight:700;color:#fff;">88% zone entry confidence</span>
+          </div>
+        </div>
+
+        <!-- zone prediction card (click → S2) -->
+        <div style="margin:10px;background:rgba(139,92,246,0.08);border:1.5px solid rgba(139,92,246,0.35);border-radius:10px;padding:11px 13px;cursor:pointer;" onclick="go(2)">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
+            <span style="font-size:14px;">🧠</span>
+            <span style="font-size:12px;font-weight:700;color:var(--purple);">Zone entry predicted in ~30s</span>
+            <span style="margin-left:auto;font-size:10px;color:var(--muted);">Details →</span>
+          </div>
+          <div style="font-size:10px;color:var(--muted);">ZoneIQ: 25 km/h zone ahead · Gradual slowdown starting now</div>
+        </div>
+
+        <!-- live speed indicator -->
+        <div style="margin:0 10px;display:flex;gap:8px;margin-bottom:10px;">
+          <div style="flex:1;background:var(--card);border-radius:10px;padding:10px;text-align:center;border:1px solid var(--border);">
+            <div style="font-family:'DM Mono',monospace;font-size:24px;font-weight:700;color:var(--white);">22</div>
+            <div style="font-size:9px;color:var(--muted);">km/h now</div>
+          </div>
+          <div style="flex:1;background:rgba(245,158,11,0.08);border-radius:10px;padding:10px;text-align:center;border:1px solid rgba(245,158,11,0.2);">
+            <div style="font-family:'DM Mono',monospace;font-size:24px;font-weight:700;color:var(--gold);">25</div>
+            <div style="font-size:9px;color:var(--muted);">zone limit</div>
+          </div>
+          <div style="flex:1;background:rgba(139,92,246,0.08);border-radius:10px;padding:10px;text-align:center;border:1px solid rgba(139,92,246,0.2);">
+            <div style="font-family:'DM Mono',monospace;font-size:24px;font-weight:700;color:var(--purple);">30</div>
+            <div style="font-size:9px;color:var(--muted);">sec ETA</div>
+          </div>
+        </div>
+
+        <!-- compliance status -->
+        <div style="margin:0 10px 14px;background:var(--card);border-radius:10px;padding:10px 12px;border:1px solid var(--border);">
+          <div style="font-size:9px;font-weight:700;color:var(--muted);letter-spacing:1px;margin-bottom:6px;text-transform:uppercase;">ZoneIQ Status</div>
+          <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:4px;">
+            <span>Trajectory confidence</span><span style="color:var(--purple);font-weight:600;">88%</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);">
+            <span>Deceleration mode</span><span style="color:var(--green);font-weight:600;">Soft (12s curve)</span>
+          </div>
+        </div>
+
+        <div style="padding:0 10px 14px;">
+          <button class="action-btn btn-outline-g" onclick="go(3)">End Ride</button>
+        </div>
+      </div>
+
+      <!-- S2: IN-RIDE SMART ALERT -->
+      <div class="screen" id="s2">
+        <div class="map-bg" style="height:180px;">
+          <div class="road h1"></div><div class="road v1"></div>
+          <div style="position:absolute;top:0;right:0;width:50%;bottom:0;background:rgba(245,158,11,0.12);border-left:2px dashed rgba(245,158,11,0.4);">
+            <div style="position:absolute;top:8px;right:6px;font-size:8px;font-weight:700;color:var(--gold);font-family:'DM Mono',monospace;">25 km/h</div>
+          </div>
+          <div class="scooter" style="top:46%;left:40%;transform:translate(-50%,-50%);"></div>
+          <svg style="position:absolute;inset:0;width:100%;height:100%;" viewBox="0 0 375 180">
+            <path d="M 150 83 Q 210 68 265 83" stroke="rgba(139,92,246,0.8)" stroke-width="2.5" stroke-dasharray="7 4" fill="none"/>
+            <circle cx="265" cy="83" r="6" fill="none" stroke="var(--purple)" stroke-width="2"/>
+            <circle cx="265" cy="83" r="3" fill="var(--purple)"/>
+          </svg>
+        </div>
+
+        <div class="alert-panel">
+          <div class="alert-header">
+            <div style="font-size:20px;">🧠</div>
+            <div style="flex:1;">
+              <div style="font-size:13px;font-weight:700;color:var(--purple);">ZoneIQ: Zone entry in 30 seconds</div>
+              <div style="font-size:10px;color:var(--muted);">Trajectory confidence 88% · Gradual deceleration started</div>
+            </div>
+            <div class="ring-wrap">
+              <svg width="48" height="48" viewBox="0 0 48 48">
+                <circle cx="24" cy="24" r="18" fill="none" stroke="rgba(139,92,246,0.15)" stroke-width="4"/>
+                <circle cx="24" cy="24" r="18" fill="none" stroke="var(--purple)" stroke-width="4"
+                  stroke-dasharray="113" stroke-dashoffset="35" stroke-linecap="round"
+                  style="animation:dashAnim 30s linear forwards;"/>
+              </svg>
+              <div class="ring-val" id="alert-count">30</div>
+            </div>
+          </div>
+          <div class="alert-body">
+            <div style="margin-bottom:10px;">
+              <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">Speed change</div>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span style="font-family:'DM Mono',monospace;font-size:26px;font-weight:700;color:var(--white);">22</span>
+                <span style="font-size:16px;color:var(--purple);">→</span>
+                <span style="font-family:'DM Mono',monospace;font-size:32px;font-weight:700;color:var(--gold);">≤25</span>
+                <span style="font-size:11px;color:var(--muted);align-self:flex-end;margin-bottom:4px;">km/h</span>
+              </div>
+              <div style="font-size:10px;color:var(--green);margin-top:4px;">✓ You're already compliant — ZoneIQ will maintain it</div>
+            </div>
+
+            <!-- decel curve visual -->
+            <div style="margin-bottom:10px;">
+              <div style="font-size:10px;color:var(--muted);margin-bottom:4px;">Deceleration curve (12-second soft ramp)</div>
+              <div style="height:32px;background:rgba(255,255,255,0.04);border-radius:6px;position:relative;overflow:hidden;border:1px solid var(--border);">
+                <!-- simulated speed curve -->
+                <svg width="100%" height="32" viewBox="0 0 300 32">
+                  <path d="M 0 4 Q 80 4 150 12 Q 220 22 300 28" stroke="var(--purple)" stroke-width="2" fill="none"/>
+                  <path d="M 0 4 Q 80 4 150 12 Q 220 22 300 28 L 300 32 L 0 32 Z" fill="rgba(139,92,246,0.08)"/>
+                  <line x1="0" y1="28" x2="300" y2="28" stroke="rgba(245,158,11,0.3)" stroke-width="1" stroke-dasharray="4 3"/>
+                  <text x="4" y="27" font-size="7" fill="var(--gold)" font-family="DM Mono">25 km/h limit</text>
+                  <text x="240" y="12" font-size="7" fill="var(--purple)" font-family="DM Mono">smooth</text>
+                </svg>
+              </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:10px;color:var(--muted);">
+              <div style="text-align:center;padding:6px;background:var(--card);border-radius:6px;">
+                <div style="font-weight:700;color:var(--red);">Hard cut (old)</div>
+                <div>Instant · Jarring · 3× complaint rate</div>
+              </div>
+              <div style="text-align:center;padding:6px;background:rgba(52,209,134,0.06);border-radius:6px;border:1px solid rgba(52,209,134,0.2);">
+                <div style="font-weight:700;color:var(--green);">Soft ramp (ZoneIQ)</div>
+                <div>12-sec curve · Smooth · Zero surprise</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="padding:10px;display:flex;gap:8px;">
+          <button class="action-btn btn-outline-g" style="flex:1;" onclick="go(1)">← Back</button>
+          <button class="action-btn btn-green" style="flex:2;" onclick="go(3)">Continue →</button>
+        </div>
+      </div>
+
+      <!-- S3: END-RIDE NEAREST VALID SPOT -->
+      <div class="screen" id="s3">
+        <div class="map-bg" style="height:200px;">
+          <div class="road h1"></div><div class="road v1"></div><div class="road h2"></div>
+          <!-- user dot (invalid) -->
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);">
+            <div style="width:18px;height:18px;border-radius:50%;background:var(--red);box-shadow:0 0 0 6px rgba(239,68,68,0.2);"></div>
+          </div>
+          <!-- suggested spots -->
+          <div style="position:absolute;top:26%;left:32%;width:20px;height:20px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#000;box-shadow:0 0 0 5px rgba(52,209,134,0.2);">P</div>
+          <div style="position:absolute;top:64%;left:68%;width:18px;height:18px;border-radius:50%;background:rgba(52,209,134,0.5);border:1.5px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--green);">P</div>
+          <div style="position:absolute;top:35%;left:72%;width:16px;height:16px;border-radius:50%;background:rgba(255,255,255,0.08);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:8px;color:var(--muted);">P</div>
+          <!-- distance lines -->
+          <svg style="position:absolute;inset:0;width:100%;height:100%;" viewBox="0 0 375 200">
+            <line x1="188" y1="100" x2="120" y2="53" stroke="rgba(52,209,134,0.5)" stroke-width="1.5" stroke-dasharray="5 3"/>
+            <line x1="188" y1="100" x2="255" y2="128" stroke="rgba(52,209,134,0.3)" stroke-width="1" stroke-dasharray="5 3"/>
+          </svg>
+          <!-- zone label -->
+          <div style="position:absolute;top:8px;right:8px;font-size:9px;font-weight:700;color:var(--red);background:rgba(239,68,68,0.15);padding:3px 8px;border-radius:4px;font-family:'DM Mono',monospace;">NO-PARK ZONE</div>
+        </div>
+
+        <!-- invalid zone notice -->
+        <div style="margin:10px;background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.3);border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:8px;">
+          <span style="font-size:16px;">📍</span>
+          <div>
+            <div style="font-size:12px;font-weight:700;color:var(--red);">You're in a no-parking zone</div>
+            <div style="font-size:10px;color:var(--muted);">ZoneIQ found 2 valid spots nearby</div>
+          </div>
+        </div>
+
+        <!-- nearest spots -->
+        <div style="padding:0 10px 8px;">
+          <div style="font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">Valid Parking Spots</div>
+          <div class="spot-card best" onclick="selectSpot(1)">
+            <div class="spot-dot" style="background:rgba(52,209,134,0.15);">📍</div>
+            <div style="flex:1;">
+              <div style="font-size:12px;font-weight:700;color:var(--white);">Spot P-7A · Designated Dock</div>
+              <div style="font-size:10px;color:var(--muted);">38m away · Turn left on Kingsway</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-family:'DM Mono',monospace;font-size:15px;font-weight:700;color:var(--green);">38m</div>
+              <div style="font-size:9px;color:var(--green);">✓ Best</div>
+            </div>
+          </div>
+          <div class="spot-card" onclick="selectSpot(2)">
+            <div class="spot-dot" style="background:rgba(52,209,134,0.08);">🅿️</div>
+            <div style="flex:1;">
+              <div style="font-size:12px;font-weight:700;color:var(--white);">Spot P-12 · Street Zone</div>
+              <div style="font-size:10px;color:var(--muted);">71m away · Right on Broad Street</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-family:'DM Mono',monospace;font-size:15px;font-weight:700;color:var(--muted);">71m</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="padding:0 10px 14px;">
+          <button class="action-btn btn-green" onclick="go(4)">Navigate to P-7A (38m) →</button>
+        </div>
+      </div>
+
+      <!-- S4: OPS ZONE EDITOR -->
+      <div class="screen" id="s4">
+        <div style="padding:16px;">
+          <div style="font-size:9px;font-weight:700;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;">ZoneIQ Configuration</div>
+          <div style="font-size:15px;font-weight:800;color:var(--white);margin-bottom:4px;">Soft vs Hard Zone Thresholds</div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:16px;">Tune prediction sensitivity + deceleration behavior per city</div>
+
+          <!-- threshold sliders -->
+          <div style="background:var(--card);border-radius:12px;padding:14px;border:1px solid var(--border);margin-bottom:12px;">
+            <div style="font-size:11px;font-weight:700;color:var(--purple);margin-bottom:10px;">Trajectory Prediction</div>
+            <div class="zone-rule-row">
+              <div><div class="zr-label">Alert distance</div><div class="zr-sub">How far ahead ZoneIQ predicts entry</div></div>
+              <div class="slider-wrap">
+                <input type="range" class="slider" min="50" max="300" value="200" oninput="updateSlider('s-alert',this.value,'m')">
+                <div class="slider-val" id="s-alert">200m</div>
+              </div>
+            </div>
+            <div class="zone-rule-row">
+              <div><div class="zr-label">Confidence threshold</div><div class="zr-sub">Min % to trigger soft alert</div></div>
+              <div class="slider-wrap">
+                <input type="range" class="slider" min="50" max="95" value="75" oninput="updateSlider('s-conf',this.value,'%')">
+                <div class="slider-val" id="s-conf">75%</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="background:var(--card);border-radius:12px;padding:14px;border:1px solid var(--border);margin-bottom:12px;">
+            <div style="font-size:11px;font-weight:700;color:var(--gold);margin-bottom:10px;">Deceleration Behavior</div>
+            <div class="zone-rule-row">
+              <div><div class="zr-label">Ramp duration</div><div class="zr-sub">Soft deceleration curve length</div></div>
+              <div class="slider-wrap">
+                <input type="range" class="slider" min="4" max="20" value="12" oninput="updateSlider('s-ramp',this.value,'s')" style="accent-color:var(--gold);">
+                <div class="slider-val" id="s-ramp" style="color:var(--gold);">12s</div>
+              </div>
+            </div>
+            <div class="zone-rule-row">
+              <div><div class="zr-label">Jerk limit</div><div class="zr-sub">Max m/s³ deceleration force</div></div>
+              <div class="slider-wrap">
+                <input type="range" class="slider" min="0.5" max="3" step="0.1" value="1.2" oninput="updateSlider('s-jerk',this.value,'m/s³')" style="accent-color:var(--gold);">
+                <div class="slider-val" id="s-jerk" style="color:var(--gold);">1.2</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- impact preview -->
+          <div style="background:rgba(52,209,134,0.06);border:1px solid rgba(52,209,134,0.2);border-radius:10px;padding:12px;margin-bottom:14px;">
+            <div style="font-size:10px;font-weight:700;color:var(--green);margin-bottom:8px;">Est. Impact (Warsaw baseline)</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:10px;">
+              <div style="text-align:center;"><div style="font-family:'DM Mono',monospace;font-size:16px;font-weight:700;color:var(--green);">−45%</div><div style="color:var(--muted);">Sudden brake events</div></div>
+              <div style="text-align:center;"><div style="font-family:'DM Mono',monospace;font-size:16px;font-weight:700;color:var(--green);">−28%</div><div style="color:var(--muted);">Invalid parking rate</div></div>
+            </div>
+          </div>
+
+          <button class="action-btn btn-purple" id="save-config" onclick="saveConfig()">Save Configuration</button>
+        </div>
+      </div>
+
+    </div><!-- /screen-content -->
+    <div class="ndots">
+      <div class="ndot-nav active" id="n1" onclick="go(1)"></div>
+      <div class="ndot-nav" id="n2" onclick="go(2)"></div>
+      <div class="ndot-nav" id="n3" onclick="go(3)"></div>
+      <div class="ndot-nav" id="n4" onclick="go(4)"></div>
+    </div>
+  </div>
+
+  <!-- annotation panel -->
+  <div class="anno-panel">
+    <div class="anno-screen-label" id="screen-label">01 — TRAJECTORY MAP</div>
+    <div id="anno-cards"></div>
+  </div>
+</div>
+
+<script>
+const LABELS={1:'01 — TRAJECTORY MAP',2:'02 — SMART ALERT',3:'03 — NEAREST VALID SPOT',4:'04 — OPS ZONE EDITOR'};
+const ANNO={
+  1:[
+    {n:'DESIGN INSIGHT 01',t:'Trajectory arc, not zone boundary',b:'The purple dashed arc shows where ZoneIQ predicts the rider will be in 30 seconds — not where the zone starts. This is the key product insight: enforce with prediction, not detection. Static geofences enforce at the wall; ZoneIQ enforces 30 seconds before it.',metric:{v:'88%',l:'trajectory prediction confidence (Warsaw pilot data)'}},
+    {n:'DESIGN INSIGHT 02',t:'Confidence score on the map',b:'"88% zone entry confidence" is surfaced on the map as a floating badge. This transparency serves two audiences: riders understand why they\'re being alerted (the ML predicted their path), and ops teams can tune the confidence threshold in the Zone Editor (S4).'},
+    {n:'PM RATIONALE',t:'Dual problem: UX AND compliance',b:'Hard geofences fail on both dimensions: (1) sudden throttle cut is jarring — low NPS; (2) riders who know hard limits exist ride up to the edge and find workarounds. ZoneIQ\'s soft approach solves both: smoother UX for riders who comply, and earlier detection for those who try to bypass.'},
+  ],
+  2:[
+    {n:'DESIGN INSIGHT 01',t:'Countdown ring creates shared expectation',b:'The 30-second countdown ring makes the timing explicit. Rider knows exactly when the zone starts — no anxiety, no surprise. This mirrors how Google Maps announces "in 200m, turn right" — the advance notice changes behavior without friction.',metric:{v:'73%',l:'reduction in sudden brake events vs hard geofence (est. Warsaw pilot)'}},
+    {n:'DESIGN INSIGHT 02',t:'Speed curve visualization — the differentiator',b:'The speed ramp chart (purple curve declining gently to the gold limit line) communicates the "soft" deceleration in one glance. It makes an abstract technical feature tangible. Users who see this chart understand immediately why ZoneIQ feels better — and trust the product.'},
+    {n:'PM RATIONALE',t:'The physics of compliance',b:'The jerk limit (m/s³) in the Zone Editor (S4) is the key technical config. Too high → still jarring. Too low → rider doesn\'t slow enough before the zone. ZoneIQ\'s innovation is treating this as a configurable parameter per city, not a one-size-fits-all value — different street widths and speed deltas need different curves.'},
+  ],
+  3:[
+    {n:'DESIGN INSIGHT 01',t:'Nearest spot surfaced at the exact moment of need',b:'Most apps show parking zones on a general map during the ride. ZoneIQ triggers the nearest-spot card only when the rider tries to end the ride in an invalid zone. This is the right intervention: not disruptive during the ride, instantly helpful when needed.',metric:{v:'+28%',l:'invalid-zone-to-valid-spot conversion rate (riders who complete the walk)'}},
+    {n:'DESIGN INSIGHT 02',t:'Best spot badge reduces decision fatigue',b:'Showing "✓ Best" on the 38m spot removes the need for the rider to compare distances. One clear recommendation vs a list of options. The 71m spot is shown for transparency, but the default action (the green button) is pre-selected. Decision science: anchor the user on the recommended option.'},
+    {n:'PM RATIONALE',t:'Compliance UX as trust restoration',b:'When a rider parks invalid and the app immediately helps them fix it — instead of just showing an error — they leave the interaction feeling helped, not penalized. This is the same principle as Bolt\'s complaint resolution design: the goal is to restore trust, not enforce rules.'},
+  ],
+  4:[
+    {n:'DESIGN INSIGHT 01',t:'Sliders, not code — the ops configurability principle',b:'The alert distance, confidence threshold, ramp duration, and jerk limit are all tunable from this UI without engineering. This is the same "toggles not code" principle as LaunchKit. Ops teams can A/B test different deceleration profiles across cities and find the optimal config.'},
+    {n:'DESIGN INSIGHT 02',t:'Impact preview before deploying',b:'The "Est. Impact" card shows projected −45% brake events and −28% invalid parking before the config is saved. This is a data-backed nudge: ops makes informed decisions, not guesses. The numbers come from Warsaw baseline data (pilot city for ZoneIQ).', metric:{v:'−45%',l:'sudden brake events at current Warsaw slider values'}},
+    {n:'PM RATIONALE',t:'ZoneIQ as a platform, not a feature',b:'By exposing prediction sensitivity and deceleration behavior as configurable parameters, ZoneIQ becomes a compliance platform — not a single fixed feature. Different cities have different regulations, street layouts, and rider behaviors. The configurability is the competitive moat: no competitor can match city-by-city optimization without this layer.'},
+  ],
+};
+function renderAnno(n){
+  document.getElementById('anno-cards').innerHTML=(ANNO[n]||[]).map(c=>`
+    <div class="anno-card"><div class="anno-card-n">${c.n}</div><div class="anno-card-t">${c.t}</div><div class="anno-card-b">${c.b}</div>${c.metric?`<div class="anno-metric"><span>${c.metric.v}</span><p>${c.metric.l}</p></div>`:''}</div>
+  `).join('');
+}
+function go(n){
+  [1,2,3,4].forEach(i=>{
+    document.getElementById('s'+i).classList.remove('active');
+    const nd=document.getElementById('n'+i);if(nd)nd.classList.remove('active');
+  });
+  document.getElementById('s'+n).classList.add('active');
+  const nn=document.getElementById('n'+n);if(nn)nn.classList.add('active');
+  document.getElementById('screen-label').textContent=LABELS[n];
+  renderAnno(n);
+  if(n===2) startAlertCountdown();
+}
+let alertTimer;
+function startAlertCountdown(){
+  clearInterval(alertTimer);let t=30;
+  document.getElementById('alert-count').textContent=t;
+  alertTimer=setInterval(()=>{t--;if(t<0){clearInterval(alertTimer);return;}document.getElementById('alert-count').textContent=t;},1000);
+}
+function selectSpot(n){if(n===1){go(1);}}
+function updateSlider(id,val,unit){document.getElementById(id).textContent=val+unit;}
+function saveConfig(){const b=document.getElementById('save-config');b.textContent='✅ Config Saved';b.classList.remove('btn-purple');b.style.background='rgba(52,209,134,0.15)';b.style.color='var(--green)';b.style.border='1.5px solid var(--green)';b.style.pointerEvents='none';}
+renderAnno(1);
+</script>
+</body>
+</html>
