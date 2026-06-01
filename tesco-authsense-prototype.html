@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AuthSense — Tesco Payment Auth Intelligence · Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --dark:   #0A1628;
+  --hero:   #102040;
+  --blue:   #00539F;
+  --blue2:  #0066CC;
+  --red:    #E2001A;
+  --redl:   #FEE2E2;
+  --white:  #FFFFFF;
+  --lgray:  #F0F4FF;
+  --muted:  #6B7A99;
+  --border: #D0D8E8;
+  --green:  #16A34A;
+  --greenl: #DCFCE7;
+  --gold:   #F59E0B;
+  --amber:  #D97706;
+  --surface:#F8FAFF;
+  --frame:  #1E2433;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  font-family:'Inter',sans-serif;
+  background:#0D1117;
+  min-height:100vh;
+  display:flex;align-items:flex-start;justify-content:center;
+  padding:36px 24px 40px;
+}
+.hdr{
+  position:fixed;top:0;left:0;right:0;
+  background:var(--dark);
+  color:rgba(255,255,255,.45);
+  font-size:9.5px;font-weight:600;
+  letter-spacing:.1em;text-transform:uppercase;
+  text-align:center;padding:6px;z-index:100;
+}
+.hdr span{color:var(--red);}
+.outer{display:flex;align-items:flex-start;gap:0;margin-top:26px;}
+
+/* BROWSER FRAME */
+.bf{
+  width:640px;flex-shrink:0;
+  background:var(--frame);border-radius:12px 0 0 12px;
+  overflow:hidden;box-shadow:0 32px 80px rgba(0,0,0,.55);
+}
+.mac-bar{
+  background:#2A2F3E;height:36px;
+  display:flex;align-items:center;
+  padding:0 14px;gap:6px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+.dot{width:11px;height:11px;border-radius:50%;}
+.dot-r{background:#FF5F57;}.dot-y{background:#FFBD2E;}.dot-g{background:#28C840;}
+.url-area{background:#1E2433;padding:7px 12px;border-bottom:1px solid rgba(255,255,255,.06);}
+.url-inner{
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);
+  border-radius:6px;padding:5px 12px;
+  font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(255,255,255,.6);
+  display:flex;align-items:center;gap:6px;
+}
+.url-inner .lock{color:#16A34A;font-size:10px;}
+.url-inner .upath{color:rgba(255,255,255,.4);}
+.nav-tabs{
+  background:#1A1F2E;display:flex;
+  border-bottom:1px solid rgba(255,255,255,.08);
+  padding:0 12px;gap:2px;
+}
+.nt{
+  padding:8px 12px;font-size:11px;
+  color:rgba(255,255,255,.4);cursor:pointer;
+  border-bottom:2px solid transparent;transition:all .2s;
+  font-weight:500;white-space:nowrap;
+}
+.nt.active{color:var(--red);border-bottom-color:var(--red);}
+.nt:hover:not(.active){color:rgba(255,255,255,.7);}
+.sa{background:var(--surface);height:536px;overflow-y:auto;scrollbar-width:none;}
+.sa::-webkit-scrollbar{display:none;}
+.screen{display:none;}
+.screen.active{display:block;}
+
+/* ANNOTATION PANEL */
+.ap{
+  width:300px;background:var(--dark);
+  border-radius:0 12px 12px 0;padding:20px 18px;
+  box-shadow:0 32px 80px rgba(0,0,0,.55);min-height:636px;
+}
+.sl-label{
+  font-size:9px;font-weight:700;color:var(--red);
+  letter-spacing:.12em;text-transform:uppercase;
+  margin-bottom:16px;padding-bottom:10px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+.ac{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:12px;margin-bottom:10px;}
+.ac-n{font-size:8px;font-weight:700;color:var(--red);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;}
+.ac-t{font-size:12px;font-weight:700;color:#fff;margin-bottom:5px;}
+.ac-b{font-size:11px;color:var(--muted);line-height:1.5;}
+.am{background:rgba(226,0,26,.12);border:1px solid rgba(226,0,26,.25);border-radius:6px;padding:8px 10px;margin-top:8px;display:flex;align-items:baseline;gap:6px;}
+.am-v{font-size:18px;font-weight:800;color:var(--red);}
+.am-l{font-size:10px;color:var(--muted);line-height:1.3;}
+
+/* SCREEN SHARED */
+.sh{background:var(--dark);color:#fff;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;}
+.sh-title{font-size:13px;font-weight:700;}
+.sh-sub{font-size:10px;color:var(--muted);margin-top:1px;}
+.sc{padding:16px 20px;}
+.stat-bar{display:flex;gap:10px;margin-bottom:16px;}
+.scc{background:#fff;border:1px solid var(--border);border-radius:8px;padding:10px 14px;flex:1;text-align:center;}
+.scc .sv{font-size:17px;font-weight:800;color:var(--blue);}
+.scc .sl2{font-size:9px;color:var(--muted);margin-top:2px;}
+.scc.danger .sv{color:var(--red);}
+.sec-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;margin-top:12px;}
+
+.badge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:99px;text-transform:uppercase;}
+.b-ok  {background:var(--greenl);color:var(--green);}
+.b-warn{background:#FEF3C7;color:#92400E;}
+.b-crit{background:#FEE2E2;color:var(--red);}
+.b-info{background:#EFF6FF;color:var(--blue);}
+
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:none;transition:all .2s;font-family:'Inter',sans-serif;}
+.btn-p{background:var(--blue);color:#fff;}
+.btn-p:hover{background:var(--blue2);}
+.btn-r{background:var(--red);color:#fff;}
+.btn-r:hover{background:#c00015;}
+.btn-o{background:transparent;color:var(--blue);border:1px solid var(--blue);}
+.btn-g{background:var(--green);color:#fff;}
+.btn-sm{padding:5px 12px;font-size:11px;}
+
+/* Trend bars */
+.trend-row{display:flex;align-items:flex-end;gap:3px;height:40px;margin:8px 0 4px;}
+.tbar{flex:1;border-radius:3px 3px 0 0;background:var(--blue);opacity:.6;transition:height .3s;}
+.tbar.drop{background:var(--red);opacity:.9;}
+
+/* PSP table */
+.ptab{width:100%;border-collapse:collapse;}
+.ptab th{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);}
+.ptab td{font-size:11px;padding:8px;border-bottom:1px solid rgba(0,0,0,.04);}
+.hdot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:4px;}
+
+/* Alert banner */
+.alert-banner{
+  display:flex;align-items:center;gap:10px;
+  background:rgba(226,0,26,.08);border:1.5px solid rgba(226,0,26,.4);
+  border-left:4px solid var(--red);
+  border-radius:8px;padding:10px 14px;
+  margin-bottom:12px;cursor:pointer;transition:background .2s;
+}
+.alert-banner:hover{background:rgba(226,0,26,.14);}
+.ab-icon{font-size:16px;flex-shrink:0;}
+.ab-body{flex:1;}
+.ab-title{font-size:11px;font-weight:700;color:var(--red);margin-bottom:2px;}
+.ab-sub{font-size:10px;color:#444;line-height:1.4;}
+.ab-arrow{font-size:14px;color:var(--red);font-weight:700;}
+
+/* Alert detail card */
+.alert-card{background:#fff;border:1px solid var(--border);border-left:3px solid var(--red);border-radius:8px;padding:14px;margin-bottom:10px;}
+.ac-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;}
+.ac-id{font-size:11px;font-weight:700;color:var(--red);}
+.ac-time{font-size:10px;color:var(--muted);}
+.dim-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
+.dim-card{background:var(--lgray);border-radius:6px;padding:8px 10px;}
+.dim-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;}
+.dim-val{font-size:12px;font-weight:700;color:#1a1a2e;}
+.impact-box{background:#FEF2F2;border:1px solid #FECACA;border-radius:6px;padding:10px 12px;margin-bottom:10px;}
+.impact-title{font-size:10px;font-weight:700;color:var(--red);margin-bottom:4px;}
+.impact-val{font-size:20px;font-weight:800;color:var(--red);}
+.impact-sub{font-size:10px;color:#B91C1C;margin-top:2px;}
+.rec-box{background:#EFF6FF;border:1px solid #BFDBFE;border-radius:6px;padding:10px 12px;margin-bottom:10px;}
+.rec-title{font-size:10px;font-weight:700;color:var(--blue);margin-bottom:6px;}
+
+/* Heatmap */
+.hm-wrap{overflow-x:auto;margin-bottom:10px;}
+.hm-table{border-collapse:collapse;width:100%;}
+.hm-table th{font-size:9px;font-weight:700;color:var(--muted);padding:4px 6px;text-align:center;white-space:nowrap;}
+.hm-table th.row-header{text-align:left;font-size:10px;}
+.hm-table td{width:68px;height:32px;text-align:center;font-size:11px;font-weight:700;border-radius:4px;cursor:pointer;transition:transform .15s;font-family:'JetBrains Mono',monospace;}
+.hm-table td:hover{transform:scale(1.08);z-index:1;position:relative;}
+.hm-table .row-lbl{font-size:10px;font-weight:600;color:#333;white-space:nowrap;padding:4px 8px;text-align:left;background:transparent;}
+.hc-ok  {background:#DCFCE7;color:#166534;}
+.hc-warn{background:#FEF9C3;color:#854D0E;}
+.hc-bad {background:#FEE2E2;color:#991B1B;}
+
+.rec-action-row{display:flex;align-items:center;justify-content:space-between;background:#fff;border:1px solid var(--border);border-radius:6px;padding:8px 12px;margin-bottom:5px;}
+.ra-method{font-size:11px;font-weight:600;}
+.ra-sub{font-size:9px;color:var(--muted);}
+
+/* Playbook */
+.pb-step{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:10px 12px;border-radius:8px;margin-bottom:6px;
+  border:1px solid var(--border);background:#fff;
+  cursor:pointer;transition:all .15s;
+}
+.pb-step.done{background:#F0FDF4;border-color:#BBF7D0;}
+.pb-step.active{background:#EFF6FF;border-color:#BFDBFE;border-left:3px solid var(--blue);}
+.pb-step.pending{opacity:.55;}
+.pb-num{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px;}
+.pb-step.done .pb-num{background:var(--greenl);color:var(--green);}
+.pb-step.active .pb-num{background:var(--blue);color:#fff;}
+.pb-step.pending .pb-num{background:#F3F4F6;color:var(--muted);}
+.pb-title{font-size:11px;font-weight:700;color:#1a1a2e;margin-bottom:2px;}
+.pb-desc{font-size:10px;color:var(--muted);line-height:1.4;}
+.inc-log{background:var(--dark);border-radius:8px;padding:10px;font-family:'JetBrains Mono',monospace;font-size:10px;max-height:120px;overflow-y:auto;scrollbar-width:none;}
+.inc-log::-webkit-scrollbar{display:none;}
+.il-row{padding:3px 0;border-bottom:1px solid rgba(255,255,255,.05);display:flex;gap:8px;}
+.il-t{color:rgba(255,255,255,.3);font-size:9px;}
+.il-e{color:rgba(255,255,255,.6);}
+.il-ok{color:#4ADE80;}
+.il-warn{color:#FCD34D;}
+.il-err{color:#F87171;}
+</style>
+</head>
+<body>
+<div class="hdr">Tesco Technology · <span>AuthSense</span> · Payment Authorization Intelligence · Interactive Prototype</div>
+
+<div class="outer">
+  <div class="bf">
+    <div class="mac-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+    </div>
+    <div class="url-area">
+      <div class="url-inner">
+        <span class="lock">🔒</span>
+        <span>authsense.tesco.internal</span>
+        <span id="url-bar" class="upath">/ overview</span>
+      </div>
+    </div>
+    <div class="nav-tabs">
+      <div class="nt active" id="d1" onclick="go(1)">Auth Overview</div>
+      <div class="nt" id="d2" onclick="go(2)">Alert Detail</div>
+      <div class="nt" id="d3" onclick="go(3)">Issuer Heatmap</div>
+      <div class="nt" id="d4" onclick="go(4)">Remediation</div>
+    </div>
+    <div class="sa">
+
+      <!-- S1: AUTH HEALTH OVERVIEW -->
+      <div class="screen active" id="s1">
+        <div class="sh">
+          <div>
+            <div class="sh-title">Authorization Health — Live</div>
+            <div class="sh-sub">All PSPs · All payment methods · Real-time</div>
+          </div>
+          <span style="font-size:9px;background:rgba(22,163,74,.2);color:#4ADE80;padding:3px 8px;border-radius:4px;font-weight:700;">● LIVE</span>
+        </div>
+        <div class="sc">
+          <div class="stat-bar">
+            <div class="scc"><div class="sv" style="color:#1a1a2e">97.8%</div><div class="sl2">Overall Auth Rate</div></div>
+            <div class="scc"><div class="sv">12,847</div><div class="sl2">Txns/hr</div></div>
+            <div class="scc"><div class="sv">118ms</div><div class="sl2">Avg Latency</div></div>
+            <div class="scc danger"><div class="sv">1</div><div class="sl2">Active Alert</div></div>
+          </div>
+
+          <!-- Alert banner -->
+          <div class="alert-banner" onclick="go(2)">
+            <div class="ab-icon">⚠️</div>
+            <div class="ab-body">
+              <div class="ab-title">ANOMALY DETECTED — ALT-0847</div>
+              <div class="ab-sub">Visa Debit auth rate dropped to <strong>91.2%</strong> via Worldpay · Est. impact <strong>£2,400/min</strong> · Detected 12 mins ago</div>
+            </div>
+            <div class="ab-arrow">→</div>
+          </div>
+
+          <div class="sec-label">24h Auth Rate Trend</div>
+          <div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:12px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:9px;color:var(--muted);">
+              <span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>Now</span>
+            </div>
+            <div class="trend-row">
+              <div class="tbar" style="height:62%"></div>
+              <div class="tbar" style="height:58%"></div>
+              <div class="tbar" style="height:70%"></div>
+              <div class="tbar" style="height:80%"></div>
+              <div class="tbar" style="height:88%"></div>
+              <div class="tbar" style="height:85%"></div>
+              <div class="tbar" style="height:90%"></div>
+              <div class="tbar" style="height:92%"></div>
+              <div class="tbar" style="height:95%"></div>
+              <div class="tbar" style="height:97%"></div>
+              <div class="tbar" style="height:98%"></div>
+              <div class="tbar" style="height:99%"></div>
+              <div class="tbar" style="height:97%"></div>
+              <div class="tbar" style="height:98%"></div>
+              <div class="tbar" style="height:99%"></div>
+              <div class="tbar" style="height:98%"></div>
+              <div class="tbar" style="height:97%"></div>
+              <div class="tbar" style="height:96%"></div>
+              <div class="tbar" style="height:98%"></div>
+              <div class="tbar" style="height:97%"></div>
+              <div class="tbar drop" style="height:72%"></div>
+              <div class="tbar drop" style="height:64%"></div>
+              <div class="tbar drop" style="height:68%"></div>
+            </div>
+            <div style="display:flex;justify-content:flex-end;gap:12px;font-size:9px;margin-top:4px;">
+              <span style="color:var(--blue);">■ Normal</span>
+              <span style="color:var(--red);">■ Anomaly</span>
+            </div>
+          </div>
+
+          <div class="sec-label">PSP Breakdown</div>
+          <table class="ptab">
+            <thead>
+              <tr><th>PSP</th><th>Auth Rate</th><th>Vol/hr</th><th>Latency</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="hdot" style="background:var(--red)"></span>Worldpay</td>
+                <td style="font-weight:700;color:var(--red)">94.1%</td>
+                <td>7,204</td><td>132ms</td>
+                <td><span class="badge b-crit">Critical</span></td>
+              </tr>
+              <tr>
+                <td><span class="hdot" style="background:var(--green)"></span>Adyen</td>
+                <td style="font-weight:700;color:var(--green)">99.2%</td>
+                <td>3,840</td><td>98ms</td>
+                <td><span class="badge b-ok">Healthy</span></td>
+              </tr>
+              <tr>
+                <td><span class="hdot" style="background:var(--green)"></span>Stripe</td>
+                <td style="font-weight:700;color:var(--green)">98.7%</td>
+                <td>1,240</td><td>112ms</td>
+                <td><span class="badge b-ok">Healthy</span></td>
+              </tr>
+              <tr>
+                <td><span class="hdot" style="background:var(--gold)"></span>Braintree</td>
+                <td style="font-weight:700;color:var(--amber)">96.9%</td>
+                <td>563</td><td>178ms</td>
+                <td><span class="badge b-warn">Watch</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- S2: ALERT DETAIL -->
+      <div class="screen" id="s2">
+        <div class="sh">
+          <div>
+            <div class="sh-title">Alert Detail — ALT-0847</div>
+            <div class="sh-sub">Visa Debit · Worldpay · Detected 14:23 UTC</div>
+          </div>
+          <span class="badge b-crit" style="font-size:10px;">CRITICAL</span>
+        </div>
+        <div class="sc">
+          <div class="alert-card">
+            <div class="ac-header">
+              <div>
+                <div class="ac-id">ALT-0847 · CRITICAL · Open</div>
+                <div class="ac-time">Detected 14:23:11 UTC · 12 minutes ago · Auto-detected by 3σ threshold</div>
+              </div>
+            </div>
+            <div class="dim-grid">
+              <div class="dim-card">
+                <div class="dim-lbl">Affected PSP</div>
+                <div class="dim-val">Worldpay</div>
+              </div>
+              <div class="dim-card">
+                <div class="dim-lbl">Payment Method</div>
+                <div class="dim-val">Visa Debit</div>
+              </div>
+              <div class="dim-card">
+                <div class="dim-lbl">Auth Rate (now)</div>
+                <div class="dim-val" style="color:var(--red)">91.2%</div>
+              </div>
+              <div class="dim-card">
+                <div class="dim-lbl">Baseline (90m avg)</div>
+                <div class="dim-val">98.0%</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="impact-box">
+            <div class="impact-title">Estimated GMV Impact</div>
+            <div class="impact-val">£28,800</div>
+            <div class="impact-sub">At current incident duration (12 min) · £2,400/min at Tesco Visa Debit transaction volume</div>
+          </div>
+
+          <div class="rec-box">
+            <div class="rec-title">⚡ Recommended Action</div>
+            <div style="font-size:11px;color:#1D4ED8;margin-bottom:8px;">Re-route Visa Debit transactions from Worldpay to Adyen (backup PSP). Adyen auth rate: 99.2%. Est. recovery: £2,200/min.</div>
+            <div style="display:flex;gap:8px;">
+              <button class="btn btn-r btn-sm" id="reroute-btn" onclick="execReroute()">⚡ Execute Re-route to Adyen</button>
+              <button class="btn btn-o btn-sm" onclick="go(3)">View Issuer Heatmap →</button>
+            </div>
+            <div id="reroute-done" style="display:none;margin-top:8px;background:#F0FDF4;border:1px solid #BBF7D0;border-radius:5px;padding:7px 10px;font-size:11px;color:#166534;">
+              ✓ Re-routing active. Adyen receiving Visa Debit transactions. Auth rate recovering — monitoring.
+            </div>
+          </div>
+
+          <div class="sec-label">Issuer Dimension</div>
+          <div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:11px;">
+            <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);">
+              <span>Barclays (Visa Debit)</span>
+              <span style="font-weight:700;color:var(--red)">87.4% ↓</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);">
+              <span>HSBC (Visa Debit)</span>
+              <span style="font-weight:700;color:var(--amber)">93.1% ↓</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:5px 0;">
+              <span>Lloyds (Visa Debit)</span>
+              <span style="font-weight:700;color:var(--green)">97.8% ✓</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- S3: ISSUER HEATMAP -->
+      <div class="screen" id="s3">
+        <div class="sh">
+          <div>
+            <div class="sh-title">Issuer × Method Heatmap</div>
+            <div class="sh-sub">Authorization rates — 8 issuers × 5 methods · Last 30 mins</div>
+          </div>
+        </div>
+        <div class="sc">
+          <div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:6px;padding:8px 12px;margin-bottom:12px;font-size:11px;color:#B91C1C;">
+            🔴 <strong>2 critical cells</strong> detected (Barclays + HSBC via Visa Debit / Worldpay). Re-route recommended.
+          </div>
+
+          <div class="hm-wrap">
+            <table class="hm-table">
+              <thead>
+                <tr>
+                  <th class="row-header">Issuer</th>
+                  <th>Visa Debit</th>
+                  <th>Visa Credit</th>
+                  <th>Mastercard</th>
+                  <th>Apple Pay</th>
+                  <th>PayPal</th>
+                </tr>
+              </thead>
+              <tbody id="hm-body"></tbody>
+            </table>
+          </div>
+
+          <div style="display:flex;gap:12px;margin-bottom:12px;font-size:10px;">
+            <span><span style="display:inline-block;width:12px;height:12px;background:#DCFCE7;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>≥98%</span>
+            <span><span style="display:inline-block;width:12px;height:12px;background:#FEF9C3;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>95–97%</span>
+            <span><span style="display:inline-block;width:12px;height:12px;background:#FEE2E2;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>&lt;95%</span>
+          </div>
+
+          <div class="sec-label">Recommended Actions</div>
+          <div class="rec-action-row">
+            <div>
+              <div class="ra-method">🔴 Barclays — Visa Debit (87.4%)</div>
+              <div class="ra-sub">Re-route Barclays Visa Debit to Adyen · Est. recovery: +9.8pp auth rate</div>
+            </div>
+            <button class="btn btn-r btn-sm" onclick="this.textContent='✓ Routed';this.className='btn btn-sm btn-g'">Route →</button>
+          </div>
+          <div class="rec-action-row">
+            <div>
+              <div class="ra-method">🟠 HSBC — Visa Debit (93.1%)</div>
+              <div class="ra-sub">Monitor; consider re-route if rate drops below 90%</div>
+            </div>
+            <button class="btn btn-o btn-sm" onclick="this.textContent='✓ Watching';this.style.opacity='.6'">Watch</button>
+          </div>
+          <div class="rec-action-row">
+            <div>
+              <div class="ra-method">🟡 HSBC — Mastercard (96.1%)</div>
+              <div class="ra-sub">Below threshold · Consider Stripe routing as alternative</div>
+            </div>
+            <button class="btn btn-o btn-sm" onclick="this.textContent='✓ Watching';this.style.opacity='.6'">Watch</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- S4: REMEDIATION CONSOLE -->
+      <div class="screen" id="s4">
+        <div class="sh">
+          <div>
+            <div class="sh-title">Remediation Console — INC-20847</div>
+            <div class="sh-sub">Visa Debit / Worldpay · Auth Rate Degradation · Open</div>
+          </div>
+          <span class="badge b-crit">Open</span>
+        </div>
+        <div class="sc">
+          <div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin-bottom:12px;display:flex;gap:20px;">
+            <div style="text-align:center;">
+              <div style="font-size:16px;font-weight:800;color:var(--red)">INC-20847</div>
+              <div style="font-size:9px;color:var(--muted)">Incident ID</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:16px;font-weight:800;color:#1a1a2e">14:23</div>
+              <div style="font-size:9px;color:var(--muted)">Detected UTC</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:16px;font-weight:800;color:var(--amber)" id="inc-duration">14 min</div>
+              <div style="font-size:9px;color:var(--muted)">Duration</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:16px;font-weight:800;color:var(--red)" id="inc-gmv">£33,600</div>
+              <div style="font-size:9px;color:var(--muted)">Est. GMV Impact</div>
+            </div>
+          </div>
+
+          <div class="sec-label">Playbook — Auth Rate Degradation (Visa Debit)</div>
+          <div class="pb-step done" id="pb1">
+            <div class="pb-num">✓</div>
+            <div><div class="pb-title">1. Confirm Anomaly — 3σ Threshold Breach</div><div class="pb-desc">Auto-confirmed by AuthSense at 14:23:11. PSP: Worldpay. Method: Visa Debit. Drop: 98.0% → 91.2%.</div></div>
+          </div>
+          <div class="pb-step done" id="pb2">
+            <div class="pb-num">✓</div>
+            <div><div class="pb-title">2. Identify Affected Dimension (PSP × Issuer)</div><div class="pb-desc">Root cause isolated: Barclays + HSBC Visa Debit via Worldpay. Lloyds unaffected.</div></div>
+          </div>
+          <div class="pb-step active" id="pb3">
+            <div class="pb-num">3</div>
+            <div>
+              <div class="pb-title">3. Execute Re-route to Backup PSP</div>
+              <div class="pb-desc">Route affected Visa Debit traffic to Adyen (backup). Expected auth rate recovery: +8pp.</div>
+              <button class="btn btn-r btn-sm" style="margin-top:6px;" id="pb3-btn" onclick="completePb3()">⚡ Execute Re-route</button>
+            </div>
+          </div>
+          <div class="pb-step pending" id="pb4">
+            <div class="pb-num">4</div>
+            <div><div class="pb-title">4. Confirm Auth Rate Recovery</div><div class="pb-desc">Monitor auth rate for 5 minutes post-reroute. Confirm ≥97% before closing incident.</div></div>
+          </div>
+          <div class="pb-step pending" id="pb5">
+            <div class="pb-num">5</div>
+            <div><div class="pb-title">5. Notify Finance & Log Incident</div><div class="pb-desc">Send GMV impact report to Finance. Log root cause and resolution time for SLA reporting.</div></div>
+          </div>
+
+          <div class="sec-label" style="margin-top:14px;">Incident Log</div>
+          <div class="inc-log" id="inc-log">
+            <div class="il-row"><span class="il-t">14:35:02</span><span class="il-warn">Step 3 active — awaiting re-route execution</span></div>
+            <div class="il-row"><span class="il-t">14:31:44</span><span class="il-ok">Step 2 completed — root cause isolated to Barclays + HSBC via Worldpay</span></div>
+            <div class="il-row"><span class="il-t">14:27:11</span><span class="il-ok">Step 1 confirmed — anomaly validated, incident opened</span></div>
+            <div class="il-row"><span class="il-t">14:23:11</span><span class="il-err">ANOMALY: Worldpay Visa Debit auth rate 91.2% (threshold 97.0%)</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ANNOTATION PANEL -->
+  <div class="ap">
+    <div class="sl-label" id="screen-label">01 — AUTH OVERVIEW</div>
+    <div id="anno-cards"></div>
+  </div>
+</div>
+
+<script>
+const LABELS = {
+  1:'01 — AUTH OVERVIEW',
+  2:'02 — ALERT DETAIL',
+  3:'03 — ISSUER HEATMAP',
+  4:'04 — REMEDIATION'
+};
+const URLS = {
+  1:'/ overview',
+  2:'/ alerts / ALT-0847',
+  3:'/ heatmap / issuers',
+  4:'/ incidents / INC-20847'
+};
+const ANNO = {
+  1:[
+    {n:'INSIGHT 01',t:'Auth Rate Degradation = Invisible GMV Loss',b:'A 1% auth rate drop at Tesco online transaction volume means thousands of failed orders per hour. Without real-time monitoring, failures accumulate for 4+ hours before ops detects them.',metric:{v:'£2,400',l:'estimated GMV impact per minute at current volume'}},
+    {n:'INSIGHT 02',t:'12-Minute Detection vs 4-Hour Lag',b:'AuthSense detects anomalies at 3σ deviation from a rolling 90-minute baseline — typically within 12 minutes of onset. Current detection comes from customer complaints or batch reports.',metric:{v:'12 min',l:'detection time vs 4-hour previous average'}},
+    {n:'PM RATIONALE',t:'PSP-Level Granularity Is Critical',b:'Aggregate auth rates mask PSP-level failures. A Worldpay-specific routing issue won\'t show up in total rates until it\'s causing large-scale failures. AuthSense monitors each PSP independently.',metric:{v:'4 PSPs',l:'monitored independently in real-time'}},
+  ],
+  2:[
+    {n:'INSIGHT 01',t:'GMV Impact Converts Technical to Business',b:'Every alert shows estimated GMV impact per minute — this converts a technical metric (auth rate %) into a business metric (£ at stake). Ops can instantly prioritise which incident to resolve first.',metric:{v:'£28,800',l:'GMV at stake for this incident at 12 minutes'}},
+    {n:'INSIGHT 02',t:'Recommended Action Reduces MTTR',b:'AuthSense pre-calculates the recommended remediation: re-route to backup PSP, adjust retry timing, or escalate to issuer. Ops executes in 1 click rather than diagnosing from scratch.',metric:{v:'−40%',l:'MTTR with playbook-driven remediation vs manual'}},
+    {n:'DESIGN DECISION',t:'3-Dimension Root Cause Breakdown',b:'The alert detail shows which PSP, which payment method, and which issuer is affected. This 3-dimension breakdown narrows root cause from "something is wrong" to "Barclays Visa Debit via Worldpay" — in seconds.',metric:{v:'3 dims',l:'PSP × method × issuer for instant root cause'}},
+  ],
+  3:[
+    {n:'INSIGHT 01',t:'Issuers Change Policies Silently',b:'Card issuers (Barclays, HSBC, Lloyds) set their own auth policies and change them without notice. A new fraud rule at Barclays can suddenly block Tesco Visa Debit orders. The heatmap surfaces this in real-time.',metric:{v:'8 issuers',l:'monitored across 5 payment methods'}},
+    {n:'INSIGHT 02',t:'Routing as Immediate Remediation',b:'When a specific issuer × method cell shows elevated failures, the recommended action is PSP routing — send those transactions to Adyen instead of Worldpay. Execution time: under 5 minutes.',metric:{v:'<5 min',l:'from heatmap insight to routing execution'}},
+    {n:'PM RATIONALE',t:'Heatmap Becomes Procurement Leverage',b:'Over time, the issuer heatmap accumulates data for PSP contract negotiations. "Worldpay has 2.3% higher decline rate on Barclays Visa Debit than Adyen" is a concrete negotiation lever.',metric:{v:'Procurement',l:'secondary use case for heatmap data over time'}},
+  ],
+  4:[
+    {n:'INSIGHT 01',t:'Playbook = Institutionalised Response',b:'Today, incident resolution depends on who\'s on-call and their experience. AuthSense captures resolution steps as structured playbooks — each incident type has a defined response that any analyst can execute.',metric:{v:'100%',l:'incidents resolved via documented playbook steps'}},
+    {n:'INSIGHT 02',t:'Incident Log as SLA Artifact',b:'Every incident is logged: detection time, GMV impact, resolution steps, MTTR. This becomes the compliance record for regulatory reporting and PSP contract SLA reviews.',metric:{v:'MTTR',l:'tracked per incident type for SLA benchmarking'}},
+    {n:'PM RATIONALE',t:'PhonePe Proof: Exact Architecture',b:'This maps directly to the unified ops intelligence layer built at PhonePe — 6 siloed workflows rebuilt into one console with automated breach classification and structured remediation. TAT: 2 days → 4 hours, −68% escalations.',metric:{v:'−68%',l:'escalation tickets — PhonePe proof point'}},
+  ]
+};
+
+const HM_ISSUERS = ['Barclays','HSBC','Lloyds','NatWest','Santander','Halifax','Nationwide','Metro Bank'];
+const HM_DATA = [
+  [87,96,98,99,99],
+  [93,98,96,99,97],
+  [99,99,99,99,98],
+  [98,99,98,99,99],
+  [99,99,99,99,97],
+  [98,97,99,99,99],
+  [99,99,99,99,99],
+  [97,99,98,99,99],
+];
+
+function buildHeatmap(){
+  const tbody=document.getElementById('hm-body');
+  tbody.innerHTML='';
+  HM_ISSUERS.forEach((issuer,i)=>{
+    const tr=document.createElement('tr');
+    let html=`<td class="row-lbl">${issuer}</td>`;
+    HM_DATA[i].forEach(v=>{
+      const cls=v>=98?'hc-ok':v>=95?'hc-warn':'hc-bad';
+      html+=`<td class="${cls}">${v}%</td>`;
+    });
+    tr.innerHTML=html;
+    tbody.appendChild(tr);
+  });
+}
+
+function go(n){
+  [1,2,3,4].forEach(i=>{
+    document.getElementById('s'+i).classList.remove('active');
+    const d=document.getElementById('d'+i); if(d) d.classList.remove('active');
+  });
+  document.getElementById('s'+n).classList.add('active');
+  const dn=document.getElementById('d'+n); if(dn) dn.classList.add('active');
+  document.getElementById('screen-label').textContent=LABELS[n];
+  document.getElementById('url-bar').textContent=URLS[n];
+  if(n===3) buildHeatmap();
+  renderAnno(n);
+}
+
+function renderAnno(n){
+  const container=document.getElementById('anno-cards');
+  container.innerHTML='';
+  ANNO[n].forEach(c=>{
+    const div=document.createElement('div');
+    div.className='ac';
+    div.innerHTML=`<div class="ac-n">${c.n}</div><div class="ac-t">${c.t}</div><div class="ac-b">${c.b}</div>`+
+      (c.metric?`<div class="am"><span class="am-v">${c.metric.v}</span><span class="am-l">${c.metric.l}</span></div>`:'');
+    container.appendChild(div);
+  });
+}
+
+function execReroute(){
+  const btn=document.getElementById('reroute-btn');
+  btn.textContent='✓ Re-routed to Adyen';
+  btn.className='btn btn-g btn-sm';
+  btn.disabled=true;
+  document.getElementById('reroute-done').style.display='block';
+}
+
+function completePb3(){
+  const step=document.getElementById('pb3');
+  step.className='pb-step done';
+  step.querySelector('.pb-num').textContent='✓';
+  document.getElementById('pb3-btn').remove();
+  const step4=document.getElementById('pb4');
+  step4.className='pb-step active';
+  step4.querySelector('.pb-num').style.background='var(--blue)';
+  step4.querySelector('.pb-num').style.color='#fff';
+  const log=document.getElementById('inc-log');
+  const now=new Date(); const t=now.toTimeString().slice(0,8);
+  const row=document.createElement('div'); row.className='il-row';
+  row.innerHTML=`<span class="il-t">${t}</span><span class="il-ok">Step 3 completed — Visa Debit re-routed to Adyen. Auth rate recovering.</span>`;
+  log.insertBefore(row,log.firstChild);
+}
+
+renderAnno(1);
+</script>
+</body>
+</html>

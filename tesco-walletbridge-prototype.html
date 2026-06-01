@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>WalletBridge — Tesco Payments Platform · Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --dark:    #0A1628;
+  --hero:    #102040;
+  --blue:    #00539F;
+  --blue2:   #0066CC;
+  --red:     #E2001A;
+  --white:   #FFFFFF;
+  --lgray:   #F0F4FF;
+  --muted:   #6B7A99;
+  --border:  #D0D8E8;
+  --green:   #16A34A;
+  --greenl:  #DCFCE7;
+  --gold:    #F59E0B;
+  --surface: #F8FAFF;
+  --frame:   #1E2433;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family:'Inter',sans-serif;
+  background:#0D1117;
+  min-height:100vh;
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+  padding:36px 24px 40px;
+}
+.hdr {
+  position:fixed; top:0; left:0; right:0;
+  background:var(--dark);
+  color:rgba(255,255,255,.45);
+  font-size:9.5px; font-weight:600;
+  letter-spacing:.1em; text-transform:uppercase;
+  text-align:center; padding:6px;
+  z-index:100;
+}
+.hdr span { color:var(--blue); }
+.outer {
+  display:flex; align-items:flex-start; gap:0;
+  margin-top:26px;
+}
+
+/* BROWSER FRAME */
+.bf {
+  width:640px; flex-shrink:0;
+  background:var(--frame);
+  border-radius:12px 0 0 12px;
+  overflow:hidden;
+  box-shadow:0 32px 80px rgba(0,0,0,.55);
+}
+.mac-bar {
+  background:#2A2F3E; height:36px;
+  display:flex; align-items:center;
+  padding:0 14px; gap:6px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+.dot { width:11px; height:11px; border-radius:50%; }
+.dot-r{background:#FF5F57;} .dot-y{background:#FFBD2E;} .dot-g{background:#28C840;}
+.url-area {
+  background:#1E2433; padding:7px 12px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+.url-inner {
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:6px; padding:5px 12px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px; color:rgba(255,255,255,.6);
+  display:flex; align-items:center; gap:6px;
+}
+.url-inner .lock { color:#16A34A; font-size:10px; }
+.url-inner .upath { color:rgba(255,255,255,.4); }
+.nav-tabs {
+  background:#1A1F2E;
+  display:flex; border-bottom:1px solid rgba(255,255,255,.08);
+  padding:0 12px; gap:2px;
+}
+.nt {
+  padding:8px 14px; font-size:11px;
+  color:rgba(255,255,255,.4); cursor:pointer;
+  border-bottom:2px solid transparent; transition:all .2s;
+  font-weight:500; white-space:nowrap;
+}
+.nt.active { color:var(--blue); border-bottom-color:var(--blue); }
+.nt:hover:not(.active) { color:rgba(255,255,255,.7); }
+.sa { background:var(--surface); height:536px; overflow-y:auto; scrollbar-width:none; }
+.sa::-webkit-scrollbar { display:none; }
+.screen { display:none; }
+.screen.active { display:block; }
+
+/* ANNOTATION PANEL */
+.ap {
+  width:300px; background:var(--dark);
+  border-radius:0 12px 12px 0;
+  padding:20px 18px;
+  box-shadow:0 32px 80px rgba(0,0,0,.55);
+  min-height:636px;
+}
+.sl-label {
+  font-size:9px; font-weight:700;
+  color:var(--blue); letter-spacing:.12em;
+  text-transform:uppercase; margin-bottom:16px;
+  padding-bottom:10px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+.ac {
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:8px; padding:12px; margin-bottom:10px;
+}
+.ac-n { font-size:8px; font-weight:700; color:var(--blue); letter-spacing:.1em; text-transform:uppercase; margin-bottom:4px; }
+.ac-t { font-size:12px; font-weight:700; color:#fff; margin-bottom:5px; }
+.ac-b { font-size:11px; color:var(--muted); line-height:1.5; }
+.am {
+  background:rgba(0,83,159,.15);
+  border:1px solid rgba(0,83,159,.3);
+  border-radius:6px; padding:8px 10px;
+  margin-top:8px; display:flex;
+  align-items:baseline; gap:6px;
+}
+.am-v { font-size:18px; font-weight:800; color:var(--blue); }
+.am-l { font-size:10px; color:var(--muted); line-height:1.3; }
+
+/* === SHARED SCREEN COMPONENTS === */
+.sh {
+  background:var(--dark); color:#fff;
+  padding:12px 20px;
+  display:flex; align-items:center;
+  justify-content:space-between;
+}
+.sh-title { font-size:13px; font-weight:700; }
+.sh-sub { font-size:10px; color:var(--muted); margin-top:1px; }
+.sc { padding:16px 20px; }
+
+.stat-bar { display:flex; gap:10px; margin-bottom:16px; }
+.scc {
+  background:#fff; border:1px solid var(--border);
+  border-radius:8px; padding:10px 14px; flex:1; text-align:center;
+}
+.scc .sv { font-size:17px; font-weight:800; color:var(--blue); }
+.scc .sl2 { font-size:9px; color:var(--muted); margin-top:2px; }
+
+.sec-label {
+  font-size:10px; font-weight:700;
+  color:var(--muted); text-transform:uppercase;
+  letter-spacing:.08em; margin-bottom:8px; margin-top:12px;
+}
+
+.method-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
+.mc {
+  background:#fff; border:1px solid var(--border);
+  border-radius:8px; padding:12px; cursor:pointer;
+  transition:box-shadow .2s;
+}
+.mc:hover { box-shadow:0 4px 12px rgba(0,83,159,.12); }
+.mc.pending { border-color:var(--gold); border-left:3px solid var(--gold); }
+.mc-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+.mc-name { font-size:12px; font-weight:700; color:#1a1a2e; }
+.badge {
+  font-size:9px; font-weight:700;
+  padding:2px 7px; border-radius:99px; text-transform:uppercase;
+}
+.b-active  { background:var(--greenl); color:var(--green); }
+.b-pending { background:#FEF3C7; color:#92400E; }
+.b-avail   { background:#E0F2FE; color:#0369A1; }
+.mc-stats { display:flex; gap:10px; }
+.mcs .msv { font-size:13px; font-weight:700; color:#1a1a2e; }
+.mcs .msl { font-size:9px; color:var(--muted); }
+.pb-wrap { margin-top:6px; }
+.pb-lbl { display:flex; justify-content:space-between; font-size:9px; color:var(--muted); margin-bottom:3px; }
+.pb-track { height:5px; background:#E5E7EB; border-radius:99px; overflow:hidden; }
+.pb-fill { height:100%; border-radius:99px; background:var(--gold); }
+
+.btn {
+  display:inline-flex; align-items:center; gap:6px;
+  padding:8px 16px; border-radius:6px;
+  font-size:12px; font-weight:600;
+  cursor:pointer; border:none; transition:all .2s;
+  font-family:'Inter',sans-serif;
+}
+.btn-p { background:var(--blue); color:#fff; }
+.btn-p:hover { background:var(--blue2); }
+.btn-o { background:transparent; color:var(--blue); border:1px solid var(--blue); }
+.btn-sm { padding:5px 12px; font-size:11px; }
+.btn-g { background:var(--green); color:#fff; }
+
+/* Wizard */
+.wz-bar {
+  display:flex; align-items:center;
+  padding:10px 20px; background:#fff;
+  border-bottom:1px solid var(--border);
+  gap:0;
+}
+.wz-step { display:flex; align-items:center; gap:6px; flex:1; }
+.wz-num {
+  width:22px; height:22px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:10px; font-weight:700; flex-shrink:0;
+}
+.wz-done .wz-num { background:var(--green); color:#fff; }
+.wz-act  .wz-num { background:var(--blue); color:#fff; }
+.wz-todo .wz-num { background:#E5E7EB; color:var(--muted); }
+.wz-lbl { font-size:10px; font-weight:600; }
+.wz-done .wz-lbl { color:var(--green); }
+.wz-act  .wz-lbl { color:var(--blue); }
+.wz-todo .wz-lbl { color:var(--muted); }
+.wz-div { flex:0 0 14px; height:1px; background:var(--border); margin:0 4px; }
+
+.test-row {
+  display:flex; align-items:center;
+  justify-content:space-between;
+  background:#fff; border:1px solid var(--border);
+  border-radius:6px; padding:8px 12px; margin-bottom:5px;
+}
+.test-name { font-size:11px; font-weight:600; color:#1a1a2e; }
+.test-sub { font-size:9px; color:var(--muted); }
+.res { font-size:10px; font-weight:700; padding:2px 8px; border-radius:99px; }
+.res-p { background:var(--greenl); color:var(--green); }
+.res-f { background:#FEE2E2; color:var(--red); }
+.res-n { background:#F3F4F6; color:var(--muted); }
+
+/* Sandbox */
+.sb-ctrl {
+  background:#fff; border:1px solid var(--border);
+  border-radius:8px; padding:12px; margin-bottom:12px;
+}
+.ctrl-lbl { font-size:10px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; margin-bottom:6px; }
+.scen-grid { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px; }
+.sbtn {
+  padding:5px 11px; border-radius:5px;
+  font-size:10px; font-weight:600; cursor:pointer;
+  border:1px solid var(--border);
+  background:#F9FAFB; color:#374151; transition:all .15s;
+  font-family:'Inter',sans-serif;
+}
+.sbtn.active { background:var(--blue); color:#fff; border-color:var(--blue); }
+.sbtn:hover:not(.active) { background:#E5E7EB; }
+.tx-log {
+  background:var(--dark); border-radius:8px;
+  padding:10px; font-family:'JetBrains Mono',monospace;
+  font-size:10px; max-height:180px; overflow-y:auto;
+  scrollbar-width:none;
+}
+.tx-log::-webkit-scrollbar { display:none; }
+.tx-row {
+  padding:4px 0; border-bottom:1px solid rgba(255,255,255,.05);
+  display:flex; align-items:center; gap:8px;
+}
+.tx-t { color:rgba(255,255,255,.3); font-size:9px; }
+.tx-m { color:rgba(255,255,255,.6); }
+.tx-s { color:rgba(255,255,255,.45); }
+.tx-pass { color:#4ADE80; font-weight:700; }
+.tx-fail { color:#F87171; font-weight:700; }
+
+/* Health table */
+.htab { width:100%; border-collapse:collapse; }
+.htab th {
+  font-size:10px; font-weight:700; color:var(--muted);
+  text-transform:uppercase; letter-spacing:.06em;
+  text-align:left; padding:6px 8px;
+  border-bottom:1px solid var(--border);
+}
+.htab td { font-size:11px; padding:8px; border-bottom:1px solid rgba(0,0,0,.04); }
+.hdot { width:8px; height:8px; border-radius:50%; display:inline-block; margin-right:4px; }
+.thr-row {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:7px 10px; background:#fff;
+  border:1px solid var(--border); border-radius:6px; margin-bottom:5px;
+}
+.thr-m { font-size:11px; font-weight:600; }
+.thr-v { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--blue); }
+
+.add-btn {
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  width:100%; padding:10px;
+  background:rgba(0,83,159,.06);
+  border:1.5px dashed rgba(0,83,159,.3);
+  border-radius:8px; font-size:12px; font-weight:600;
+  color:var(--blue); cursor:pointer; transition:all .2s; margin-top:4px;
+  font-family:'Inter',sans-serif;
+}
+.add-btn:hover { background:rgba(0,83,159,.1); }
+</style>
+</head>
+<body>
+<div class="hdr">Tesco Technology · <span>WalletBridge</span> · Payment Method Integration Platform · Interactive Prototype</div>
+
+<div class="outer">
+  <div class="bf">
+    <div class="mac-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+    </div>
+    <div class="url-area">
+      <div class="url-inner">
+        <span class="lock">🔒</span>
+        <span>walletbridge.tesco.internal</span>
+        <span id="url-bar" class="upath">/ methods / library</span>
+      </div>
+    </div>
+    <div class="nav-tabs">
+      <div class="nt active" id="d1" onclick="go(1)">Method Library</div>
+      <div class="nt" id="d2" onclick="go(2)">Integration Wizard</div>
+      <div class="nt" id="d3" onclick="go(3)">Sandbox</div>
+      <div class="nt" id="d4" onclick="go(4)">Health Dashboard</div>
+    </div>
+    <div class="sa">
+
+      <!-- S1: METHOD LIBRARY -->
+      <div class="screen active" id="s1">
+        <div class="sh">
+          <div>
+            <div class="sh-title">Payment Method Library</div>
+            <div class="sh-sub">Manage active methods · onboard new integrations</div>
+          </div>
+          <button class="btn btn-p btn-sm" onclick="go(2)">＋ Add Method</button>
+        </div>
+        <div class="sc">
+          <div class="stat-bar">
+            <div class="scc"><div class="sv">5</div><div class="sl2">Active Methods</div></div>
+            <div class="scc"><div class="sv" style="color:var(--gold)">1</div><div class="sl2">Pending</div></div>
+            <div class="scc"><div class="sv" style="color:var(--muted)">2</div><div class="sl2">Available</div></div>
+            <div class="scc"><div class="sv">98.7%</div><div class="sl2">Avg Auth Rate</div></div>
+          </div>
+
+          <div class="sec-label">Active Methods</div>
+          <div class="method-grid">
+            <div class="mc">
+              <div class="mc-top">
+                <div class="mc-name">💳 Visa / Mastercard</div>
+                <span class="badge b-active">Active</span>
+              </div>
+              <div class="mc-stats">
+                <div class="mcs"><div class="msv">99.1%</div><div class="msl">Auth Rate</div></div>
+                <div class="mcs"><div class="msv">118ms</div><div class="msl">p95 Latency</div></div>
+              </div>
+            </div>
+            <div class="mc">
+              <div class="mc-top">
+                <div class="mc-name">🍎 Apple Pay</div>
+                <span class="badge b-active">Active</span>
+              </div>
+              <div class="mc-stats">
+                <div class="mcs"><div class="msv">98.9%</div><div class="msl">Auth Rate</div></div>
+                <div class="mcs"><div class="msv">92ms</div><div class="msl">p95 Latency</div></div>
+              </div>
+            </div>
+            <div class="mc">
+              <div class="mc-top">
+                <div class="mc-name">🤖 Google Pay</div>
+                <span class="badge b-active">Active</span>
+              </div>
+              <div class="mc-stats">
+                <div class="mcs"><div class="msv">98.4%</div><div class="msl">Auth Rate</div></div>
+                <div class="mcs"><div class="msv">101ms</div><div class="msl">p95 Latency</div></div>
+              </div>
+            </div>
+            <div class="mc">
+              <div class="mc-top">
+                <div class="mc-name">🅿️ PayPal</div>
+                <span class="badge b-active">Active</span>
+              </div>
+              <div class="mc-stats">
+                <div class="mcs"><div class="msv">97.8%</div><div class="msl">Auth Rate</div></div>
+                <div class="mcs"><div class="msv">204ms</div><div class="msl">p95 Latency</div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="sec-label" style="color:var(--gold)">Pending Integration</div>
+          <div class="mc pending" onclick="go(2)" style="margin-bottom:12px;">
+            <div class="mc-top">
+              <div class="mc-name">📦 Klarna BNPL</div>
+              <span class="badge b-pending">⚡ Continue Setup →</span>
+            </div>
+            <div class="pb-wrap">
+              <div class="pb-lbl"><span>Integration Progress</span><span>Step 3 of 4</span></div>
+              <div class="pb-track"><div class="pb-fill" style="width:60%"></div></div>
+            </div>
+          </div>
+
+          <div class="sec-label">Available to Add</div>
+          <div class="method-grid" style="opacity:.7">
+            <div class="mc">
+              <div class="mc-top">
+                <div class="mc-name">✂️ Clearpay</div>
+                <span class="badge b-avail">Available</span>
+              </div>
+              <div style="font-size:10px;color:var(--muted)">BNPL · ~2-day integration</div>
+            </div>
+            <div class="mc">
+              <div class="mc-top">
+                <div class="mc-name">💜 Revolut Pay</div>
+                <span class="badge b-avail">Available</span>
+              </div>
+              <div style="font-size:10px;color:var(--muted)">Digital wallet · ~2-day integration</div>
+            </div>
+          </div>
+          <button class="add-btn" onclick="go(2)">＋ Add New Payment Method</button>
+        </div>
+      </div>
+
+      <!-- S2: INTEGRATION WIZARD -->
+      <div class="screen" id="s2">
+        <div class="sh">
+          <div>
+            <div class="sh-title">Integration Wizard — Klarna BNPL</div>
+            <div class="sh-sub">Step 3 of 4: Sandbox Testing</div>
+          </div>
+          <span class="badge b-pending">In Progress</span>
+        </div>
+        <div class="wz-bar">
+          <div class="wz-step wz-done"><div class="wz-num">✓</div><div class="wz-lbl">API Credentials</div></div>
+          <div class="wz-div"></div>
+          <div class="wz-step wz-done"><div class="wz-num">✓</div><div class="wz-lbl">Webhook Config</div></div>
+          <div class="wz-div"></div>
+          <div class="wz-step wz-act"><div class="wz-num">3</div><div class="wz-lbl">Sandbox Tests</div></div>
+          <div class="wz-div"></div>
+          <div class="wz-step wz-todo"><div class="wz-num">4</div><div class="wz-lbl">Go-Live Review</div></div>
+        </div>
+        <div class="sc">
+          <div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:6px;padding:8px 12px;margin-bottom:12px;font-size:11px;color:#1D4ED8;">
+            ✓ <strong>2 of 5 required scenarios passed.</strong> Complete all 5 to unlock Go-Live Review.
+          </div>
+          <div class="sec-label">Required Test Scenarios</div>
+          <div class="test-row">
+            <div><div class="test-name">Auth Approved</div><div class="test-sub">Standard successful transaction flow</div></div>
+            <span class="res res-p">✓ PASS</span>
+          </div>
+          <div class="test-row">
+            <div><div class="test-name">Soft Decline</div><div class="test-sub">Insufficient funds — retry eligible</div></div>
+            <span class="res res-p">✓ PASS</span>
+          </div>
+          <div class="test-row">
+            <div><div class="test-name">Hard Decline</div><div class="test-sub">Card blocked — no retry path</div></div>
+            <span class="res res-n" id="hard-res">Pending</span>
+          </div>
+          <div class="test-row">
+            <div><div class="test-name">Network Timeout</div><div class="test-sub">PSP non-response simulation</div></div>
+            <span class="res res-n" id="timeout-res">Pending</span>
+          </div>
+          <div class="test-row">
+            <div><div class="test-name">Refund Flow</div><div class="test-sub">Full and partial refund scenarios</div></div>
+            <span class="res res-n" id="refund-res">Pending</span>
+          </div>
+
+          <div style="display:flex;gap:8px;margin-top:12px;">
+            <button class="btn btn-p btn-sm" onclick="runWizTest()">▶ Run Hard Decline Test</button>
+            <button class="btn btn-o btn-sm" onclick="go(3)">Open Full Sandbox →</button>
+          </div>
+          <div id="wiz-out" style="display:none;margin-top:8px;background:#F0FDF4;border:1px solid #BBF7D0;border-radius:6px;padding:8px 12px;font-size:11px;color:#166534;">
+            ✓ Hard decline returned <code style="background:rgba(0,0,0,.06);padding:1px 4px;border-radius:3px;">decline_code: DO_NOT_RETRY</code> as expected. Test passed.
+          </div>
+          <div style="background:#FEF3C7;border:1px solid #FDE68A;border-radius:6px;padding:8px 12px;margin-top:10px;font-size:11px;color:#92400E;">
+            ⏳ <strong>2 more scenarios required</strong> before Go-Live Review unlocks — Network Timeout and Refund Flow.
+          </div>
+        </div>
+      </div>
+
+      <!-- S3: SANDBOX -->
+      <div class="screen" id="s3">
+        <div class="sh">
+          <div>
+            <div class="sh-title">Sandbox Environment</div>
+            <div class="sh-sub">Test any method × scenario combination before production</div>
+          </div>
+          <span style="font-size:10px;background:rgba(255,255,255,.1);color:rgba(255,255,255,.7);padding:3px 8px;border-radius:4px;font-weight:700;">SANDBOX</span>
+        </div>
+        <div class="sc">
+          <div class="sb-ctrl">
+            <div class="ctrl-lbl">Payment Method</div>
+            <div class="scen-grid">
+              <div class="sbtn active" id="m-klarna" onclick="selMethod('klarna',this)">Klarna BNPL</div>
+              <div class="sbtn" id="m-visa"   onclick="selMethod('visa',this)">Visa/MC</div>
+              <div class="sbtn" id="m-paypal" onclick="selMethod('paypal',this)">PayPal</div>
+              <div class="sbtn" id="m-apple"  onclick="selMethod('apple',this)">Apple Pay</div>
+            </div>
+            <div class="ctrl-lbl">Scenario</div>
+            <div class="scen-grid" style="margin-bottom:10px;">
+              <div class="sbtn active" id="sc-approved" onclick="selScen('approved',this)">Auth Approved</div>
+              <div class="sbtn" id="sc-soft"    onclick="selScen('soft',this)">Soft Decline</div>
+              <div class="sbtn" id="sc-hard"    onclick="selScen('hard',this)">Hard Decline</div>
+              <div class="sbtn" id="sc-timeout" onclick="selScen('timeout',this)">Timeout</div>
+              <div class="sbtn" id="sc-refund"  onclick="selScen('refund',this)">Refund</div>
+            </div>
+            <div style="display:flex;align-items:flex-end;gap:10px;">
+              <div style="flex:1;">
+                <div class="ctrl-lbl">Amount (£)</div>
+                <input id="sb-amt" type="text" value="185.00" style="width:100%;padding:6px 10px;border:1px solid var(--border);border-radius:5px;font-size:12px;font-family:'JetBrains Mono',monospace;">
+              </div>
+              <button class="btn btn-p btn-sm" onclick="runSandbox()">▶ Run Test</button>
+            </div>
+          </div>
+
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+            <div class="sec-label" style="margin:0;">Transaction Log</div>
+            <span id="tx-count" style="font-size:10px;color:var(--muted);">12 tests run</span>
+          </div>
+          <div class="tx-log" id="tx-log">
+            <div class="tx-row"><span class="tx-t">14:31:02</span><span class="tx-m">Klarna</span><span class="tx-s">Auth Approved · £220.00</span><span class="tx-pass">PASS</span></div>
+            <div class="tx-row"><span class="tx-t">14:29:44</span><span class="tx-m">Klarna</span><span class="tx-s">Soft Decline · £185.00</span><span class="tx-pass">PASS</span></div>
+            <div class="tx-row"><span class="tx-t">14:28:11</span><span class="tx-m">Visa</span><span class="tx-s">Auth Approved · £45.00</span><span class="tx-pass">PASS</span></div>
+            <div class="tx-row"><span class="tx-t">14:25:30</span><span class="tx-m">PayPal</span><span class="tx-s">Auth Approved · £98.50</span><span class="tx-pass">PASS</span></div>
+            <div class="tx-row"><span class="tx-t">14:22:18</span><span class="tx-m">Klarna</span><span class="tx-s">Hard Decline · £185.00</span><span class="tx-fail">FAIL (expected)</span></div>
+            <div class="tx-row"><span class="tx-t">14:19:05</span><span class="tx-m">Apple Pay</span><span class="tx-s">Auth Approved · £67.25</span><span class="tx-pass">PASS</span></div>
+          </div>
+          <div style="background:#F0FDF4;border-radius:6px;padding:7px 12px;margin-top:8px;display:flex;justify-content:space-between;font-size:11px;">
+            <span style="color:var(--green);font-weight:600;">✓ 10 passed</span>
+            <span style="color:var(--red);font-weight:600;">✗ 2 expected failures</span>
+            <span style="color:var(--muted);">0 unexpected errors</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- S4: HEALTH DASHBOARD -->
+      <div class="screen" id="s4">
+        <div class="sh">
+          <div>
+            <div class="sh-title">Integration Health Dashboard</div>
+            <div class="sh-sub">Live monitoring — all active payment methods</div>
+          </div>
+          <span style="font-size:9px;background:rgba(22,163,74,.2);color:#4ADE80;padding:3px 8px;border-radius:4px;font-weight:700;">● LIVE</span>
+        </div>
+        <div class="sc">
+          <div class="stat-bar">
+            <div class="scc"><div class="sv">5</div><div class="sl2">Methods Live</div></div>
+            <div class="scc"><div class="sv">98.7%</div><div class="sl2">Avg Auth Rate</div></div>
+            <div class="scc"><div class="sv">131ms</div><div class="sl2">Avg p95 Latency</div></div>
+            <div class="scc"><div class="sv" style="color:var(--green)">0</div><div class="sl2">Active Alerts</div></div>
+          </div>
+
+          <div class="sec-label">Method Health — Last 60 Minutes</div>
+          <table class="htab">
+            <thead>
+              <tr>
+                <th>Method</th><th>Auth Rate</th><th>p95 Latency</th><th>Vol/hr</th><th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="hdot" style="background:var(--green)"></span>💳 Visa/MC</td>
+                <td style="font-weight:700;color:var(--green)">99.1%</td>
+                <td>118ms</td><td>8,420</td>
+                <td><span class="badge b-active">Healthy</span></td>
+              </tr>
+              <tr>
+                <td><span class="hdot" style="background:var(--green)"></span>🍎 Apple Pay</td>
+                <td style="font-weight:700;color:var(--green)">98.9%</td>
+                <td>92ms</td><td>2,180</td>
+                <td><span class="badge b-active">Healthy</span></td>
+              </tr>
+              <tr>
+                <td><span class="hdot" style="background:var(--green)"></span>🤖 Google Pay</td>
+                <td style="font-weight:700;color:var(--green)">98.4%</td>
+                <td>101ms</td><td>1,640</td>
+                <td><span class="badge b-active">Healthy</span></td>
+              </tr>
+              <tr>
+                <td><span class="hdot" style="background:var(--green)"></span>🅿️ PayPal</td>
+                <td style="font-weight:700;color:var(--green)">97.8%</td>
+                <td>204ms</td><td>592</td>
+                <td><span class="badge b-active">Healthy</span></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="sec-label" style="margin-top:14px;">Alert Thresholds — Per Method</div>
+          <div class="thr-row">
+            <div><div class="thr-m">💳 Visa / Mastercard</div><div style="font-size:9px;color:var(--muted)">Alert below</div></div>
+            <span class="thr-v">97.0%</span>
+          </div>
+          <div class="thr-row">
+            <div><div class="thr-m">🍎 Apple Pay / 🤖 Google Pay</div><div style="font-size:9px;color:var(--muted)">Alert below</div></div>
+            <span class="thr-v">96.5%</span>
+          </div>
+          <div class="thr-row">
+            <div><div class="thr-m">🅿️ PayPal</div><div style="font-size:9px;color:var(--muted)">Alert below</div></div>
+            <span class="thr-v">95.0%</span>
+          </div>
+          <div class="thr-row" style="border-color:var(--gold);">
+            <div><div class="thr-m" style="color:var(--gold)">📦 Klarna BNPL</div><div style="font-size:9px;color:var(--muted)">Will auto-configure on go-live</div></div>
+            <span class="thr-v" style="color:var(--gold)">Pending</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ANNOTATION PANEL -->
+  <div class="ap">
+    <div class="sl-label" id="screen-label">01 — METHOD LIBRARY</div>
+    <div id="anno-cards"></div>
+  </div>
+</div>
+
+<script>
+const LABELS = {
+  1:'01 — METHOD LIBRARY',
+  2:'02 — INTEGRATION WIZARD',
+  3:'03 — SANDBOX',
+  4:'04 — HEALTH DASHBOARD'
+};
+const URLS = {
+  1:'/ methods / library',
+  2:'/ methods / klarna / wizard',
+  3:'/ sandbox',
+  4:'/ health / dashboard'
+};
+const ANNO = {
+  1:[
+    {n:'INSIGHT 01',t:'Payment Method Sprawl',b:'Each of Tesco\'s 5 active payment methods was integrated separately over 3+ years. Ops monitored each via separate PSP portals — no consolidated health view existed.',metric:{v:'5 portals',l:'replaced by one WalletBridge console'}},
+    {n:'INSIGHT 02',t:'BNPL Pending = Stalled GMV',b:'BNPL at £150+ cart value converts 23% better than card-only checkout. Klarna has been "in integration" for 4 months due to an engineering sprint queue — WalletBridge eliminates the wait.',metric:{v:'23%',l:'BNPL conversion lift vs card-only at £150+'}},
+    {n:'PM RATIONALE',t:'Library as Single Source of Truth',b:'The method library gives ops, product, and finance a live status of every payment method — active, pending, or available. One surface replaces 5 separate PSP logins and a spreadsheet.',metric:{v:'−75%',l:'time to detect new method health issues'}},
+  ],
+  2:[
+    {n:'INSIGHT 01',t:'Wizard Replaces Engineering Sprint',b:'Today, onboarding Klarna requires a dedicated sprint: API auth, webhook handler, error mapping, settlement schema. The wizard abstracts all of this into guided config steps — no engineering required.',metric:{v:'42 days',l:'→ 10 days with WalletBridge wizard'}},
+    {n:'INSIGHT 02',t:'5-Scenario Gate Before Go-Live',b:'The wizard gates production access on passing all 5 core test scenarios: approved, soft decline, hard decline, timeout, and refund. These cover 97% of real-world transaction outcomes.',metric:{v:'0',l:'production regressions from new method launches'}},
+    {n:'DESIGN DECISION',t:'Step-Locked Progression',b:'Each wizard step is gated — credentials must validate before webhooks can be configured, and webhooks must fire before sandbox unlocks. Mirrors Tesco\'s release gate discipline and prevents partial integrations.',metric:{v:'4 gates',l:'before any method reaches production access'}},
+  ],
+  3:[
+    {n:'INSIGHT 01',t:'Production API in Test Mode',b:'The sandbox uses real production API credentials in test mode — not a stub. This catches integration errors that stub-based testing misses, particularly around webhook delivery timing and error code mapping.',metric:{v:'97%',l:'real-world outcomes covered by 5 scenarios'}},
+    {n:'INSIGHT 02',t:'Any PM Can Run Cross-Method Tests',b:'Cross-method regression tests before a platform upgrade — which previously required engineering — can now be run by any PM or analyst in under 5 minutes. Test all 4 active methods in one session.',metric:{v:'<60s',l:'per test scenario execution time'}},
+    {n:'PM RATIONALE',t:'Log as Compliance Audit Trail',b:'Every sandbox test is logged with timestamp, method, scenario, result, and response payload. This becomes the integration audit trail required for security review and go-live approval sign-off.',metric:{v:'100%',l:'tests logged for compliance audit'}},
+  ],
+  4:[
+    {n:'INSIGHT 01',t:'Method-Level vs Aggregate Monitoring',b:'Tesco previously monitored aggregate PSP success rates — not per-method. A Klarna-specific degradation is invisible until aggregate rates visibly dip, typically 40+ minutes after onset.',metric:{v:'−40 min',l:'detection lag eliminated by per-method monitoring'}},
+    {n:'INSIGHT 02',t:'Per-Method Alert Thresholds',b:'Digital wallets tolerate lower latency thresholds than card. BNPL has different auth patterns. Per-method alert config means fewer false positives and faster detection of true failures.',metric:{v:'−60%',l:'false positive alerts vs global single threshold'}},
+    {n:'PM RATIONALE',t:'Health Dashboard = Platform ROI Proof',b:'Every new method added via WalletBridge shows up as a monitored line with its own success rate. The dashboard makes the value of the platform self-evident — and becomes the ongoing SLA reporting surface.',metric:{v:'99.2%',l:'target SLA per active payment method'}},
+  ]
+};
+
+let curMethod='klarna', curScen='approved', txCount=12;
+
+function go(n){
+  [1,2,3,4].forEach(i=>{
+    document.getElementById('s'+i).classList.remove('active');
+    const d=document.getElementById('d'+i); if(d) d.classList.remove('active');
+  });
+  document.getElementById('s'+n).classList.add('active');
+  const dn=document.getElementById('d'+n); if(dn) dn.classList.add('active');
+  document.getElementById('screen-label').textContent=LABELS[n];
+  document.getElementById('url-bar').textContent=URLS[n];
+  renderAnno(n);
+}
+
+function renderAnno(n){
+  const container=document.getElementById('anno-cards');
+  container.innerHTML='';
+  ANNO[n].forEach(c=>{
+    const div=document.createElement('div');
+    div.className='ac';
+    div.innerHTML=`<div class="ac-n">${c.n}</div><div class="ac-t">${c.t}</div><div class="ac-b">${c.b}</div>`+
+      (c.metric?`<div class="am"><span class="am-v">${c.metric.v}</span><span class="am-l">${c.metric.l}</span></div>`:'');
+    container.appendChild(div);
+  });
+}
+
+function runWizTest(){
+  document.getElementById('hard-res').className='res res-p';
+  document.getElementById('hard-res').textContent='✓ PASS';
+  document.getElementById('wiz-out').style.display='block';
+}
+
+function selMethod(m,el){
+  document.querySelectorAll('[id^="m-"]').forEach(e=>e.classList.remove('active'));
+  el.classList.add('active'); curMethod=m;
+}
+function selScen(s,el){
+  document.querySelectorAll('[id^="sc-"]').forEach(e=>e.classList.remove('active'));
+  el.classList.add('active'); curScen=s;
+}
+function runSandbox(){
+  const amt=document.getElementById('sb-amt').value||'100.00';
+  const mName={klarna:'Klarna',visa:'Visa/MC',paypal:'PayPal',apple:'Apple Pay'}[curMethod]||curMethod;
+  const sName={approved:'Auth Approved',soft:'Soft Decline',hard:'Hard Decline',timeout:'Network Timeout',refund:'Refund'}[curScen]||curScen;
+  const isPass=curScen==='approved'||curScen==='refund'||curScen==='soft';
+  const now=new Date(); const t=now.toTimeString().slice(0,8);
+  txCount++;
+  document.getElementById('tx-count').textContent=txCount+' tests run';
+  const log=document.getElementById('tx-log');
+  const row=document.createElement('div'); row.className='tx-row';
+  row.innerHTML=`<span class="tx-t">${t}</span><span class="tx-m">${mName}</span><span class="tx-s">${sName} · £${amt}</span><span class="${isPass?'tx-pass':'tx-fail'}">${isPass?'PASS':'FAIL (expected)'}</span>`;
+  log.insertBefore(row,log.firstChild);
+}
+
+renderAnno(1);
+</script>
+</body>
+</html>
