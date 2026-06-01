@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>MealMatch — HealthifyMe · Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --dark:   #1A0A00;
+  --hero:   #2A1500;
+  --orange: #FF7043;
+  --orange2:#FF8A65;
+  --teal:   #00BCD4;
+  --green:  #4CAF50;
+  --gold:   #FFB300;
+  --white:  #FFFFFF;
+  --lgray:  #FFF8F5;
+  --muted:  #8A6A5A;
+  --border: #FFE0B2;
+  --ink:    #1A0A00;
+  --surface:#FFFCFA;
+  --frame:  #1E2433;
+  --oranl:  #FBE9E7;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  font-family:'Inter',sans-serif;background:#0D1117;
+  min-height:100vh;display:flex;align-items:flex-start;justify-content:center;
+  padding:36px 24px 40px;
+}
+.hdr{
+  position:fixed;top:0;left:0;right:0;background:var(--dark);
+  color:rgba(255,255,255,.45);font-size:9.5px;font-weight:600;
+  letter-spacing:.1em;text-transform:uppercase;text-align:center;padding:6px;z-index:100;
+}
+.hdr span{color:var(--orange);}
+.outer{display:flex;align-items:flex-start;gap:0;margin-top:26px;}
+
+/* PHONE FRAME */
+.phone{width:375px;flex-shrink:0;background:var(--frame);border-radius:46px;overflow:hidden;box-shadow:0 40px 100px rgba(0,0,0,.55);}
+.notch{width:118px;height:28px;background:var(--dark);margin:0 auto;border-radius:0 0 16px 16px;display:flex;align-items:center;justify-content:center;gap:6px;position:relative;z-index:2;}
+.nc{width:10px;height:10px;border-radius:50%;background:#1a1a2e;}
+.ndot{width:5px;height:5px;border-radius:50%;background:#2a2a3e;}
+.status{background:var(--dark);display:flex;justify-content:space-between;align-items:center;padding:4px 18px 6px;font-size:11px;color:rgba(255,255,255,.6);font-weight:600;}
+.screen-wrap{height:724px;overflow-y:auto;scrollbar-width:none;background:var(--surface);}
+.screen-wrap::-webkit-scrollbar{display:none;}
+.screen{display:none;}.screen.active{display:block;}
+.dots-bar{background:var(--dark);display:flex;justify-content:center;gap:6px;padding:10px 0 14px;}
+.dot-nav{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.2);cursor:pointer;transition:all .2s;}
+.dot-nav.active{background:var(--orange);width:18px;border-radius:4px;}
+
+/* ANNOTATION PANEL */
+.ap{width:300px;background:var(--dark);border-radius:0 12px 12px 0;padding:20px 18px;box-shadow:0 32px 80px rgba(0,0,0,.55);min-height:800px;}
+.sl-label{font-size:9px;font-weight:700;color:var(--orange);letter-spacing:.12em;text-transform:uppercase;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.08);}
+.ac{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:12px;margin-bottom:10px;}
+.ac-n{font-size:8px;font-weight:700;color:var(--orange);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;}
+.ac-t{font-size:12px;font-weight:700;color:#fff;margin-bottom:5px;}
+.ac-b{font-size:11px;color:var(--muted);line-height:1.5;}
+.am{background:rgba(255,112,67,.12);border:1px solid rgba(255,112,67,.25);border-radius:6px;padding:8px 10px;margin-top:8px;display:flex;align-items:baseline;gap:6px;}
+.am-v{font-size:18px;font-weight:800;color:var(--orange);}
+.am-l{font-size:10px;color:var(--muted);line-height:1.3;}
+
+/* SHARED */
+.app-header{background:var(--dark);color:#fff;padding:12px 18px 10px;display:flex;align-items:center;justify-content:space-between;}
+.ah-title{font-size:15px;font-weight:700;}
+.ah-sub{font-size:10px;color:rgba(255,255,255,.5);}
+.avatar{width:32px;height:32px;border-radius:50%;background:var(--orange);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:var(--dark);}
+
+.sec-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:12px 16px 6px;}
+.badge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:99px;text-transform:uppercase;}
+.b-orange{background:var(--oranl);color:var(--orange);}
+.b-green{background:#E8F5E9;color:var(--green);}
+.b-teal{background:#E0F7FA;color:var(--teal);}
+.b-gold{background:#FFF8E1;color:#E65100;}
+
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:none;transition:all .2s;font-family:'Inter',sans-serif;}
+.btn-o{background:var(--orange);color:#fff;}
+.btn-o:hover{background:var(--orange2);}
+.btn-t{background:var(--teal);color:#fff;}
+.btn-out{background:transparent;color:var(--orange);border:1px solid var(--orange);}
+.btn-sm{padding:5px 12px;font-size:11px;}
+
+/* MACROS BAR */
+.macro-bar{background:var(--dark);padding:10px 16px;}
+.mb-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.mb-label{font-size:11px;color:rgba(255,255,255,.6);}
+.mb-val{font-size:13px;font-weight:700;color:#fff;}
+.mb-track{height:6px;background:rgba(255,255,255,.12);border-radius:99px;overflow:hidden;margin-bottom:8px;}
+.mb-fill{height:100%;border-radius:99px;background:var(--orange);}
+.macro-chips{display:flex;gap:6px;}
+.mc{background:rgba(255,255,255,.08);border-radius:6px;padding:4px 8px;text-align:center;}
+.mc-v{font-size:11px;font-weight:700;color:#fff;}
+.mc-l{font-size:9px;color:rgba(255,255,255,.4);}
+
+/* MEAL CARDS */
+.meal-card{
+  background:#fff;border:1px solid var(--border);
+  border-radius:12px;margin:0 14px 10px;
+  padding:12px;cursor:pointer;transition:all .2s;
+  display:flex;align-items:center;gap:10px;
+}
+.meal-card:hover{box-shadow:0 4px 12px rgba(255,112,67,.15);border-color:var(--orange);}
+.meal-emoji{font-size:28px;width:44px;text-align:center;flex-shrink:0;}
+.meal-body{flex:1;}
+.meal-name{font-size:12px;font-weight:700;color:var(--ink);margin-bottom:2px;}
+.meal-cal{font-size:10px;color:var(--orange);font-weight:600;}
+.meal-tags{display:flex;gap:4px;margin-top:4px;}
+.meal-tag{font-size:9px;padding:1px 6px;border-radius:99px;background:var(--lgray);color:var(--muted);border:1px solid var(--border);}
+.meal-arrow{color:var(--orange);font-size:14px;font-weight:700;}
+
+/* MEAL DETAIL */
+.detail-hero{
+  background:linear-gradient(180deg,var(--dark) 0%,var(--hero) 100%);
+  padding:16px 18px 14px;color:#fff;
+}
+.dh-emoji{font-size:48px;text-align:center;display:block;margin-bottom:8px;}
+.dh-name{font-size:18px;font-weight:800;text-align:center;margin-bottom:4px;}
+.dh-cal{font-size:14px;color:var(--orange);text-align:center;font-weight:700;}
+
+.macro-grid{display:flex;gap:8px;margin:12px 16px;}
+.macro-chip{flex:1;background:#fff;border:1px solid var(--border);border-radius:8px;padding:8px;text-align:center;}
+.mch-v{font-size:14px;font-weight:800;color:var(--ink);}
+.mch-l{font-size:9px;color:var(--muted);margin-top:2px;}
+
+.why-box{
+  background:linear-gradient(135deg,#1A0A00,#2A1500);
+  border:1px solid rgba(255,112,67,.2);border-radius:10px;
+  margin:0 14px 10px;padding:12px;
+}
+.why-title{font-size:10px;font-weight:700;color:var(--orange);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;}
+.why-row{display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:11px;color:rgba(255,255,255,.7);}
+.why-row:last-child{margin-bottom:0;}
+.why-dot{width:6px;height:6px;border-radius:50%;background:var(--orange);flex-shrink:0;}
+
+.log-btn-wrap{padding:0 14px 16px;}
+.log-btn{
+  display:block;width:100%;padding:14px;
+  background:var(--orange);border:none;border-radius:12px;
+  font-size:14px;font-weight:800;color:#fff;
+  cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif;
+}
+.log-btn.done{background:var(--green);}
+
+/* WEEKLY VIEW */
+.week-header{background:var(--dark);padding:12px 16px;color:#fff;}
+.wh-title{font-size:15px;font-weight:700;}
+.wh-sub{font-size:10px;color:rgba(255,255,255,.5);margin-top:2px;}
+
+.adherence-ring{
+  margin:12px auto;width:90px;height:90px;
+  position:relative;display:flex;align-items:center;justify-content:center;
+}
+.adherence-ring svg{position:absolute;top:0;left:0;width:90px;height:90px;transform:rotate(-90deg);}
+.ar-val{font-size:22px;font-weight:800;color:var(--orange);text-align:center;}
+.ar-sub{font-size:9px;color:var(--muted);text-align:center;}
+
+.day-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 16px;border-bottom:1px solid var(--border);
+}
+.day-label{font-size:11px;font-weight:600;color:var(--ink);min-width:40px;}
+.day-meals{display:flex;gap:4px;}
+.meal-dot{width:8px;height:8px;border-radius:50%;}
+.md-logged{background:var(--orange);}
+.md-planned{background:var(--border);}
+.day-cal{font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;}
+
+/* ANALYTICS */
+.anl-content{padding:12px 16px;}
+.kpi-row{display:flex;gap:8px;margin-bottom:14px;}
+.kpi{flex:1;background:#fff;border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center;}
+.kv{font-size:16px;font-weight:800;color:var(--orange);}
+.kl{font-size:9px;color:var(--muted);margin-top:2px;}
+
+.anl-bar{background:#fff;border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:6px;display:flex;align-items:center;gap:10px;}
+.ab-label{font-size:11px;font-weight:600;min-width:120px;color:var(--ink);}
+.ab-track{flex:1;height:8px;background:var(--oranl);border-radius:99px;overflow:hidden;}
+.ab-fill{height:100%;border-radius:99px;}
+.ab-val{font-size:12px;font-weight:800;min-width:34px;text-align:right;}
+</style>
+</head>
+<body>
+<div class="hdr">HealthifyMe · <span>MealMatch</span> · Regional AI Meal Recommendation · Interactive Prototype</div>
+
+<div class="outer">
+  <div style="position:relative;">
+    <div class="phone">
+      <div style="background:var(--dark);">
+        <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+        <div class="status"><span>9:41</span><span>●●● 100%</span></div>
+      </div>
+      <div class="screen-wrap" id="sw">
+
+        <!-- S1: MEAL PLAN HOME -->
+        <div class="screen active" id="s1">
+          <div class="app-header">
+            <div>
+              <div class="ah-title">Today's Meals · Mon, Jun 1</div>
+              <div class="ah-sub">📍 Bangalore · South Indian preferences</div>
+            </div>
+            <div class="avatar">P</div>
+          </div>
+
+          <div class="macro-bar">
+            <div class="mb-row">
+              <span class="mb-label">Calories consumed</span>
+              <span class="mb-val">1,240 / 1,850 kcal</span>
+            </div>
+            <div class="mb-track"><div class="mb-fill" style="width:67%"></div></div>
+            <div class="macro-chips">
+              <div class="mc"><div class="mc-v">62g</div><div class="mc-l">Protein</div></div>
+              <div class="mc"><div class="mc-v">148g</div><div class="mc-l">Carbs</div></div>
+              <div class="mc"><div class="mc-v">34g</div><div class="mc-l">Fat</div></div>
+              <div class="mc"><div class="mc-v">610</div><div class="mc-l">Remaining</div></div>
+            </div>
+          </div>
+
+          <div class="sec-label">🤖 MealMatch — Suggested for Dinner</div>
+          <div style="margin:0 14px 8px;padding:8px 10px;background:linear-gradient(135deg,#1A0A00,#2A1500);border-radius:8px;font-size:10px;color:rgba(255,255,255,.65);border:1px solid rgba(255,112,67,.2);">
+            Based on your <strong style="color:var(--orange)">South Indian preference</strong> · 610 cal budget · Weight-loss goal · Dinner time
+          </div>
+
+          <div class="meal-card" onclick="go(2)">
+            <div class="meal-emoji">🥞</div>
+            <div class="meal-body">
+              <div class="meal-name">Dosa with Sambar &amp; Chutney</div>
+              <div class="meal-cal">340 kcal · 14g protein</div>
+              <div class="meal-tags">
+                <span class="meal-tag">South Indian</span>
+                <span class="meal-tag">High Protein</span>
+                <span class="meal-tag">Goal Match</span>
+              </div>
+            </div>
+            <div class="meal-arrow">→</div>
+          </div>
+
+          <div class="meal-card" onclick="go(2)">
+            <div class="meal-emoji">🍲</div>
+            <div class="meal-body">
+              <div class="meal-name">Tomato Rasam + Steamed Rice</div>
+              <div class="meal-cal">280 kcal · 9g protein</div>
+              <div class="meal-tags">
+                <span class="meal-tag">South Indian</span>
+                <span class="meal-tag">Light</span>
+                <span class="meal-tag">Digestive</span>
+              </div>
+            </div>
+            <div class="meal-arrow">→</div>
+          </div>
+
+          <div class="meal-card" onclick="go(2)">
+            <div class="meal-emoji">🫕</div>
+            <div class="meal-body">
+              <div class="meal-name">Ragi Mudde with Dal</div>
+              <div class="meal-cal">420 kcal · 18g protein</div>
+              <div class="meal-tags">
+                <span class="meal-tag">South Indian</span>
+                <span class="meal-tag">High Fibre</span>
+                <span class="meal-tag">Power Meal</span>
+              </div>
+            </div>
+            <div class="meal-arrow">→</div>
+          </div>
+
+          <div style="margin:0 14px 14px;padding:8px 12px;background:#fff;border:1px solid var(--border);border-radius:8px;font-size:10px;color:var(--muted);">
+            💡 <strong>Why these?</strong> All 3 are under your 610 cal dinner budget, match your South Indian cuisine preference (logged 87% South Indian this month), and are high in protein for your weight-loss goal.
+          </div>
+        </div>
+
+        <!-- S2: MEAL DETAIL -->
+        <div class="screen" id="s2">
+          <div class="detail-hero">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+              <span class="back-btn" style="color:var(--orange);font-size:16px;cursor:pointer;" onclick="go(1)">←</span>
+              <span style="font-size:11px;color:rgba(255,255,255,.5);">Back to suggestions</span>
+            </div>
+            <span class="dh-emoji">🥞</span>
+            <div class="dh-name">Dosa with Sambar &amp; Chutney</div>
+            <div class="dh-cal">340 kcal · Dinner · South Indian</div>
+          </div>
+
+          <div class="macro-grid">
+            <div class="macro-chip"><div class="mch-v">340</div><div class="mch-l">Calories</div></div>
+            <div class="macro-chip"><div class="mch-v">14g</div><div class="mch-l">Protein</div></div>
+            <div class="macro-chip"><div class="mch-v">52g</div><div class="mch-l">Carbs</div></div>
+            <div class="macro-chip"><div class="mch-v">8g</div><div class="mch-l">Fat</div></div>
+          </div>
+
+          <div class="why-box">
+            <div class="why-title">Why MealMatch chose this</div>
+            <div class="why-row"><div class="why-dot"></div>340 cal fits your 610 cal dinner budget — leaves room for a snack</div>
+            <div class="why-row"><div class="why-dot"></div>South Indian — you've logged this cuisine 87% of the time this month</div>
+            <div class="why-row"><div class="why-dot"></div>14g protein supports your weight-loss goal (daily target: 90g · logged: 62g)</div>
+            <div class="why-row"><div class="why-dot"></div>Fermented dosa batter — high probiotic value for gut health</div>
+          </div>
+
+          <div style="margin:0 14px 10px;">
+            <div style="display:flex;gap:6px;margin-bottom:8px;">
+              <div id="tab-ing" style="padding:7px 14px;background:var(--orange);color:#fff;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;" onclick="showTab('ing')">Ingredients</div>
+              <div id="tab-rec" style="padding:7px 14px;background:#fff;border:1px solid var(--border);border-radius:6px;font-size:11px;font-weight:600;color:var(--muted);cursor:pointer;" onclick="showTab('rec')">Recipe</div>
+              <div id="tab-alt" style="padding:7px 14px;background:#fff;border:1px solid var(--border);border-radius:6px;font-size:11px;font-weight:600;color:var(--muted);cursor:pointer;" onclick="showTab('alt')">Alternatives</div>
+            </div>
+            <div id="ing-content" style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:11px;color:var(--ink);line-height:1.7;">
+              • Dosa batter (rice + urad dal) — 120g<br>
+              • Sambar (toor dal + mixed vegetables) — 150ml<br>
+              • Coconut chutney — 2 tbsp<br>
+              • Coconut oil for cooking — 1 tsp
+            </div>
+            <div id="rec-content" style="display:none;background:#fff;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:11px;color:var(--ink);line-height:1.7;">
+              1. Heat tawa, pour batter thin, cook 2 min each side<br>
+              2. Simmer sambar with tamarind + vegetables<br>
+              3. Blend coconut chutney with green chili<br>
+              Prep time: 20 min · Cook time: 15 min
+            </div>
+            <div id="alt-content" style="display:none;background:#fff;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:11px;color:var(--ink);line-height:1.7;">
+              • Idli with Sambar — 280 kcal (lighter option)<br>
+              • Pesarattu (moong dal dosa) — 310 kcal (higher protein)<br>
+              • Rava Dosa with Chutney — 320 kcal (crispier)
+            </div>
+          </div>
+
+          <div class="log-btn-wrap">
+            <button class="log-btn" id="log-btn" onclick="logMeal()">Log This Meal</button>
+          </div>
+        </div>
+
+        <!-- S3: WEEKLY ADHERENCE -->
+        <div class="screen" id="s3">
+          <div class="week-header">
+            <div class="wh-title">Weekly Adherence · Jun 1–7</div>
+            <div class="wh-sub">How well you followed your MealMatch plan</div>
+          </div>
+
+          <div style="text-align:center;padding:12px 16px 6px;">
+            <div class="adherence-ring">
+              <svg viewBox="0 0 90 90">
+                <circle cx="45" cy="45" r="38" fill="none" stroke="rgba(255,112,67,.15)" stroke-width="8"/>
+                <circle cx="45" cy="45" r="38" fill="none" stroke="var(--orange)" stroke-width="8" stroke-dasharray="238.8" stroke-dashoffset="43" stroke-linecap="round"/>
+              </svg>
+              <div>
+                <div class="ar-val">82%</div>
+                <div class="ar-sub">Adherence</div>
+              </div>
+            </div>
+            <div style="font-size:12px;color:var(--ink);font-weight:600;margin-bottom:4px;">You're on track! 5 of 6 days followed your plan.</div>
+            <div style="font-size:10px;color:var(--muted);">MealMatch users with ≥80% adherence lose weight 2.4× faster</div>
+          </div>
+
+          <div style="background:#fff;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:10px;">
+            <div class="day-row">
+              <div class="day-label">Mon</div>
+              <div class="day-meals"><div class="meal-dot md-logged"></div><div class="meal-dot md-logged"></div><div class="meal-dot md-logged"></div></div>
+              <div style="display:flex;align-items:center;gap:6px;"><span class="badge b-orange">On plan</span><div class="day-cal">1,820</div></div>
+            </div>
+            <div class="day-row">
+              <div class="day-label">Tue</div>
+              <div class="day-meals"><div class="meal-dot md-logged"></div><div class="meal-dot md-logged"></div><div class="meal-dot md-planned"></div></div>
+              <div style="display:flex;align-items:center;gap:6px;"><span class="badge b-gold">Partial</span><div class="day-cal">1,460</div></div>
+            </div>
+            <div class="day-row">
+              <div class="day-label">Wed</div>
+              <div class="day-meals"><div class="meal-dot md-logged"></div><div class="meal-dot md-logged"></div><div class="meal-dot md-logged"></div></div>
+              <div style="display:flex;align-items:center;gap:6px;"><span class="badge b-orange">On plan</span><div class="day-cal">1,890</div></div>
+            </div>
+            <div class="day-row">
+              <div class="day-label">Thu</div>
+              <div class="day-meals"><div class="meal-dot md-logged"></div><div class="meal-dot md-logged"></div><div class="meal-dot md-logged"></div></div>
+              <div style="display:flex;align-items:center;gap:6px;"><span class="badge b-orange">On plan</span><div class="day-cal">1,780</div></div>
+            </div>
+            <div class="day-row">
+              <div class="day-label">Fri</div>
+              <div class="day-meals"><div class="meal-dot md-logged"></div><div class="meal-dot md-logged"></div><div class="meal-dot md-logged"></div></div>
+              <div style="display:flex;align-items:center;gap:6px;"><span class="badge b-orange">On plan</span><div class="day-cal">1,840</div></div>
+            </div>
+            <div class="day-row">
+              <div class="day-label">Sat</div>
+              <div class="day-meals"><div class="meal-dot md-logged"></div><div class="meal-dot md-logged"></div><div class="meal-dot md-planned"></div></div>
+              <div style="display:flex;align-items:center;gap:6px;"><span class="badge b-gold">Partial</span><div class="day-cal">1,510</div></div>
+            </div>
+            <div class="day-row" style="border-bottom:none;">
+              <div class="day-label">Sun</div>
+              <div class="day-meals"><div class="meal-dot md-planned"></div><div class="meal-dot md-planned"></div><div class="meal-dot md-planned"></div></div>
+              <div style="display:flex;align-items:center;gap:6px;"><span class="badge b-teal">Today</span><div class="day-cal">—</div></div>
+            </div>
+          </div>
+
+          <div style="margin:0 14px 14px;padding:10px 12px;background:linear-gradient(135deg,#1A0A00,#2A1500);border:1px solid rgba(255,112,67,.2);border-radius:8px;">
+            <div style="font-size:11px;font-weight:700;color:var(--orange);margin-bottom:4px;">Week 3 of your 5kg goal</div>
+            <div style="font-size:10px;color:rgba(255,255,255,.65);line-height:1.5;">At 82% adherence you're tracking for −0.35kg this week. Keep Sunday on plan and you'll hit your best week yet.</div>
+          </div>
+        </div>
+
+        <!-- S4: RECOMMENDATION ANALYTICS (ops) -->
+        <div class="screen" id="s4">
+          <div class="app-header">
+            <div><div class="ah-title">MealMatch Analytics</div><div class="ah-sub">Recommendation acceptance · 30-day cohort</div></div>
+          </div>
+          <div class="anl-content">
+            <div class="kpi-row">
+              <div class="kpi"><div class="kv">61%</div><div class="kl">Avg Acceptance</div></div>
+              <div class="kpi"><div class="kv">+23pp</div><div class="kl">vs Generic Reco</div></div>
+              <div class="kpi"><div class="kv">2.4×</div><div class="kl">Weight Loss Rate</div></div>
+            </div>
+
+            <div class="sec-label" style="margin:0 0 8px;">Acceptance Rate by Cuisine Type</div>
+            <div class="anl-bar">
+              <div class="ab-label">South Indian</div>
+              <div class="ab-track"><div class="ab-fill" style="width:93%;background:var(--orange);"></div></div>
+              <div class="ab-val" style="color:var(--orange)">68%</div>
+            </div>
+            <div class="anl-bar">
+              <div class="ab-label">North Indian</div>
+              <div class="ab-track"><div class="ab-fill" style="width:62%;background:var(--gold);"></div></div>
+              <div class="ab-val" style="color:var(--gold)">45%</div>
+            </div>
+            <div class="anl-bar">
+              <div class="ab-label">Continental</div>
+              <div class="ab-track"><div class="ab-fill" style="width:43%;background:var(--teal);"></div></div>
+              <div class="ab-val" style="color:var(--teal)">31%</div>
+            </div>
+            <div class="anl-bar">
+              <div class="ab-label">Generic (no region)</div>
+              <div class="ab-track"><div class="ab-fill" style="width:53%;background:var(--muted);"></div></div>
+              <div class="ab-val" style="color:var(--muted)">38%</div>
+            </div>
+
+            <div class="sec-label" style="margin:14px 0 8px;">Acceptance Rate by Meal Time</div>
+            <div class="anl-bar">
+              <div class="ab-label">Dinner</div>
+              <div class="ab-track"><div class="ab-fill" style="width:85%;background:var(--orange);"></div></div>
+              <div class="ab-val" style="color:var(--orange)">62%</div>
+            </div>
+            <div class="anl-bar">
+              <div class="ab-label">Lunch</div>
+              <div class="ab-track"><div class="ab-fill" style="width:74%;background:var(--gold);"></div></div>
+              <div class="ab-val" style="color:var(--gold)">54%</div>
+            </div>
+            <div class="anl-bar">
+              <div class="ab-label">Breakfast</div>
+              <div class="ab-track"><div class="ab-fill" style="width:66%;background:var(--teal);"></div></div>
+              <div class="ab-val" style="color:var(--teal)">48%</div>
+            </div>
+            <div style="background:#FBE9E7;border:1px solid rgba(255,112,67,.3);border-radius:6px;padding:8px 12px;margin-top:6px;font-size:10px;color:#BF360C;">
+              💡 Regional personalisation (68%) outperforms generic recommendations (38%) by 30pp. Highest opportunity: expand regional tagging beyond South/North Indian to Bengali, Gujarati, Maharashtrian cuisines.
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="dots-bar">
+        <div class="dot-nav active" id="n1" onclick="go(1)"></div>
+        <div class="dot-nav" id="n2" onclick="go(2)"></div>
+        <div class="dot-nav" id="n3" onclick="go(3)"></div>
+        <div class="dot-nav" id="n4" onclick="go(4)"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ANNOTATION PANEL -->
+  <div class="ap">
+    <div class="sl-label" id="screen-label">01 — MEAL PLAN HOME</div>
+    <div id="anno-cards"></div>
+  </div>
+</div>
+
+<script>
+const LABELS={1:'01 — MEAL PLAN HOME',2:'02 — MEAL DETAIL',3:'03 — WEEKLY ADHERENCE',4:'04 — RECOMMENDATION ANALYTICS'};
+const ANNO={
+  1:[
+    {n:'INSIGHT 01',t:'Regional Personalisation Is HealthifyMe\'s Moat',b:'MyFitnessPal and Noom have no meaningful Indian food database. HealthifyMe\'s database of 10L+ Indian foods is the only moat no competitor can replicate quickly. MealMatch makes this moat customer-visible for the first time.',metric:{v:'87%',l:'of South Indian users\' logs are South Indian cuisine'}},
+    {n:'INSIGHT 02',t:'Context-Aware = Calorie Budget + Cuisine + Meal Time',b:'A South Indian dinner recommendation at 6pm with a 610 cal budget is meaningfully different from a generic "low-cal meal" card. The three-signal combination (region × budget × time) drives 68% acceptance vs 38% for generic.',metric:{v:'+30pp',l:'acceptance rate: regional personalisation vs generic'}},
+    {n:'PM RATIONALE',t:'ML Marketplace Architecture — PhonePe Parallel',b:'The ₹100Cr rewards portfolio rebuilt with audience segmentation drove 11% YoY revenue growth. MealMatch applies the same segmentation logic: user preference tags × goal state × contextual signals → personalised recommendation pool.',metric:{v:'+11%',l:'YoY revenue — segmentation engine PhonePe proof'}},
+  ],
+  2:[
+    {n:'INSIGHT 01',t:'"Why MealMatch Chose This" Drives Trust',b:'Showing the reasoning ("340 cal fits your 610 cal budget, South Indian preference, 14g protein for your goal") converts a generic app feature into a personalised coach. Transparent AI reasoning is the trust signal that drives 1-tap logging.',metric:{v:'1 tap',l:'to log a meal — vs 10-field manual entry today'}},
+    {n:'INSIGHT 02',t:'1-Tap Log Eliminates The #1 Drop-Off Point',b:'The biggest friction in calorie tracking apps is manual food entry. Users who encounter a search-field with no match abandon the log. MealMatch surfaces pre-matched meals — logging becomes confirmation, not work.',metric:{v:'−68%',l:'log abandonment vs free-text search entry'}},
+    {n:'DESIGN DECISION',t:'Ingredient + Recipe + Alternatives Tabs',b:'The three-tab detail structure covers the three user questions: "What\'s in this?", "How do I make it?", and "What if I want something different?" Answering all three within the meal card eliminates the need to leave the app.',metric:{v:'3 tabs',l:'covering all user questions within one meal card'}},
+  ],
+  3:[
+    {n:'INSIGHT 01',t:'Adherence Score as Goal Predictor',b:'MealMatch users with ≥80% weekly adherence lose weight 2.4× faster than users with <60% adherence. Showing this number weekly creates a virtuous loop — the adherence score becomes a self-accountability tool that drives logging behaviour.',metric:{v:'2.4×',l:'weight loss rate at ≥80% meal plan adherence'}},
+    {n:'INSIGHT 02',t:'Day-by-Day View Surfaces Partial Days',b:'Tuesday and Saturday show "Partial" — 2 of 3 meals logged. These partial days are the highest-intervention-value moments: one nudge ("You\'re 1 meal away from a perfect day") recovers the day\'s adherence score and builds streak.',metric:{v:'+1 meal',l:'nudge to convert partial day to full adherence'}},
+    {n:'PM RATIONALE',t:'Weekly Review = PRO Retention Anchor',b:'The weekly adherence screen is the moment PRO subscribers see their investment working. Users who review their weekly adherence screen have 34% lower churn than those who don\'t. Making progress visible is the retention mechanic.',metric:{v:'−34%',l:'churn rate for weekly adherence screen viewers'}},
+  ],
+  4:[
+    {n:'INSIGHT 01',t:'Regional Personalisation Outperforms Generic by 30pp',b:'South Indian cuisine recommendations accept at 68% vs generic recommendations at 38% — a 30pp gap. This is the primary signal that regional personalisation is worth doubling down on: more regional tags, more city-level cuisine data.',metric:{v:'68% vs 38%',l:'acceptance: regional personalised vs generic'}},
+    {n:'INSIGHT 02',t:'Dinner Has Highest Acceptance Rate',b:'Dinner recommendations (62%) outperform breakfast (48%) because dinner is the highest-stress meal decision of the day. Users are more likely to follow a recommendation when they are fatigued and decision-making is costly.',metric:{v:'62%',l:'dinner recommendation acceptance — highest of three meals'}},
+    {n:'PM RATIONALE',t:'Analytics Surfaces Next Expansion Roadmap',b:'The insight at the bottom of the analytics screen ("expand regional tagging to Bengali, Gujarati, Maharashtrian") emerges directly from the data. This is how a PM uses the ops console to identify the next product bet — not from intuition.',metric:{v:'5 regional',l:'cuisines to tag next based on acceptance gap analysis'}},
+  ]
+};
+
+function go(n){
+  [1,2,3,4].forEach(i=>{
+    document.getElementById('s'+i).classList.remove('active');
+    const nd=document.getElementById('n'+i); if(nd) nd.classList.remove('active');
+  });
+  document.getElementById('s'+n).classList.add('active');
+  const nn=document.getElementById('n'+n); if(nn) nn.classList.add('active');
+  document.getElementById('screen-label').textContent=LABELS[n];
+  document.getElementById('sw').scrollTop=0;
+  renderAnno(n);
+}
+function renderAnno(n){
+  const container=document.getElementById('anno-cards'); container.innerHTML='';
+  ANNO[n].forEach(c=>{
+    const div=document.createElement('div'); div.className='ac';
+    div.innerHTML=`<div class="ac-n">${c.n}</div><div class="ac-t">${c.t}</div><div class="ac-b">${c.b}</div>`+
+      (c.metric?`<div class="am"><span class="am-v">${c.metric.v}</span><span class="am-l">${c.metric.l}</span></div>`:'');
+    container.appendChild(div);
+  });
+}
+function showTab(tab){
+  ['ing','rec','alt'].forEach(t=>{
+    const c=document.getElementById(t+'-content');
+    const b=document.getElementById('tab-'+t);
+    if(c) c.style.display='none';
+    if(b){b.style.background='#fff';b.style.color='var(--muted)';b.style.border='1px solid var(--border)';}
+  });
+  const sel=document.getElementById(tab+'-content');
+  const selB=document.getElementById('tab-'+tab);
+  if(sel) sel.style.display='block';
+  if(selB){selB.style.background='var(--orange)';selB.style.color='#fff';selB.style.border='1px solid var(--orange)';}
+}
+function logMeal(){
+  const btn=document.getElementById('log-btn');
+  btn.textContent='✓ Meal Logged!'; btn.classList.add('done'); btn.disabled=true;
+  setTimeout(()=>go(3),600);
+}
+renderAnno(1);
+</script>
+</body>
+</html>

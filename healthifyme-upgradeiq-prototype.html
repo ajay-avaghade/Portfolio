@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>UpgradeIQ — HealthifyMe · Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --dark:   #051A0A;
+  --hero:   #0A2810;
+  --green:  #00C853;
+  --green2: #00E676;
+  --gold:   #FFB300;
+  --orange: #FF6D00;
+  --red:    #F44336;
+  --white:  #FFFFFF;
+  --lgray:  #F0FFF4;
+  --muted:  #6B8A72;
+  --border: #C8E6C9;
+  --ink:    #0f2010;
+  --surface:#F9FFF9;
+  --frame:  #1E2433;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  font-family:'Inter',sans-serif;
+  background:#0D1117;
+  min-height:100vh;
+  display:flex;align-items:flex-start;justify-content:center;
+  padding:36px 24px 40px;
+}
+.hdr{
+  position:fixed;top:0;left:0;right:0;
+  background:var(--dark);
+  color:rgba(255,255,255,.45);
+  font-size:9.5px;font-weight:600;
+  letter-spacing:.1em;text-transform:uppercase;
+  text-align:center;padding:6px;z-index:100;
+}
+.hdr span{color:var(--green);}
+.outer{display:flex;align-items:flex-start;gap:0;margin-top:26px;}
+
+/* PHONE FRAME */
+.phone{
+  width:375px;flex-shrink:0;
+  background:var(--frame);
+  border-radius:46px;
+  overflow:hidden;
+  box-shadow:0 40px 100px rgba(0,0,0,.55);
+}
+.notch{
+  width:118px;height:28px;
+  background:var(--dark);
+  margin:0 auto;
+  border-radius:0 0 16px 16px;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  position:relative;z-index:2;
+}
+.nc{width:10px;height:10px;border-radius:50%;background:#1a1a2e;}
+.ndot{width:5px;height:5px;border-radius:50%;background:#2a2a3e;}
+.status{
+  background:var(--dark);
+  display:flex;justify-content:space-between;align-items:center;
+  padding:4px 18px 6px;font-size:11px;color:rgba(255,255,255,.6);
+  font-weight:600;
+}
+.screen-wrap{
+  height:724px;overflow-y:auto;scrollbar-width:none;
+  background:var(--surface);
+}
+.screen-wrap::-webkit-scrollbar{display:none;}
+.screen{display:none;}
+.screen.active{display:block;}
+
+/* NAV DOTS */
+.dots-bar{
+  background:var(--dark);
+  display:flex;justify-content:center;gap:6px;
+  padding:10px 0 14px;
+}
+.dot-nav{
+  width:7px;height:7px;border-radius:50%;
+  background:rgba(255,255,255,.2);cursor:pointer;transition:all .2s;
+}
+.dot-nav.active{background:var(--green);width:18px;border-radius:4px;}
+
+/* ANNOTATION PANEL */
+.ap{
+  width:300px;background:var(--dark);
+  border-radius:0 12px 12px 0;padding:20px 18px;
+  box-shadow:0 32px 80px rgba(0,0,0,.55);min-height:800px;
+}
+.sl-label{
+  font-size:9px;font-weight:700;color:var(--green);
+  letter-spacing:.12em;text-transform:uppercase;
+  margin-bottom:16px;padding-bottom:10px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+.ac{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:12px;margin-bottom:10px;}
+.ac-n{font-size:8px;font-weight:700;color:var(--green);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;}
+.ac-t{font-size:12px;font-weight:700;color:#fff;margin-bottom:5px;}
+.ac-b{font-size:11px;color:var(--muted);line-height:1.5;}
+.am{background:rgba(0,200,83,.12);border:1px solid rgba(0,200,83,.25);border-radius:6px;padding:8px 10px;margin-top:8px;display:flex;align-items:baseline;gap:6px;}
+.am-v{font-size:18px;font-weight:800;color:var(--green);}
+.am-l{font-size:10px;color:var(--muted);line-height:1.3;}
+
+/* === SCREEN SHARED === */
+.app-header{
+  background:var(--dark);color:#fff;
+  padding:12px 18px 10px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.ah-title{font-size:15px;font-weight:700;}
+.ah-sub{font-size:10px;color:var(--muted);}
+.avatar{
+  width:32px;height:32px;border-radius:50%;
+  background:var(--green);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:13px;color:var(--dark);
+}
+
+/* Goal card */
+.goal-card{
+  background:linear-gradient(135deg,var(--dark) 0%,var(--hero) 100%);
+  border-radius:14px;margin:12px;padding:14px;
+  color:#fff;
+}
+.gc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
+.gc-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;}
+.gc-val{font-size:22px;font-weight:800;color:var(--green);}
+.gc-unit{font-size:11px;color:var(--muted);margin-top:2px;}
+.streak-badge{
+  background:rgba(255,179,0,.15);border:1px solid rgba(255,179,0,.3);
+  border-radius:20px;padding:4px 10px;
+  display:flex;align-items:center;gap:4px;
+  font-size:11px;font-weight:700;color:var(--gold);
+}
+.pb-track{height:8px;background:rgba(255,255,255,.1);border-radius:99px;overflow:visible;position:relative;margin-bottom:5px;}
+.pb-fill{height:100%;border-radius:99px;background:var(--green);position:relative;}
+.pb-fill::after{content:'58%';position:absolute;right:-2px;top:-18px;font-size:9px;font-weight:700;color:var(--green);}
+.pb-labels{display:flex;justify-content:space-between;font-size:9px;color:var(--muted);}
+
+/* UpgradeIQ trigger card */
+.uiq-card{
+  background:linear-gradient(135deg,#003020 0%,#001A10 100%);
+  border:1.5px solid rgba(0,200,83,.3);
+  border-radius:14px;margin:0 12px 12px;
+  padding:14px;cursor:pointer;
+  transition:transform .2s;
+}
+.uiq-card:hover{transform:scale(1.01);}
+.uiq-tag{
+  display:inline-flex;align-items:center;gap:4px;
+  background:rgba(0,200,83,.15);border:1px solid rgba(0,200,83,.3);
+  border-radius:20px;padding:2px 9px;
+  font-size:9px;font-weight:700;color:var(--green);
+  text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;
+}
+.uiq-title{font-size:13px;font-weight:700;color:#fff;margin-bottom:4px;line-height:1.3;}
+.uiq-sub{font-size:11px;color:rgba(255,255,255,.6);margin-bottom:10px;line-height:1.4;}
+.uiq-cta{
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--green);border-radius:8px;
+  padding:8px 12px;
+  font-size:12px;font-weight:700;color:var(--dark);
+}
+
+/* Metric row */
+.metric-row{display:flex;gap:8px;margin:0 12px 12px;}
+.mcard{
+  flex:1;background:#fff;border:1px solid var(--border);
+  border-radius:10px;padding:10px;text-align:center;
+}
+.mv{font-size:16px;font-weight:800;color:var(--green);}
+.ml{font-size:9px;color:var(--muted);margin-top:2px;}
+
+/* Log quick bar */
+.log-bar{
+  background:#fff;border:1px solid var(--border);
+  border-radius:12px;margin:0 12px 12px;padding:12px;
+}
+.lb-title{font-size:11px;font-weight:700;color:var(--ink);margin-bottom:8px;}
+.lb-btns{display:flex;gap:6px;}
+.lb-btn{
+  flex:1;background:var(--lgray);border:1px solid var(--border);
+  border-radius:8px;padding:8px;text-align:center;
+  font-size:10px;font-weight:600;color:var(--ink);cursor:pointer;
+  transition:all .15s;
+}
+.lb-btn:hover{background:var(--green);color:#fff;border-color:var(--green);}
+
+/* SCREEN 2: UPGRADE DETAIL */
+.upgrade-hero{
+  background:linear-gradient(180deg,var(--dark) 0%,var(--hero) 100%);
+  padding:16px 18px 20px;color:#fff;
+}
+.uh-tag{font-size:9px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;}
+.uh-title{font-size:20px;font-weight:800;margin-bottom:6px;line-height:1.2;}
+.uh-sub{font-size:12px;color:rgba(255,255,255,.6);line-height:1.5;}
+.pace-box{
+  background:rgba(0,200,83,.1);border:1px solid rgba(0,200,83,.25);
+  border-radius:10px;padding:10px 12px;margin-top:12px;
+  display:flex;align-items:center;gap:10px;
+}
+.pace-icon{font-size:20px;}
+.pace-text{font-size:11px;color:rgba(255,255,255,.7);line-height:1.4;}
+.pace-text strong{color:var(--green);}
+
+.feat-list{padding:14px 18px;}
+.fl-title{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;}
+.feat-row{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 0;border-bottom:1px solid var(--border);
+}
+.feat-row:last-child{border-bottom:none;}
+.feat-icon{font-size:18px;width:32px;text-align:center;flex-shrink:0;}
+.feat-body{flex:1;}
+.feat-name{font-size:12px;font-weight:600;color:var(--ink);}
+.feat-free{font-size:10px;color:var(--muted);}
+.feat-pro{font-size:10px;color:var(--green);font-weight:600;}
+.feat-arrow{font-size:12px;color:var(--border);}
+
+.upgrade-cta-wrap{padding:14px 18px 20px;}
+.upgrade-btn{
+  display:block;width:100%;padding:14px;
+  background:var(--green);border:none;border-radius:12px;
+  font-size:14px;font-weight:800;color:var(--dark);
+  cursor:pointer;transition:all .2s;
+  font-family:'Inter',sans-serif;
+}
+.upgrade-btn:hover{background:var(--green2);}
+.upgrade-note{font-size:10px;color:var(--muted);text-align:center;margin-top:6px;}
+
+/* SCREEN 3: CHECKOUT */
+.checkout-header{
+  background:var(--dark);padding:14px 18px;color:#fff;
+  display:flex;align-items:center;gap:10px;
+}
+.back-btn{font-size:16px;cursor:pointer;color:var(--green);}
+.ch-title{font-size:15px;font-weight:700;}
+
+.plan-selector{padding:12px 18px;}
+.ps-title{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;}
+.plan-opt{
+  background:#fff;border:2px solid var(--border);border-radius:12px;
+  padding:12px 14px;margin-bottom:8px;cursor:pointer;
+  display:flex;align-items:center;justify-content:space-between;
+  transition:all .2s;
+}
+.plan-opt.selected{border-color:var(--green);background:var(--lgray);}
+.plan-opt.best{border-color:var(--gold);}
+.plan-name{font-size:13px;font-weight:700;color:var(--ink);}
+.plan-price{font-size:13px;font-weight:700;color:var(--green);}
+.plan-badge{
+  background:var(--gold);color:var(--dark);
+  font-size:9px;font-weight:700;padding:2px 7px;
+  border-radius:99px;text-transform:uppercase;
+}
+.plan-sub{font-size:10px;color:var(--muted);}
+
+.milestone-box{
+  background:linear-gradient(135deg,#003020,#001A10);
+  border:1px solid rgba(0,200,83,.25);border-radius:12px;
+  margin:0 18px 12px;padding:12px;
+  display:flex;align-items:flex-start;gap:10px;
+}
+.mb-icon{font-size:20px;flex-shrink:0;}
+.mb-title{font-size:11px;font-weight:700;color:var(--green);margin-bottom:3px;}
+.mb-text{font-size:10px;color:rgba(255,255,255,.6);line-height:1.4;}
+
+.checkout-btn-wrap{padding:0 18px 20px;}
+.checkout-btn{
+  display:block;width:100%;padding:14px;
+  background:var(--green);border:none;border-radius:12px;
+  font-size:14px;font-weight:800;color:var(--dark);
+  cursor:pointer;transition:all .2s;
+  font-family:'Inter',sans-serif;
+}
+.checkout-btn.done{background:var(--gold);}
+.security-note{font-size:9px;color:var(--muted);text-align:center;margin-top:6px;}
+
+/* Confetti */
+.conf-overlay{
+  position:absolute;top:0;left:0;right:0;bottom:0;
+  pointer-events:none;overflow:hidden;
+  border-radius:46px;
+}
+@keyframes confFall{
+  0%{transform:translateY(-20px) rotate(0deg);opacity:1;}
+  100%{transform:translateY(800px) rotate(720deg);opacity:0;}
+}
+.cp{position:absolute;animation:confFall linear forwards;}
+
+.success-card{
+  background:linear-gradient(135deg,var(--dark),var(--hero));
+  border-radius:14px;margin:12px;padding:16px;
+  text-align:center;color:#fff;
+  display:none;
+}
+.success-card.show{display:block;}
+
+/* SCREEN 4: ANALYTICS */
+.analytics-content{padding:12px 18px;}
+.kpi-row{display:flex;gap:8px;margin-bottom:14px;}
+.kpi{
+  flex:1;background:#fff;border:1px solid var(--border);
+  border-radius:10px;padding:10px;text-align:center;
+}
+.kv{font-size:16px;font-weight:800;color:var(--green);}
+.kl{font-size:9px;color:var(--muted);margin-top:2px;}
+
+.tier-row{
+  background:#fff;border:1px solid var(--border);
+  border-radius:10px;padding:10px 12px;
+  margin-bottom:6px;
+  display:flex;align-items:center;gap:10px;
+}
+.tier-label{font-size:11px;font-weight:600;min-width:100px;}
+.tier-bar-wrap{flex:1;height:8px;background:#E8F5E9;border-radius:99px;overflow:hidden;}
+.tier-bar{height:100%;border-radius:99px;}
+.tier-pct{font-size:11px;font-weight:700;min-width:32px;text-align:right;}
+.ab-row{
+  background:#fff;border:1px solid var(--border);
+  border-radius:10px;padding:10px 12px;margin-bottom:6px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.ab-name{font-size:11px;font-weight:600;color:var(--ink);}
+.ab-val{font-size:13px;font-weight:800;color:var(--green);}
+.badge-win{
+  background:var(--lgray);color:var(--green);
+  font-size:9px;font-weight:700;padding:2px 7px;
+  border-radius:99px;border:1px solid var(--border);
+}
+</style>
+</head>
+<body>
+<div class="hdr">HealthifyMe · <span>UpgradeIQ</span> · Subscription Upgrade Propensity Engine · Interactive Prototype</div>
+
+<div class="outer">
+  <div style="position:relative;">
+    <div class="phone">
+      <div style="background:var(--dark);">
+        <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+        <div class="status"><span>9:41</span><span>●●● 100%</span></div>
+      </div>
+      <div class="screen-wrap" id="sw">
+
+        <!-- S1: FREE USER HOME -->
+        <div class="screen active" id="s1">
+          <div class="app-header">
+            <div>
+              <div class="ah-title">Good evening, Priya 👋</div>
+              <div class="ah-sub">Day 14 of your weight-loss journey</div>
+            </div>
+            <div class="avatar">P</div>
+          </div>
+
+          <div class="goal-card">
+            <div class="gc-top">
+              <div>
+                <div class="gc-label">Goal Progress</div>
+                <div class="gc-val">2.9 kg</div>
+                <div class="gc-unit">of 5kg lost</div>
+              </div>
+              <div class="streak-badge">🔥 7-day streak</div>
+            </div>
+            <div class="pb-track"><div class="pb-fill" style="width:58%"></div></div>
+            <div class="pb-labels"><span>Start</span><span>Goal: 5kg</span></div>
+          </div>
+
+          <!-- UpgradeIQ trigger card -->
+          <div class="uiq-card" onclick="go(2)">
+            <div class="uiq-tag">⚡ UpgradeIQ · Goal Proximity Trigger</div>
+            <div class="uiq-title">You're 2.1kg from your goal — PRO users at your pace hit it 23 days faster.</div>
+            <div class="uiq-sub">Based on your 7-day streak and −0.3kg/week pace. 94 free users with this exact pattern upgraded this week.</div>
+            <div class="uiq-cta">
+              <span>See how PRO helps you</span>
+              <span>→</span>
+            </div>
+          </div>
+
+          <div class="metric-row">
+            <div class="mcard"><div class="mv">1,240</div><div class="ml">Cal today</div></div>
+            <div class="mcard"><div class="mv">610</div><div class="ml">Remaining</div></div>
+            <div class="mcard"><div class="mv">−0.3kg</div><div class="ml">This week</div></div>
+          </div>
+
+          <div class="log-bar">
+            <div class="lb-title">Quick Log</div>
+            <div class="lb-btns">
+              <div class="lb-btn">🍽 Meal</div>
+              <div class="lb-btn">💧 Water</div>
+              <div class="lb-btn">🏃 Exercise</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- S2: UPGRADE DETAIL -->
+        <div class="screen" id="s2">
+          <div class="upgrade-hero">
+            <div class="uh-tag">✦ Personalised for Priya · 7-day streak · 2.1kg from goal</div>
+            <div class="uh-title">Unlock your goal 23 days faster with HealthifyMe PRO</div>
+            <div class="uh-sub">We analysed 94 users with your streak + pace. PRO users reached their 5kg goal in 38 days. Free users averaged 61 days.</div>
+            <div class="pace-box">
+              <div class="pace-icon">📊</div>
+              <div class="pace-text">At <strong>−0.3kg/week</strong>, your estimated goal date is <strong>Aug 28</strong> (free). PRO's dynamic meal planning pushes that to <strong>Aug 5 — 23 days sooner.</strong></div>
+            </div>
+          </div>
+
+          <div class="feat-list">
+            <div class="fl-title">What changes with PRO</div>
+            <div class="feat-row">
+              <div class="feat-icon">🥗</div>
+              <div class="feat-body">
+                <div class="feat-name">Meal Planning</div>
+                <div class="feat-free">Free: Basic calorie tracker</div>
+                <div class="feat-pro">PRO: Daily personalised South Indian meal plan</div>
+              </div>
+            </div>
+            <div class="feat-row">
+              <div class="feat-icon">🤖</div>
+              <div class="feat-body">
+                <div class="feat-name">AI Coach (Ria)</div>
+                <div class="feat-free">Free: Generic nudges</div>
+                <div class="feat-pro">PRO: Goal-state triggered interventions</div>
+              </div>
+            </div>
+            <div class="feat-row">
+              <div class="feat-icon">📈</div>
+              <div class="feat-body">
+                <div class="feat-name">Weekly Insights</div>
+                <div class="feat-free">Free: Basic log summary</div>
+                <div class="feat-pro">PRO: Trend analysis + plateau alerts</div>
+              </div>
+            </div>
+            <div class="feat-row">
+              <div class="feat-icon">🎯</div>
+              <div class="feat-body">
+                <div class="feat-name">Calorie Goal</div>
+                <div class="feat-free">Free: Static 1,850 cal target</div>
+                <div class="feat-pro">PRO: Dynamic goal adapts to your weekly pace</div>
+              </div>
+            </div>
+          </div>
+          <div class="upgrade-cta-wrap">
+            <button class="upgrade-btn" onclick="go(3)">Start PRO — ₹999/mo →</button>
+            <div class="upgrade-note">Cancel anytime · No commitment on monthly plan</div>
+          </div>
+        </div>
+
+        <!-- S3: SUBSCRIPTION CHECKOUT -->
+        <div class="screen" id="s3">
+          <div class="checkout-header">
+            <span class="back-btn" onclick="go(2)">←</span>
+            <span class="ch-title">Choose Your Plan</span>
+          </div>
+
+          <div class="plan-selector">
+            <div class="ps-title">Plan Options</div>
+            <div class="plan-opt" id="plan-m" onclick="selectPlan('m')">
+              <div>
+                <div class="plan-name">Monthly</div>
+                <div class="plan-sub">Flexible, cancel anytime</div>
+              </div>
+              <div class="plan-price">₹999/mo</div>
+            </div>
+            <div class="plan-opt" id="plan-q" onclick="selectPlan('q')">
+              <div>
+                <div class="plan-name">Quarterly</div>
+                <div class="plan-sub">Save 20% vs monthly</div>
+              </div>
+              <div class="plan-price">₹799/mo</div>
+            </div>
+            <div class="plan-opt selected best" id="plan-a" onclick="selectPlan('a')">
+              <div>
+                <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
+                  <div class="plan-name">Annual</div>
+                  <span class="plan-badge">Best Value</span>
+                </div>
+                <div class="plan-sub">Save 50% · Most popular</div>
+              </div>
+              <div class="plan-price">₹499/mo</div>
+            </div>
+          </div>
+
+          <div class="milestone-box">
+            <div class="mb-icon">🏆</div>
+            <div>
+              <div class="mb-title">Your 5kg Challenge Badge</div>
+              <div class="mb-text">Start PRO today and earn your personalised milestone badge when you hit your goal. Shared automatically to your profile.</div>
+            </div>
+          </div>
+
+          <div class="checkout-btn-wrap">
+            <button class="checkout-btn" id="checkout-btn" onclick="startPRO()">Start PRO Now — ₹499/mo</button>
+            <div class="security-note">🔒 Secure payment · Auto-renews annually · Cancel anytime</div>
+          </div>
+
+          <div class="success-card" id="success-card">
+            <div style="font-size:32px;margin-bottom:8px;">🎉</div>
+            <div style="font-size:16px;font-weight:800;color:var(--green);margin-bottom:4px;">Welcome to PRO, Priya!</div>
+            <div style="font-size:12px;color:rgba(255,255,255,.7);margin-bottom:10px;">Your personalised meal plan is ready. Goal date: <strong style="color:var(--green)">Aug 5</strong> — 23 days sooner.</div>
+            <div style="font-size:11px;color:var(--gold);">🏆 5kg Challenge Badge unlocked!</div>
+          </div>
+        </div>
+
+        <!-- S4: GROWTH ANALYTICS -->
+        <div class="screen" id="s4">
+          <div class="app-header">
+            <div><div class="ah-title">UpgradeIQ Analytics</div><div class="ah-sub">Propensity-driven conversion dashboard</div></div>
+          </div>
+          <div class="analytics-content">
+            <div class="kpi-row">
+              <div class="kpi"><div class="kv">34%</div><div class="kl">Overall CVR</div></div>
+              <div class="kpi"><div class="kv">+18pp</div><div class="kl">vs Generic Banner</div></div>
+              <div class="kpi"><div class="kv">₹2.4L</div><div class="kl">MRR Added</div></div>
+            </div>
+
+            <div class="fl-title" style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Conversion by Propensity Tier</div>
+            <div class="tier-row">
+              <div class="tier-label" style="color:#00C853">HIGH · &lt;1kg left</div>
+              <div class="tier-bar-wrap"><div class="tier-bar" style="width:78%;background:#00C853;"></div></div>
+              <div class="tier-pct" style="color:#00C853">34%</div>
+            </div>
+            <div class="tier-row">
+              <div class="tier-label" style="color:var(--gold)">MED · 1–3kg left</div>
+              <div class="tier-bar-wrap"><div class="tier-bar" style="width:41%;background:var(--gold);"></div></div>
+              <div class="tier-pct" style="color:var(--gold)">18%</div>
+            </div>
+            <div class="tier-row">
+              <div class="tier-label" style="color:var(--muted)">LOW · 3kg+ left</div>
+              <div class="tier-bar-wrap"><div class="tier-bar" style="width:14%;background:var(--muted);"></div></div>
+              <div class="tier-pct" style="color:var(--muted)">6%</div>
+            </div>
+
+            <div class="fl-title" style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:14px 0 8px;">A/B Test — Propensity Trigger vs Generic Banner</div>
+            <div class="ab-row">
+              <div>
+                <div class="ab-name">UpgradeIQ Propensity Trigger</div>
+                <div style="font-size:9px;color:var(--muted)">Contextual card · Goal proximity state</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;">
+                <div class="ab-val">34%</div>
+                <span class="badge-win">Winner</span>
+              </div>
+            </div>
+            <div class="ab-row">
+              <div>
+                <div class="ab-name">Generic "Upgrade to PRO" Banner</div>
+                <div style="font-size:9px;color:var(--muted)">Static banner · All free users</div>
+              </div>
+              <div class="ab-val" style="color:var(--muted)">16%</div>
+            </div>
+            <div class="ab-row">
+              <div>
+                <div class="ab-name">Discount Offer (₹100 off first month)</div>
+                <div style="font-size:9px;color:var(--muted)">Blanket discount · All free users</div>
+              </div>
+              <div class="ab-val" style="color:var(--muted)">21%</div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- screen-wrap -->
+      <div class="dots-bar">
+        <div class="dot-nav active" id="n1" onclick="go(1)"></div>
+        <div class="dot-nav" id="n2" onclick="go(2)"></div>
+        <div class="dot-nav" id="n3" onclick="go(3)"></div>
+        <div class="dot-nav" id="n4" onclick="go(4)"></div>
+      </div>
+    </div><!-- phone -->
+    <div class="conf-overlay" id="conf-overlay"></div>
+  </div>
+
+  <!-- ANNOTATION PANEL -->
+  <div class="ap">
+    <div class="sl-label" id="screen-label">01 — FREE USER HOME</div>
+    <div id="anno-cards"></div>
+  </div>
+</div>
+
+<script>
+const LABELS={1:'01 — FREE USER HOME',2:'02 — UPGRADE DETAIL',3:'03 — SUBSCRIPTION CHECKOUT',4:'04 — GROWTH ANALYTICS'};
+const ANNO={
+  1:[
+    {n:'INSIGHT 01',t:'Goal Proximity = Peak Upgrade Intent',b:'A user 2.1kg from a 5kg goal is at maximum motivation. Showing the upgrade offer when propensity is highest — not randomly — is the insight that drives 34% CVR vs 16% for generic banners.',metric:{v:'34% CVR',l:'at HIGH propensity tier (vs 16% generic)'}},
+    {n:'INSIGHT 02',t:'Trigger Suppression Matters as Much as Triggering',b:'UpgradeIQ suppresses the upgrade card entirely for LOW propensity users (3kg+ from goal). Showing it to unready users trains them to dismiss it. Suppress → reserve for the right moment.',metric:{v:'6%',l:'CVR at LOW tier — suppressed to preserve intent'}},
+    {n:'PM RATIONALE',t:'Propensity-to-Transact — Direct Parallel',b:'This is architecturally identical to the PhonePe Propensity-to-Transact ML that drove 32% marketing burn reduction. Real-time user-state scoring replaces blanket targeting — applied to subscription upgrade instead of payments.',metric:{v:'−32%',l:'marketing burn — PhonePe proof point'}},
+  ],
+  2:[
+    {n:'INSIGHT 01',t:'Personalized Value Frame Converts, Generic Doesnt',b:'"23 days faster" is computed specifically for Priya — her streak, her pace, her goal distance. This is not a generic claim. Showing the math makes it credible and emotionally resonant.',metric:{v:'23 days',l:'personalised goal acceleration shown to Priya'}},
+    {n:'INSIGHT 02',t:'Social Proof at Exact User State',b:'"94 free users with this exact pattern upgraded this week" is a social proof signal calibrated to Priya\'s behavioral state — not a generic testimonial. Same cohort = same motivation = higher trust.',metric:{v:'94 users',l:'same pattern as Priya who upgraded this week'}},
+    {n:'DESIGN DECISION',t:'Feature Comparison as Goal Unlocking',b:'The feature comparison shows PRO features as goal-unlocking tools, not product specs. "Dynamic goal adapts to your weekly pace" is more compelling than "dynamic calorie targets." Language of outcomes, not features.',metric:{v:'4 features',l:'framed as goal unlocking, not product capabilities'}},
+  ],
+  3:[
+    {n:'INSIGHT 01',t:'Plan Selection Anchors on Annual as Default',b:'Annual is pre-selected and labeled "Best Value." The default choice does the heaviest conversion lift — users must actively choose a more expensive option. Defaults drive 63% of plan selections.',metric:{v:'63%',l:'of upgrades select the pre-selected plan tier'}},
+    {n:'INSIGHT 02',t:'Milestone Badge as Completion Contract',b:'The 5kg Challenge Badge is a psychological commitment device — by unlocking it at checkout, Priya has made a public (to herself) commitment to her goal. This is the same milestone waiver mechanic from PhonePe that drove 60% device activation improvement.',metric:{v:'+60%',l:'goal completion — milestone mechanic PhonePe proof'}},
+    {n:'PM RATIONALE',t:'Confetti = Reward Moment, Not Noise',b:'The confetti fires only on PRO activation — not on casual page loads. Making the success state genuinely celebratory (badge + personalised goal date + confetti) anchors the user\'s positive emotion to the PRO product.',metric:{v:'Aug 5',l:'personalised goal date shown immediately on PRO activation'}},
+  ],
+  4:[
+    {n:'INSIGHT 01',t:'Propensity Tiering 5x Better Than Generic',b:'HIGH tier (goal proximity <1kg) converts at 34% vs 6% for LOW tier. This is the core insight: the same user who ignores the banner at LOW propensity converts at 34% when the offer is held until HIGH propensity.',metric:{v:'5.7×',l:'CVR difference between HIGH and LOW tiers'}},
+    {n:'INSIGHT 02',t:'Blanket Discount Underperforms Contextual Trigger',b:'The ₹100 discount offer (21% CVR) underperforms the propensity trigger (34% CVR). Discounts train users to wait for discounts. Contextual value framing converts without margin erosion.',metric:{v:'−13pp',l:'CVR gap: discount vs propensity trigger'}},
+    {n:'PM RATIONALE',t:'A/B Test as OKR Evidence',b:'The analytics screen is the OKR dashboard for this product. CVR by tier + A/B results + MRR added are the three numbers that prove UpgradeIQ ROI to the business. Built as a PM accountability surface, not an afterthought.',metric:{v:'₹2.4L',l:'MRR added via UpgradeIQ in first 30 days'}},
+  ]
+};
+
+let activePlan='a';
+function go(n){
+  [1,2,3,4].forEach(i=>{
+    document.getElementById('s'+i).classList.remove('active');
+    const nd=document.getElementById('n'+i); if(nd) nd.classList.remove('active');
+  });
+  document.getElementById('s'+n).classList.add('active');
+  const nn=document.getElementById('n'+n); if(nn) nn.classList.add('active');
+  document.getElementById('screen-label').textContent=LABELS[n];
+  document.getElementById('sw').scrollTop=0;
+  renderAnno(n);
+}
+function renderAnno(n){
+  const container=document.getElementById('anno-cards');
+  container.innerHTML='';
+  ANNO[n].forEach(c=>{
+    const div=document.createElement('div'); div.className='ac';
+    div.innerHTML=`<div class="ac-n">${c.n}</div><div class="ac-t">${c.t}</div><div class="ac-b">${c.b}</div>`+
+      (c.metric?`<div class="am"><span class="am-v">${c.metric.v}</span><span class="am-l">${c.metric.l}</span></div>`:'');
+    container.appendChild(div);
+  });
+}
+function selectPlan(p){
+  ['m','q','a'].forEach(x=>{
+    const el=document.getElementById('plan-'+x);
+    if(el) el.classList.remove('selected');
+  });
+  document.getElementById('plan-'+p)?.classList.add('selected');
+  activePlan=p;
+  const prices={m:'₹999/mo',q:'₹799/mo',a:'₹499/mo'};
+  document.getElementById('checkout-btn').textContent='Start PRO Now — '+prices[p];
+}
+function startPRO(){
+  const btn=document.getElementById('checkout-btn');
+  btn.textContent='✓ PRO Activated!'; btn.classList.add('done'); btn.disabled=true;
+  document.getElementById('success-card').classList.add('show');
+  spawnConfetti();
+}
+function spawnConfetti(){
+  const overlay=document.getElementById('conf-overlay');
+  const cols=['#00C853','#FFB300','#FF6D00','#00E676','#FFEE58','#4CAF50'];
+  for(let i=0;i<28;i++){
+    const p=document.createElement('div'); p.className='cp';
+    const sz=4+Math.random()*7;
+    p.style.cssText=`left:${Math.random()*100}%;top:${-10+Math.random()*20}%;width:${sz}px;height:${sz}px;background:${cols[Math.floor(Math.random()*cols.length)]};border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${1.4+Math.random()*1.8}s;animation-delay:${Math.random()*1.2}s;`;
+    overlay.appendChild(p);
+  }
+  setTimeout(()=>{overlay.innerHTML='';},4000);
+}
+renderAnno(1);
+</script>
+</body>
+</html>

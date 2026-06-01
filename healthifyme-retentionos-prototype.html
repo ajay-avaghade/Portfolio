@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>RetentionOS — HealthifyMe · Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --dark:   #051A0A;
+  --hero:   #0A2810;
+  --green:  #00C853;
+  --red:    #F44336;
+  --redl:   #FFEBEE;
+  --gold:   #FFB300;
+  --orange: #FF6D00;
+  --white:  #FFFFFF;
+  --lgray:  #F0FFF4;
+  --muted:  #6B8A72;
+  --border: #C8E6C9;
+  --ink:    #0f2010;
+  --surface:#F9FFF9;
+  --frame:  #1E2433;
+  --greenl: #E8F5E9;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  font-family:'Inter',sans-serif;background:#0D1117;
+  min-height:100vh;display:flex;align-items:flex-start;justify-content:center;
+  padding:36px 24px 40px;
+}
+.hdr{
+  position:fixed;top:0;left:0;right:0;background:var(--dark);
+  color:rgba(255,255,255,.45);font-size:9.5px;font-weight:600;
+  letter-spacing:.1em;text-transform:uppercase;text-align:center;padding:6px;z-index:100;
+}
+.hdr span{color:var(--green);}
+.outer{display:flex;align-items:flex-start;gap:0;margin-top:26px;}
+
+/* BROWSER FRAME */
+.bf{width:640px;flex-shrink:0;background:var(--frame);border-radius:12px 0 0 12px;overflow:hidden;box-shadow:0 32px 80px rgba(0,0,0,.55);}
+.mac-bar{background:#2A2F3E;height:36px;display:flex;align-items:center;padding:0 14px;gap:6px;border-bottom:1px solid rgba(255,255,255,.06);}
+.dot{width:11px;height:11px;border-radius:50%;}
+.dot-r{background:#FF5F57;}.dot-y{background:#FFBD2E;}.dot-g{background:#28C840;}
+.url-area{background:#1E2433;padding:7px 12px;border-bottom:1px solid rgba(255,255,255,.06);}
+.url-inner{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);border-radius:6px;padding:5px 12px;font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(255,255,255,.6);display:flex;align-items:center;gap:6px;}
+.url-inner .lock{color:#00C853;}
+.url-inner .upath{color:rgba(255,255,255,.4);}
+.nav-tabs{background:#1A1F2E;display:flex;border-bottom:1px solid rgba(255,255,255,.08);padding:0 12px;gap:2px;}
+.nt{padding:8px 12px;font-size:11px;color:rgba(255,255,255,.4);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;font-weight:500;white-space:nowrap;}
+.nt.active{color:var(--green);border-bottom-color:var(--green);}
+.nt:hover:not(.active){color:rgba(255,255,255,.7);}
+.sa{background:var(--surface);height:536px;overflow-y:auto;scrollbar-width:none;}
+.sa::-webkit-scrollbar{display:none;}
+.screen{display:none;}.screen.active{display:block;}
+
+/* ANNOTATION PANEL */
+.ap{width:300px;background:var(--dark);border-radius:0 12px 12px 0;padding:20px 18px;box-shadow:0 32px 80px rgba(0,0,0,.55);min-height:636px;}
+.sl-label{font-size:9px;font-weight:700;color:var(--green);letter-spacing:.12em;text-transform:uppercase;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.08);}
+.ac{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:12px;margin-bottom:10px;}
+.ac-n{font-size:8px;font-weight:700;color:var(--green);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;}
+.ac-t{font-size:12px;font-weight:700;color:#fff;margin-bottom:5px;}
+.ac-b{font-size:11px;color:var(--muted);line-height:1.5;}
+.am{background:rgba(0,200,83,.12);border:1px solid rgba(0,200,83,.25);border-radius:6px;padding:8px 10px;margin-top:8px;display:flex;align-items:baseline;gap:6px;}
+.am-v{font-size:18px;font-weight:800;color:var(--green);}
+.am-l{font-size:10px;color:var(--muted);line-height:1.3;}
+
+/* SHARED SCREEN */
+.sh{background:var(--dark);color:#fff;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;}
+.sh-title{font-size:13px;font-weight:700;}
+.sh-sub{font-size:10px;color:var(--muted);margin-top:1px;}
+.sc{padding:14px 20px;}
+.badge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:99px;text-transform:uppercase;}
+.b-ok  {background:var(--greenl);color:var(--green);}
+.b-warn{background:#FFF8E1;color:#E65100;}
+.b-risk{background:#FEE8E7;color:var(--red);}
+.b-crit{background:#FFEBEE;color:#B71C1C;}
+.b-info{background:#E3F2FD;color:#1565C0;}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:none;transition:all .2s;font-family:'Inter',sans-serif;}
+.btn-g{background:var(--green);color:var(--dark);}
+.btn-g:hover{background:#00E676;}
+.btn-r{background:var(--red);color:#fff;}
+.btn-o{background:transparent;color:var(--green);border:1px solid var(--green);}
+.btn-sm{padding:5px 12px;font-size:11px;}
+
+.stat-bar{display:flex;gap:10px;margin-bottom:14px;}
+.scc{background:#fff;border:1px solid var(--border);border-radius:8px;padding:10px 14px;flex:1;text-align:center;}
+.scc .sv{font-size:17px;font-weight:800;color:var(--green);}
+.scc .sl2{font-size:9px;color:var(--muted);margin-top:2px;}
+.scc.danger .sv{color:var(--red);}
+.scc.warn .sv{color:var(--gold);}
+
+/* Alert banner */
+.alert-banner{
+  display:flex;align-items:center;gap:10px;
+  background:rgba(244,67,54,.08);border:1.5px solid rgba(244,67,54,.35);
+  border-left:4px solid var(--red);border-radius:8px;
+  padding:10px 14px;margin-bottom:12px;cursor:pointer;transition:background .2s;
+}
+.alert-banner:hover{background:rgba(244,67,54,.14);}
+.ab-icon{font-size:16px;flex-shrink:0;}
+.ab-title{font-size:11px;font-weight:700;color:var(--red);margin-bottom:2px;}
+.ab-sub{font-size:10px;color:#444;line-height:1.4;}
+
+/* Tier grid */
+.tier-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.tier-card{background:#fff;border:1.5px solid var(--border);border-radius:8px;padding:10px 12px;}
+.tier-card.risk{border-color:rgba(244,67,54,.4);background:#FFF8F8;}
+.tier-card.warn{border-color:rgba(255,179,0,.4);background:#FFFDF0;}
+.tc-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;}
+.tc-val{font-size:22px;font-weight:800;}
+.tc-sub{font-size:9px;color:var(--muted);margin-top:2px;}
+
+/* Engagement signals */
+.signal-row{
+  display:flex;align-items:center;justify-content:space-between;
+  background:#fff;border:1px solid var(--border);border-radius:6px;
+  padding:8px 12px;margin-bottom:5px;
+}
+.sig-label{font-size:11px;font-weight:600;color:var(--ink);}
+.sig-before{font-size:11px;color:var(--green);font-family:'JetBrains Mono',monospace;}
+.sig-arrow{color:var(--red);font-size:11px;font-weight:700;}
+.sig-after{font-size:11px;color:var(--red);font-weight:700;font-family:'JetBrains Mono',monospace;}
+
+/* Intervention type selector */
+.int-types{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+.int-type{
+  padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;
+  cursor:pointer;border:1.5px solid var(--border);background:#fff;color:var(--ink);
+  transition:all .15s;font-family:'Inter',sans-serif;
+}
+.int-type.active{background:var(--green);color:var(--dark);border-color:var(--green);}
+
+.msg-preview{
+  background:var(--dark);border-radius:8px;padding:12px;
+  font-size:11px;color:rgba(255,255,255,.75);line-height:1.6;
+  margin-bottom:10px;font-style:italic;
+  border-left:3px solid var(--green);
+}
+
+/* Impact bars */
+.impact-bar{
+  background:#fff;border:1px solid var(--border);border-radius:8px;
+  padding:10px 12px;margin-bottom:6px;
+  display:flex;align-items:center;gap:10px;
+}
+.ib-method{font-size:11px;font-weight:600;min-width:180px;}
+.ib-track{flex:1;height:8px;background:var(--greenl);border-radius:99px;overflow:hidden;}
+.ib-fill{height:100%;border-radius:99px;}
+.ib-val{font-size:12px;font-weight:800;min-width:34px;text-align:right;}
+.badge-win2{background:var(--greenl);color:var(--green);font-size:9px;font-weight:700;padding:2px 7px;border-radius:99px;}
+
+/* Subscriber card */
+.sub-card{background:#fff;border:1px solid var(--border);border-left:3px solid var(--red);border-radius:8px;padding:14px;margin-bottom:10px;}
+.sc-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;}
+.sc-name{font-size:13px;font-weight:700;color:var(--ink);}
+.sc-meta{font-size:10px;color:var(--muted);margin-top:2px;}
+.prob-meter{margin-bottom:10px;}
+.pm-label{display:flex;justify-content:space-between;font-size:10px;margin-bottom:4px;}
+.pm-track{height:10px;background:#E8F5E9;border-radius:99px;overflow:hidden;}
+.pm-fill{height:100%;border-radius:99px;background:var(--red);}
+.pm-val{font-size:11px;font-weight:700;color:var(--red);}
+</style>
+</head>
+<body>
+<div class="hdr">HealthifyMe · <span>RetentionOS</span> · PRO Subscriber Churn Prediction & Intervention · Interactive Prototype</div>
+
+<div class="outer">
+  <div class="bf">
+    <div class="mac-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+    </div>
+    <div class="url-area">
+      <div class="url-inner">
+        <span class="lock">🔒</span>
+        <span>retentionos.healthifyme.internal</span>
+        <span id="url-bar" class="upath">/ retention / overview</span>
+      </div>
+    </div>
+    <div class="nav-tabs">
+      <div class="nt active" id="d1" onclick="go(1)">Retention Health</div>
+      <div class="nt" id="d2" onclick="go(2)">At-Risk Detail</div>
+      <div class="nt" id="d3" onclick="go(3)">Intervention Builder</div>
+      <div class="nt" id="d4" onclick="go(4)">Impact Analytics</div>
+    </div>
+    <div class="sa">
+
+      <!-- S1: RETENTION HEALTH DASHBOARD -->
+      <div class="screen active" id="s1">
+        <div class="sh">
+          <div><div class="sh-title">PRO Subscriber Retention Health</div><div class="sh-sub">Real-time churn risk monitoring · 12,847 active PRO subscribers</div></div>
+          <span style="font-size:9px;background:rgba(0,200,83,.15);color:var(--green);padding:3px 8px;border-radius:4px;font-weight:700;">● LIVE</span>
+        </div>
+        <div class="sc">
+          <div class="stat-bar">
+            <div class="scc"><div class="sv">12,847</div><div class="sl2">Active PRO</div></div>
+            <div class="scc warn"><div class="sv">1,204</div><div class="sl2">At-Risk (9.4%)</div></div>
+            <div class="scc"><div class="sv">78.3%</div><div class="sl2">Renewal Rate</div></div>
+            <div class="scc danger"><div class="sv">₹18.2L</div><div class="sl2">Revenue at Stake</div></div>
+          </div>
+
+          <div class="alert-banner" onclick="go(2)">
+            <div class="ab-icon">⚠️</div>
+            <div style="flex:1;">
+              <div class="ab-title">47 subscribers crossed into AT-RISK today</div>
+              <div class="ab-sub">Priya M., Rohan K., and 45 others — engagement decline + renewal in 7–14 days · ₹4.7L renewal value at stake</div>
+            </div>
+            <span style="color:var(--red);font-weight:700;font-size:14px;">→</span>
+          </div>
+
+          <div class="tier-grid">
+            <div class="tier-card">
+              <div class="tc-label" style="color:var(--green)">● Healthy</div>
+              <div class="tc-val" style="color:var(--green)">10,218</div>
+              <div class="tc-sub">Active · On track · Renewal predicted</div>
+            </div>
+            <div class="tier-card warn">
+              <div class="tc-label" style="color:var(--gold)">● Watch</div>
+              <div class="tc-val" style="color:var(--gold)">1,425</div>
+              <div class="tc-sub">Engagement declining · Monitor closely</div>
+            </div>
+            <div class="tier-card risk">
+              <div class="tc-label" style="color:var(--red)">● At-Risk</div>
+              <div class="tc-val" style="color:var(--red)">1,047</div>
+              <div class="tc-sub">High churn prob · Intervention needed</div>
+            </div>
+            <div class="tier-card risk" style="border-color:#B71C1C;background:#FFF0F0;">
+              <div class="tc-label" style="color:#B71C1C">● Critical</div>
+              <div class="tc-val" style="color:#B71C1C">157</div>
+              <div class="tc-sub">Renewal in &lt;5 days · Immediate action</div>
+            </div>
+          </div>
+
+          <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Churn Signal Distribution (Last 7 Days)</div>
+          <div class="signal-row" style="margin-bottom:5px;">
+            <div class="sig-label">Login frequency</div>
+            <span class="sig-before">6.2/wk</span><span class="sig-arrow">→</span><span class="sig-after">1.4/wk</span>
+          </div>
+          <div class="signal-row" style="margin-bottom:5px;">
+            <div class="sig-label">Meal logs per day</div>
+            <span class="sig-before">3.1/day</span><span class="sig-arrow">→</span><span class="sig-after">0.6/day</span>
+          </div>
+          <div class="signal-row">
+            <div class="sig-label">AI coach sessions</div>
+            <span class="sig-before">4/wk</span><span class="sig-arrow">→</span><span class="sig-after">0/wk</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- S2: AT-RISK SUBSCRIBER DETAIL -->
+      <div class="screen" id="s2">
+        <div class="sh">
+          <div><div class="sh-title">At-Risk Subscriber — Priya M.</div><div class="sh-sub">PRO since 3 months · Renewal in 8 days · Predicted churn: 74%</div></div>
+          <span class="badge b-risk">HIGH RISK</span>
+        </div>
+        <div class="sc">
+          <div class="sub-card">
+            <div class="sc-top">
+              <div>
+                <div class="sc-name">Priya M. · Bangalore</div>
+                <div class="sc-meta">PRO Annual · ₹5,988/yr · Renews Jun 9 · 3-month subscriber</div>
+              </div>
+              <div style="text-align:right;">
+                <div style="font-size:20px;font-weight:800;color:var(--red);">74%</div>
+                <div style="font-size:9px;color:var(--muted);">Churn probability</div>
+              </div>
+            </div>
+            <div class="prob-meter">
+              <div class="pm-label"><span>Churn Risk</span><span class="pm-val">74%</span></div>
+              <div class="pm-track"><div class="pm-fill" style="width:74%"></div></div>
+            </div>
+            <div style="background:#FFF8E1;border:1px solid #FFE082;border-radius:6px;padding:8px 10px;font-size:10px;color:#E65100;">
+              🔍 <strong>Predicted reason:</strong> Weight loss plateau at week 8 — no progress in last 12 days. Goal stall = motivation drop = pre-churn signal.
+            </div>
+          </div>
+
+          <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Engagement Signals (Last 14 Days vs Baseline)</div>
+          <div class="signal-row"><div class="sig-label">Login frequency</div><span class="sig-before">5.8/wk</span><span class="sig-arrow">→</span><span class="sig-after">0.7/wk</span></div>
+          <div class="signal-row"><div class="sig-label">Meal logs per day</div><span class="sig-before">3.2/day</span><span class="sig-arrow">→</span><span class="sig-after">0.4/day</span></div>
+          <div class="signal-row"><div class="sig-label">AI coach conversations</div><span class="sig-before">3/wk</span><span class="sig-arrow">→</span><span class="sig-after">0/wk</span></div>
+          <div class="signal-row"><div class="sig-label">Goal progress (7 days)</div><span class="sig-before">−0.3kg/wk</span><span class="sig-arrow">→</span><span class="sig-after">0.0kg</span></div>
+          <div class="signal-row"><div class="sig-label">Last active streak break</div><span style="font-size:11px;color:var(--muted);">12 days ago</span><span class="sig-after">14-day streak lost</span></div>
+
+          <div style="display:flex;gap:8px;margin-top:12px;">
+            <button class="btn btn-g btn-sm" onclick="go(3)">⚡ Send Intervention →</button>
+            <button class="btn btn-o btn-sm">Mark: Keep Watching</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- S3: INTERVENTION BUILDER -->
+      <div class="screen" id="s3">
+        <div class="sh">
+          <div><div class="sh-title">Intervention Builder</div><div class="sh-sub">AT-RISK segment · Renewal 7–14 days · Plateau pattern · 47 subscribers</div></div>
+        </div>
+        <div class="sc">
+          <div style="background:#E8F5E9;border:1px solid #A5D6A7;border-radius:6px;padding:8px 12px;margin-bottom:12px;font-size:11px;color:#1B5E20;">
+            ✓ <strong>47 subscribers</strong> matched this segment. Expected interventions to prevent <strong>14–17 churns</strong> based on similar cohort (31% recovery rate).
+          </div>
+
+          <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Intervention Type</div>
+          <div class="int-types">
+            <div class="int-type active" id="it-challenge" onclick="selInt('challenge',this)">🏆 Milestone Challenge</div>
+            <div class="int-type" id="it-discount"  onclick="selInt('discount',this)">💰 Discount Offer</div>
+            <div class="int-type" id="it-feature"   onclick="selInt('feature',this)">🔓 Feature Unlock</div>
+            <div class="int-type" id="it-coach"     onclick="selInt('coach',this)">👩‍⚕️ Human Coach Call</div>
+          </div>
+
+          <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Message Preview</div>
+          <div class="msg-preview" id="msg-preview">
+            "Priya, your 5kg journey is 60% done — and plateaus at this stage are completely normal. We've designed a 7-day plateau-breaking meal plan just for you. Your PRO plan unlocks it today. Let's finish what you started."
+          </div>
+
+          <div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <div style="font-size:11px;font-weight:700;color:var(--ink);">Expected Recovery Rate</div>
+              <div style="font-size:9px;color:var(--muted);">Based on similar cohort (plateau pattern, month 3)</div>
+            </div>
+            <div id="recovery-rate" style="font-size:20px;font-weight:800;color:var(--green);">31%</div>
+          </div>
+
+          <div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <div style="font-size:11px;font-weight:700;color:var(--ink);">A/B Test</div>
+              <div style="font-size:9px;color:var(--muted);">Split 50/50 vs control (no intervention)</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="font-size:11px;color:var(--muted)">Off</span>
+              <div id="ab-toggle" style="width:36px;height:20px;background:var(--green);border-radius:99px;cursor:pointer;position:relative;transition:all .2s;" onclick="toggleAB()">
+                <div id="ab-knob" style="position:absolute;width:16px;height:16px;background:#fff;border-radius:50%;top:2px;right:2px;transition:all .2s;"></div>
+              </div>
+              <span id="ab-label" style="font-size:11px;color:var(--green);font-weight:600;">On</span>
+            </div>
+          </div>
+
+          <button class="btn btn-g" style="width:100%;justify-content:center;" id="launch-btn" onclick="launchIntervention()">⚡ Launch Intervention — 47 subscribers</button>
+          <div id="launch-done" style="display:none;margin-top:8px;background:#E8F5E9;border:1px solid #A5D6A7;border-radius:6px;padding:8px 12px;font-size:11px;color:#1B5E20;">
+            ✓ Intervention sent to 47 subscribers. A/B test active. Check impact in 7 days.
+          </div>
+        </div>
+      </div>
+
+      <!-- S4: IMPACT ANALYTICS -->
+      <div class="screen" id="s4">
+        <div class="sh">
+          <div><div class="sh-title">Retention Impact Analytics</div><div class="sh-sub">Intervention effectiveness · Last 30 days</div></div>
+        </div>
+        <div class="sc">
+          <div class="stat-bar">
+            <div class="scc"><div class="sv">84.1%</div><div class="sl2">Renewal (intervened)</div></div>
+            <div class="scc warn"><div class="sv">78.3%</div><div class="sl2">Baseline rate</div></div>
+            <div class="scc"><div class="sv">+5.8pp</div><div class="sl2">Retention lift</div></div>
+            <div class="scc"><div class="sv">₹4.2L</div><div class="sl2">Revenue recovered</div></div>
+          </div>
+
+          <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Recovery Rate by Intervention Type</div>
+          <div class="impact-bar">
+            <div class="ib-method">🏆 Milestone Challenge</div>
+            <div class="ib-track"><div class="ib-fill" style="width:79%;background:var(--green);"></div></div>
+            <div style="display:flex;align-items:center;gap:6px;"><div class="ib-val" style="color:var(--green);">34%</div><span class="badge-win2">Best</span></div>
+          </div>
+          <div class="impact-bar">
+            <div class="ib-method">💰 Discount Offer (15% off)</div>
+            <div class="ib-track"><div class="ib-fill" style="width:65%;background:var(--gold);"></div></div>
+            <div class="ib-val" style="color:var(--gold);">28%</div>
+          </div>
+          <div class="impact-bar">
+            <div class="ib-method">🔓 Feature Unlock</div>
+            <div class="ib-track"><div class="ib-fill" style="width:51%;background:#42A5F5;"></div></div>
+            <div class="ib-val" style="color:#42A5F5;">22%</div>
+          </div>
+          <div class="impact-bar">
+            <div class="ib-method">👩‍⚕️ Human Coach Call</div>
+            <div class="ib-track"><div class="ib-fill" style="width:83%;background:#AB47BC;"></div></div>
+            <div class="ib-val" style="color:#AB47BC;">36%</div>
+          </div>
+          <div style="background:#FFF8E1;border:1px solid #FFE082;border-radius:6px;padding:8px 12px;margin-top:6px;font-size:10px;color:#E65100;">
+            💡 Human Coach Call has highest recovery (36%) but costs ₹180/call. Milestone Challenge at 34% with ₹0 marginal cost has the highest ROI by 4× — recommend as default intervention.
+          </div>
+
+          <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:14px 0 8px;">Intervention vs Control (A/B)</div>
+          <div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:10px 12px;display:flex;justify-content:space-around;">
+            <div style="text-align:center;">
+              <div style="font-size:20px;font-weight:800;color:var(--green);">84.1%</div>
+              <div style="font-size:10px;color:var(--muted);">Intervention cohort</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:20px;font-weight:800;color:var(--muted);">71.2%</div>
+              <div style="font-size:10px;color:var(--muted);">Control cohort</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:20px;font-weight:800;color:var(--green);">+12.9pp</div>
+              <div style="font-size:10px;color:var(--muted);">Renewal lift</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ANNOTATION PANEL -->
+  <div class="ap">
+    <div class="sl-label" id="screen-label">01 — RETENTION HEALTH</div>
+    <div id="anno-cards"></div>
+  </div>
+</div>
+
+<script>
+const LABELS={1:'01 — RETENTION HEALTH',2:'02 — AT-RISK DETAIL',3:'03 — INTERVENTION BUILDER',4:'04 — IMPACT ANALYTICS'};
+const URLS={1:'/ retention / overview',2:'/ retention / subscriber / priya-m',3:'/ retention / intervention / builder',4:'/ retention / analytics'};
+const ANNO={
+  1:[
+    {n:'INSIGHT 01',t:'Churn Detected Post-Cancellation = Too Late',b:'HealthifyMe currently detects churn when a subscriber doesn\'t renew. By then, the intervention window has passed. RetentionOS detects it 8–22 days before renewal using engagement decline signals — when intervention can still work.',metric:{v:'8–22 days',l:'intervention window before renewal event'}},
+    {n:'INSIGHT 02',t:'₹18.2L Revenue at Stake — Visible for First Time',b:'Previously, "subscribers at risk" was not a measurable number. RetentionOS surfaces it in real time: 1,204 at-risk subscribers × avg annual plan value = ₹18.2L at stake. This converts a vague problem into a boardroom-level number.',metric:{v:'₹18.2L',l:'at-risk subscription revenue — visible in real time'}},
+    {n:'PM RATIONALE',t:'Signal Consolidation — PhonePe Parallel',b:'The unified ops intelligence layer at PhonePe consolidated 6 siloed workflows into one console (TAT 2d→4h, −68% tickets). RetentionOS does the same: login frequency + meal logs + streak + goal progress → single churn risk score.',metric:{v:'−68%',l:'escalation tickets — PhonePe ops parallel'}},
+  ],
+  2:[
+    {n:'INSIGHT 01',t:'Goal Stall = Pre-Churn Signal',b:'Weight loss plateaus at week 6–8 are the single strongest churn predictor in HealthifyMe\'s cohort data. When progress stalls, motivation drops before behaviour does. RetentionOS detects it in the engagement signals 10–14 days before renewal.',metric:{v:'74%',l:'predicted churn probability for Priya at plateau week 8'}},
+    {n:'INSIGHT 02',t:'Engagement Decline Precedes Cancellation by 2 Weeks',b:'Meal log frequency drops from 3.2/day to 0.4/day across 14 days before churn. Login frequency drops from 5.8/wk to 0.7/wk. These signals are observable and predictable — they are not being used today.',metric:{v:'14 days',l:'average lead time: engagement decline before cancellation'}},
+    {n:'DESIGN DECISION',t:'Churn Reason as Intervention Anchor',b:'The predicted reason ("weight loss plateau at week 8") isn\'t just diagnostic — it directly informs the intervention. A plateau prediction → plateau-breaking meal plan. A streak-break prediction → streak recovery challenge. Root cause drives message.',metric:{v:'31%',l:'recovery rate when intervention matches predicted churn reason'}},
+  ],
+  3:[
+    {n:'INSIGHT 01',t:'Milestone Challenge Costs Zero, Recovers 34%',b:'The Milestone Challenge (personalised plateau-breaking plan + "finish your journey" message) costs HealthifyMe nothing in marginal terms. It recovers 34% of at-risk subscribers. No discount margin. No human cost.',metric:{v:'₹0',l:'marginal cost of Milestone Challenge intervention'}},
+    {n:'INSIGHT 02',t:'Message Anchors on Goal, Not Product',b:'The intervention message says "your 5kg journey is 60% done" — not "don\'t cancel your PRO plan." Framing around the user\'s goal (not the company\'s revenue) is the psychological insight that drives 34% recovery vs generic retention messages at 12%.',metric:{v:'34% vs 12%',l:'goal-anchored vs generic retention message CVR'}},
+    {n:'PM RATIONALE',t:'30-Day Retention Proof — PhonePe Pincode',b:'The 20% improvement in 30-day retention at PhonePe Pincode used the same signal logic: detect engagement drop → trigger contextual intervention at the right moment → recover the session before abandonment becomes permanent.',metric:{v:'+20%',l:'30-day retention — PhonePe Pincode proof point'}},
+  ],
+  4:[
+    {n:'INSIGHT 01',t:'Intervention Lifts Renewal Rate by 12.9pp',b:'Intervention cohort renews at 84.1% vs control cohort at 71.2% — a 12.9pp lift. At 1,204 at-risk subscribers per month, this translates to ~155 additional renewals/month that would otherwise have churned.',metric:{v:'+12.9pp',l:'renewal rate lift — intervention vs control cohort'}},
+    {n:'INSIGHT 02',t:'Milestone Challenge Has Highest ROI of Any Intervention',b:'Human Coach Call has marginally higher recovery (36% vs 34%) but costs ₹180/call. Milestone Challenge at ₹0 marginal cost has 4× the ROI. This is the same milestone waiver architecture from PhonePe that drove 60% device activation improvement.',metric:{v:'4×',l:'ROI of Milestone Challenge vs Human Coach Call'}},
+    {n:'PM RATIONALE',t:'Analytics as PM Accountability Surface',b:'The impact dashboard is the OKR scorecard for RetentionOS. Renewal rate lift + revenue recovered + A/B significance are the three numbers that prove the product\'s business value. Built as PM accountability, not an afterthought.',metric:{v:'₹4.2L',l:'subscription revenue recovered in last 30 days'}},
+  ]
+};
+
+let abActive=true;
+const msgs={
+  challenge:'"Priya, your 5kg journey is 60% done — and plateaus at this stage are completely normal. We\'ve designed a 7-day plateau-breaking meal plan just for you. Your PRO plan unlocks it today. Let\'s finish what you started."',
+  discount:'"Priya, we noticed you\'ve been away. As a thank you for your commitment, we\'re extending your PRO plan by 2 months — on us. Your personalised meal plan is waiting."',
+  feature:'"Priya, we\'ve unlocked HealthifyMe\'s Advanced Body Composition Tracker for you. It\'s available exclusively for PRO members and will help you see the progress that the scale isn\'t showing."',
+  coach:'"Hi Priya! Your dedicated wellness coach Deepa has noticed your recent plateau and would love to help. Book a free 20-min call — she\'ll redesign your plan for the next 4 weeks."'
+};
+const rates={challenge:'31%',discount:'28%',feature:'22%',coach:'36%'};
+
+function go(n){
+  [1,2,3,4].forEach(i=>{
+    document.getElementById('s'+i).classList.remove('active');
+    const d=document.getElementById('d'+i); if(d) d.classList.remove('active');
+  });
+  document.getElementById('s'+n).classList.add('active');
+  const dn=document.getElementById('d'+n); if(dn) dn.classList.add('active');
+  document.getElementById('screen-label').textContent=LABELS[n];
+  document.getElementById('url-bar').textContent=URLS[n];
+  renderAnno(n);
+}
+function renderAnno(n){
+  const container=document.getElementById('anno-cards'); container.innerHTML='';
+  ANNO[n].forEach(c=>{
+    const div=document.createElement('div'); div.className='ac';
+    div.innerHTML=`<div class="ac-n">${c.n}</div><div class="ac-t">${c.t}</div><div class="ac-b">${c.b}</div>`+
+      (c.metric?`<div class="am"><span class="am-v">${c.metric.v}</span><span class="am-l">${c.metric.l}</span></div>`:'');
+    container.appendChild(div);
+  });
+}
+function selInt(type, el){
+  document.querySelectorAll('.int-type').forEach(e=>e.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('msg-preview').textContent=msgs[type]||msgs.challenge;
+  document.getElementById('recovery-rate').textContent=rates[type]||'31%';
+}
+function toggleAB(){
+  abActive=!abActive;
+  const tog=document.getElementById('ab-toggle');
+  const knob=document.getElementById('ab-knob');
+  const lbl=document.getElementById('ab-label');
+  if(abActive){
+    tog.style.background='var(--green)'; knob.style.right='2px'; knob.style.left=''; lbl.textContent='On'; lbl.style.color='var(--green)';
+  } else {
+    tog.style.background='#ccc'; knob.style.left='2px'; knob.style.right=''; lbl.textContent='Off'; lbl.style.color='var(--muted)';
+  }
+}
+function launchIntervention(){
+  const btn=document.getElementById('launch-btn');
+  btn.textContent='✓ Intervention Launched'; btn.style.opacity='.7'; btn.disabled=true;
+  document.getElementById('launch-done').style.display='block';
+}
+renderAnno(1);
+</script>
+</body>
+</html>
