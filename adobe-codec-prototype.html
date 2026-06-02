@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Adobe Audience Codec — Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --c-dark: #0F0E0E;
+  --c-hero: #2A2A2A;
+  --c-bright: #FF0000;
+  --c-blue: #0078D4;
+  --c-gold: #FFB81C;
+  --c-white: #FFFFFF;
+  --c-gray: #F7F7F7;
+  --c-muted: #757575;
+  --ink: #1a1a1a;
+  --border: #E0E0E0;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Sora', sans-serif;
+  background: var(--c-dark);
+  color: var(--c-muted);
+  padding: 48px 32px;
+  min-height: 100vh;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 64px;
+}
+
+.header h1 {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--c-white);
+  margin-bottom: 8px;
+}
+
+.header p {
+  font-size: 13px;
+  color: var(--c-muted);
+}
+
+.proto-wrapper {
+  display: flex;
+  gap: 32px;
+  justify-content: center;
+  flex-wrap: wrap;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+.phone-frame {
+  position: relative;
+  width: 375px;
+  height: 812px;
+  background: var(--c-white);
+  border-radius: 46px;
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.28);
+  overflow: hidden;
+  border: 12px solid #000;
+}
+
+.notch {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 118px;
+  height: 28px;
+  background: var(--c-dark);
+  border-radius: 0 0 16px 16px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notch-camera {
+  width: 12px;
+  height: 12px;
+  background: #333;
+  border-radius: 50%;
+}
+
+.status-bar {
+  position: absolute;
+  top: 8px;
+  left: 0;
+  right: 0;
+  height: 20px;
+  background: var(--c-dark);
+  color: var(--c-white);
+  font-size: 11px;
+  font-family: 'DM Mono', monospace;
+  padding: 0 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 99;
+}
+
+.screen {
+  position: absolute;
+  top: 36px;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 724px;
+  background: var(--c-white);
+  overflow: hidden;
+  display: none;
+}
+
+.screen.active {
+  display: block;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.screen-label {
+  position: absolute;
+  bottom: -48px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--c-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.screen-content {
+  padding: 20px;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.header-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.header-bar h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.cta-btn {
+  background: var(--c-bright);
+  color: var(--c-white);
+  border: none;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  width: 100%;
+  margin-bottom: 16px;
+  transition: all 0.2s;
+}
+
+.cta-btn:active {
+  transform: scale(0.98);
+}
+
+.saved-audience {
+  background: var(--c-gray);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+  border-left: 4px solid var(--c-blue);
+}
+
+.audience-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+
+.audience-meta {
+  font-size: 11px;
+  color: var(--c-muted);
+  margin-bottom: 8px;
+}
+
+.audience-spark {
+  font-size: 10px;
+  color: var(--c-bright);
+  font-weight: 600;
+}
+
+.agent-bubble-user {
+  background: var(--c-bright);
+  color: var(--c-white);
+  border-radius: 12px 12px 0 12px;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+  max-width: 85%;
+  margin-left: auto;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.agent-bubble-ai {
+  background: var(--c-gray);
+  color: var(--ink);
+  border-radius: 12px 12px 12px 0;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+  max-width: 85%;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.reach-forecast {
+  background: var(--c-gray);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+  border-left: 4px solid var(--c-gold);
+}
+
+.forecast-label {
+  font-size: 11px;
+  color: var(--c-muted);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.forecast-val {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--c-bright);
+  font-family: 'DM Mono', monospace;
+  margin-bottom: 6px;
+}
+
+.forecast-detail {
+  font-size: 11px;
+  color: var(--c-muted);
+}
+
+.constraint-tag {
+  display: inline-block;
+  background: var(--c-gray);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 11px;
+  margin-right: 8px;
+  margin-bottom: 8px;
+}
+
+.preview-box {
+  background: var(--c-gray);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.preview-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 12px;
+}
+
+.segment-bar {
+  display: flex;
+  height: 12px;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+
+.segment-part {
+  flex: 1;
+  background: var(--c-bright);
+}
+
+.segment-part:nth-child(2) {
+  background: var(--c-blue);
+}
+
+.segment-part:nth-child(3) {
+  background: var(--c-gold);
+}
+
+.segment-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--c-muted);
+  margin-top: 8px;
+}
+
+.confirmation {
+  text-align: center;
+  padding: 40px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.checkmark {
+  font-size: 64px;
+  margin-bottom: 20px;
+}
+
+.confirmation h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 12px;
+}
+
+.confirmation p {
+  font-size: 13px;
+  color: var(--c-muted);
+  margin-bottom: 24px;
+}
+
+.impact-box {
+  background: var(--c-gray);
+  border-left: 4px solid var(--c-gold);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+  text-align: left;
+}
+
+.impact-label {
+  font-size: 10px;
+  color: var(--c-muted);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.impact-stat {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--c-bright);
+  font-family: 'DM Mono', monospace;
+}
+
+.confetti-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 724px;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.cp {
+  position: absolute;
+  pointer-events: none;
+  animation: fall linear forwards;
+}
+
+@keyframes fall {
+  to {
+    transform: translateY(800px) rotateZ(360deg);
+    opacity: 0;
+  }
+}
+
+.nav-dots {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #E0E0E0;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.dot.active {
+  background: var(--c-bright);
+  width: 24px;
+  border-radius: 4px;
+}
+
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Audience Codec</h1>
+  <p>Adobe DSP · Conversational Audience Assembly · Interactive Prototype</p>
+</div>
+
+<div class="proto-wrapper">
+  <!-- PHONE 1 -->
+  <div style="position: relative;">
+    <div class="phone-frame">
+      <div class="notch"><div class="notch-camera"></div></div>
+      <div class="status-bar"><span>9:41</span><span>●●●●●</span></div>
+
+      <!-- SCREEN 1: Campaign Home + New Audience Button -->
+      <div id="s1" class="screen active">
+        <div class="screen-content">
+          <div class="header-bar">
+            <h2>Audiences</h2>
+          </div>
+
+          <button class="cta-btn" onclick="go(2)">+ Assemble New Audience</button>
+
+          <div class="saved-audience">
+            <div class="audience-name">Lapsed High-Intent</div>
+            <div class="audience-meta">Created 3 days ago · 18,420 users</div>
+            <div class="audience-spark">↑ 19% ROAS vs segment avg</div>
+          </div>
+
+          <div class="saved-audience">
+            <div class="audience-name">Cart Abandoners (7d)</div>
+            <div class="audience-meta">Created 1 week ago · 42,156 users</div>
+            <div class="audience-spark">↑ 22% ROAS vs segment avg</div>
+          </div>
+
+          <div class="saved-audience">
+            <div class="audience-name">Mobile Browsers (US)</div>
+            <div class="audience-meta">Created 2 weeks ago · 156,800 users</div>
+            <div class="audience-spark">→ 8% ROAS vs segment avg</div>
+          </div>
+        </div>
+        <div class="nav-dots">
+          <div class="dot active" onclick="go(1)"></div>
+          <div class="dot" onclick="go(2)"></div>
+          <div class="dot" onclick="go(3)"></div>
+          <div class="dot" onclick="go(4)"></div>
+        </div>
+        <div class="screen-label">01 — Library</div>
+      </div>
+
+      <!-- SCREEN 2: Agent Conversation -->
+      <div id="s2" class="screen">
+        <div class="screen-content" style="padding-top: 12px;">
+          <div class="header-bar" style="margin-bottom: 12px;">
+            <h2 style="font-size: 16px;">Audience Builder</h2>
+          </div>
+
+          <div class="agent-bubble-ai">
+            <strong>Agent:</strong> What type of user are you targeting?
+          </div>
+
+          <div class="agent-bubble-user">
+            Re-engage users who visited product page 30+ days ago but didn't convert
+          </div>
+
+          <div class="agent-bubble-ai">
+            <strong>Agent:</strong> Got it. High-intent re-engagement. What's your budget & frequency cap?
+          </div>
+
+          <div class="agent-bubble-user">
+            $5K budget. High-intent only, no more than 3 ads per week per user.
+          </div>
+
+          <div class="agent-bubble-ai">
+            <strong>Agent:</strong> Perfect. Building your audience now. Reach forecast below.
+          </div>
+
+          <div class="reach-forecast">
+            <div class="forecast-label">Predicted Reach</div>
+            <div class="forecast-val">28,460</div>
+            <div class="forecast-detail">Users matching: visited product page 30+ days ago + no conversion signal + high intent</div>
+          </div>
+
+          <button class="cta-btn" onclick="go(3)">Review & Save Audience</button>
+        </div>
+        <div class="nav-dots">
+          <div class="dot" onclick="go(1)"></div>
+          <div class="dot active" onclick="go(2)"></div>
+          <div class="dot" onclick="go(3)"></div>
+          <div class="dot" onclick="go(4)"></div>
+        </div>
+        <div class="screen-label">02 — Conversation</div>
+      </div>
+
+      <!-- SCREEN 3: Audience Preview -->
+      <div id="s3" class="screen">
+        <div class="screen-content">
+          <div class="header-bar">
+            <h2>Audience Preview</h2>
+          </div>
+
+          <div class="preview-box">
+            <div class="preview-title">Lapsed High-Intent (28,460 users)</div>
+            <div class="segment-bar">
+              <div class="segment-part" style="flex: 0.35;"></div>
+              <div class="segment-part" style="flex: 0.42;"></div>
+              <div class="segment-part" style="flex: 0.23;"></div>
+            </div>
+            <div class="segment-label">
+              <span>35% Visited 30-60d ago</span>
+              <span>42% Visited 60-90d ago</span>
+              <span>23% Visited 90d+ ago</span>
+            </div>
+          </div>
+
+          <div class="preview-box">
+            <div class="preview-title">Constraints Applied</div>
+            <div class="constraint-tag">Frequency: 3/week</div>
+            <div class="constraint-tag">Intent: High only</div>
+            <div class="constraint-tag">Geography: All</div>
+            <div class="constraint-tag">Device: All</div>
+          </div>
+
+          <div class="reach-forecast">
+            <div class="forecast-label">Estimated CPM @ $5K Budget</div>
+            <div class="forecast-val">$6.50</div>
+            <div class="forecast-detail">768K impressions, high-intent demographic premium</div>
+          </div>
+
+          <button class="cta-btn" onclick="go(4)">Save as "Lapsed High-Intent"</button>
+        </div>
+        <div class="nav-dots">
+          <div class="dot" onclick="go(1)"></div>
+          <div class="dot" onclick="go(2)"></div>
+          <div class="dot active" onclick="go(3)"></div>
+          <div class="dot" onclick="go(4)"></div>
+        </div>
+        <div class="screen-label">03 — Review</div>
+      </div>
+
+      <!-- SCREEN 4: Confirmation + History -->
+      <div id="s4" class="screen">
+        <div class="confirmation">
+          <div class="checkmark">✓</div>
+          <h3>Audience Saved</h3>
+          <p>Lapsed High-Intent (28,460 users)</p>
+
+          <div class="impact-box">
+            <div class="impact-label">Time Saved</div>
+            <div class="impact-stat">6 min (vs 5–7 days)</div>
+          </div>
+
+          <div class="impact-box">
+            <div class="impact-label">Ready to Deploy</div>
+            <div style="font-size: 12px; color: var(--c-muted); margin-top: 8px;">Apply to any campaign. Update anytime.</div>
+          </div>
+
+          <button class="cta-btn" onclick="go(1)">← Back to Library</button>
+        </div>
+        <div id="conf" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></div>
+        <div class="nav-dots">
+          <div class="dot" onclick="go(1)"></div>
+          <div class="dot" onclick="go(2)"></div>
+          <div class="dot" onclick="go(3)"></div>
+          <div class="dot active" onclick="go(4)"></div>
+        </div>
+        <div class="screen-label">04 — Saved</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function go(n) {
+  [1,2,3,4].forEach(i => {
+    document.getElementById('s'+i).classList.remove('active');
+    document.querySelectorAll('.dot')[i-1].classList.remove('active');
+  });
+  document.getElementById('s'+n).classList.add('active');
+  document.querySelectorAll('.dot')[n-1].classList.add('active');
+
+  if (n === 4) {
+    setTimeout(() => confetti(), 100);
+  }
+}
+
+function confetti() {
+  const c = document.getElementById('conf');
+  const cols = ['#FF0000', '#0078D4', '#FFB81C', '#2A2A2A', '#F7F7F7'];
+  for (let i = 0; i < 32; i++) {
+    const p = document.createElement('div');
+    p.className = 'cp';
+    const size = 4 + Math.random() * 7;
+    p.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*120-10}%;width:${size}px;height:${size}px;background:${cols[Math.floor(Math.random()*cols.length)]};border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${1.4+Math.random()*1.8}s;animation-delay:${Math.random()*2.4}s;`;
+    c.appendChild(p);
+  }
+}
+
+@keyframes fall {
+  to { transform: translateY(800px) rotateZ(360deg); opacity: 0; }
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Adobe Campaign Autopilot — Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --c-dark: #0F0E0E;
+  --c-hero: #2A2A2A;
+  --c-bright: #FF0000;
+  --c-blue: #0078D4;
+  --c-gold: #FFB81C;
+  --c-white: #FFFFFF;
+  --c-gray: #F7F7F7;
+  --c-muted: #757575;
+  --ink: #1a1a1a;
+  --border: #E0E0E0;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Sora', sans-serif;
+  background: var(--c-dark);
+  color: var(--c-muted);
+  padding: 48px 32px;
+  min-height: 100vh;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 64px;
+}
+
+.header h1 {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--c-white);
+  margin-bottom: 8px;
+}
+
+.header p {
+  font-size: 13px;
+  color: var(--c-muted);
+}
+
+.proto-wrapper {
+  display: flex;
+  gap: 32px;
+  justify-content: center;
+  flex-wrap: wrap;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+.phone-frame {
+  position: relative;
+  width: 375px;
+  height: 812px;
+  background: var(--c-white);
+  border-radius: 46px;
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.28);
+  overflow: hidden;
+  border: 12px solid #000;
+}
+
+.notch {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 118px;
+  height: 28px;
+  background: var(--c-dark);
+  border-radius: 0 0 16px 16px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notch-camera {
+  width: 12px;
+  height: 12px;
+  background: #333;
+  border-radius: 50%;
+}
+
+.status-bar {
+  position: absolute;
+  top: 8px;
+  left: 0;
+  right: 0;
+  height: 20px;
+  background: var(--c-dark);
+  color: var(--c-white);
+  font-size: 11px;
+  font-family: 'DM Mono', monospace;
+  padding: 0 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 99;
+}
+
+.screen {
+  position: absolute;
+  top: 36px;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 724px;
+  background: var(--c-white);
+  overflow: hidden;
+  display: none;
+}
+
+.screen.active {
+  display: block;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.screen-label {
+  position: absolute;
+  bottom: -48px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--c-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ===== SCREEN CONTENT ===== */
+
+.screen-content {
+  padding: 20px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.header-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.header-bar h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.badge {
+  background: var(--c-gold);
+  color: var(--ink);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.campaign-card {
+  background: var(--c-gray);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  border-left: 4px solid var(--c-bright);
+}
+
+.campaign-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+
+.budget-row {
+  font-size: 12px;
+  color: var(--c-muted);
+  margin-bottom: 12px;
+}
+
+.track {
+  height: 8px;
+  background: #E0E0E0;
+  border-radius: 99px;
+  overflow: visible;
+  position: relative;
+  margin-bottom: 8px;
+}
+
+.fill {
+  height: 100%;
+  border-radius: 99px;
+  background: var(--c-bright);
+  position: relative;
+  transition: width 0.6s ease;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.fill-badge {
+  position: absolute;
+  right: -12px;
+  top: -10px;
+  background: var(--c-bright);
+  color: var(--c-white);
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 5px;
+  border-radius: 6px;
+  white-space: nowrap;
+  font-family: 'DM Mono', monospace;
+}
+
+.rec-item {
+  background: var(--c-gray);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.rec-item:active {
+  transform: scale(0.98);
+}
+
+.rec-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--c-bright);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+}
+
+.rec-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+
+.rec-metric {
+  font-size: 11px;
+  color: var(--c-muted);
+  margin-bottom: 8px;
+}
+
+.metric-row {
+  display: flex;
+  gap: 16px;
+  justify-content: space-around;
+  margin-top: 12px;
+}
+
+.metric {
+  flex: 1;
+  text-align: center;
+}
+
+.metric-val {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--c-bright);
+  font-family: 'DM Mono', monospace;
+}
+
+.metric-lbl {
+  font-size: 10px;
+  color: var(--c-muted);
+  margin-top: 2px;
+}
+
+.btn {
+  background: var(--c-bright);
+  color: var(--c-white);
+  border: none;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 12px;
+  width: 100%;
+  transition: all 0.2s;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.confirmation {
+  text-align: center;
+  padding: 40px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.checkmark {
+  font-size: 64px;
+  margin-bottom: 20px;
+}
+
+.confirmation h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 12px;
+}
+
+.confirmation p {
+  font-size: 13px;
+  color: var(--c-muted);
+  margin-bottom: 24px;
+}
+
+.impact-box {
+  background: var(--c-gray);
+  border-left: 4px solid var(--c-gold);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+  text-align: left;
+}
+
+.impact-label {
+  font-size: 10px;
+  color: var(--c-muted);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.impact-stat {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--c-bright);
+  font-family: 'DM Mono', monospace;
+}
+
+.history-item {
+  background: var(--c-gray);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.history-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+
+.history-meta {
+  font-size: 11px;
+  color: var(--c-muted);
+  margin-bottom: 8px;
+}
+
+.history-result {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--c-bright);
+  font-family: 'DM Mono', monospace;
+}
+
+.confetti-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 724px;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.cp {
+  position: absolute;
+  pointer-events: none;
+  animation: fall linear forwards;
+}
+
+@keyframes fall {
+  to {
+    transform: translateY(800px) rotateZ(360deg);
+    opacity: 0;
+  }
+}
+
+.nav-dots {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #E0E0E0;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.dot.active {
+  background: var(--c-bright);
+  width: 24px;
+  border-radius: 4px;
+}
+
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Campaign Autopilot</h1>
+  <p>Adobe DSP · AI-Driven Bid Optimization · Interactive Prototype</p>
+</div>
+
+<div class="proto-wrapper">
+  <!-- PHONE 1 -->
+  <div style="position: relative;">
+    <div class="phone-frame">
+      <div class="notch"><div class="notch-camera"></div></div>
+      <div class="status-bar"><span>9:41</span><span>●●●●●</span></div>
+
+      <!-- SCREEN 1: Campaign Home -->
+      <div id="s1" class="screen active">
+        <div class="screen-content">
+          <div class="header-bar">
+            <h2>Campaigns</h2>
+            <span class="badge">3 Pending</span>
+          </div>
+
+          <div class="campaign-card">
+            <div class="campaign-name">Q2 Brand Awareness</div>
+            <div class="budget-row">Daily Budget: $10,000 · Today: $7,320</div>
+            <div class="track"><div class="fill" style="width: 73%;"><span class="fill-badge">73%</span></div></div>
+            <div style="font-size: 11px; color: var(--c-muted);">Spend on track</div>
+          </div>
+
+          <div class="campaign-card">
+            <div class="campaign-name">Retargeting Converters</div>
+            <div class="budget-row">Daily Budget: $5,000 · Today: $3,840</div>
+            <div class="track"><div class="fill" style="width: 77%;"><span class="fill-badge">77%</span></div></div>
+            <div style="font-size: 11px; color: var(--c-bright); font-weight: 600;">✓ AI optimization active</div>
+          </div>
+
+          <div class="campaign-card">
+            <div class="campaign-name">Mobile Q-Commerce</div>
+            <div class="budget-row">Daily Budget: $3,500 · Today: $2,156</div>
+            <div class="track"><div class="fill" style="width: 62%;"><span class="fill-badge">62%</span></div></div>
+            <div style="font-size: 11px; color: var(--c-gold); font-weight: 600;">🎯 2 recommendations available</div>
+          </div>
+        </div>
+        <div class="nav-dots">
+          <div class="dot active" onclick="go(1)"></div>
+          <div class="dot" onclick="go(2)"></div>
+          <div class="dot" onclick="go(3)"></div>
+          <div class="dot" onclick="go(4)"></div>
+        </div>
+        <div class="screen-label">01 — Campaign Home</div>
+      </div>
+
+      <!-- SCREEN 2: Recommendations Feed -->
+      <div id="s2" class="screen">
+        <div class="screen-content">
+          <div class="header-bar">
+            <h2>Recommendations</h2>
+          </div>
+
+          <div class="rec-item" onclick="go(3)">
+            <div class="rec-label">Bid Increase</div>
+            <div class="rec-title">Raise Mobile 6–9pm Bids</div>
+            <div class="rec-metric">Mobile inventory is 34% below median quality score during prime evening hours.</div>
+            <div class="metric-row">
+              <div class="metric">
+                <div class="metric-val" style="color: var(--c-bright);">+15%</div>
+                <div class="metric-lbl">Recommended</div>
+              </div>
+              <div class="metric">
+                <div class="metric-val">+18%</div>
+                <div class="metric-lbl">Est. ROAS</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="rec-item">
+            <div class="rec-label">Budget Reallocation</div>
+            <div class="rec-title">Shift 12% Budget to Lookalike Y</div>
+            <div class="rec-metric">Lookalike segment converting 28% above campaign average.</div>
+            <div class="metric-row">
+              <div class="metric">
+                <div class="metric-val">+$1,200</div>
+                <div class="metric-lbl">Daily Shift</div>
+              </div>
+              <div class="metric">
+                <div class="metric-val">+22%</div>
+                <div class="metric-lbl">Est. ROAS</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="rec-item">
+            <div class="rec-label">Bid Decrease</div>
+            <div class="rec-title">Lower Bids on Generic Keyword</div>
+            <div class="rec-metric">Low-intent keyword X converting 8% below baseline.</div>
+            <div class="metric-row">
+              <div class="metric">
+                <div class="metric-val">−22%</div>
+                <div class="metric-lbl">Recommended</div>
+              </div>
+              <div class="metric">
+                <div class="metric-val">−14%</div>
+                <div class="metric-lbl">Cost/Conv</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="nav-dots">
+          <div class="dot" onclick="go(1)"></div>
+          <div class="dot active" onclick="go(2)"></div>
+          <div class="dot" onclick="go(3)"></div>
+          <div class="dot" onclick="go(4)"></div>
+        </div>
+        <div class="screen-label">02 — Recommendations</div>
+      </div>
+
+      <!-- SCREEN 3: Apply Confirmation -->
+      <div id="s3" class="screen">
+        <div class="confirmation">
+          <div class="checkmark">✓</div>
+          <h3>Recommendation Applied</h3>
+          <p>Mobile 6–9pm bids increased by 15%</p>
+
+          <div class="impact-box">
+            <div class="impact-label">Expected Impact (Next 48h)</div>
+            <div class="impact-stat">+$340 GMV</div>
+          </div>
+
+          <div class="impact-box">
+            <div class="impact-label">Tracking Against Control</div>
+            <div style="font-size: 12px; color: var(--c-muted); margin-top: 8px;">Applied vs. static bidding baseline</div>
+          </div>
+
+          <button class="btn" onclick="go(4)">View Campaign History</button>
+        </div>
+        <div id="conf" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></div>
+        <div class="nav-dots">
+          <div class="dot" onclick="go(1)"></div>
+          <div class="dot" onclick="go(2)"></div>
+          <div class="dot active" onclick="go(3)"></div>
+          <div class="dot" onclick="go(4)"></div>
+        </div>
+        <div class="screen-label">03 — Applied</div>
+      </div>
+
+      <!-- SCREEN 4: Ops Console -->
+      <div id="s4" class="screen">
+        <div class="screen-content">
+          <div class="header-bar">
+            <h2>Campaign History</h2>
+          </div>
+
+          <div class="history-item">
+            <div class="history-title">Mobile 6–9pm +15%</div>
+            <div class="history-meta">Applied 2h ago · Control active</div>
+            <div class="history-result">+18% ROAS vs Static</div>
+          </div>
+
+          <div class="history-item">
+            <div class="history-title">Lookalike Y +12% Budget</div>
+            <div class="history-meta">Applied yesterday · Test running</div>
+            <div class="history-result">+22% ROAS vs Baseline</div>
+          </div>
+
+          <div class="history-item">
+            <div class="history-title">Generic Keyword −22%</div>
+            <div class="history-meta">Applied 3 days ago · Winning</div>
+            <div class="history-result">−14% Cost/Conv ✓</div>
+          </div>
+
+          <div class="impact-box" style="margin-top: 20px;">
+            <div class="impact-label">This Campaign (7 Days)</div>
+            <div class="impact-stat">+16% Overall ROAS</div>
+          </div>
+        </div>
+        <div class="nav-dots">
+          <div class="dot" onclick="go(1)"></div>
+          <div class="dot" onclick="go(2)"></div>
+          <div class="dot" onclick="go(3)"></div>
+          <div class="dot active" onclick="go(4)"></div>
+        </div>
+        <div class="screen-label">04 — Campaign History</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function go(n) {
+  [1,2,3,4].forEach(i => {
+    document.getElementById('s'+i).classList.remove('active');
+    document.querySelectorAll('.dot')[i-1].classList.remove('active');
+  });
+  document.getElementById('s'+n).classList.add('active');
+  document.querySelectorAll('.dot')[n-1].classList.add('active');
+
+  if (n === 3) {
+    setTimeout(() => confetti(), 100);
+  }
+}
+
+function confetti() {
+  const c = document.getElementById('conf');
+  const cols = ['#FF0000', '#FFB81C', '#0078D4', '#2A2A2A', '#F7F7F7'];
+  for (let i = 0; i < 32; i++) {
+    const p = document.createElement('div');
+    p.className = 'cp';
+    const size = 4 + Math.random() * 7;
+    p.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*120-10}%;width:${size}px;height:${size}px;background:${cols[Math.floor(Math.random()*cols.length)]};border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${1.4+Math.random()*1.8}s;animation-delay:${Math.random()*2.4}s;`;
+    c.appendChild(p);
+  }
+}
+</script>
+
+</body>
+</html>

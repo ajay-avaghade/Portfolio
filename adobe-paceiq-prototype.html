@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Adobe PaceIQ — Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --c-dark: #0F0E0E;
+  --c-hero: #2A2A2A;
+  --c-bright: #FF0000;
+  --c-blue: #0078D4;
+  --c-gold: #FFB81C;
+  --c-white: #FFFFFF;
+  --c-gray: #F7F7F7;
+  --c-muted: #757575;
+  --ink: #1a1a1a;
+  --border: #E0E0E0;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Sora', sans-serif;
+  background: var(--c-dark);
+  color: var(--c-muted);
+  padding: 48px 32px;
+  min-height: 100vh;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 64px;
+}
+
+.header h1 {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--c-white);
+  margin-bottom: 8px;
+}
+
+.header p {
+  font-size: 13px;
+  color: var(--c-muted);
+}
+
+.proto-wrapper {
+  display: flex;
+  gap: 32px;
+  justify-content: center;
+  flex-wrap: wrap;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+.phone-frame {
+  position: relative;
+  width: 375px;
+  height: 812px;
+  background: var(--c-white);
+  border-radius: 46px;
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.28);
+  overflow: hidden;
+  border: 12px solid #000;
+}
+
+.notch {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 118px;
+  height: 28px;
+  background: var(--c-dark);
+  border-radius: 0 0 16px 16px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notch-camera {
+  width: 12px;
+  height: 12px;
+  background: #333;
+  border-radius: 50%;
+}
+
+.status-bar {
+  position: absolute;
+  top: 8px;
+  left: 0;
+  right: 0;
+  height: 20px;
+  background: var(--c-dark);
+  color: var(--c-white);
+  font-size: 11px;
+  font-family: 'DM Mono', monospace;
+  padding: 0 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 99;
+}
+
+.screen {
+  position: absolute;
+  top: 36px;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 724px;
+  background: var(--c-white);
+  overflow: hidden;
+  display: none;
+}
+
+.screen.active {
+  display: block;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.screen-label {
+  position: absolute;
+  bottom: -48px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--c-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.screen-content {
+  padding: 20px;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.header-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.header-bar h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.health-score {
+  text-align: center;
+  background: var(--c-gray);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.score-big {
+  font-size: 48px;
+  font-weight: 800;
+  color: var(--c-bright);
+  font-family: 'DM Mono', monospace;
+  line-height: 1;
+}
+
+.score-label {
+  font-size: 11px;
+  color: var(--c-muted);
+  text-transform: uppercase;
+  margin-top: 8px;
+}
+
+.track {
+  height: 8px;
+  background: #E0E0E0;
+  border-radius: 99px;
+  overflow: visible;
+  position: relative;
+  margin: 16px 0 8px 0;
+}
+
+.fill {
+  height: 100%;
+  border-radius: 99px;
+  background: var(--c-bright);
+  position: relative;
+  transition: width 0.6s ease;
+}
+
+.fill-badge {
+  position: absolute;
+  right: -12px;
+  top: -10px;
+  background: var(--c-bright);
+  color: var(--c-white);
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 5px;
+  border-radius: 6px;
+  white-space: nowrap;
+  font-family: 'DM Mono', monospace;
+}
+
+.budget-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--c-muted);
+  margin-bottom: 8px;
+}
+
+.rec-card {
+  background: var(--c-gray);
+  border: 2px solid var(--c-gold);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.rec-card:active {
+  transform: scale(0.98);
+}
+
+.rec-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--c-gold);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.rec-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+
+.rec-metric {
+  font-size: 11px;
+  color: var(--c-muted);
+}
+
+.breakdown-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.breakdown-item:last-child {
+  border-bottom: none;
+}
+
+.breakdown-label {
+  font-size: 13px;
+  color: var(--ink);
+}
+
+.breakdown-pct {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--c-bright);
+  font-family: 'DM Mono', monospace;
+}
+
+.heatmap-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 4px;
+  margin-top: 12px;
+}
+
+.heatmap-cell {
+  aspect-ratio: 1;
+  border-radius: 6px;
+  font-size: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--c-white);
+  font-weight: 700;
+}
+
+.heat-hot { background: var(--c-bright); }
+.heat-warm { background: #FF6B6B; }
+.heat-cool { background: #FFD700; }
+.heat-cold { background: #E0E0E0; color: var(--c-muted); }
+
+.quality-box {
+  background: var(--c-gray);
+  border-left: 4px solid var(--c-blue);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.quality-label {
+  font-size: 10px;
+  color: var(--c-muted);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.quality-val {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--c-blue);
+  font-family: 'DM Mono', monospace;
+}
+
+.ops-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.ops-table th {
+  background: var(--c-gray);
+  padding: 8px;
+  text-align: left;
+  font-weight: 700;
+  color: var(--ink);
+  border-bottom: 2px solid var(--border);
+}
+
+.ops-table td {
+  padding: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.ops-table tr:hover {
+  background: var(--c-gray);
+}
+
+.status-green { color: #22C55E; font-weight: 700; }
+.status-red { color: var(--c-bright); font-weight: 700; }
+
+.impact-box {
+  background: var(--c-gray);
+  border-left: 4px solid var(--c-gold);
+  border-radius: 8px;
+  padding: 16px;
+  text-align: left;
+}
+
+.impact-label {
+  font-size: 10px;
+  color: var(--c-muted);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.impact-stat {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--c-bright);
+  font-family: 'DM Mono', monospace;
+}
+
+.nav-dots {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #E0E0E0;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.dot.active {
+  background: var(--c-bright);
+  width: 24px;
+  border-radius: 4px;
+}
+
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>PaceIQ</h1>
+  <p>Adobe DSP · Real-Time Budget Pacing & Diagnostics · Interactive Prototype</p>
+</div>
+
+<div class="proto-wrapper">
+  <!-- PHONE 1 -->
+  <div style="position: relative;">
+    <div class="phone-frame">
+      <div class="notch"><div class="notch-camera"></div></div>
+      <div class="status-bar"><span>9:41</span><span>●●●●●</span></div>
+
+      <!-- SCREEN 1: Campaign Dashboard -->
+      <div id="s1" class="screen active">
+        <div class="screen-content">
+          <div class="header-bar">
+            <h2>Q2 Brand Awareness</h2>
+          </div>
+
+          <div class="health-score">
+            <div class="score-big">72</div>
+            <div class="score-label">Campaign Health Score</div>
+          </div>
+
+          <div class="budget-label">
+            <span>Daily Budget: $10,000</span>
+            <span>Spent: $7,320</span>
+          </div>
+          <div class="track"><div class="fill" style="width: 73%;"><span class="fill-badge">73%</span></div></div>
+          <div style="font-size: 11px; color: var(--c-muted); margin-bottom: 16px;">On pace to hit daily target</div>
+
+          <div class="rec-card" onclick="go(2)">
+            <div class="rec-label">⚠️ Diagnostics Available</div>
+            <div class="rec-title">View Spend Breakdown</div>
+            <div class="rec-metric">27% unspent — understand why</div>
+          </div>
+
+          <button style="background: var(--c-blue); color: white; border: none; border-radius: 8px; padding: 12px 16px; font-size: 13px; font-weight: 700; cursor: pointer; width: 100%;" onclick="go(2)">View Diagnostics</button>
+        </div>
+        <div class="nav-dots">
+          <div class="dot active" onclick="go(1)"></div>
+          <div class="dot" onclick="go(2)"></div>
+          <div class="dot" onclick="go(3)"></div>
+          <div class="dot" onclick="go(4)"></div>
+        </div>
+        <div class="screen-label">01 — Dashboard</div>
+      </div>
+
+      <!-- SCREEN 2: Diagnostics -->
+      <div id="s2" class="screen">
+        <div class="screen-content">
+          <div class="header-bar">
+            <h2 style="font-size: 16px;">Spend Breakdown</h2>
+          </div>
+
+          <div class="quality-box">
+            <div class="quality-label">27% Unspent ($2,680)</div>
+            <div style="font-size: 11px; color: var(--c-muted); margin-top: 8px;">Breakdown by reason:</div>
+          </div>
+
+          <div class="breakdown-item">
+            <div class="breakdown-label">24% Auction Losses</div>
+            <div class="breakdown-pct">$643</div>
+          </div>
+
+          <div class="breakdown-item">
+            <div class="breakdown-label">31% Frequency Cap</div>
+            <div class="breakdown-pct">$831</div>
+          </div>
+
+          <div class="breakdown-item">
+            <div class="breakdown-label">16% Budget Constraint</div>
+            <div class="breakdown-pct">$429</div>
+          </div>
+
+          <div class="breakdown-item">
+            <div class="breakdown-label">12% Low Intent</div>
+            <div class="breakdown-pct">$322</div>
+          </div>
+
+          <div class="quality-box" style="margin-top: 16px;">
+            <div class="quality-label">Intent Signal Heatmap (Today)</div>
+            <div class="heatmap-grid">
+              <div class="heatmap-cell heat-hot">9a</div>
+              <div class="heatmap-cell heat-warm">10a</div>
+              <div class="heatmap-cell heat-cool">12p</div>
+              <div class="heatmap-cell heat-hot">3p</div>
+              <div class="heatmap-cell heat-warm">6p</div>
+              <div class="heatmap-cell heat-cold">9p</div>
+            </div>
+            <div style="font-size: 10px; color: var(--c-muted); margin-top: 8px;">🔴 Hot (high intent) · 🟠 Warm · 🟡 Cool · ⚪ Cold (below baseline)</div>
+          </div>
+        </div>
+        <div class="nav-dots">
+          <div class="dot" onclick="go(1)"></div>
+          <div class="dot active" onclick="go(2)"></div>
+          <div class="dot" onclick="go(3)"></div>
+          <div class="dot" onclick="go(4)"></div>
+        </div>
+        <div class="screen-label">02 — Diagnostics</div>
+      </div>
+
+      <!-- SCREEN 3: Quality Deep-Dive -->
+      <div id="s3" class="screen">
+        <div class="screen-content">
+          <div class="header-bar">
+            <h2 style="font-size: 16px;">Quality Trends</h2>
+          </div>
+
+          <div class="quality-box">
+            <div class="quality-label">Impression Quality (7-Day Avg)</div>
+            <div class="quality-val">78%</div>
+            <div style="font-size: 10px; color: var(--c-muted); margin-top: 8px;">vs 72% segment benchmark</div>
+          </div>
+
+          <div class="quality-box">
+            <div class="quality-label">⚠️ Time Slot Alert</div>
+            <div style="font-size: 12px; color: var(--ink); margin-top: 8px; line-height: 1.4;">3–5pm is underperforming intent <strong style="color: var(--c-bright);">−18%</strong> vs peer set</div>
+          </div>
+
+          <div class="quality-box">
+            <div class="quality-label">Recommended Action</div>
+            <div style="font-size: 12px; color: var(--ink); margin-top: 8px;">Lower bids 3–5pm by <strong style="color: var(--c-bright);">−6%</strong> or increase frequency cap to 4/day</div>
+          </div>
+
+          <button style="background: var(--c-gold); color: var(--ink); border: none; border-radius: 8px; padding: 12px 16px; font-size: 13px; font-weight: 700; cursor: pointer; width: 100%; margin-top: 16px;" onclick="go(4)">Apply Bid Adjustment</button>
+        </div>
+        <div class="nav-dots">
+          <div class="dot" onclick="go(1)"></div>
+          <div class="dot" onclick="go(2)"></div>
+          <div class="dot active" onclick="go(3)"></div>
+          <div class="dot" onclick="go(4)"></div>
+        </div>
+        <div class="screen-label">03 — Quality Deep-Dive</div>
+      </div>
+
+      <!-- SCREEN 4: Ops Console -->
+      <div id="s4" class="screen">
+        <div class="screen-content">
+          <div class="header-bar">
+            <h2 style="font-size: 16px;">All Campaigns</h2>
+          </div>
+
+          <table class="ops-table">
+            <thead>
+              <tr>
+                <th>Campaign</th>
+                <th>Health</th>
+                <th>Issue</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Q2 Brand</strong></td>
+                <td><span class="status-green">72</span></td>
+                <td>3–5pm intent ↓</td>
+              </tr>
+              <tr>
+                <td><strong>Retarget Conv</strong></td>
+                <td><span class="status-green">88</span></td>
+                <td>None</td>
+              </tr>
+              <tr>
+                <td><strong>Mobile Q-Comm</strong></td>
+                <td><span class="status-red">34</span></td>
+                <td>Freq cap spill</td>
+              </tr>
+              <tr>
+                <td><strong>BFCM Prep</strong></td>
+                <td><span class="status-green">76</span></td>
+                <td>Auction loss ↑</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="impact-box" style="margin-top: 16px;">
+            <div class="impact-label">Portfolio Unspent (Today)</div>
+            <div class="impact-stat">$8,340</div>
+            <div style="font-size: 11px; color: var(--c-muted); margin-top: 8px;">19% opportunity to recover via diagnostics</div>
+          </div>
+        </div>
+        <div class="nav-dots">
+          <div class="dot" onclick="go(1)"></div>
+          <div class="dot" onclick="go(2)"></div>
+          <div class="dot" onclick="go(3)"></div>
+          <div class="dot active" onclick="go(4)"></div>
+        </div>
+        <div class="screen-label">04 — Ops Console</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function go(n) {
+  [1,2,3,4].forEach(i => {
+    document.getElementById('s'+i).classList.remove('active');
+    document.querySelectorAll('.dot')[i-1].classList.remove('active');
+  });
+  document.getElementById('s'+n).classList.add('active');
+  document.querySelectorAll('.dot')[n-1].classList.add('active');
+}
+</script>
+
+</body>
+</html>
