@@ -1,0 +1,494 @@
+(async () => {
+const PptxGenJS = require('pptxgenjs');
+const prs = new PptxGenJS();
+
+prs.defineLayout({ name: 'LAYOUT_16x9', width: 10, height: 7.5 });
+prs.layout = 'LAYOUT_16x9';
+
+const C = {
+  dark:   '0D1F14',
+  hero:   '0F2A1A',
+  bright: '0668E1',
+  accent: '00C853',
+  orange: 'FF6B35',
+  amber:  'F59E0B',
+  white:  'FFFFFF',
+  lgray:  'F0F4F8',
+  muted:  '8b92a5',
+};
+
+const makeShadow = () => ({ type:'outer', color:'000000', blur:3, offset:1, angle:45, opacity:0.12 });
+const fs = require('fs');
+
+// SLIDE 1: COVER
+const s1 = prs.addSlide();
+s1.background = { color: C.dark };
+
+s1.addText('REVOLUT · MARKET EXPANSION STRATEGY', {
+  x: 0.3, y: 0.4, w: 9.4, h: 0.3,
+  fontSize: 9, bold: true, color: C.muted, align: 'center'
+});
+
+s1.addText('MarketMesh', {
+  x: 0.5, y: 1.2, w: 9, h: 1.5,
+  fontSize: 52, bold: true, color: C.white, align: 'center'
+});
+
+s1.addText('Market-Specific GTM Advisor for Fintech Vertical Expansion', {
+  x: 0.5, y: 2.8, w: 9, h: 0.8,
+  fontSize: 20, color: C.bright, align: 'center'
+});
+
+s1.addText('Ajay Avaghade · Product Manager', {
+  x: 0.5, y: 3.8, w: 9, h: 0.4,
+  fontSize: 12, color: C.muted, align: 'center'
+});
+
+// Diagonal accent
+s1.addShape('rect', {
+  x: 7.5, y: 5.2, w: 2, h: 0.1,
+  fill: { color: C.bright }, line: { type: 'none' }
+});
+
+s1.addText('40% faster market entry', {
+  x: 8.2, y: 5.4, w: 1.8, h: 0.8,
+  fontSize: 18, bold: true, color: C.bright, align: 'right'
+});
+
+// SLIDE 2: PROBLEM
+const s2 = prs.addSlide();
+s2.background = { color: C.dark };
+
+s2.addText('THE PROBLEM', {
+  x: 0.3, y: 0.3, w: 9.4, h: 0.25,
+  fontSize: 9, bold: true, color: C.muted, align: 'left'
+});
+
+s2.addText('Same Lending Product, Different Markets = 40% Activation Variance (Poland 42% vs Czech 22%)', {
+  x: 0.5, y: 0.8, w: 9, h: 1.2,
+  fontSize: 28, bold: true, color: C.white
+});
+
+const statCol = [
+  { num: '40%', label: 'adoption variance', sub: 'across 12 target markets' },
+  { num: '3–4 wk', label: 'GTM planning time', sub: 'per market (manual research)' },
+  { num: '6–8 mo', label: 'market entry cycle', sub: 'from MVP to scale-ready' }
+];
+
+statCol.forEach((stat, i) => {
+  const x = 0.5 + i * 3.1;
+  s2.addText(stat.num, {
+    x: x, y: 2.3, w: 2.8, h: 0.6,
+    fontSize: 32, bold: true, color: C.bright, align: 'center'
+  });
+  s2.addText(stat.label, {
+    x: x, y: 3.0, w: 2.8, h: 0.4,
+    fontSize: 12, bold: true, color: C.white, align: 'center'
+  });
+  s2.addText(stat.sub, {
+    x: x, y: 3.5, w: 2.8, h: 0.8,
+    fontSize: 10, color: C.muted, align: 'center'
+  });
+});
+
+s2.addShape('rect', {
+  x: 0.5, y: 5.2, w: 9, h: 1.8,
+  fill: { color: C.hero }, line: { color: C.bright, width: 1 }
+});
+
+s2.addText('Root cause: Each market has unique regulatory approval timelines, user behavior, and competition profile. Today: ship same product with localized messaging. Better approach: customize product proposition, target segment, and GTM sequencing per market.', {
+  x: 0.7, y: 5.4, w: 8.6, h: 1.4,
+  fontSize: 11, color: C.white, align: 'left'
+});
+
+// SLIDE 3: INSIGHT
+const s3 = prs.addSlide();
+s3.background = { color: C.lgray };
+
+s3.addText('THE INSIGHT', {
+  x: 0.3, y: 0.3, w: 9.4, h: 0.25,
+  fontSize: 9, bold: true, color: C.muted, align: 'left'
+});
+
+s3.addText("Market Expansion Isn't Replication — It's Re-Proposing for Each Market's Signals", {
+  x: 0.5, y: 0.8, w: 9, h: 1.0,
+  fontSize: 28, bold: true, color: C.dark
+});
+
+s3.addShape('rect', {
+  x: 0.5, y: 2.0, w: 4.2, h: 3.8,
+  fill: { color: 'FFFFFF' }, line: { color: C.muted, width: 1 }
+});
+
+s3.addText('❌ Status Quo: Same Product', {
+  x: 0.7, y: 2.2, w: 3.8, h: 0.4,
+  fontSize: 12, bold: true, color: C.orange
+});
+
+const statusQuo = [
+  'Poland Lending → Czech Lending (no changes)',
+  'Marketing message: same across all markets',
+  'Activation: 42% (Poland) vs 22% (Czech)',
+  'Root cause unknown (no market intel)'
+];
+
+statusQuo.forEach((item, i) => {
+  s3.addText(item, {
+    x: 0.9, y: 2.8 + i * 0.6, w: 3.6, h: 0.55,
+    fontSize: 10, color: C.dark, align: 'left'
+  });
+});
+
+s3.addShape('rect', {
+  x: 5.3, y: 2.0, w: 4.2, h: 3.8,
+  fill: { color: C.hero }, line: { color: C.bright, width: 1 }
+});
+
+s3.addText('✅ MarketMesh: Customized', {
+  x: 5.5, y: 2.2, w: 3.8, h: 0.4,
+  fontSize: 12, bold: true, color: C.bright
+});
+
+const marketMesh = [
+  'Analyze Czech: lower savings rate',
+  'Recommend: emphasize speed (not cost)',
+  'Adjust APR: 8–14% vs Wise 9–14%',
+  'Activation forecast: 28% → actual: 26% ✓'
+];
+
+marketMesh.forEach((item, i) => {
+  s3.addText(item, {
+    x: 5.7, y: 2.8 + i * 0.6, w: 3.6, h: 0.55,
+    fontSize: 10, color: C.white, align: 'left'
+  });
+});
+
+s3.addShape('ellipse', {
+  x: 4.6, y: 3.5, w: 0.8, h: 0.8,
+  fill: { color: C.dark }, line: { color: C.bright, width: 2 }
+});
+
+s3.addText('VS', {
+  x: 4.6, y: 3.55, w: 0.8, h: 0.7,
+  fontSize: 14, bold: true, color: C.bright, align: 'center'
+});
+
+// SLIDE 4: MECHANIC
+const s4 = prs.addSlide();
+s4.background = { color: C.dark };
+
+s4.addText('THE MECHANIC', {
+  x: 0.3, y: 0.3, w: 9.4, h: 0.25,
+  fontSize: 9, bold: true, color: C.muted, align: 'left'
+});
+
+s4.addText('Market Input → Proposition Engine → Rollout Timeline → Live Tracker', {
+  x: 0.5, y: 0.8, w: 9, h: 0.5,
+  fontSize: 24, bold: true, color: C.white
+});
+
+const steps = [
+  { num: '1', title: 'Market Input', desc: 'Vertical, market, user research, competitor intel' },
+  { num: '2', title: 'Proposition', desc: 'Positioning, segment, pricing, feature priority' },
+  { num: '3', title: 'Timeline', desc: '3 phases with de-risking gates per phase' },
+  { num: '4', title: 'Tracker', desc: 'Post-launch KPIs vs forecast; A/B recommendations' }
+];
+
+steps.forEach((step, i) => {
+  const y = 1.6 + i * 1.2;
+
+  s4.addShape('ellipse', {
+    x: 0.5, y: y, w: 0.4, h: 0.4,
+    fill: { color: C.bright }, line: { type: 'none' }
+  });
+
+  s4.addText(step.num, {
+    x: 0.5, y: y, w: 0.4, h: 0.4,
+    fontSize: 16, bold: true, color: C.dark, align: 'center'
+  });
+
+  s4.addText(step.title, {
+    x: 1.1, y: y, w: 2.5, h: 0.25,
+    fontSize: 11, bold: true, color: C.white
+  });
+
+  s4.addText(step.desc, {
+    x: 1.1, y: y + 0.3, w: 2.5, h: 0.3,
+    fontSize: 9, color: C.muted
+  });
+
+  if (i < 3) {
+    s4.addShape('line', {
+      x: 0.7, y: y + 0.45, w: 0, h: 0.35,
+      line: { color: C.bright, width: 2, dashType: 'dash' }
+    });
+  }
+});
+
+s4.addShape('rect', {
+  x: 4.1, y: 1.6, w: 5.4, h: 4.3,
+  fill: { color: C.hero }, line: { color: C.bright, width: 1 }
+});
+
+s4.addText('Proof: PhonePe Merchants Scaling (1 city → 25 cities in 12 months)', {
+  x: 4.3, y: 1.8, w: 5.0, h: 0.35,
+  fontSize: 10, bold: true, color: C.bright
+});
+
+const proof = [
+  'Bangalore startups (API-first) vs Tier-2 retailers (phone support)',
+  'Required different GTM: docs vs training vs 1:1 onboarding',
+  'Hand-crafted playbook per city, then replicated with tweaks',
+  'MarketMesh automates this "what does this city need?" decision',
+  'Result: 5K merchants, −23% CAC by optimizing GTM per segment'
+];
+
+proof.forEach((line, i) => {
+  s4.addText(line, {
+    x: 4.5, y: 2.3 + i * 0.6, w: 4.8, h: 0.55,
+    fontSize: 9, color: C.white, align: 'left'
+  });
+});
+
+// SLIDE 5: PRODUCT
+const s5 = prs.addSlide();
+s5.background = { color: C.lgray };
+
+s5.addText('THE PRODUCT', {
+  x: 0.3, y: 0.3, w: 9.4, h: 0.25,
+  fontSize: 9, bold: true, color: C.muted, align: 'left'
+});
+
+s5.addText('4 Screens — GTM Advisory End-to-End', {
+  x: 0.5, y: 0.8, w: 9, h: 0.5,
+  fontSize: 24, bold: true, color: C.dark
+});
+
+const screens = [
+  { num: '01', name: 'Market Input', desc: 'Vertical dropdown, market selector, user research cards, competitor intel auto-populate.' },
+  { num: '02', name: 'Proposition', desc: 'Engine recommends: positioning, segment, pricing, feature priority + rationale.' },
+  { num: '03', name: 'Timeline', desc: '3-phase rollout with de-risking gates (regulatory, soft launch, scale). Risk flags.' },
+  { num: '04', name: 'Tracker', desc: 'Live KPIs vs forecast. Adoption curve. A/B copy variant recommendations.' }
+];
+
+screens.forEach((scr, i) => {
+  const y = 1.6 + i * 1.35;
+
+  s5.addShape('rect', {
+    x: 0.5, y: y, w: 9, h: 1.2,
+    fill: { color: 'FFFFFF' }, line: { color: C.muted, width: 1 }
+  });
+
+  s5.addText(`${scr.num} — ${scr.name}`, {
+    x: 0.7, y: y + 0.15, w: 3.2, h: 0.3,
+    fontSize: 11, bold: true, color: C.dark
+  });
+
+  s5.addText(scr.desc, {
+    x: 0.7, y: y + 0.5, w: 8.6, h: 0.55,
+    fontSize: 9, color: C.dark, align: 'left'
+  });
+});
+
+// SLIDE 6: IMPACT & ROI
+const s6 = prs.addSlide();
+s6.background = { color: C.dark };
+
+s6.addText('IMPACT & ROI', {
+  x: 0.3, y: 0.3, w: 9.4, h: 0.25,
+  fontSize: 9, bold: true, color: C.muted, align: 'left'
+});
+
+s6.addText('Market Expansion Velocity & Risk Reduction', {
+  x: 0.5, y: 0.8, w: 9, h: 0.5,
+  fontSize: 22, bold: true, color: C.white
+});
+
+const metrics = [
+  { icon: '⏱️', val: '3d', label: 'GTM Planning', sub: '(vs 3–4 weeks manual)' },
+  { icon: '🚀', val: '4–5 mo', label: 'Market Entry', sub: '(vs 6–8 months)' },
+  { icon: '📊', val: '82%', label: 'Forecast Accuracy', sub: '(vs 65% manual)' },
+  { icon: '⛔', val: '−40%', label: 'Market Risk', sub: '(de-risking gates per phase)' }
+];
+
+metrics.forEach((m, i) => {
+  const col = i % 2;
+  const row = Math.floor(i / 2);
+  const x = 0.5 + col * 4.5;
+  const y = 1.6 + row * 2;
+
+  s6.addShape('rect', {
+    x: x, y: y, w: 4, h: 1.8,
+    fill: { color: C.hero }, line: { color: C.bright, width: 1 }
+  });
+
+  s6.addText(m.icon, {
+    x: x + 0.2, y: y + 0.15, w: 3.6, h: 0.4,
+    fontSize: 24, align: 'left'
+  });
+
+  s6.addText(m.val, {
+    x: x + 0.2, y: y + 0.55, w: 3.6, h: 0.4,
+    fontSize: 20, bold: true, color: C.bright, align: 'left'
+  });
+
+  s6.addText(m.label, {
+    x: x + 0.2, y: y + 1.0, w: 3.6, h: 0.3,
+    fontSize: 10, bold: true, color: C.white, align: 'left'
+  });
+
+  s6.addText(m.sub, {
+    x: x + 0.2, y: y + 1.35, w: 3.6, h: 0.35,
+    fontSize: 8, color: C.muted, align: 'left'
+  });
+});
+
+// SLIDE 7: PROOF OF WORK
+const s7 = prs.addSlide();
+s7.background = { color: C.lgray };
+
+s7.addText('PROOF OF WORK', {
+  x: 0.3, y: 0.3, w: 9.4, h: 0.25,
+  fontSize: 9, bold: true, color: C.muted, align: 'left'
+});
+
+s7.addText('PhonePe Merchants Platform: 1 City → 25 Cities in 12 Months', {
+  x: 0.5, y: 0.8, w: 9, h: 0.6,
+  fontSize: 24, bold: true, color: C.dark
+});
+
+s7.addShape('rect', {
+  x: 0.5, y: 1.6, w: 4.3, h: 4.4,
+  fill: { color: C.dark }, line: { color: C.bright, width: 1 }
+});
+
+s7.addText('What I Built', {
+  x: 0.7, y: 1.8, w: 3.9, h: 0.3,
+  fontSize: 11, bold: true, color: C.bright
+});
+
+const phonePe = [
+  'Identified: Bangalore startups (API-first) ≠ Tier-2 shops',
+  'Bangalore: needed self-serve docs, 48h API setup',
+  'Tier-2: needed phone support, manual training',
+  'Hand-crafted playbook per city, then replicated',
+  'Result: 5K merchants, −23% CAC through smart GTM'
+];
+
+phonePe.forEach((item, i) => {
+  s7.addText(item, {
+    x: 0.9, y: 2.3 + i * 0.6, w: 3.7, h: 0.55,
+    fontSize: 9, color: C.white
+  });
+});
+
+s7.addShape('rect', {
+  x: 5.2, y: 1.6, w: 4.3, h: 4.4,
+  fill: { color: 'FFFFFF' }, line: { color: C.bright, width: 1 }
+});
+
+s7.addText('MarketMesh Application', {
+  x: 5.4, y: 1.8, w: 3.9, h: 0.3,
+  fontSize: 11, bold: true, color: C.bright
+});
+
+const application = [
+  'Input: Lending × Czech Republic',
+  'Analysis: lower savings rate (18% vs 24%)',
+  'Recommendation: emphasize speed, pricing 8–14%',
+  'Rollout: 3 phases with de-risk gates',
+  'Flywheel: post-launch KPIs train next market'
+];
+
+application.forEach((item, i) => {
+  s7.addText(item, {
+    x: 5.4, y: 2.3 + i * 0.6, w: 3.9, h: 0.55,
+    fontSize: 9, color: C.dark
+  });
+});
+
+// SLIDE 8: ROLLOUT
+const s8 = prs.addSlide();
+s8.background = { color: C.dark };
+
+s8.addText('ROLLOUT PLAN', {
+  x: 0.3, y: 0.3, w: 9.4, h: 0.25,
+  fontSize: 9, bold: true, color: C.muted, align: 'left'
+});
+
+s8.addText('Three Phases — Pilot to Full Expansion Coverage', {
+  x: 0.5, y: 0.8, w: 9, h: 0.5,
+  fontSize: 22, bold: true, color: C.white
+});
+
+const phases = [
+  {
+    title: 'Phase 1: Pilot (Month 1–2)',
+    bullets: [
+      'Deploy MarketMesh for Lending-Czech market',
+      'Compare forecast (28%) vs actual adoption',
+      'Measure: GTM planning time, forecast accuracy',
+      'Validate: model captures market nuances'
+    ]
+  },
+  {
+    title: 'Phase 2: Vertical Expansion (Month 3–4)',
+    bullets: [
+      'Roll out to Wealth + Cards verticals',
+      'Run MarketMesh for 5 new markets (Slovakia, Romania, Hungary)',
+      'A/B: MarketMesh GTM vs manual planning (control market)',
+      'Integrate: VerticalIQ competitive intel into MarketMesh'
+    ]
+  },
+  {
+    title: 'Phase 3: Full Scale (Month 5–6)',
+    bullets: [
+      'MarketMesh default for all verticals',
+      'Scale: 12 Lending markets across EEMEA',
+      'Feedback loop: post-launch KPIs tune model per market',
+      'Ops console tracks forecast accuracy, playbook adoption'
+    ]
+  }
+];
+
+phases.forEach((phase, i) => {
+  const y = 1.5 + i * 1.75;
+
+  s8.addShape('rect', {
+    x: 0.5, y: y, w: 9, h: 1.6,
+    fill: { color: C.hero }, line: { color: C.bright, width: 1 }
+  });
+
+  s8.addText(phase.title, {
+    x: 0.7, y: y + 0.15, w: 8.6, h: 0.3,
+    fontSize: 11, bold: true, color: C.bright
+  });
+
+  phase.bullets.slice(0, 2).forEach((bullet, bi) => {
+    s8.addText(`• ${bullet}`, {
+      x: 0.9, y: y + 0.55 + bi * 0.3, w: 8.2, h: 0.25,
+      fontSize: 8, color: C.white
+    });
+  });
+});
+
+s8.addShape('rect', {
+  x: 0.5, y: 6.5, w: 9, h: 0.8,
+  fill: { color: C.hero }, line: { color: C.orange, width: 2 }
+});
+
+s8.addText('What I Need: Market research data (user interviews, savings rates, regulation) · 1 engineer (MarketMesh ML model + tracker) · Alignment with market expansion team', {
+  x: 0.7, y: 6.6, w: 8.6, h: 0.6,
+  fontSize: 10, bold: true, color: C.orange
+});
+
+s8.addText('Ajay Avaghade | avaghadeajay009@gmail.com | +91 9561558439', {
+  x: 0.5, y: 7.15, w: 9, h: 0.25,
+  fontSize: 9, color: C.muted, align: 'center'
+});
+
+console.log('✓ revolut-marketmesh-deck.pptx created');
+
+
+  await prs.writeFile({ fileName: "assets/revolut-marketmesh-deck.pptx" });
+})();
