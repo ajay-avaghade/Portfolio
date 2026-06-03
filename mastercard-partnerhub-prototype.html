@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mastercard — PartnerHub · Interactive Prototype</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Sora', Arial, sans-serif;
+      background: #0A1F2E;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    .container {
+      max-width: 1200px;
+      width: 100%;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+      color: #FFFFFF;
+    }
+    .header h1 {
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      letter-spacing: 0.02em;
+    }
+    .header p {
+      font-size: 14px;
+      color: #8B92A5;
+    }
+    .prototypes {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 32px;
+      margin-bottom: 40px;
+    }
+    .phone-frame {
+      background: #152A3D;
+      border-radius: 46px;
+      width: 375px;
+      height: 812px;
+      box-shadow: 0 40px 100px rgba(0, 0, 0, 0.28);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .phone-notch {
+      height: 28px;
+      background: #0A1F2E;
+      border-radius: 0 0 16px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 20px;
+      font-size: 11px;
+      color: #FFFFFF;
+      font-weight: 700;
+      position: relative;
+    }
+    .notch-camera {
+      width: 12px;
+      height: 12px;
+      background: #0A1F2E;
+      border-radius: 50%;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .notch-time { flex: 1; text-align: left; }
+    .notch-signal { flex: 1; text-align: right; }
+    .screen-label {
+      text-align: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: #00D9A3;
+      letter-spacing: 0.06em;
+      margin-top: 24px;
+      margin-bottom: 12px;
+    }
+    .screen-container {
+      flex: 1;
+      overflow-y: auto;
+      scrollbar-width: none;
+      padding: 0 24px 24px 24px;
+      color: #FFFFFF;
+    }
+    .screen-container::-webkit-scrollbar { display: none; }
+    .screen { display: none; }
+    .screen.active { display: block; }
+    .card-title {
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      color: #FFFFFF;
+    }
+    .card-subtitle {
+      font-size: 12px;
+      color: #8B92A5;
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+    .rec-card {
+      background: rgba(0, 217, 163, 0.1);
+      border: 1px solid rgba(0, 217, 163, 0.3);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+    .rec-label {
+      font-size: 10px;
+      color: #00D9A3;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .rec-name {
+      font-weight: 700;
+      font-size: 14px;
+      margin-bottom: 4px;
+      color: #FFFFFF;
+    }
+    .rec-desc {
+      font-size: 11px;
+      color: #8B92A5;
+      margin-bottom: 8px;
+    }
+    .rec-meta {
+      display: flex;
+      gap: 8px;
+      font-size: 10px;
+    }
+    .rec-badge {
+      background: rgba(0, 217, 163, 0.2);
+      color: #00D9A3;
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+    .filter-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      overflow-x: auto;
+    }
+    .filter-tab {
+      background: rgba(0, 217, 163, 0.15);
+      color: #00D9A3;
+      border: 1px solid rgba(0, 217, 163, 0.3);
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+    }
+    .filter-tab.active {
+      background: #00D9A3;
+      color: #0A1F2E;
+      border-color: #00D9A3;
+    }
+    .partner-card {
+      background: rgba(0, 217, 163, 0.08);
+      border: 1px solid rgba(0, 217, 163, 0.2);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .partner-card:hover {
+      border-color: rgba(0, 217, 163, 0.5);
+      background: rgba(0, 217, 163, 0.12);
+    }
+    .p-icon {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+    .p-name {
+      font-weight: 700;
+      font-size: 13px;
+      margin-bottom: 4px;
+      color: #FFFFFF;
+    }
+    .p-category {
+      font-size: 10px;
+      color: #8B92A5;
+      margin-bottom: 8px;
+    }
+    .p-rating {
+      font-size: 11px;
+      color: #D4AF37;
+      font-weight: 700;
+    }
+    .btn-primary {
+      background: #00D9A3;
+      color: #0A1F2E;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 24px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      width: 100%;
+      transition: all 0.3s ease;
+      margin-top: 16px;
+    }
+    .btn-primary:hover {
+      background: #00BF8F;
+    }
+    .btn-secondary {
+      background: rgba(0, 217, 163, 0.2);
+      color: #00D9A3;
+      border: 1px solid #00D9A3;
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .btn-secondary:hover {
+      background: rgba(0, 217, 163, 0.3);
+    }
+    .detail-header {
+      background: rgba(0, 217, 163, 0.1);
+      border: 1px solid rgba(0, 217, 163, 0.2);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+    .detail-icon {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+    .detail-name {
+      font-size: 18px;
+      font-weight: 800;
+      color: #FFFFFF;
+      margin-bottom: 4px;
+    }
+    .detail-category {
+      font-size: 11px;
+      color: #00D9A3;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .detail-rating {
+      font-size: 12px;
+      color: #D4AF37;
+      font-weight: 700;
+    }
+    .detail-section {
+      margin-bottom: 16px;
+    }
+    .section-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: #00D9A3;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      letter-spacing: 0.06em;
+    }
+    .section-content {
+      font-size: 11px;
+      color: #8B92A5;
+      line-height: 1.6;
+    }
+    .integration-badge {
+      display: inline-block;
+      background: rgba(0, 217, 163, 0.15);
+      color: #00D9A3;
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-size: 9px;
+      font-weight: 700;
+      margin-right: 6px;
+      margin-bottom: 6px;
+    }
+    .ops-stat {
+      background: rgba(0, 217, 163, 0.08);
+      border: 1px solid rgba(0, 217, 163, 0.2);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+    .ops-number {
+      font-size: 24px;
+      font-weight: 800;
+      color: #00D9A3;
+      font-family: 'DM Mono', monospace;
+    }
+    .ops-label {
+      font-size: 10px;
+      color: #8B92A5;
+      margin-top: 4px;
+    }
+    .ops-bar {
+      background: rgba(0, 217, 163, 0.1);
+      height: 6px;
+      border-radius: 3px;
+      margin-top: 8px;
+      overflow: hidden;
+    }
+    .ops-fill {
+      background: #00D9A3;
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.3s ease;
+    }
+    .nav {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 24px;
+      padding-bottom: 24px;
+      border-top: 1px solid rgba(0, 217, 163, 0.2);
+    }
+    .nav-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(0, 217, 163, 0.3);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .nav-dot.active {
+      background: #00D9A3;
+      width: 24px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Mastercard — PartnerHub</h1>
+      <p>Interactive Prototype · SME Fintech Partnership Marketplace</p>
+    </div>
+
+    <div class="prototypes">
+      <!-- SCREEN 1: SME Home -->
+      <div class="phone-frame">
+        <div class="phone-notch">
+          <div class="notch-time">9:41</div>
+          <div class="notch-camera"></div>
+          <div class="notch-signal">📶</div>
+        </div>
+        <div class="screen-label">01 — SME HOME</div>
+        <div class="screen-container">
+          <div class="screen active">
+            <div class="card-title">Recommended for You</div>
+            <div class="card-subtitle">Based on your business profile</div>
+
+            <div class="rec-card">
+              <div class="rec-label">📊 FOR ACCOUNTING</div>
+              <div class="rec-name">QuickBooks</div>
+              <div class="rec-desc">Invoice, expense tracking, tax prep</div>
+              <div class="rec-meta">
+                <span class="rec-badge">★ 4.8</span>
+                <span class="rec-badge">5K+ SMEs</span>
+              </div>
+            </div>
+
+            <div class="rec-card">
+              <div class="rec-label">🛍️ FOR POS</div>
+              <div class="rec-name">Square Register</div>
+              <div class="rec-desc">In-store & online sales, payments</div>
+              <div class="rec-meta">
+                <span class="rec-badge">★ 4.6</span>
+                <span class="rec-badge">8K+ SMEs</span>
+              </div>
+            </div>
+
+            <div class="rec-card">
+              <div class="rec-label">💳 FOR PAYMENTS</div>
+              <div class="rec-name">Stripe Connect</div>
+              <div class="rec-desc">Payment processing, settlements</div>
+              <div class="rec-meta">
+                <span class="rec-badge">★ 4.9</span>
+                <span class="rec-badge">12K+ SMEs</span>
+              </div>
+            </div>
+
+            <button class="btn-primary" onclick="goToScreen(1)">Browse All Partners →</button>
+          </div>
+        </div>
+        <div class="nav">
+          <div class="nav-dot active" onclick="goToScreen(0)"></div>
+          <div class="nav-dot" onclick="goToScreen(1)"></div>
+          <div class="nav-dot" onclick="goToScreen(2)"></div>
+          <div class="nav-dot" onclick="goToScreen(3)"></div>
+        </div>
+      </div>
+
+      <!-- SCREEN 2: Partner Browse -->
+      <div class="phone-frame">
+        <div class="phone-notch">
+          <div class="notch-time">9:41</div>
+          <div class="notch-camera"></div>
+          <div class="notch-signal">📶</div>
+        </div>
+        <div class="screen-label">02 — PARTNER BROWSE</div>
+        <div class="screen-container">
+          <div class="screen">
+            <div class="card-title">Explore Partners</div>
+            <div class="card-subtitle">Find tools for your business</div>
+
+            <div class="filter-tabs">
+              <div class="filter-tab active" onclick="filterPartners(this, 'all')">All</div>
+              <div class="filter-tab" onclick="filterPartners(this, 'accounting')">Accounting</div>
+              <div class="filter-tab" onclick="filterPartners(this, 'pos')">POS</div>
+              <div class="filter-tab" onclick="filterPartners(this, 'lending')">Lending</div>
+            </div>
+
+            <div class="partner-card" onclick="goToScreen(2)">
+              <div class="p-icon">📊</div>
+              <div class="p-name">QuickBooks</div>
+              <div class="p-category">Accounting & Invoicing</div>
+              <div class="p-rating">★ 4.8 (2.1K reviews)</div>
+            </div>
+
+            <div class="partner-card" onclick="goToScreen(2)">
+              <div class="p-icon">🛍️</div>
+              <div class="p-name">Square Register</div>
+              <div class="p-category">POS & Payments</div>
+              <div class="p-rating">★ 4.6 (3.2K reviews)</div>
+            </div>
+
+            <div class="partner-card" onclick="goToScreen(2)">
+              <div class="p-icon">💳</div>
+              <div class="p-name">Stripe Connect</div>
+              <div class="p-category">Payment Gateway</div>
+              <div class="p-rating">★ 4.9 (5.8K reviews)</div>
+            </div>
+
+            <div class="partner-card" onclick="goToScreen(2)">
+              <div class="p-icon">📈</div>
+              <div class="p-name">Lendio</div>
+              <div class="p-category">SME Lending</div>
+              <div class="p-rating">★ 4.4 (1.2K reviews)</div>
+            </div>
+          </div>
+        </div>
+        <div class="nav">
+          <div class="nav-dot" onclick="goToScreen(0)"></div>
+          <div class="nav-dot active" onclick="goToScreen(1)"></div>
+          <div class="nav-dot" onclick="goToScreen(2)"></div>
+          <div class="nav-dot" onclick="goToScreen(3)"></div>
+        </div>
+      </div>
+
+      <!-- SCREEN 3: Partner Detail -->
+      <div class="phone-frame">
+        <div class="phone-notch">
+          <div class="notch-time">9:41</div>
+          <div class="notch-camera"></div>
+          <div class="notch-signal">📶</div>
+        </div>
+        <div class="screen-label">03 — PARTNER DETAIL</div>
+        <div class="screen-container">
+          <div class="screen">
+            <div class="detail-header">
+              <div class="detail-icon">📊</div>
+              <div class="detail-name">QuickBooks</div>
+              <div class="detail-category">Accounting & Invoicing</div>
+              <div class="detail-rating">★ 4.8 (2,100 reviews)</div>
+            </div>
+
+            <div class="detail-section">
+              <div class="section-title">What It Does</div>
+              <div class="section-content">Online accounting & invoicing. Sync with your bank account, track expenses, generate reports, file taxes.</div>
+            </div>
+
+            <div class="detail-section">
+              <div class="section-title">Pricing</div>
+              <div class="section-content">Plans start at AED 79/month. Free 30-day trial available.</div>
+            </div>
+
+            <div class="detail-section">
+              <div class="section-title">Integrations</div>
+              <div>
+                <span class="integration-badge">Mastercard</span>
+                <span class="integration-badge">Payroll</span>
+                <span class="integration-badge">CRM</span>
+                <span class="integration-badge">+ 12 more</span>
+              </div>
+            </div>
+
+            <button class="btn-primary" onclick="requestIntegration()">Request Integration →</button>
+          </div>
+        </div>
+        <div class="nav">
+          <div class="nav-dot" onclick="goToScreen(0)"></div>
+          <div class="nav-dot" onclick="goToScreen(1)"></div>
+          <div class="nav-dot active" onclick="goToScreen(2)"></div>
+          <div class="nav-dot" onclick="goToScreen(3)"></div>
+        </div>
+      </div>
+
+      <!-- SCREEN 4: Partner Ops Console -->
+      <div class="phone-frame">
+        <div class="phone-notch">
+          <div class="notch-time">9:41</div>
+          <div class="notch-camera"></div>
+          <div class="notch-signal">📶</div>
+        </div>
+        <div class="screen-label">04 — PARTNER OPS CONSOLE</div>
+        <div class="screen-container">
+          <div class="screen">
+            <div class="card-title">Your Dashboard</div>
+            <div class="card-subtitle">QuickBooks integration performance</div>
+
+            <div class="ops-stat">
+              <div class="ops-number">2,140</div>
+              <div class="ops-label">SMEs Onboarded This Month</div>
+              <div class="ops-bar">
+                <div class="ops-fill" style="width: 85%;"></div>
+              </div>
+            </div>
+
+            <div class="ops-stat">
+              <div class="ops-number">68%</div>
+              <div class="ops-label">Integration Success Rate</div>
+              <div class="ops-bar">
+                <div class="ops-fill" style="width: 68%;"></div>
+              </div>
+            </div>
+
+            <div class="ops-stat">
+              <div class="ops-number">AED 84K</div>
+              <div class="ops-label">Revenue Generated (Est.)</div>
+            </div>
+
+            <div class="detail-section" style="margin-top: 20px;">
+              <div class="section-title">Top SME Segments</div>
+              <div class="section-content" style="color: #FFFFFF;">
+                <div style="margin-bottom: 8px;">Retail: 540 SMEs</div>
+                <div style="margin-bottom: 8px;">Services: 380 SMEs</div>
+                <div>E-commerce: 320 SMEs</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="nav">
+          <div class="nav-dot" onclick="goToScreen(0)"></div>
+          <div class="nav-dot" onclick="goToScreen(1)"></div>
+          <div class="nav-dot" onclick="goToScreen(2)"></div>
+          <div class="nav-dot active" onclick="goToScreen(3)"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function goToScreen(n) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.nav-dot').forEach(d => d.classList.remove('active'));
+
+      const screens = document.querySelectorAll('.screen');
+      const dots = document.querySelectorAll('.nav-dot');
+
+      if (screens[n]) screens[n].classList.add('active');
+      if (dots[n]) dots[n].classList.add('active');
+    }
+
+    function filterPartners(el, category) {
+      document.querySelectorAll('.filter-tab').forEach(tab => tab.classList.remove('active'));
+      el.classList.add('active');
+    }
+
+    function requestIntegration() {
+      alert('✅ Integration request sent! QuickBooks will contact you within 24 hours.');
+    }
+  </script>
+</body>
+</html>

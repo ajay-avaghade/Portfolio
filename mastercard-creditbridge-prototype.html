@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mastercard — CreditBridge · Interactive Prototype</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Sora', Arial, sans-serif;
+      background: #0A1F2E;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    .container {
+      max-width: 1200px;
+      width: 100%;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+      color: #FFFFFF;
+    }
+    .header h1 {
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      letter-spacing: 0.02em;
+    }
+    .header p {
+      font-size: 14px;
+      color: #8B92A5;
+    }
+    .prototypes {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 32px;
+      margin-bottom: 40px;
+    }
+    .phone-frame {
+      background: #152A3D;
+      border-radius: 46px;
+      width: 375px;
+      height: 812px;
+      box-shadow: 0 40px 100px rgba(0, 0, 0, 0.28);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .phone-notch {
+      height: 28px;
+      background: #0A1F2E;
+      border-radius: 0 0 16px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 20px;
+      font-size: 11px;
+      color: #FFFFFF;
+      font-weight: 700;
+      position: relative;
+    }
+    .notch-camera {
+      width: 12px;
+      height: 12px;
+      background: #0A1F2E;
+      border-radius: 50%;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .notch-time { flex: 1; text-align: left; }
+    .notch-signal { flex: 1; text-align: right; }
+    .screen-label {
+      text-align: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: #1E90FF;
+      letter-spacing: 0.06em;
+      margin-top: 24px;
+      margin-bottom: 12px;
+    }
+    .screen-container {
+      flex: 1;
+      overflow-y: auto;
+      scrollbar-width: none;
+      padding: 0 24px 24px 24px;
+      color: #FFFFFF;
+    }
+    .screen-container::-webkit-scrollbar { display: none; }
+    .screen { display: none; }
+    .screen.active { display: block; }
+    .card-title {
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      color: #FFFFFF;
+    }
+    .card-subtitle {
+      font-size: 12px;
+      color: #8B92A5;
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+    .milestone-progress {
+      background: rgba(30, 144, 255, 0.1);
+      border: 1px solid rgba(30, 144, 255, 0.2);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .milestone-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #1E90FF;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 8px;
+    }
+    .progress-bar {
+      height: 8px;
+      background: rgba(30, 144, 255, 0.15);
+      border-radius: 99px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #1E90FF 0%, #00D9A3 100%);
+      border-radius: 99px;
+      transition: width 0.6s ease;
+    }
+    .progress-text {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: #8B92A5;
+      font-weight: 600;
+    }
+    .balance-card {
+      background: rgba(30, 144, 255, 0.08);
+      border: 1px solid rgba(30, 144, 255, 0.2);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+    .balance-label {
+      font-size: 10px;
+      color: #8B92A5;
+      margin-bottom: 4px;
+    }
+    .balance-amount {
+      font-size: 20px;
+      font-weight: 800;
+      color: #1E90FF;
+      font-family: 'DM Mono', monospace;
+    }
+    .tier-card {
+      background: rgba(30, 144, 255, 0.08);
+      border: 1px solid rgba(30, 144, 255, 0.15);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .tier-info {
+      flex: 1;
+    }
+    .tier-name {
+      font-weight: 700;
+      font-size: 12px;
+      color: #FFFFFF;
+      margin-bottom: 2px;
+    }
+    .tier-reward {
+      font-size: 10px;
+      color: #1E90FF;
+    }
+    .tier-status {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 4px;
+      background: rgba(30, 144, 255, 0.2);
+      color: #1E90FF;
+    }
+    .tier-status.unlocked {
+      background: rgba(30, 213, 169, 0.2);
+      color: #1ED5A9;
+    }
+    .credit-score {
+      background: linear-gradient(135deg, rgba(30, 144, 255, 0.15) 0%, rgba(30, 213, 169, 0.15) 100%);
+      border: 1px solid rgba(30, 144, 255, 0.2);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .score-number {
+      font-size: 48px;
+      font-weight: 800;
+      color: #1E90FF;
+      font-family: 'DM Mono', monospace;
+      margin-bottom: 4px;
+    }
+    .score-label {
+      font-size: 11px;
+      color: #8B92A5;
+      margin-bottom: 8px;
+    }
+    .score-bar {
+      height: 4px;
+      background: rgba(30, 144, 255, 0.2);
+      border-radius: 2px;
+      margin-bottom: 8px;
+      overflow: hidden;
+    }
+    .score-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #1E90FF 0%, #00D9A3 100%);
+      width: 72%;
+    }
+    .eligibility {
+      background: rgba(30, 213, 169, 0.1);
+      border: 1px solid rgba(30, 213, 169, 0.3);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+    .eligibility-badge {
+      font-size: 28px;
+      margin-bottom: 6px;
+    }
+    .eligibility-text {
+      font-size: 12px;
+      color: #1ED5A9;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .eligibility-detail {
+      font-size: 10px;
+      color: #8B92A5;
+    }
+    .credit-amount {
+      background: rgba(212, 175, 55, 0.1);
+      border: 1px solid rgba(212, 175, 55, 0.2);
+      border-radius: 8px;
+      padding: 12px;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .credit-label {
+      font-size: 10px;
+      color: #8B92A5;
+      margin-bottom: 4px;
+    }
+    .credit-amount-text {
+      font-size: 24px;
+      font-weight: 800;
+      color: #D4AF37;
+      font-family: 'DM Mono', monospace;
+    }
+    .btn-primary {
+      background: #1E90FF;
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 24px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      width: 100%;
+      transition: all 0.3s ease;
+      margin-top: 8px;
+    }
+    .btn-primary:hover {
+      background: #1A7ACC;
+    }
+    .btn-primary:disabled {
+      background: #8B92A5;
+      cursor: not-allowed;
+    }
+    .ops-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .ops-stat {
+      background: rgba(30, 144, 255, 0.08);
+      border: 1px solid rgba(30, 144, 255, 0.2);
+      border-radius: 8px;
+      padding: 12px;
+      text-align: center;
+    }
+    .ops-number {
+      font-size: 20px;
+      font-weight: 800;
+      color: #1E90FF;
+      font-family: 'DM Mono', monospace;
+      margin-bottom: 4px;
+    }
+    .ops-label {
+      font-size: 9px;
+      color: #8B92A5;
+    }
+    .ops-section {
+      margin-bottom: 16px;
+    }
+    .ops-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: #1E90FF;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 8px;
+    }
+    .ops-row {
+      background: rgba(30, 144, 255, 0.05);
+      border: 1px solid rgba(30, 144, 255, 0.1);
+      border-radius: 6px;
+      padding: 8px;
+      margin-bottom: 6px;
+      font-size: 10px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .ops-row-label { color: #8B92A5; }
+    .ops-row-value { color: #1E90FF; font-weight: 700; }
+    .nav {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 24px;
+      padding-bottom: 24px;
+      border-top: 1px solid rgba(30, 144, 255, 0.2);
+    }
+    .nav-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(30, 144, 255, 0.3);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .nav-dot.active {
+      background: #1E90FF;
+      width: 24px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Mastercard — CreditBridge</h1>
+      <p>Interactive Prototype · Milestone Credit + Spend-Based Lending</p>
+    </div>
+
+    <div class="prototypes">
+      <!-- SCREEN 1: Card Dashboard -->
+      <div class="phone-frame">
+        <div class="phone-notch">
+          <div class="notch-time">9:41</div>
+          <div class="notch-camera"></div>
+          <div class="notch-signal">📶</div>
+        </div>
+        <div class="screen-label">01 — CARD DASHBOARD</div>
+        <div class="screen-container">
+          <div class="screen active">
+            <div class="card-title">Your Progress</div>
+            <div class="card-subtitle">Unlock rewards by hitting milestones</div>
+
+            <div class="milestone-progress">
+              <div class="milestone-label">🎯 Milestone 1: AED 500 Spend</div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: 68%;"></div>
+              </div>
+              <div class="progress-text">
+                <span>AED 340 / AED 500</span>
+                <span style="color: #1E90FF;">Unlock: AED 50</span>
+              </div>
+            </div>
+
+            <div class="milestone-progress">
+              <div class="milestone-label">🏆 Milestone 2: AED 2,000 Spend</div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: 17%;"></div>
+              </div>
+              <div class="progress-text">
+                <span>AED 340 / AED 2,000</span>
+                <span style="color: #1E90FF;">Unlock: AED 200</span>
+              </div>
+            </div>
+
+            <div class="balance-card">
+              <div class="balance-label">Available Balance</div>
+              <div class="balance-amount">AED 4,850</div>
+            </div>
+
+            <button class="btn-primary" onclick="goToScreen(1)">View Milestone Tiers →</button>
+          </div>
+        </div>
+        <div class="nav">
+          <div class="nav-dot active" onclick="goToScreen(0)"></div>
+          <div class="nav-dot" onclick="goToScreen(1)"></div>
+          <div class="nav-dot" onclick="goToScreen(2)"></div>
+          <div class="nav-dot" onclick="goToScreen(3)"></div>
+        </div>
+      </div>
+
+      <!-- SCREEN 2: Milestone Detail -->
+      <div class="phone-frame">
+        <div class="phone-notch">
+          <div class="notch-time">9:41</div>
+          <div class="notch-camera"></div>
+          <div class="notch-signal">📶</div>
+        </div>
+        <div class="screen-label">02 — MILESTONE DETAIL</div>
+        <div class="screen-container">
+          <div class="screen">
+            <div class="card-title">Your Tiers</div>
+            <div class="card-subtitle">Earn rewards as you spend</div>
+
+            <div class="tier-card">
+              <div class="tier-info">
+                <div class="tier-name">🥉 Bronze</div>
+                <div class="tier-reward">AED 500 spend → AED 50</div>
+              </div>
+              <div class="tier-status unlocked">✓ Unlocked</div>
+            </div>
+
+            <div class="tier-card">
+              <div class="tier-info">
+                <div class="tier-name">🥈 Silver</div>
+                <div class="tier-reward">AED 2,000 spend → AED 200</div>
+              </div>
+              <div class="tier-status">340 / 2000</div>
+            </div>
+
+            <div class="tier-card">
+              <div class="tier-info">
+                <div class="tier-name">🥇 Gold</div>
+                <div class="tier-reward">AED 5,000 spend → AED 500</div>
+              </div>
+              <div class="tier-status">340 / 5000</div>
+            </div>
+
+            <div class="tier-card">
+              <div class="tier-info">
+                <div class="tier-name">💎 Platinum</div>
+                <div class="tier-reward">AED 10,000 spend → AED 1,000</div>
+              </div>
+              <div class="tier-status">340 / 10000</div>
+            </div>
+
+            <button class="btn-primary" onclick="goToScreen(2)">Check Credit Eligibility →</button>
+          </div>
+        </div>
+        <div class="nav">
+          <div class="nav-dot" onclick="goToScreen(0)"></div>
+          <div class="nav-dot active" onclick="goToScreen(1)"></div>
+          <div class="nav-dot" onclick="goToScreen(2)"></div>
+          <div class="nav-dot" onclick="goToScreen(3)"></div>
+        </div>
+      </div>
+
+      <!-- SCREEN 3: Credit Readiness -->
+      <div class="phone-frame">
+        <div class="phone-notch">
+          <div class="notch-time">9:41</div>
+          <div class="notch-camera"></div>
+          <div class="notch-signal">📶</div>
+        </div>
+        <div class="screen-label">03 — CREDIT READINESS</div>
+        <div class="screen-container">
+          <div class="screen">
+            <div class="card-title">Credit Eligibility</div>
+            <div class="card-subtitle">Based on your card spending</div>
+
+            <div class="credit-score">
+              <div class="score-number">72</div>
+              <div class="score-label">Credit Readiness Score</div>
+              <div class="score-bar">
+                <div class="score-bar-fill"></div>
+              </div>
+              <div style="font-size: 10px; color: #8B92A5;">72% confidence to receive credit</div>
+            </div>
+
+            <div class="eligibility">
+              <div class="eligibility-badge">✅</div>
+              <div class="eligibility-text">You're Eligible!</div>
+              <div class="eligibility-detail">You qualify for working capital</div>
+            </div>
+
+            <div class="credit-amount">
+              <div class="credit-label">Pre-Qualified Amount</div>
+              <div class="credit-amount-text">AED 18,000</div>
+            </div>
+
+            <div style="background: rgba(30, 144, 255, 0.08); border: 1px solid rgba(30, 144, 255, 0.15); border-radius: 8px; padding: 12px; font-size: 10px; color: #8B92A5; margin-bottom: 16px;">
+              <strong style="color: #FFFFFF;">How it works:</strong> We assessed 90 days of your card spending patterns. A pre-vetted lender reviewed your eligibility and pre-approved you. You can apply now.
+            </div>
+
+            <button class="btn-primary" onclick="applyCredit()">Apply for Credit →</button>
+          </div>
+        </div>
+        <div class="nav">
+          <div class="nav-dot" onclick="goToScreen(0)"></div>
+          <div class="nav-dot" onclick="goToScreen(1)"></div>
+          <div class="nav-dot active" onclick="goToScreen(2)"></div>
+          <div class="nav-dot" onclick="goToScreen(3)"></div>
+        </div>
+      </div>
+
+      <!-- SCREEN 4: Ops Dashboard -->
+      <div class="phone-frame">
+        <div class="phone-notch">
+          <div class="notch-time">9:41</div>
+          <div class="notch-camera"></div>
+          <div class="notch-signal">📶</div>
+        </div>
+        <div class="screen-label">04 — OPS DASHBOARD</div>
+        <div class="screen-container">
+          <div class="screen">
+            <div class="card-title">Performance Metrics</div>
+            <div class="card-subtitle">CreditBridge program analytics</div>
+
+            <div class="ops-grid">
+              <div class="ops-stat">
+                <div class="ops-number">65%</div>
+                <div class="ops-label">30-Day Milestone Hit Rate</div>
+              </div>
+              <div class="ops-stat">
+                <div class="ops-number">+70%</div>
+                <div class="ops-label">Avg Monthly Spend Lift</div>
+              </div>
+              <div class="ops-stat">
+                <div class="ops-number">12K</div>
+                <div class="ops-label">SMEs w/ Credit Access</div>
+              </div>
+              <div class="ops-stat">
+                <div class="ops-number">3.2%</div>
+                <div class="ops-label">Default Rate</div>
+              </div>
+            </div>
+
+            <div class="ops-section">
+              <div class="ops-title">Issuer Metrics</div>
+              <div class="ops-row">
+                <span class="ops-row-label">Cost per Activation</span>
+                <span class="ops-row-value">AED 32</span>
+              </div>
+              <div class="ops-row">
+                <span class="ops-row-label">Staff Time Saved/Mo</span>
+                <span class="ops-row-value">420h</span>
+              </div>
+              <div class="ops-row">
+                <span class="ops-row-label">CAC ROI Payback</span>
+                <span class="ops-row-value">90 days</span>
+              </div>
+            </div>
+
+            <div class="ops-section">
+              <div class="ops-title">Lender Metrics</div>
+              <div class="ops-row">
+                <span class="ops-row-label">Origination Fee/Loan</span>
+                <span class="ops-row-value">AED 360</span>
+              </div>
+              <div class="ops-row">
+                <span class="ops-row-label">Avg Loan Amount</span>
+                <span class="ops-row-value">AED 18K</span>
+              </div>
+              <div class="ops-row">
+                <span class="ops-row-label">Q1 Revenue</span>
+                <span class="ops-row-value">AED 6.5M</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="nav">
+          <div class="nav-dot" onclick="goToScreen(0)"></div>
+          <div class="nav-dot" onclick="goToScreen(1)"></div>
+          <div class="nav-dot" onclick="goToScreen(2)"></div>
+          <div class="nav-dot active" onclick="goToScreen(3)"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function goToScreen(n) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.nav-dot').forEach(d => d.classList.remove('active'));
+
+      const screens = document.querySelectorAll('.screen');
+      const dots = document.querySelectorAll('.nav-dot');
+
+      if (screens[n]) screens[n].classList.add('active');
+      if (dots[n]) dots[n].classList.add('active');
+    }
+
+    function applyCredit() {
+      alert('✅ Credit application submitted! You'll hear from our lender partner within 24 hours.');
+    }
+  </script>
+</body>
+</html>

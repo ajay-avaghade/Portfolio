@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mastercard — InstantID · Interactive Prototype</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Sora', Arial, sans-serif;
+      background: #0A1F2E;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    .container {
+      max-width: 1200px;
+      width: 100%;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+      color: #FFFFFF;
+    }
+    .header h1 {
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      letter-spacing: 0.02em;
+    }
+    .header p {
+      font-size: 14px;
+      color: #8B92A5;
+    }
+    .prototypes {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 32px;
+      margin-bottom: 40px;
+    }
+    .phone-frame {
+      background: #152A3D;
+      border-radius: 46px;
+      width: 375px;
+      height: 812px;
+      box-shadow: 0 40px 100px rgba(0, 0, 0, 0.28);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .phone-notch {
+      height: 28px;
+      background: #0A1F2E;
+      border-radius: 0 0 16px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 20px;
+      font-size: 11px;
+      color: #FFFFFF;
+      font-weight: 700;
+      position: relative;
+    }
+    .notch-camera {
+      width: 12px;
+      height: 12px;
+      background: #0A1F2E;
+      border-radius: 50%;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .notch-time { flex: 1; text-align: left; }
+    .notch-signal { flex: 1; text-align: right; }
+    .screen-label {
+      text-align: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: #FF5F00;
+      letter-spacing: 0.06em;
+      margin-top: 24px;
+      margin-bottom: 12px;
+    }
+    .screen-container {
+      flex: 1;
+      overflow-y: auto;
+      scrollbar-width: none;
+      padding: 0 24px 24px 24px;
+      color: #FFFFFF;
+    }
+    .screen-container::-webkit-scrollbar { display: none; }
+    .screen { display: none; }
+    .screen.active { display: block; }
+    .card-title {
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      color: #FFFFFF;
+    }
+    .card-subtitle {
+      font-size: 12px;
+      color: #8B92A5;
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+    .product-card {
+      background: rgba(255, 95, 0, 0.1);
+      border: 1px solid rgba(255, 95, 0, 0.3);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .product-card:hover {
+      background: rgba(255, 95, 0, 0.2);
+      border-color: rgba(255, 95, 0, 0.6);
+    }
+    .product-card.selected {
+      background: #FF5F00;
+      color: #0A1F2E;
+      border-color: #FF5F00;
+    }
+    .product-card.selected .pname,
+    .product-card.selected .pbenefit {
+      color: #0A1F2E;
+    }
+    .pname {
+      font-weight: 700;
+      font-size: 14px;
+      margin-bottom: 4px;
+      color: #FFFFFF;
+    }
+    .pbenefit {
+      font-size: 11px;
+      color: #8B92A5;
+    }
+    .btn-primary {
+      background: #FF5F00;
+      color: #0A1F2E;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 24px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      width: 100%;
+      transition: all 0.3s ease;
+      margin-top: 16px;
+    }
+    .btn-primary:hover {
+      background: #E54B00;
+    }
+    .btn-primary:disabled {
+      background: #8B92A5;
+      cursor: not-allowed;
+    }
+    .upload-box {
+      background: rgba(255, 95, 0, 0.1);
+      border: 2px dashed #FF5F00;
+      border-radius: 8px;
+      padding: 24px;
+      text-align: center;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .upload-box:hover {
+      background: rgba(255, 95, 0, 0.2);
+    }
+    .upload-icon {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+    .upload-text {
+      font-size: 12px;
+      color: #8B92A5;
+    }
+    .upload-box.uploaded {
+      background: rgba(30, 213, 169, 0.1);
+      border-color: #1ED5A9;
+    }
+    .uploaded-file {
+      background: rgba(30, 213, 169, 0.15);
+      border: 1px solid #1ED5A9;
+      border-radius: 6px;
+      padding: 8px 12px;
+      margin-bottom: 8px;
+      font-size: 11px;
+      color: #1ED5A9;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .approval-box {
+      background: rgba(30, 213, 169, 0.1);
+      border: 2px solid #1ED5A9;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .approval-badge {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+    .approval-text {
+      font-size: 16px;
+      font-weight: 800;
+      color: #1ED5A9;
+      margin-bottom: 4px;
+    }
+    .approval-subtext {
+      font-size: 12px;
+      color: #8B92A5;
+    }
+    .card-display {
+      background: linear-gradient(135deg, #FF5F00 0%, #D4AF37 100%);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+      color: #0A1F2E;
+    }
+    .card-number {
+      font-family: 'DM Mono', monospace;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      margin-bottom: 12px;
+      word-break: break-all;
+    }
+    .card-holder {
+      font-size: 11px;
+      opacity: 0.8;
+      margin-bottom: 4px;
+    }
+    .card-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      opacity: 0.8;
+    }
+    .copy-btn {
+      background: rgba(10, 31, 46, 0.2);
+      color: #0A1F2E;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 8px;
+      width: 100%;
+    }
+    .ops-table {
+      background: rgba(255, 95, 0, 0.05);
+      border: 1px solid rgba(255, 95, 0, 0.2);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 12px;
+      font-size: 11px;
+    }
+    .ops-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      border-bottom: 1px solid rgba(255, 95, 0, 0.1);
+      padding: 12px;
+      text-align: center;
+    }
+    .ops-row:last-child { border-bottom: none; }
+    .ops-row.header {
+      background: rgba(255, 95, 0, 0.15);
+      font-weight: 700;
+      color: #FF5F00;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 9px;
+      font-weight: 700;
+    }
+    .badge-pending { background: rgba(251, 146, 60, 0.2); color: #FB923C; }
+    .badge-verified { background: rgba(34, 197, 94, 0.2); color: #22C55E; }
+    .badge-approved { background: rgba(59, 130, 246, 0.2); color: #3B82F6; }
+    .badge-activated { background: rgba(30, 213, 169, 0.2); color: #1ED5A9; }
+    .nav {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 24px;
+      padding-bottom: 24px;
+      border-top: 1px solid rgba(255, 95, 0, 0.2);
+    }
+    .nav-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255, 95, 0, 0.3);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .nav-dot.active {
+      background: #FF5F00;
+      width: 24px;
+      border-radius: 4px;
+    }
+    .confetti {
+      position: absolute;
+      width: 375px;
+      height: 724px;
+      top: 88px;
+      left: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .cp {
+      position: absolute;
+      animation: fall linear forwards;
+    }
+    @keyframes fall {
+      to { transform: translateY(724px) rotate(360deg); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Mastercard — InstantID</h1>
+      <p>Interactive Prototype · SME Self-Serve Onboarding</p>
+    </div>
+
+    <div class="prototypes">
+      <!-- SCREEN 1: Card Selection -->
+      <div class="phone-frame">
+        <div class="phone-notch">
+          <div class="notch-time">9:41</div>
+          <div class="notch-camera"></div>
+          <div class="notch-signal">📶</div>
+        </div>
+        <div class="screen-label">01 — CARD SELECTION</div>
+        <div class="screen-container">
+          <div class="screen active">
+            <div class="card-title">Choose Your Card</div>
+            <div class="card-subtitle">Select the card that fits your business needs</div>
+            <div class="product-card" onclick="selectCard(0, this)">
+              <div class="pname">💳 Business Debit</div>
+              <div class="pbenefit">Instant access to funds, zero fees</div>
+            </div>
+            <div class="product-card" onclick="selectCard(1, this)">
+              <div class="pname">💰 Business Credit</div>
+              <div class="pbenefit">Build credit history, rewards</div>
+            </div>
+            <div class="product-card" onclick="selectCard(2, this)">
+              <div class="pname">📊 Expense Management</div>
+              <div class="pbenefit">Team cards, spending controls</div>
+            </div>
+            <button class="btn-primary" onclick="goToScreen(1)" id="nextBtn" disabled>Start KYC →</button>
+          </div>
+        </div>
+        <div class="nav">
+          <div class="nav-dot active" onclick="goToScreen(0)"></div>
+          <div class="nav-dot" onclick="goToScreen(1)"></div>
+          <div class="nav-dot" onclick="goToScreen(2)"></div>
+          <div class="nav-dot" onclick="goToScreen(3)"></div>
+        </div>
+      </div>
+
+      <!-- SCREEN 2: KYC & Verification -->
+      <div class="phone-frame">
+        <div class="phone-notch">
+          <div class="notch-time">9:41</div>
+          <div class="notch-camera"></div>
+          <div class="notch-signal">📶</div>
+        </div>
+        <div class="screen-label">02 — KYC & VERIFICATION</div>
+        <div class="screen-container">
+          <div class="screen">
+            <div class="card-title">Verify Your Identity</div>
+            <div class="card-subtitle">Quick video selfie + document upload</div>
+            <div class="upload-box" id="selfieBox" onclick="simulateUpload(this, 'video')">
+              <div class="upload-icon">📹</div>
+              <div class="upload-text">Click to record video selfie</div>
+            </div>
+            <div class="card-title" style="font-size: 16px; margin-top: 20px; margin-bottom: 12px;">Upload Documents</div>
+            <div class="upload-box" id="invoiceBox" onclick="simulateUpload(this, 'invoice')">
+              <div class="upload-icon">📄</div>
+              <div class="upload-text">Business Invoice</div>
+            </div>
+            <div class="upload-box" id="taxBox" onclick="simulateUpload(this, 'tax')">
+              <div class="upload-icon">📋</div>
+              <div class="upload-text">Tax Return or Registration</div>
+            </div>
+            <button class="btn-primary" onclick="goToScreen(2)" id="verifyBtn" disabled>Verify & Continue →</button>
+          </div>
+        </div>
+        <div class="nav">
+          <div class="nav-dot" onclick="goToScreen(0)"></div>
+          <div class="nav-dot active" onclick="goToScreen(1)"></div>
+          <div class="nav-dot" onclick="goToScreen(2)"></div>
+          <div class="nav-dot" onclick="goToScreen(3)"></div>
+        </div>
+      </div>
+
+      <!-- SCREEN 3: Instant Approval -->
+      <div class="phone-frame">
+        <div class="phone-notch">
+          <div class="notch-time">9:41</div>
+          <div class="notch-camera"></div>
+          <div class="notch-signal">📶</div>
+        </div>
+        <div class="screen-label">03 — INSTANT APPROVAL</div>
+        <div class="screen-container">
+          <div class="screen" style="text-align: center;">
+            <div id="conf" class="confetti"></div>
+            <div class="approval-box">
+              <div class="approval-badge">✅</div>
+              <div class="approval-text">Approved!</div>
+              <div class="approval-subtext">Your virtual card is ready to use</div>
+            </div>
+            <div style="text-align: left; margin-top: 20px;">
+              <div class="card-title" style="text-align: left; font-size: 14px; color: #8B92A5; margin-bottom: 8px;">Virtual Card Details</div>
+              <div class="card-display">
+                <div class="card-number">5412 7812 3456 7890</div>
+                <div class="card-holder">ISSUED TO: TEST MERCHANT</div>
+                <div class="card-meta">
+                  <span>08/28</span>
+                  <span>CVV: 456</span>
+                </div>
+                <button class="copy-btn" onclick="copyCard()">Copy Card Number</button>
+              </div>
+              <button class="btn-primary" onclick="goToScreen(3)">View Dashboard →</button>
+            </div>
+          </div>
+        </div>
+        <div class="nav">
+          <div class="nav-dot" onclick="goToScreen(0)"></div>
+          <div class="nav-dot" onclick="goToScreen(1)"></div>
+          <div class="nav-dot active" onclick="goToScreen(2)"></div>
+          <div class="nav-dot" onclick="goToScreen(3)"></div>
+        </div>
+      </div>
+
+      <!-- SCREEN 4: Issuer Ops Dashboard -->
+      <div class="phone-frame">
+        <div class="phone-notch">
+          <div class="notch-time">9:41</div>
+          <div class="notch-camera"></div>
+          <div class="notch-signal">📶</div>
+        </div>
+        <div class="screen-label">04 — ISSUER OPS DASHBOARD</div>
+        <div class="screen-container">
+          <div class="screen">
+            <div class="card-title">Today's Pipeline</div>
+            <div class="card-subtitle">Real-time onboarding status</div>
+            <div class="ops-table">
+              <div class="ops-row header">
+                <div>Status</div>
+                <div>Count</div>
+                <div>Avg TAT</div>
+              </div>
+              <div class="ops-row">
+                <div><span class="badge badge-pending">Pending</span></div>
+                <div>12</div>
+                <div>2.1h</div>
+              </div>
+              <div class="ops-row">
+                <div><span class="badge badge-verified">Verified</span></div>
+                <div>24</div>
+                <div>0.3h</div>
+              </div>
+              <div class="ops-row">
+                <div><span class="badge badge-approved">Approved</span></div>
+                <div>18</div>
+                <div>—</div>
+              </div>
+              <div class="ops-row">
+                <div><span class="badge badge-activated">Activated</span></div>
+                <div>42</div>
+                <div>6.2h</div>
+              </div>
+            </div>
+            <div class="card-title" style="font-size: 14px; margin-top: 20px; margin-bottom: 12px;">Exception Queue</div>
+            <div style="background: rgba(255, 95, 0, 0.1); border: 1px solid rgba(255, 95, 0, 0.3); border-radius: 8px; padding: 12px; font-size: 11px;">
+              <div style="margin-bottom: 8px;"><strong style="color: #FF5F00;">⚠️ 3 escalations</strong> requiring review</div>
+              <div style="color: #8B92A5;">• Document mismatch (Merchant ID #5421)</div>
+              <div style="color: #8B92A5;">• Tax registry timeout (Merchant ID #5418)</div>
+              <div style="color: #8B92A5;">• Manual review needed (Merchant ID #5412)</div>
+            </div>
+          </div>
+        </div>
+        <div class="nav">
+          <div class="nav-dot" onclick="goToScreen(0)"></div>
+          <div class="nav-dot" onclick="goToScreen(1)"></div>
+          <div class="nav-dot" onclick="goToScreen(2)"></div>
+          <div class="nav-dot active" onclick="goToScreen(3)"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let selectedCard = null;
+    let uploadedFiles = {};
+
+    function selectCard(index, el) {
+      document.querySelectorAll('.product-card').forEach(card => card.classList.remove('selected'));
+      el.classList.add('selected');
+      selectedCard = index;
+      document.getElementById('nextBtn').disabled = false;
+    }
+
+    function simulateUpload(el, type) {
+      if (!el.classList.contains('uploaded')) {
+        el.classList.add('uploaded');
+        const iconEl = el.querySelector('.upload-icon');
+        iconEl.textContent = '✅';
+        uploadedFiles[type] = true;
+
+        if (Object.keys(uploadedFiles).length >= 3) {
+          document.getElementById('verifyBtn').disabled = false;
+        }
+      }
+    }
+
+    function goToScreen(n) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.nav-dot').forEach(d => d.classList.remove('active'));
+
+      const screens = document.querySelectorAll('.screen');
+      const dots = document.querySelectorAll('.nav-dot');
+
+      if (screens[n]) screens[n].classList.add('active');
+      if (dots[n]) dots[n].classList.add('active');
+
+      if (n === 2) {
+        setTimeout(() => {
+          const conf = document.getElementById('conf');
+          conf.innerHTML = '';
+          const cols = ['#FF5F00', '#D4AF37', '#22C55E', '#3B82F6', '#1ED5A9'];
+          for (let i = 0; i < 32; i++) {
+            const p = document.createElement('div');
+            p.className = 'cp';
+            const size = 4 + Math.random() * 7;
+            p.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*120-10}%;width:${size}px;height:${size}px;background:${cols[Math.floor(Math.random()*cols.length)]};border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${1.4+Math.random()*1.8}s;animation-delay:${Math.random()*2.4}s;`;
+            conf.appendChild(p);
+          }
+        }, 100);
+      }
+    }
+
+    function copyCard() {
+      navigator.clipboard.writeText('5412781234567890');
+      alert('Card number copied!');
+    }
+  </script>
+</body>
+</html>
