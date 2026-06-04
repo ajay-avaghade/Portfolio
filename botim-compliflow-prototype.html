@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Botim For Business — CompliFlow · Frictionless KYB & AML Onboarding</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --c-dark: #0A1628;
+  --c-hero: #0F1E3A;
+  --c-bright: #7C3AED;
+  --c-accent: #A78BFA;
+  --green: #00C853;
+  --orange: #FF6B35;
+  --amber: #F59E0B;
+  --ink: #0f172a;
+  --muted: #64748b;
+  --white: #ffffff;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Sora',sans-serif; background:var(--c-dark); color:var(--white); padding:40px 20px; }
+.header { text-align:center; margin-bottom:40px; }
+.header h1 { font-size:24px; font-weight:700; margin-bottom:8px; }
+.header p { font-size:14px; color:#8b92a5; }
+.prototype-wrapper { display:flex; gap:32px; justify-content:center; overflow-x:auto; padding:20px 0; }
+.phone-container { flex-shrink:0; width:375px; }
+.phone-label { font-size:12px; color:var(--c-bright); font-weight:600; margin-bottom:12px; text-align:center; letter-spacing:.05em; }
+.phone { width:375px; height:812px; border:12px solid #000; border-radius:46px; overflow:hidden; box-shadow:0 40px 100px rgba(0,0,0,0.28); display:flex; flex-direction:column; background:var(--c-hero); }
+.notch { width:118px; height:28px; background:var(--c-dark); border-radius:0 0 16px 16px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; padding:0 8px; }
+.notch-cam { width:10px; height:10px; background:#1a1a1a; border-radius:50%; }
+.ndot { width:4px; height:4px; background:#666; border-radius:50%; }
+.status-bar { background:var(--c-dark); color:#999; font-size:11px; padding:4px 12px; display:flex; justify-content:space-between; font-family:'DM Mono',monospace; }
+.screen-container { flex:1; overflow-y:auto; scrollbar-width:none; }
+.screen { width:100%; min-height:100%; display:none; flex-direction:column; padding:20px 16px; }
+.screen.active { display:flex; }
+.screen-lbl { text-align:center; font-size:10px; color:var(--muted); margin-bottom:14px; font-weight:600; letter-spacing:.05em; }
+
+.step-bar { display:flex; gap:6px; margin-bottom:16px; }
+.step-dot { flex:1; height:4px; border-radius:99px; }
+.step-dot.done { background:var(--c-bright); }
+.step-dot.active { background:var(--c-accent); }
+.step-dot.todo { background:rgba(255,255,255,0.1); }
+
+.form-group { margin-bottom:14px; }
+.form-label { font-size:10px; font-weight:700; color:var(--c-accent); text-transform:uppercase; margin-bottom:5px; display:block; }
+.form-input { width:100%; padding:10px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:8px; color:white; font-size:12px; font-family:'Sora',sans-serif; }
+.upload-box { width:100%; padding:16px; background:rgba(124,58,237,0.1); border:1.5px dashed var(--c-bright); border-radius:10px; text-align:center; font-size:12px; color:var(--c-accent); cursor:pointer; }
+.extracted-field { background:rgba(0,200,83,0.08); border:1px solid rgba(0,200,83,0.3); border-radius:8px; padding:8px 10px; font-size:11px; color:#ccc; margin-bottom:6px; display:flex; justify-content:space-between; }
+.extracted-field span:first-child { color:#888; }
+.extracted-field strong { color:var(--green); }
+
+.risk-badge { border-radius:10px; padding:14px; margin-bottom:12px; text-align:center; }
+.risk-low { background:rgba(0,200,83,0.12); border:1.5px solid var(--green); }
+.risk-med { background:rgba(245,158,11,0.12); border:1.5px solid var(--amber); }
+.risk-high { background:rgba(255,107,53,0.12); border:1.5px solid var(--orange); }
+.risk-score { font-size:36px; font-weight:700; font-family:'DM Mono',monospace; }
+.risk-label { font-size:11px; margin-top:4px; }
+
+.check-list { list-style:none; }
+.check-list li { font-size:11px; padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.07); display:flex; gap:8px; align-items:center; }
+.check-list li:last-child { border-bottom:none; }
+
+.conf-wrap { position:absolute; width:100%; height:100%; pointer-events:none; top:0; left:0; }
+.cp { position:absolute; animation:fall linear forwards; }
+@keyframes fall { to { transform:translateY(800px) rotate(360deg); opacity:0; } }
+
+.success-center { display:flex; flex-direction:column; align-items:center; text-align:center; padding-top:30px; }
+
+.metrics-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
+.metric-box { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.09); border-radius:10px; padding:10px; }
+.metric-val { font-size:18px; font-weight:700; color:var(--c-bright); margin-bottom:2px; font-family:'DM Mono',monospace; }
+.metric-lbl { font-size:9px; color:#999; }
+
+.ops-row { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.07); font-size:11px; align-items:center; }
+.ops-row:last-child { border-bottom:none; }
+.pill { font-size:9px; font-weight:700; padding:3px 8px; border-radius:99px; }
+.pill-green { background:rgba(0,200,83,0.15); color:var(--green); }
+.pill-amber { background:rgba(245,158,11,0.15); color:var(--amber); }
+.pill-red { background:rgba(255,107,53,0.15); color:var(--orange); }
+
+.btn-primary { width:100%; padding:12px; background:var(--c-bright); border:none; border-radius:10px; color:white; font-size:13px; font-weight:700; cursor:pointer; margin-top:12px; font-family:'Sora',sans-serif; }
+.card { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.09); border-radius:12px; padding:14px; margin-bottom:12px; }
+.card-label { font-size:10px; font-weight:700; color:var(--c-bright); text-transform:uppercase; margin-bottom:8px; }
+
+.nav-dots { display:flex; gap:8px; justify-content:center; padding:10px 0 0; background:var(--c-dark); }
+.dot { width:6px; height:6px; background:rgba(255,255,255,0.3); border-radius:50%; cursor:pointer; transition:.3s; }
+.dot.active { background:var(--c-bright); }
+.nav-buttons { display:flex; gap:8px; margin-top:14px; }
+.nav-btn { flex:1; padding:10px; background:var(--c-accent); border:none; border-radius:8px; color:white; font-size:11px; font-weight:600; cursor:pointer; font-family:'Sora',sans-serif; }
+.nav-btn:disabled { opacity:.4; cursor:not-allowed; }
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>Botim For Business — CompliFlow</h1>
+  <p>Frictionless KYB & AML Onboarding · Interactive Prototype</p>
+</div>
+
+<div class="prototype-wrapper">
+  <div class="phone-container">
+    <div class="phone-label">01 — ONBOARDING WIZARD</div>
+    <div class="phone">
+      <div class="notch"><div class="notch-cam"></div><div class="ndot"></div></div>
+      <div class="status-bar"><span>9:41</span><span>●●●●●</span></div>
+      <div class="screen-container">
+
+        <!-- S1: Onboarding Wizard -->
+        <div class="screen active" id="s1">
+          <div class="screen-lbl">01 — BUSINESS ONBOARDING</div>
+          <div class="step-bar">
+            <div class="step-dot done"></div>
+            <div class="step-dot active"></div>
+            <div class="step-dot todo"></div>
+            <div class="step-dot todo"></div>
+          </div>
+          <div style="font-size:14px; font-weight:700; margin-bottom:4px;">Upload Trade License</div>
+          <div style="font-size:11px; color:#999; margin-bottom:14px;">CompliFlow auto-extracts your business details — no manual entry needed.</div>
+
+          <div class="upload-box" style="margin-bottom:12px;">
+            📄 Tap to upload Trade License (PDF/JPG)<br>
+            <span style="font-size:10px; color:#888;">OCR will extract fields automatically</span>
+          </div>
+
+          <div style="font-size:10px; font-weight:700; color:var(--green); text-transform:uppercase; margin-bottom:6px;">✓ Auto-extracted fields</div>
+          <div class="extracted-field"><span>Business Name</span><strong>Al Fardan Trading LLC</strong></div>
+          <div class="extracted-field"><span>License No.</span><strong>DED-2021-084821</strong></div>
+          <div class="extracted-field"><span>Expiry</span><strong>31 Dec 2025 ✓</strong></div>
+          <div class="extracted-field"><span>Activity</span><strong>General Trading</strong></div>
+          <div class="extracted-field"><span>Jurisdiction</span><strong>Dubai, UAE</strong></div>
+
+          <div class="form-group" style="margin-top:12px;">
+            <label class="form-label">UBO Name</label>
+            <input class="form-input" value="Mohammed Al Fardan" readonly>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Expected Monthly Volume</label>
+            <input class="form-input" value="AED 50,000 – 200,000" readonly>
+          </div>
+          <button class="btn-primary">Run CompliFlow Check →</button>
+        </div>
+
+        <!-- S2: Risk Score -->
+        <div class="screen" id="s2">
+          <div class="screen-lbl">02 — RISK ASSESSMENT</div>
+          <div style="font-size:14px; font-weight:700; margin-bottom:14px;">CompliFlow Risk Score</div>
+
+          <div class="risk-badge risk-low">
+            <div class="risk-score" style="color:var(--green);">18</div>
+            <div class="risk-label" style="color:var(--green);">LOW RISK · Instant Approval</div>
+          </div>
+
+          <div class="card">
+            <div class="card-label">Checks Completed</div>
+            <ul class="check-list">
+              <li><span style="color:var(--green);">✓</span> OFAC Sanctions list — <strong style="color:var(--green);">Clear</strong></li>
+              <li><span style="color:var(--green);">✓</span> UN Consolidated list — <strong style="color:var(--green);">Clear</strong></li>
+              <li><span style="color:var(--green);">✓</span> UAE Central Bank — <strong style="color:var(--green);">Clear</strong></li>
+              <li><span style="color:var(--green);">✓</span> UBO PEP screening — <strong style="color:var(--green);">No match</strong></li>
+              <li><span style="color:var(--green);">✓</span> Trade license valid — <strong style="color:var(--green);">31 Dec 2025</strong></li>
+              <li><span style="color:var(--green);">✓</span> Business activity — <strong style="color:var(--green);">Low risk sector</strong></li>
+            </ul>
+          </div>
+
+          <div style="background:rgba(0,200,83,0.1); border:1px solid var(--green); border-radius:8px; padding:10px; font-size:11px; color:var(--green);">
+            ✅ All checks passed. This business qualifies for <strong>straight-through instant approval</strong>. No human review required.
+          </div>
+          <button class="btn-primary" style="background:var(--green);">Proceed to Approval →</button>
+        </div>
+
+        <!-- S3: Instant Approval -->
+        <div class="screen" id="s3" style="position:relative;">
+          <div class="conf-wrap" id="conf"></div>
+          <div class="screen-lbl">03 — INSTANT APPROVAL</div>
+          <div class="success-center">
+            <div style="font-size:52px; margin-bottom:12px;">🎉</div>
+            <div style="font-size:18px; font-weight:700; margin-bottom:8px;">Business Approved!</div>
+            <div style="font-size:11px; color:#aaa; margin-bottom:16px; line-height:1.5;">Al Fardan Trading LLC is verified and ready to send cross-border payments.</div>
+
+            <div style="background:var(--green); color:var(--c-dark); font-size:16px; font-weight:700; padding:10px 20px; border-radius:10px; margin-bottom:16px;">
+              Approved in &lt;2 hours
+            </div>
+
+            <div style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:12px; font-size:11px; color:#ccc; line-height:1.7; width:100%; text-align:left;">
+              <div>🏦 <strong>Payment limit:</strong> AED 200,000/month</div>
+              <div>🌍 <strong>Corridors unlocked:</strong> India, Pakistan, Philippines, UK</div>
+              <div>📋 <strong>KYB tier:</strong> Standard (re-verify in 12 months)</div>
+              <div>⚡ <strong>Next step:</strong> Send your first payment</div>
+            </div>
+
+            <div style="margin-top:12px; font-size:10px; color:#666; line-height:1.5;">Traditional KYB: 5–7 days manual review.<br>CompliFlow straight-through: &lt;2 hours.</div>
+          </div>
+        </div>
+
+        <!-- S4: Compliance Ops Console -->
+        <div class="screen" id="s4">
+          <div class="screen-lbl">04 — COMPLIANCE OPS CONSOLE</div>
+          <div style="font-size:13px; font-weight:700; margin-bottom:12px; color:var(--c-accent);">KYB Pipeline · Today</div>
+
+          <div class="metrics-grid">
+            <div class="metric-box"><div class="metric-val">84%</div><div class="metric-lbl">Straight-through rate</div></div>
+            <div class="metric-box"><div class="metric-val">1.8 hrs</div><div class="metric-lbl">Avg LOW approval TAT</div></div>
+            <div class="metric-box"><div class="metric-val">11%</div><div class="metric-lbl">Human review queue</div></div>
+            <div class="metric-box"><div class="metric-val">5%</div><div class="metric-lbl">Rejected / escalated</div></div>
+          </div>
+
+          <div class="card">
+            <div class="card-label">Today's KYB Queue</div>
+            <div class="ops-row"><span>Al Fardan Trading LLC</span><span class="pill pill-green">LOW · Approved</span></div>
+            <div class="ops-row"><span>Gulf Star Import Co.</span><span class="pill pill-green">LOW · Approved</span></div>
+            <div class="ops-row"><span>Eastern Bridge FZCO</span><span class="pill pill-amber">MED · In Review</span></div>
+            <div class="ops-row"><span>SilkRoad Cargo LLC</span><span class="pill pill-amber">MED · Pending</span></div>
+            <div class="ops-row"><span>Falcon Tech Trading</span><span class="pill pill-red">HIGH · Escalated</span></div>
+          </div>
+
+          <div style="background:rgba(245,158,11,0.1); border:1px solid var(--amber); border-radius:8px; padding:10px; font-size:11px; color:var(--amber);">
+            ⚠️ <strong>Eastern Bridge FZCO:</strong> UBO PEP match (indirect). Requires compliance officer review. SLA: 24h.
+          </div>
+        </div>
+
+      </div>
+      <div class="nav-dots">
+        <div class="dot active" onclick="go(1)"></div>
+        <div class="dot" onclick="go(2)"></div>
+        <div class="dot" onclick="go(3)"></div>
+        <div class="dot" onclick="go(4)"></div>
+      </div>
+    </div>
+    <div class="nav-buttons">
+      <button class="nav-btn" id="prev" onclick="prev()" disabled>← Prev</button>
+      <button class="nav-btn" id="next" onclick="next()">Next →</button>
+    </div>
+  </div>
+
+  <div class="phone-container">
+    <div class="phone-label">02 — RISK ASSESSMENT</div>
+    <div class="phone">
+      <div class="notch"><div class="notch-cam"></div><div class="ndot"></div></div>
+      <div class="status-bar"><span>9:41</span><span>●●●●●</span></div>
+      <div class="screen-container">
+        <div class="screen active" style="padding:20px 16px;">
+          <div class="screen-lbl">02 — RISK ASSESSMENT</div>
+          <div class="risk-badge risk-low">
+            <div class="risk-score" style="color:var(--green);">18</div>
+            <div class="risk-label" style="color:var(--green);">LOW RISK · Instant Approval</div>
+          </div>
+          <div class="card">
+            <div class="card-label">Checks Completed</div>
+            <ul class="check-list">
+              <li><span style="color:var(--green);">✓</span> OFAC Sanctions — <strong style="color:var(--green);">Clear</strong></li>
+              <li><span style="color:var(--green);">✓</span> UN Consolidated — <strong style="color:var(--green);">Clear</strong></li>
+              <li><span style="color:var(--green);">✓</span> UAE Central Bank — <strong style="color:var(--green);">Clear</strong></li>
+              <li><span style="color:var(--green);">✓</span> UBO PEP screening — <strong style="color:var(--green);">No match</strong></li>
+              <li><span style="color:var(--green);">✓</span> Trade license — <strong style="color:var(--green);">Valid</strong></li>
+            </ul>
+          </div>
+          <div style="background:rgba(0,200,83,0.1); border:1px solid var(--green); border-radius:8px; padding:10px; font-size:11px; color:var(--green);">✅ Qualifies for straight-through instant approval.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="phone-container">
+    <div class="phone-label">03 — INSTANT APPROVAL</div>
+    <div class="phone">
+      <div class="notch"><div class="notch-cam"></div><div class="ndot"></div></div>
+      <div class="status-bar"><span>9:41</span><span>●●●●●</span></div>
+      <div class="screen-container">
+        <div class="screen active" style="padding:20px 16px; position:relative;">
+          <div class="conf-wrap" id="conf2"></div>
+          <div class="screen-lbl">03 — INSTANT APPROVAL</div>
+          <div class="success-center">
+            <div style="font-size:52px; margin-bottom:12px;">🎉</div>
+            <div style="font-size:18px; font-weight:700; margin-bottom:8px;">Business Approved!</div>
+            <div style="background:var(--green); color:var(--c-dark); font-size:16px; font-weight:700; padding:10px 20px; border-radius:10px; margin-bottom:16px;">Approved in &lt;2 hours</div>
+            <div style="font-size:10px; color:#888; margin-top:8px;">Traditional KYB: 5–7 days. CompliFlow: &lt;2 hours.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="phone-container">
+    <div class="phone-label">04 — COMPLIANCE OPS</div>
+    <div class="phone">
+      <div class="notch"><div class="notch-cam"></div><div class="ndot"></div></div>
+      <div class="status-bar"><span>9:41</span><span>●●●●●</span></div>
+      <div class="screen-container">
+        <div class="screen active" style="padding:20px 16px;">
+          <div class="screen-lbl">04 — COMPLIANCE OPS CONSOLE</div>
+          <div class="metrics-grid">
+            <div class="metric-box"><div class="metric-val">84%</div><div class="metric-lbl">Straight-through</div></div>
+            <div class="metric-box"><div class="metric-val">1.8 hrs</div><div class="metric-lbl">Avg approval TAT</div></div>
+            <div class="metric-box"><div class="metric-val">11%</div><div class="metric-lbl">Human review</div></div>
+            <div class="metric-box"><div class="metric-val">5%</div><div class="metric-lbl">Escalated</div></div>
+          </div>
+          <div class="card">
+            <div class="card-label">KYB Queue</div>
+            <div class="ops-row"><span>Al Fardan Trading</span><span class="pill pill-green">Approved</span></div>
+            <div class="ops-row"><span>Gulf Star Import</span><span class="pill pill-green">Approved</span></div>
+            <div class="ops-row"><span>Eastern Bridge</span><span class="pill pill-amber">In Review</span></div>
+            <div class="ops-row"><span>Falcon Tech</span><span class="pill pill-red">Escalated</span></div>
+          </div>
+          <div style="background:rgba(245,158,11,0.1); border:1px solid var(--amber); border-radius:8px; padding:10px; font-size:11px; color:var(--amber);">⚠️ Eastern Bridge: UBO PEP match — compliance review needed.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let cur = 1;
+function go(n) {
+  cur = n;
+  [1,2,3,4].forEach(i => { document.getElementById('s'+i).classList.remove('active'); document.querySelectorAll('.dot')[i-1].classList.remove('active'); });
+  document.getElementById('s'+n).classList.add('active');
+  document.querySelectorAll('.dot')[n-1].classList.add('active');
+  if (n === 3) {
+    setTimeout(() => {
+      const c = document.getElementById('conf');
+      if (!c.children.length) {
+        const cols = ['#7C3AED','#00C853','#F59E0B','#A78BFA','#34D399','#FF6B35'];
+        for (let i = 0; i < 32; i++) {
+          const p = document.createElement('div'); p.className = 'cp';
+          const sz = 4 + Math.random() * 7;
+          p.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*120-10}%;width:${sz}px;height:${sz}px;background:${cols[Math.floor(Math.random()*cols.length)]};border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${1.4+Math.random()*1.8}s;animation-delay:${Math.random()*2}s;`;
+          c.appendChild(p);
+        }
+      }
+    }, 100);
+  }
+  document.getElementById('prev').disabled = cur === 1;
+  document.getElementById('next').disabled = cur === 4;
+}
+function next() { if (cur < 4) go(cur + 1); }
+function prev() { if (cur > 1) go(cur - 1); }
+</script>
+</body>
+</html>

@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Botim For Business — ClearRoute · Intelligent Cross-Border Rail Selector</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --c-dark: #0A1628;
+  --c-hero: #0F1E3A;
+  --c-bright: #00BFA5;
+  --c-accent: #0668E1;
+  --orange: #FF6B35;
+  --amber: #F59E0B;
+  --ink: #0f172a;
+  --muted: #64748b;
+  --border: #e2e8f0;
+  --gray: #f1f5f9;
+  --white: #ffffff;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Sora',sans-serif; background:var(--c-dark); color:var(--white); padding:40px 20px; }
+.header { text-align:center; margin-bottom:40px; }
+.header h1 { font-size:24px; font-weight:700; margin-bottom:8px; }
+.header p { font-size:14px; color:#8b92a5; }
+.prototype-wrapper { display:flex; gap:32px; justify-content:center; overflow-x:auto; padding:20px 0; }
+.phone-container { flex-shrink:0; width:375px; }
+.phone-label { font-size:12px; color:var(--c-bright); font-weight:600; margin-bottom:12px; text-align:center; letter-spacing:.05em; }
+.phone { width:375px; height:812px; border:12px solid #000; border-radius:46px; overflow:hidden; box-shadow:0 40px 100px rgba(0,0,0,0.28); display:flex; flex-direction:column; background:var(--c-hero); position:relative; }
+.notch { width:118px; height:28px; background:var(--c-dark); border-radius:0 0 16px 16px; margin:0 auto; z-index:10; display:flex; justify-content:space-between; align-items:center; padding:0 8px; }
+.notch-cam { width:10px; height:10px; background:#1a1a1a; border-radius:50%; }
+.ndot { width:4px; height:4px; background:#666; border-radius:50%; }
+.status-bar { background:var(--c-dark); color:#999; font-size:11px; padding:4px 12px; display:flex; justify-content:space-between; font-family:'DM Mono',monospace; }
+.screen-container { flex:1; overflow-y:auto; scrollbar-width:none; }
+.screen { width:100%; min-height:100%; display:none; flex-direction:column; padding:20px 16px; }
+.screen.active { display:flex; }
+.screen-lbl { text-align:center; font-size:10px; color:var(--muted); margin-bottom:14px; font-weight:600; letter-spacing:.05em; }
+
+/* App header */
+.app-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+.app-logo { font-size:13px; font-weight:700; color:var(--c-bright); }
+.app-notif { width:28px; height:28px; background:rgba(0,191,165,0.15); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px; }
+
+/* Cards */
+.card { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.09); border-radius:12px; padding:14px; margin-bottom:12px; }
+.card-label { font-size:10px; font-weight:700; color:var(--c-bright); text-transform:uppercase; margin-bottom:6px; }
+.card-title { font-size:13px; font-weight:700; margin-bottom:4px; }
+.card-sub { font-size:11px; color:#999; line-height:1.4; }
+
+/* Route cards */
+.route-card { border-radius:12px; padding:14px; margin-bottom:10px; border:1.5px solid; }
+.route-card.best { background:rgba(0,191,165,0.12); border-color:var(--c-bright); }
+.route-card.alt { background:rgba(255,255,255,0.04); border-color:rgba(255,255,255,0.1); }
+.route-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+.route-name { font-size:12px; font-weight:700; }
+.route-badge { font-size:9px; font-weight:700; padding:3px 7px; border-radius:99px; }
+.badge-best { background:var(--c-bright); color:var(--c-dark); }
+.badge-slow { background:rgba(255,255,255,0.1); color:#999; }
+.route-row { display:flex; justify-content:space-between; font-size:11px; color:#bbb; margin-bottom:3px; }
+.route-row strong { color:var(--white); }
+.saving-box { background:rgba(0,191,165,0.15); border:1px solid var(--c-bright); border-radius:8px; padding:10px; margin-top:10px; font-size:11px; color:var(--c-bright); text-align:center; }
+
+/* Progress bar */
+.track { height:6px; background:rgba(255,255,255,0.1); border-radius:99px; overflow:hidden; margin-top:6px; }
+.fill { height:100%; background:var(--c-bright); border-radius:99px; }
+
+/* Metrics */
+.metrics-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
+.metric-box { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.09); border-radius:10px; padding:10px; }
+.metric-val { font-size:18px; font-weight:700; color:var(--c-bright); margin-bottom:2px; font-family:'DM Mono',monospace; }
+.metric-lbl { font-size:9px; color:#999; }
+
+/* Confetti */
+.conf-wrap { position:absolute; width:100%; height:100%; pointer-events:none; top:0; left:0; }
+.cp { position:absolute; animation:fall linear forwards; }
+@keyframes fall { to { transform:translateY(800px) rotate(360deg); opacity:0; } }
+
+/* Success screen */
+.success-center { display:flex; flex-direction:column; align-items:center; text-align:center; padding-top:40px; }
+.success-icon { font-size:52px; margin-bottom:12px; }
+.success-title { font-size:18px; font-weight:700; margin-bottom:8px; }
+.success-sub { font-size:11px; color:#aaa; margin-bottom:16px; line-height:1.5; }
+.saving-badge { background:var(--c-bright); color:var(--c-dark); font-size:20px; font-weight:700; padding:10px 20px; border-radius:10px; margin-bottom:16px; }
+.info-box { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.09); border-radius:10px; padding:12px; font-size:11px; color:#ccc; line-height:1.5; width:100%; }
+
+/* Tag */
+.tag { font-size:9px; font-weight:700; padding:3px 8px; border-radius:99px; display:inline-block; margin-bottom:8px; }
+
+/* Button */
+.btn-primary { width:100%; padding:12px; background:var(--c-bright); border:none; border-radius:10px; color:var(--c-dark); font-size:13px; font-weight:700; cursor:pointer; margin-top:12px; font-family:'Sora',sans-serif; }
+
+/* Nav */
+.nav-dots { display:flex; gap:8px; justify-content:center; padding:10px 0 0; background:var(--c-dark); }
+.dot { width:6px; height:6px; background:rgba(255,255,255,0.3); border-radius:50%; cursor:pointer; transition:.3s; }
+.dot.active { background:var(--c-bright); }
+.nav-buttons { display:flex; gap:8px; margin-top:14px; }
+.nav-btn { flex:1; padding:10px; background:var(--c-accent); border:none; border-radius:8px; color:white; font-size:11px; font-weight:600; cursor:pointer; font-family:'Sora',sans-serif; }
+.nav-btn:disabled { opacity:.4; cursor:not-allowed; }
+
+/* Ops table */
+.ops-row { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.07); font-size:11px; }
+.ops-row:last-child { border-bottom:none; }
+.corridor-name { color:var(--white); font-weight:600; }
+.pill { font-size:9px; font-weight:700; padding:2px 7px; border-radius:99px; }
+.pill-green { background:rgba(0,191,165,0.15); color:var(--c-bright); }
+.pill-amber { background:rgba(245,158,11,0.15); color:var(--amber); }
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>Botim For Business — ClearRoute</h1>
+  <p>Intelligent Cross-Border Rail Selector · Interactive Prototype</p>
+</div>
+
+<div class="prototype-wrapper">
+  <!-- PHONE 1: Navigable -->
+  <div class="phone-container">
+    <div class="phone-label">01 — PAYMENT INITIATION</div>
+    <div class="phone">
+      <div class="notch"><div class="notch-cam"></div><div class="ndot"></div></div>
+      <div class="status-bar"><span>9:41</span><span>●●●●●</span></div>
+      <div class="screen-container">
+
+        <!-- S1: Payment Initiation -->
+        <div class="screen active" id="s1">
+          <div class="screen-lbl">01 — PAYMENT INITIATION</div>
+          <div class="app-header">
+            <span class="app-logo">Botim Business</span>
+            <div class="app-notif">🔔</div>
+          </div>
+          <div class="card">
+            <div class="card-label">Send International Payment</div>
+            <div style="font-size:11px; color:#aaa; margin-bottom:10px;">Recipient: Al Noor Trading LLC, India</div>
+            <div style="font-size:28px; font-weight:700; color:var(--white); margin-bottom:4px;">AED 12,500</div>
+            <div style="font-size:11px; color:var(--c-bright);">≈ INR 2,85,000 · Ref: INV-2024-089</div>
+          </div>
+          <div style="background:rgba(0,191,165,0.1); border:1.5px solid var(--c-bright); border-radius:12px; padding:14px; margin-bottom:12px;">
+            <div style="font-size:10px; font-weight:700; color:var(--c-bright); text-transform:uppercase; margin-bottom:8px;">⚡ ClearRoute Recommendation</div>
+            <div style="font-size:13px; font-weight:700; margin-bottom:4px;">CBUAE → IMPS (India)</div>
+            <div style="font-size:11px; color:#ccc; margin-bottom:8px;">Local rail via YES Bank · Instant settlement</div>
+            <div style="display:flex; gap:8px;">
+              <div style="flex:1; background:rgba(0,0,0,0.2); border-radius:8px; padding:8px; text-align:center;">
+                <div style="font-size:14px; font-weight:700; color:var(--c-bright);">AED 45</div>
+                <div style="font-size:9px; color:#999;">Total Cost</div>
+              </div>
+              <div style="flex:1; background:rgba(0,0,0,0.2); border-radius:8px; padding:8px; text-align:center;">
+                <div style="font-size:14px; font-weight:700; color:var(--c-bright);">2–4 hrs</div>
+                <div style="font-size:9px; color:#999;">Settlement</div>
+              </div>
+              <div style="flex:1; background:rgba(0,0,0,0.2); border-radius:8px; padding:8px; text-align:center;">
+                <div style="font-size:14px; font-weight:700; color:var(--c-bright);">99.1%</div>
+                <div style="font-size:9px; color:#999;">Success Rate</div>
+              </div>
+            </div>
+          </div>
+          <div style="font-size:11px; color:#888; text-align:center; margin-bottom:8px;">vs. default SWIFT: AED 225 · 2–3 days</div>
+          <div class="saving-box">You save <strong>AED 180</strong> by using ClearRoute</div>
+          <button class="btn-primary">Confirm & Send via ClearRoute</button>
+        </div>
+
+        <!-- S2: Route Comparison -->
+        <div class="screen" id="s2">
+          <div class="screen-lbl">02 — ROUTE COMPARISON</div>
+          <div class="app-header">
+            <span style="font-size:13px; font-weight:700;">Route Options · AED→INR</span>
+            <div style="font-size:9px; color:var(--c-bright); font-weight:600;">AED 12,500</div>
+          </div>
+
+          <div class="route-card best">
+            <div class="route-header">
+              <span class="route-name">CBUAE → IMPS (India)</span>
+              <span class="route-badge badge-best">RECOMMENDED</span>
+            </div>
+            <div class="route-row"><span>FX Rate</span><strong>1 AED = 22.82 INR</strong></div>
+            <div class="route-row"><span>Fee</span><strong>AED 45 flat</strong></div>
+            <div class="route-row"><span>Settlement</span><strong>2–4 hours</strong></div>
+            <div class="route-row"><span>Success Rate</span><strong style="color:var(--c-bright);">99.1%</strong></div>
+            <div class="route-row"><span>Partner Bank</span><strong>YES Bank</strong></div>
+          </div>
+
+          <div class="route-card alt">
+            <div class="route-header">
+              <span class="route-name">SWIFT (Standard)</span>
+              <span class="route-badge badge-slow">SLOW · COSTLY</span>
+            </div>
+            <div class="route-row"><span>FX Rate</span><strong>1 AED = 22.64 INR</strong></div>
+            <div class="route-row"><span>Fee</span><strong>AED 225 (flat + spread)</strong></div>
+            <div class="route-row"><span>Settlement</span><strong>2–3 business days</strong></div>
+            <div class="route-row"><span>Success Rate</span><strong>97.2%</strong></div>
+            <div class="route-row"><span>Partner Bank</span><strong>Correspondent chain</strong></div>
+          </div>
+
+          <div class="route-card alt">
+            <div class="route-header">
+              <span class="route-name">Correspondent (HDFC)</span>
+              <span class="route-badge badge-slow">AVAILABLE</span>
+            </div>
+            <div class="route-row"><span>FX Rate</span><strong>1 AED = 22.78 INR</strong></div>
+            <div class="route-row"><span>Fee</span><strong>AED 95</strong></div>
+            <div class="route-row"><span>Settlement</span><strong>4–8 hours</strong></div>
+            <div class="route-row"><span>Success Rate</span><strong>98.4%</strong></div>
+          </div>
+        </div>
+
+        <!-- S3: FX Rate Lock + Success -->
+        <div class="screen" id="s3" style="position:relative;">
+          <div class="conf-wrap" id="conf"></div>
+          <div class="screen-lbl">03 — PAYMENT CONFIRMED</div>
+          <div class="success-center">
+            <div class="success-icon">✅</div>
+            <div class="success-title">Payment Sent!</div>
+            <div class="success-sub">AED 12,500 → INR 2,85,250<br>via CBUAE IMPS · Ref: CLR-20240089</div>
+            <div class="saving-badge">Saved AED 180</div>
+            <div class="info-box">
+              <div style="margin-bottom:6px;">🏦 <strong>Route:</strong> CBUAE → YES Bank IMPS</div>
+              <div style="margin-bottom:6px;">⏱ <strong>Expected arrival:</strong> 2–4 hours</div>
+              <div style="margin-bottom:6px;">💱 <strong>FX Rate locked:</strong> 1 AED = 22.82 INR</div>
+              <div>📩 Beneficiary notified via WhatsApp</div>
+            </div>
+            <div style="margin-top:12px; font-size:11px; color:#888; line-height:1.5;">vs. SWIFT this would have cost AED 225 and taken 2–3 days. ClearRoute selected the optimal rail automatically.</div>
+          </div>
+        </div>
+
+        <!-- S4: Ops Console -->
+        <div class="screen" id="s4">
+          <div class="screen-lbl">04 — ROUTING ANALYTICS</div>
+          <div class="app-header">
+            <span style="font-size:13px; font-weight:700;">ClearRoute Ops Console</span>
+            <span style="font-size:10px; color:var(--c-bright);">Last 30 days</span>
+          </div>
+
+          <div class="metrics-grid">
+            <div class="metric-box">
+              <div class="metric-val">AED 180</div>
+              <div class="metric-lbl">Avg saving/txn vs SWIFT</div>
+            </div>
+            <div class="metric-box">
+              <div class="metric-val">98.6%</div>
+              <div class="metric-lbl">Route success rate</div>
+            </div>
+            <div class="metric-box">
+              <div class="metric-val">3.2 hrs</div>
+              <div class="metric-lbl">Avg settlement TAT</div>
+            </div>
+            <div class="metric-box">
+              <div class="metric-val">72%</div>
+              <div class="metric-lbl">SWIFT → local rail shift</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-label">Top Corridors — Rail Usage</div>
+            <div class="ops-row">
+              <span class="corridor-name">AED → INR (India)</span>
+              <span class="pill pill-green">IMPS · 89%</span>
+            </div>
+            <div class="ops-row">
+              <span class="corridor-name">AED → PKR (Pakistan)</span>
+              <span class="pill pill-green">Raast · 76%</span>
+            </div>
+            <div class="ops-row">
+              <span class="corridor-name">AED → PHP (Philippines)</span>
+              <span class="pill pill-amber">InstaPay · 61%</span>
+            </div>
+            <div class="ops-row">
+              <span class="corridor-name">AED → EUR (Europe)</span>
+              <span class="pill pill-amber">SEPA · 44%</span>
+            </div>
+          </div>
+
+          <div style="background:rgba(255,107,53,0.1); border:1px solid var(--orange); border-radius:8px; padding:10px; font-size:11px; color:var(--orange);">
+            ⚠️ <strong>Alert:</strong> Pakistan Raast corridor — success rate dropped to 91% in last 48h. Recommend: route Pakistan payments via correspondent (UBL) until issue resolved.
+          </div>
+        </div>
+
+      </div>
+      <div class="nav-dots">
+        <div class="dot active" onclick="go(1)"></div>
+        <div class="dot" onclick="go(2)"></div>
+        <div class="dot" onclick="go(3)"></div>
+        <div class="dot" onclick="go(4)"></div>
+      </div>
+    </div>
+    <div class="nav-buttons">
+      <button class="nav-btn" id="prev" onclick="prev()" disabled>← Prev</button>
+      <button class="nav-btn" id="next" onclick="next()">Next →</button>
+    </div>
+  </div>
+
+  <!-- STATIC PHONES 2-4 -->
+  <div class="phone-container">
+    <div class="phone-label">02 — ROUTE COMPARISON</div>
+    <div class="phone">
+      <div class="notch"><div class="notch-cam"></div><div class="ndot"></div></div>
+      <div class="status-bar"><span>9:41</span><span>●●●●●</span></div>
+      <div class="screen-container">
+        <div class="screen active" style="padding:20px 16px;">
+          <div class="screen-lbl">02 — ROUTE COMPARISON</div>
+          <div class="app-header"><span style="font-size:13px; font-weight:700;">Route Options · AED→INR</span><div style="font-size:9px; color:var(--c-bright); font-weight:600;">AED 12,500</div></div>
+          <div class="route-card best">
+            <div class="route-header"><span class="route-name">CBUAE → IMPS</span><span class="route-badge badge-best">BEST</span></div>
+            <div class="route-row"><span>Fee</span><strong>AED 45</strong></div>
+            <div class="route-row"><span>TAT</span><strong>2–4 hours</strong></div>
+            <div class="route-row"><span>Success</span><strong style="color:var(--c-bright);">99.1%</strong></div>
+          </div>
+          <div class="route-card alt">
+            <div class="route-header"><span class="route-name">SWIFT (Standard)</span><span class="route-badge badge-slow">COSTLY</span></div>
+            <div class="route-row"><span>Fee</span><strong>AED 225</strong></div>
+            <div class="route-row"><span>TAT</span><strong>2–3 days</strong></div>
+            <div class="route-row"><span>Success</span><strong>97.2%</strong></div>
+          </div>
+          <div class="route-card alt">
+            <div class="route-header"><span class="route-name">Correspondent (HDFC)</span><span class="route-badge badge-slow">ALT</span></div>
+            <div class="route-row"><span>Fee</span><strong>AED 95</strong></div>
+            <div class="route-row"><span>TAT</span><strong>4–8 hours</strong></div>
+            <div class="route-row"><span>Success</span><strong>98.4%</strong></div>
+          </div>
+          <div class="saving-box">ClearRoute saves AED 180 vs default SWIFT</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="phone-container">
+    <div class="phone-label">03 — PAYMENT CONFIRMED</div>
+    <div class="phone">
+      <div class="notch"><div class="notch-cam"></div><div class="ndot"></div></div>
+      <div class="status-bar"><span>9:41</span><span>●●●●●</span></div>
+      <div class="screen-container">
+        <div class="screen active" style="padding:20px 16px; position:relative;">
+          <div class="conf-wrap" id="conf2"></div>
+          <div class="screen-lbl">03 — PAYMENT CONFIRMED</div>
+          <div class="success-center">
+            <div class="success-icon">✅</div>
+            <div class="success-title">Payment Sent!</div>
+            <div class="success-sub">AED 12,500 → INR 2,85,250<br>via CBUAE IMPS · Ref: CLR-20240089</div>
+            <div class="saving-badge">Saved AED 180</div>
+            <div class="info-box">
+              <div style="margin-bottom:6px;">🏦 <strong>Route:</strong> CBUAE → YES Bank IMPS</div>
+              <div style="margin-bottom:6px;">⏱ <strong>Arrival:</strong> 2–4 hours</div>
+              <div>💱 <strong>Rate locked:</strong> 1 AED = 22.82 INR</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="phone-container">
+    <div class="phone-label">04 — ROUTING ANALYTICS</div>
+    <div class="phone">
+      <div class="notch"><div class="notch-cam"></div><div class="ndot"></div></div>
+      <div class="status-bar"><span>9:41</span><span>●●●●●</span></div>
+      <div class="screen-container">
+        <div class="screen active" style="padding:20px 16px;">
+          <div class="screen-lbl">04 — ROUTING ANALYTICS</div>
+          <div class="app-header"><span style="font-size:13px; font-weight:700;">Ops Console</span><span style="font-size:10px; color:var(--c-bright);">Last 30 days</span></div>
+          <div class="metrics-grid">
+            <div class="metric-box"><div class="metric-val">AED 180</div><div class="metric-lbl">Avg saving/txn</div></div>
+            <div class="metric-box"><div class="metric-val">98.6%</div><div class="metric-lbl">Success rate</div></div>
+            <div class="metric-box"><div class="metric-val">3.2 hrs</div><div class="metric-lbl">Avg TAT</div></div>
+            <div class="metric-box"><div class="metric-val">72%</div><div class="metric-lbl">Local rail shift</div></div>
+          </div>
+          <div class="card">
+            <div class="card-label">Corridors — Rail Usage</div>
+            <div class="ops-row"><span class="corridor-name">AED → INR</span><span class="pill pill-green">IMPS · 89%</span></div>
+            <div class="ops-row"><span class="corridor-name">AED → PKR</span><span class="pill pill-green">Raast · 76%</span></div>
+            <div class="ops-row"><span class="corridor-name">AED → PHP</span><span class="pill pill-amber">InstaPay · 61%</span></div>
+            <div class="ops-row"><span class="corridor-name">AED → EUR</span><span class="pill pill-amber">SEPA · 44%</span></div>
+          </div>
+          <div style="background:rgba(255,107,53,0.1); border:1px solid var(--orange); border-radius:8px; padding:10px; font-size:11px; color:var(--orange);">⚠️ Pakistan Raast — 91% success (48h drop). Route via UBL correspondent.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let cur = 1;
+function go(n) {
+  cur = n;
+  [1,2,3,4].forEach(i => { document.getElementById('s'+i).classList.remove('active'); document.querySelectorAll('.dot')[i-1].classList.remove('active'); });
+  document.getElementById('s'+n).classList.add('active');
+  document.querySelectorAll('.dot')[n-1].classList.add('active');
+  if (n === 3) {
+    setTimeout(() => {
+      const c = document.getElementById('conf');
+      if (!c.children.length) {
+        const cols = ['#00BFA5','#FF6B35','#0668E1','#F59E0B','#A78BFA','#34D399'];
+        for (let i = 0; i < 32; i++) {
+          const p = document.createElement('div'); p.className = 'cp';
+          const sz = 4 + Math.random() * 7;
+          p.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*120-10}%;width:${sz}px;height:${sz}px;background:${cols[Math.floor(Math.random()*cols.length)]};border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${1.4+Math.random()*1.8}s;animation-delay:${Math.random()*2}s;`;
+          c.appendChild(p);
+        }
+        // Also static phone 3
+        const c2 = document.getElementById('conf2');
+        if (!c2.children.length) {
+          for (let i = 0; i < 20; i++) {
+            const p = document.createElement('div'); p.className = 'cp';
+            const sz = 4 + Math.random() * 6;
+            p.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*80}%;width:${sz}px;height:${sz}px;background:${cols[Math.floor(Math.random()*cols.length)]};border-radius:50%;animation-duration:${1.6+Math.random()*1.5}s;animation-delay:${Math.random()*1.5}s;`;
+            c2.appendChild(p);
+          }
+        }
+      }
+    }, 100);
+  }
+  document.getElementById('prev').disabled = cur === 1;
+  document.getElementById('next').disabled = cur === 4;
+}
+function next() { if (cur < 4) go(cur + 1); }
+function prev() { if (cur > 1) go(cur - 1); }
+</script>
+</body>
+</html>
