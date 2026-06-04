@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pencil — AdCanvas · AI-Powered Format Adaptation Engine</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --dark:#0F0A1E; --hero:#1A1030; --bright:#6366F1; --accent:#818CF8;
+  --orange:#F97316; --pink:#EC4899; --green:#10B981;
+  --muted:#64748b; --white:#ffffff; --gray:#F8F9FC;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Sora',sans-serif;background:var(--dark);color:var(--white);padding:40px 20px;}
+.header{text-align:center;margin-bottom:40px;}
+.header h1{font-size:24px;font-weight:700;margin-bottom:8px;}
+.header p{font-size:14px;color:#8b92a5;}
+.proto-wrap{display:flex;gap:32px;justify-content:center;overflow-x:auto;padding:20px 0;}
+.phone-box{flex-shrink:0;width:375px;}
+.plabel{font-size:12px;color:var(--bright);font-weight:600;margin-bottom:12px;text-align:center;letter-spacing:.05em;}
+.phone{width:375px;height:812px;border:12px solid #000;border-radius:46px;overflow:hidden;box-shadow:0 40px 100px rgba(0,0,0,0.28);display:flex;flex-direction:column;background:var(--hero);}
+.notch{width:118px;height:28px;background:var(--dark);border-radius:0 0 16px 16px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;padding:0 8px;}
+.nc{width:10px;height:10px;background:#1a1a1a;border-radius:50%;}
+.ndot{width:4px;height:4px;background:#666;border-radius:50%;}
+.sbar{background:var(--dark);color:#999;font-size:11px;padding:4px 12px;display:flex;justify-content:space-between;font-family:'DM Mono',monospace;}
+.scr-wrap{flex:1;overflow-y:auto;scrollbar-width:none;}
+.scr{width:100%;min-height:100%;display:none;flex-direction:column;padding:18px 14px;}
+.scr.active{display:flex;}
+.slbl{text-align:center;font-size:10px;color:var(--muted);margin-bottom:12px;font-weight:600;letter-spacing:.05em;}
+
+/* Canvas */
+.canvas-frame{background:#1e1e2e;border:1.5px solid rgba(99,102,241,0.3);border-radius:10px;padding:10px;margin-bottom:10px;}
+.canvas-label{font-size:9px;color:var(--accent);font-weight:700;text-transform:uppercase;margin-bottom:6px;}
+.master-ad{background:linear-gradient(135deg,#6366F1,#EC4899);border-radius:8px;height:90px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;text-align:center;padding:8px;position:relative;}
+.ad-badge{position:absolute;top:6px;right:6px;background:rgba(0,0,0,0.4);font-size:8px;padding:2px 6px;border-radius:4px;font-family:'DM Mono',monospace;}
+
+/* Format chips */
+.format-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px;}
+.fmt-chip{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);border-radius:8px;padding:8px 6px;text-align:center;}
+.fmt-chip.adapted{border-color:var(--bright);}
+.fmt-chip.conflict{border-color:var(--orange);}
+.fmt-dim{font-size:9px;font-family:'DM Mono',monospace;color:var(--accent);}
+.fmt-status{font-size:8px;color:#999;margin-top:2px;}
+.fmt-status.ok{color:var(--green);}
+.fmt-status.warn{color:var(--orange);}
+
+/* Variant preview */
+.variant-row{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:10px;margin-bottom:8px;}
+.variant-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:11px;}
+.variant-name{font-weight:700;}
+.variant-ad{border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;color:white;}
+
+/* Conflict */
+.conflict-box{background:rgba(249,115,22,0.1);border:1.5px solid var(--orange);border-radius:10px;padding:12px;margin-bottom:10px;}
+.conflict-title{font-size:11px;font-weight:700;color:var(--orange);margin-bottom:4px;}
+.conflict-desc{font-size:10px;color:#ccc;line-height:1.4;margin-bottom:8px;}
+.fix-option{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:7px;padding:8px 10px;font-size:10px;color:#ddd;margin-bottom:5px;cursor:pointer;}
+.fix-option.selected{border-color:var(--bright);color:var(--accent);}
+
+/* Success */
+.conf-wrap{position:absolute;width:100%;height:100%;pointer-events:none;top:0;left:0;}
+.cp{position:absolute;animation:fall linear forwards;}
+@keyframes fall{to{transform:translateY(800px) rotate(360deg);opacity:0;}}
+.success-center{display:flex;flex-direction:column;align-items:center;text-align:center;padding-top:40px;}
+
+/* Metrics */
+.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
+.mbox{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:10px;}
+.mval{font-size:18px;font-weight:700;color:var(--bright);font-family:'DM Mono',monospace;margin-bottom:2px;}
+.mlbl{font-size:9px;color:#999;}
+
+/* Card */
+.card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:12px;margin-bottom:10px;}
+.card-lbl{font-size:10px;font-weight:700;color:var(--bright);text-transform:uppercase;margin-bottom:8px;}
+
+/* Pill */
+.pill{font-size:9px;font-weight:700;padding:3px 8px;border-radius:99px;}
+.pill-ok{background:rgba(16,185,129,0.15);color:var(--green);}
+.pill-warn{background:rgba(249,115,22,0.15);color:var(--orange);}
+.pill-info{background:rgba(99,102,241,0.15);color:var(--accent);}
+
+/* Row */
+.row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.06);font-size:11px;align-items:center;}
+.row:last-child{border-bottom:none;}
+
+/* Nav */
+.ndots{display:flex;gap:8px;justify-content:center;padding:10px 0 0;background:var(--dark);}
+.dot{width:6px;height:6px;background:rgba(255,255,255,0.3);border-radius:50%;cursor:pointer;transition:.3s;}
+.dot.active{background:var(--bright);}
+.navbtns{display:flex;gap:8px;margin-top:14px;}
+.nbtn{flex:1;padding:10px;background:var(--bright);border:none;border-radius:8px;color:white;font-size:11px;font-weight:600;cursor:pointer;font-family:'Sora',sans-serif;}
+.nbtn:disabled{opacity:.4;cursor:not-allowed;}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>Pencil — AdCanvas</h1>
+  <p>AI-Powered Format Adaptation Engine · Interactive Prototype</p>
+</div>
+
+<div class="proto-wrap">
+  <!-- NAVIGABLE PHONE -->
+  <div class="phone-box">
+    <div class="plabel">01 — MASTER CANVAS</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="sbar"><span>Pencil Editor</span><span>●●●●●</span></div>
+      <div class="scr-wrap">
+
+        <!-- S1 -->
+        <div class="scr active" id="s1">
+          <div class="slbl">01 — MASTER CANVAS</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+            <span style="font-size:13px;font-weight:700;">Summer Sale Campaign</span>
+            <span style="font-size:10px;color:var(--accent);">6 formats</span>
+          </div>
+          <div class="canvas-frame">
+            <div class="canvas-label">Master · 1200×628 (Facebook)</div>
+            <div class="master-ad">
+              <div>
+                <div style="font-size:14px;margin-bottom:4px;">☀️ Summer Sale</div>
+                <div style="font-size:11px;opacity:.9;">Up to 30% off everything</div>
+                <div style="background:rgba(255,255,255,0.25);border-radius:4px;padding:3px 10px;display:inline-block;font-size:10px;margin-top:6px;">Shop Now →</div>
+              </div>
+              <div class="ad-badge">1200×628</div>
+            </div>
+          </div>
+          <div style="font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;margin-bottom:6px;">⚡ AI Adapting to 6 Formats</div>
+          <div class="format-grid">
+            <div class="fmt-chip adapted">
+              <div class="fmt-dim">300×250</div>
+              <div class="fmt-status ok">✓ Ready</div>
+            </div>
+            <div class="fmt-chip adapted">
+              <div class="fmt-dim">728×90</div>
+              <div class="fmt-status ok">✓ Ready</div>
+            </div>
+            <div class="fmt-chip conflict">
+              <div class="fmt-dim">160×600</div>
+              <div class="fmt-status warn">⚠ Conflict</div>
+            </div>
+            <div class="fmt-chip adapted">
+              <div class="fmt-dim">320×50</div>
+              <div class="fmt-status ok">✓ Ready</div>
+            </div>
+            <div class="fmt-chip adapted">
+              <div class="fmt-dim">970×250</div>
+              <div class="fmt-status ok">✓ Ready</div>
+            </div>
+            <div class="fmt-chip conflict">
+              <div class="fmt-dim">Email</div>
+              <div class="fmt-status warn">⚠ Review</div>
+            </div>
+          </div>
+          <div class="conflict-box">
+            <div class="conflict-title">⚠ 2 formats need your input</div>
+            <div class="conflict-desc">160×600 Skyscraper: CTA text clips at "Shop N…" · Email: hero image aspect ratio requires re-crop</div>
+          </div>
+          <button style="width:100%;padding:11px;background:var(--bright);border:none;border-radius:9px;color:white;font-size:12px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;">Resolve Conflicts →</button>
+        </div>
+
+        <!-- S2 -->
+        <div class="scr" id="s2">
+          <div class="slbl">02 — FORMAT VARIANTS</div>
+          <div style="font-size:12px;font-weight:700;margin-bottom:10px;">Live Variants · Summer Sale</div>
+
+          <div class="variant-row">
+            <div class="variant-header"><span class="variant-name">Facebook · 1200×628</span><span class="pill pill-ok">Master</span></div>
+            <div class="variant-ad" style="background:linear-gradient(135deg,#6366F1,#EC4899);height:52px;">☀️ Summer Sale — Up to 30% off</div>
+          </div>
+          <div class="variant-row">
+            <div class="variant-header"><span class="variant-name">Display · 300×250</span><span class="pill pill-ok">✓ Adapted</span></div>
+            <div class="variant-ad" style="background:linear-gradient(135deg,#6366F1,#4F46E5);height:36px;font-size:8px;">Summer Sale — 30% off · Shop Now</div>
+          </div>
+          <div class="variant-row">
+            <div class="variant-header"><span class="variant-name">Leaderboard · 728×90</span><span class="pill pill-ok">✓ Adapted</span></div>
+            <div class="variant-ad" style="background:linear-gradient(90deg,#6366F1,#EC4899);height:20px;font-size:8px;">☀️ Summer Sale — Up to 30% off everything · Shop Now →</div>
+          </div>
+          <div class="variant-row">
+            <div class="variant-header"><span class="variant-name">Skyscraper · 160×600</span><span class="pill pill-warn">⚠ Conflict</span></div>
+            <div style="background:rgba(249,115,22,0.1);border:1px dashed var(--orange);border-radius:6px;height:36px;display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--orange);">CTA clips — tap to resolve</div>
+          </div>
+          <div class="variant-row">
+            <div class="variant-header"><span class="variant-name">Mobile Banner · 320×50</span><span class="pill pill-ok">✓ Adapted</span></div>
+            <div class="variant-ad" style="background:linear-gradient(90deg,#4F46E5,#6366F1);height:16px;font-size:7px;">Summer Sale 30% off</div>
+          </div>
+
+          <div style="background:rgba(99,102,241,0.1);border:1px solid var(--bright);border-radius:8px;padding:10px;font-size:11px;color:#ddd;margin-top:8px;">
+            💡 Edit on master → all adapted variants update automatically. Only conflicts require manual input.
+          </div>
+        </div>
+
+        <!-- S3 -->
+        <div class="scr" id="s3" style="position:relative;">
+          <div class="conf-wrap" id="conf"></div>
+          <div class="slbl">03 — CONFLICTS RESOLVED</div>
+          <div class="success-center">
+            <div style="font-size:48px;margin-bottom:12px;">🎨</div>
+            <div style="font-size:17px;font-weight:700;margin-bottom:8px;">All Formats Ready!</div>
+            <div style="font-size:11px;color:#aaa;margin-bottom:16px;line-height:1.5;">6 format variants adapted from master. Export individually or as a package.</div>
+            <div style="background:var(--bright);color:white;font-size:16px;font-weight:700;padding:10px 20px;border-radius:10px;margin-bottom:16px;">Saved 4.2 hours</div>
+            <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);border-radius:10px;padding:12px;font-size:11px;color:#ccc;line-height:1.6;width:100%;text-align:left;">
+              <div>✅ <strong>6 formats</strong> adapted from 1 master</div>
+              <div>✅ <strong>Brand constraints</strong> respected across all</div>
+              <div>✅ <strong>2 conflicts</strong> resolved with AI suggestions</div>
+              <div>✅ <strong>Manual adaptation time:</strong> 4.2 hrs → 18 min</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- S4 -->
+        <div class="scr" id="s4">
+          <div class="slbl">04 — TEMPLATE LIBRARY</div>
+          <div style="font-size:13px;font-weight:700;margin-bottom:4px;color:var(--accent);">Campaign Templates</div>
+          <div style="font-size:10px;color:#999;margin-bottom:12px;">Saved master templates with variant performance</div>
+
+          <div class="mgrid">
+            <div class="mbox"><div class="mval">4.2 hrs</div><div class="mlbl">Avg time saved/campaign</div></div>
+            <div class="mbox"><div class="mval">94%</div><div class="mlbl">Conflict auto-resolve rate</div></div>
+            <div class="mbox"><div class="mval">6</div><div class="mlbl">Formats per master</div></div>
+            <div class="mbox"><div class="mval">18 min</div><div class="mlbl">Avg adaptation time</div></div>
+          </div>
+
+          <div class="card">
+            <div class="card-lbl">Saved Templates</div>
+            <div class="row"><span style="font-weight:600;">Summer Sale 2024</span><span class="pill pill-ok">6 formats</span></div>
+            <div class="row"><span style="font-weight:600;">Product Launch</span><span class="pill pill-ok">8 formats</span></div>
+            <div class="row"><span style="font-weight:600;">Brand Awareness</span><span class="pill pill-info">4 formats</span></div>
+            <div class="row"><span style="font-weight:600;">Retargeting Set</span><span class="pill pill-warn">Review needed</span></div>
+          </div>
+
+          <div style="background:rgba(16,185,129,0.1);border:1px solid var(--green);border-radius:8px;padding:10px;font-size:11px;color:var(--green);">
+            📈 Campaigns using AdCanvas: +31% CTR vs manually adapted variants. Master→Variant consistency correlates with brand recall lift.
+          </div>
+        </div>
+
+      </div>
+      <div class="ndots">
+        <div class="dot active" onclick="go(1)"></div>
+        <div class="dot" onclick="go(2)"></div>
+        <div class="dot" onclick="go(3)"></div>
+        <div class="dot" onclick="go(4)"></div>
+      </div>
+    </div>
+    <div class="navbtns">
+      <button class="nbtn" id="prev" onclick="prev()" disabled>← Prev</button>
+      <button class="nbtn" id="next" onclick="next()">Next →</button>
+    </div>
+  </div>
+
+  <!-- STATIC PHONES -->
+  <div class="phone-box">
+    <div class="plabel">02 — FORMAT VARIANTS</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="sbar"><span>Pencil Editor</span><span>●●●●●</span></div>
+      <div class="scr-wrap">
+        <div class="scr active" style="padding:18px 14px;">
+          <div class="slbl">02 — FORMAT VARIANTS</div>
+          <div style="font-size:12px;font-weight:700;margin-bottom:10px;">Live Variants · Summer Sale</div>
+          <div class="variant-row"><div class="variant-header"><span class="variant-name">Facebook 1200×628</span><span class="pill pill-ok">Master</span></div><div class="variant-ad" style="background:linear-gradient(135deg,#6366F1,#EC4899);height:50px;">☀️ Summer Sale — 30% off everything</div></div>
+          <div class="variant-row"><div class="variant-header"><span class="variant-name">Display 300×250</span><span class="pill pill-ok">✓ Adapted</span></div><div class="variant-ad" style="background:linear-gradient(135deg,#6366F1,#4F46E5);height:34px;font-size:8px;">Summer Sale 30% off · Shop Now</div></div>
+          <div class="variant-row"><div class="variant-header"><span class="variant-name">Leaderboard 728×90</span><span class="pill pill-ok">✓ Adapted</span></div><div class="variant-ad" style="background:linear-gradient(90deg,#6366F1,#EC4899);height:18px;font-size:7px;">☀️ Summer Sale — 30% off · Shop Now →</div></div>
+          <div class="variant-row"><div class="variant-header"><span class="variant-name">Skyscraper 160×600</span><span class="pill pill-warn">⚠ Conflict</span></div><div style="background:rgba(249,115,22,0.1);border:1px dashed var(--orange);border-radius:6px;height:34px;display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--orange);">CTA clips — tap to resolve</div></div>
+          <div style="background:rgba(99,102,241,0.1);border:1px solid var(--bright);border-radius:8px;padding:10px;font-size:11px;color:#ddd;margin-top:8px;">💡 Edit master → all adapted variants update automatically.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="phone-box">
+    <div class="plabel">03 — ALL FORMATS READY</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="sbar"><span>Pencil Editor</span><span>●●●●●</span></div>
+      <div class="scr-wrap">
+        <div class="scr active" style="padding:18px 14px;position:relative;">
+          <div class="conf-wrap" id="conf2"></div>
+          <div class="slbl">03 — ALL FORMATS READY</div>
+          <div class="success-center">
+            <div style="font-size:48px;margin-bottom:12px;">🎨</div>
+            <div style="font-size:17px;font-weight:700;margin-bottom:8px;">All Formats Ready!</div>
+            <div style="background:var(--bright);color:white;font-size:16px;font-weight:700;padding:10px 20px;border-radius:10px;margin-bottom:16px;">Saved 4.2 hours</div>
+            <div style="font-size:10px;color:#888;">6 formats adapted · 2 conflicts resolved · Brand constraints enforced</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="phone-box">
+    <div class="plabel">04 — TEMPLATE LIBRARY</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="sbar"><span>Pencil Editor</span><span>●●●●●</span></div>
+      <div class="scr-wrap">
+        <div class="scr active" style="padding:18px 14px;">
+          <div class="slbl">04 — TEMPLATE LIBRARY</div>
+          <div class="mgrid">
+            <div class="mbox"><div class="mval">4.2h</div><div class="mlbl">Saved/campaign</div></div>
+            <div class="mbox"><div class="mval">94%</div><div class="mlbl">Auto-resolve rate</div></div>
+            <div class="mbox"><div class="mval">6</div><div class="mlbl">Formats/master</div></div>
+            <div class="mbox"><div class="mval">18m</div><div class="mlbl">Avg adapt time</div></div>
+          </div>
+          <div class="card">
+            <div class="card-lbl">Saved Templates</div>
+            <div class="row"><span style="font-weight:600;">Summer Sale 2024</span><span class="pill pill-ok">6 formats</span></div>
+            <div class="row"><span style="font-weight:600;">Product Launch</span><span class="pill pill-ok">8 formats</span></div>
+            <div class="row"><span style="font-weight:600;">Brand Awareness</span><span class="pill pill-info">4 formats</span></div>
+          </div>
+          <div style="background:rgba(16,185,129,0.1);border:1px solid var(--green);border-radius:8px;padding:10px;font-size:11px;color:var(--green);">📈 AdCanvas campaigns: +31% CTR vs manually adapted variants.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let cur=1;
+function go(n){
+  cur=n;
+  [1,2,3,4].forEach(i=>{document.getElementById('s'+i).classList.remove('active');document.querySelectorAll('.dot')[i-1].classList.remove('active');});
+  document.getElementById('s'+n).classList.add('active');
+  document.querySelectorAll('.dot')[n-1].classList.add('active');
+  if(n===3){
+    setTimeout(()=>{
+      const c=document.getElementById('conf');
+      if(!c.children.length){
+        const cols=['#6366F1','#EC4899','#F97316','#10B981','#818CF8','#FCD34D'];
+        for(let i=0;i<32;i++){const p=document.createElement('div');p.className='cp';const s=4+Math.random()*7;p.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*120-10}%;width:${s}px;height:${s}px;background:${cols[Math.floor(Math.random()*cols.length)]};border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${1.4+Math.random()*1.8}s;animation-delay:${Math.random()*2}s;`;c.appendChild(p);}
+        const c2=document.getElementById('conf2');
+        for(let i=0;i<20;i++){const p=document.createElement('div');p.className='cp';const s=4+Math.random()*6;p.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*80}%;width:${s}px;height:${s}px;background:${cols[Math.floor(Math.random()*cols.length)]};border-radius:50%;animation-duration:${1.5+Math.random()*1.5}s;animation-delay:${Math.random()*1.5}s;`;c2.appendChild(p);}
+      }
+    },100);
+  }
+  document.getElementById('prev').disabled=cur===1;
+  document.getElementById('next').disabled=cur===4;
+}
+function next(){if(cur<4)go(cur+1);}
+function prev(){if(cur>1)go(cur-1);}
+</script>
+</body>
+</html>

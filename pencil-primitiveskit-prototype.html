@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pencil — PrimitivesKit · Shared Component Library</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--dark:#0F0A1E;--hero:#1A1030;--bright:#10B981;--accent:#6EE7B7;--indigo:#6366F1;--pink:#EC4899;--orange:#F97316;--muted:#64748b;--white:#ffffff;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Sora',sans-serif;background:var(--dark);color:var(--white);padding:40px 20px;}
+.header{text-align:center;margin-bottom:40px;}
+.header h1{font-size:24px;font-weight:700;margin-bottom:8px;}
+.header p{font-size:14px;color:#8b92a5;}
+.proto-wrap{display:flex;gap:32px;justify-content:center;overflow-x:auto;padding:20px 0;}
+.phone-box{flex-shrink:0;width:375px;}
+.plabel{font-size:12px;color:var(--bright);font-weight:600;margin-bottom:12px;text-align:center;letter-spacing:.05em;}
+.phone{width:375px;height:812px;border:12px solid #000;border-radius:46px;overflow:hidden;box-shadow:0 40px 100px rgba(0,0,0,0.28);display:flex;flex-direction:column;background:var(--hero);}
+.notch{width:118px;height:28px;background:var(--dark);border-radius:0 0 16px 16px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;padding:0 8px;}
+.nc{width:10px;height:10px;background:#1a1a1a;border-radius:50%;}
+.ndot{width:4px;height:4px;background:#666;border-radius:50%;}
+.sbar{background:var(--dark);color:#999;font-size:11px;padding:4px 12px;display:flex;justify-content:space-between;font-family:'DM Mono',monospace;}
+.scr-wrap{flex:1;overflow-y:auto;scrollbar-width:none;}
+.scr{width:100%;min-height:100%;display:none;flex-direction:column;padding:18px 14px;}
+.scr.active{display:flex;}
+.slbl{text-align:center;font-size:10px;color:var(--muted);margin-bottom:12px;font-weight:600;letter-spacing:.05em;}
+
+/* Primitive cards */
+.prim-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:12px;margin-bottom:10px;}
+.prim-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.prim-name{font-size:12px;font-weight:700;}
+.prim-tag{font-size:9px;font-weight:700;padding:3px 8px;border-radius:99px;}
+.prim-demo{border-radius:8px;padding:10px;margin-bottom:8px;font-size:11px;}
+.format-row{display:flex;gap:6px;flex-wrap:wrap;}
+.fmt-badge{font-size:9px;font-family:'DM Mono',monospace;background:rgba(110,231,183,0.1);color:var(--accent);border:1px solid rgba(110,231,183,0.2);padding:3px 7px;border-radius:5px;}
+
+/* Format aware */
+.format-tabs{display:flex;gap:6px;margin-bottom:12px;}
+.ftab{flex:1;padding:7px;text-align:center;font-size:10px;font-weight:600;border-radius:7px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);cursor:pointer;}
+.ftab.active{background:rgba(16,185,129,0.15);border-color:var(--bright);color:var(--bright);}
+
+.render-box{border-radius:10px;border:1.5px solid rgba(16,185,129,0.3);margin-bottom:10px;overflow:hidden;}
+.render-header{background:rgba(16,185,129,0.1);padding:8px 12px;font-size:10px;font-weight:700;color:var(--accent);display:flex;justify-content:space-between;}
+.render-body{padding:12px;font-size:11px;}
+
+/* Token system */
+.token-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:8px 10px;}
+.token-swatch{width:24px;height:24px;border-radius:4px;flex-shrink:0;}
+.token-info{flex:1;}
+.token-name{font-size:10px;font-weight:700;color:var(--accent);}
+.token-val{font-size:9px;color:#999;font-family:'DM Mono',monospace;}
+.token-applied{font-size:9px;color:var(--bright);}
+
+/* Spec */
+.spec-row{background:rgba(255,255,255,0.04);border-left:3px solid var(--bright);border-radius:6px;padding:8px 10px;margin-bottom:8px;font-size:11px;}
+.spec-key{font-size:9px;color:var(--accent);font-weight:700;text-transform:uppercase;margin-bottom:2px;}
+.spec-val{color:#ddd;font-family:'DM Mono',monospace;font-size:10px;}
+
+.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
+.mbox{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:10px;}
+.mval{font-size:18px;font-weight:700;color:var(--bright);font-family:'DM Mono',monospace;margin-bottom:2px;}
+.mlbl{font-size:9px;color:#999;}
+.card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:12px;margin-bottom:10px;}
+.card-lbl{font-size:10px;font-weight:700;color:var(--bright);text-transform:uppercase;margin-bottom:8px;}
+.row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.06);font-size:11px;align-items:center;}
+.row:last-child{border-bottom:none;}
+.pill{font-size:9px;font-weight:700;padding:3px 8px;border-radius:99px;}
+.pill-ok{background:rgba(16,185,129,0.15);color:var(--bright);}
+.pill-info{background:rgba(99,102,241,0.15);color:#818CF8;}
+
+.ndots{display:flex;gap:8px;justify-content:center;padding:10px 0 0;background:var(--dark);}
+.dot{width:6px;height:6px;background:rgba(255,255,255,0.3);border-radius:50%;cursor:pointer;transition:.3s;}
+.dot.active{background:var(--bright);}
+.navbtns{display:flex;gap:8px;margin-top:14px;}
+.nbtn{flex:1;padding:10px;background:var(--bright);border:none;border-radius:8px;color:var(--dark);font-size:11px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;}
+.nbtn:disabled{opacity:.4;cursor:not-allowed;color:white;}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>Pencil — PrimitivesKit</h1>
+  <p>Shared Component Library Across All Editor Formats · Interactive Prototype</p>
+</div>
+
+<div class="proto-wrap">
+  <div class="phone-box">
+    <div class="plabel">01 — COMPONENT LIBRARY</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="sbar"><span>PrimitivesKit</span><span>●●●●●</span></div>
+      <div class="scr-wrap">
+
+        <!-- S1: Component Library -->
+        <div class="scr active" id="s1">
+          <div class="slbl">01 — COMPONENT LIBRARY</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <span style="font-size:13px;font-weight:700;">Primitives</span>
+            <span style="font-size:10px;color:var(--accent);">5 components · 4 formats</span>
+          </div>
+
+          <div class="prim-card">
+            <div class="prim-header">
+              <span class="prim-name">TextBlock</span>
+              <span class="prim-tag" style="background:rgba(16,185,129,0.15);color:var(--bright);">Typography</span>
+            </div>
+            <div class="prim-demo" style="background:rgba(255,255,255,0.04);">
+              <div style="font-size:13px;font-weight:700;margin-bottom:2px;">Headline Text</div>
+              <div style="font-size:10px;color:#aaa;">Body text renders here</div>
+            </div>
+            <div class="format-row">
+              <span class="fmt-badge">Email · 16px</span>
+              <span class="fmt-badge">Display · 14px</span>
+              <span class="fmt-badge">Print · 12pt</span>
+            </div>
+          </div>
+
+          <div class="prim-card">
+            <div class="prim-header">
+              <span class="prim-name">CTAButton</span>
+              <span class="prim-tag" style="background:rgba(236,72,153,0.15);color:var(--pink);">Interaction</span>
+            </div>
+            <div class="prim-demo" style="background:rgba(255,255,255,0.04);display:flex;justify-content:center;">
+              <div style="background:var(--indigo);color:white;padding:8px 16px;border-radius:6px;font-size:11px;font-weight:700;">Shop Now →</div>
+            </div>
+            <div class="format-row">
+              <span class="fmt-badge">Email · 44px</span>
+              <span class="fmt-badge">Display · auto</span>
+              <span class="fmt-badge">Print · vector</span>
+            </div>
+          </div>
+
+          <div class="prim-card">
+            <div class="prim-header">
+              <span class="prim-name">ImageContainer</span>
+              <span class="prim-tag" style="background:rgba(249,115,22,0.15);color:var(--orange);">Media</span>
+            </div>
+            <div class="prim-demo" style="background:linear-gradient(135deg,rgba(99,102,241,0.2),rgba(236,72,153,0.2));height:40px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#aaa;">Image · format-aware crop zone</div>
+            <div class="format-row">
+              <span class="fmt-badge">Email · 600px wide</span>
+              <span class="fmt-badge">Display · fill</span>
+            </div>
+          </div>
+
+          <div class="prim-card">
+            <div class="prim-header">
+              <span class="prim-name">BrandToken</span>
+              <span class="prim-tag" style="background:rgba(99,102,241,0.15);color:#818CF8;">Design System</span>
+            </div>
+            <div style="display:flex;gap:6px;margin-top:4px;">
+              <div style="width:24px;height:24px;border-radius:4px;background:#6366F1;"></div>
+              <div style="width:24px;height:24px;border-radius:4px;background:#EC4899;"></div>
+              <div style="width:24px;height:24px;border-radius:4px;background:#F97316;"></div>
+              <div style="font-size:10px;color:#aaa;display:flex;align-items:center;margin-left:4px;">Applied globally</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- S2: Format-Aware Rendering -->
+        <div class="scr" id="s2">
+          <div class="slbl">02 — FORMAT-AWARE RENDERING</div>
+          <div style="font-size:12px;font-weight:700;margin-bottom:10px;">CTAButton Primitive · Same component, 3 formats</div>
+
+          <div class="render-box">
+            <div class="render-header"><span>📧 Email Format</span><span style="color:#999;">44px min height</span></div>
+            <div class="render-body">
+              <div style="background:var(--indigo);color:white;padding:12px 20px;border-radius:8px;font-size:13px;font-weight:700;text-align:center;display:inline-block;">Shop Now →</div>
+              <div style="font-size:9px;color:#888;margin-top:6px;">44px touch target enforced · full-width on mobile · accessible focus ring</div>
+            </div>
+          </div>
+
+          <div class="render-box">
+            <div class="render-header"><span>🖥 Display Ad · 300×250</span><span style="color:#999;">auto-scale</span></div>
+            <div class="render-body">
+              <div style="background:var(--indigo);color:white;padding:6px 12px;border-radius:5px;font-size:10px;font-weight:700;display:inline-block;">Shop Now →</div>
+              <div style="font-size:9px;color:#888;margin-top:6px;">Scales proportionally to container · text truncated if &lt;60px wide</div>
+            </div>
+          </div>
+
+          <div class="render-box">
+            <div class="render-header"><span>🖨 Print · A4</span><span style="color:#999;">vector SVG</span></div>
+            <div class="render-body">
+              <div style="background:var(--indigo);color:white;padding:9px 18px;border-radius:6px;font-size:12px;font-weight:700;display:inline-block;letter-spacing:.03em;">Shop Now →</div>
+              <div style="font-size:9px;color:#888;margin-top:6px;">Rendered as vector SVG · 300dpi · CMYK colour space</div>
+            </div>
+          </div>
+
+          <div style="background:rgba(16,185,129,0.1);border:1px solid var(--bright);border-radius:8px;padding:10px;font-size:11px;color:var(--accent);">
+            💡 One primitive definition. Format constraints handled by PrimitivesKit — not by the designer.
+          </div>
+        </div>
+
+        <!-- S3: Brand Token System -->
+        <div class="scr" id="s3">
+          <div class="slbl">03 — BRAND TOKEN SYSTEM</div>
+          <div style="font-size:12px;font-weight:700;margin-bottom:10px;">Tokens Applied Globally · All Formats</div>
+
+          <div style="font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;margin-bottom:8px;">Colour Tokens</div>
+          <div class="token-row">
+            <div class="token-swatch" style="background:#6366F1;"></div>
+            <div class="token-info"><div class="token-name">--brand-primary</div><div class="token-val">#6366F1 (Indigo)</div></div>
+            <div class="token-applied">4 formats ✓</div>
+          </div>
+          <div class="token-row">
+            <div class="token-swatch" style="background:#EC4899;"></div>
+            <div class="token-info"><div class="token-name">--brand-accent</div><div class="token-val">#EC4899 (Pink)</div></div>
+            <div class="token-applied">4 formats ✓</div>
+          </div>
+          <div class="token-row">
+            <div class="token-swatch" style="background:#F97316;"></div>
+            <div class="token-info"><div class="token-name">--cta-color</div><div class="token-val">#F97316 (Orange)</div></div>
+            <div class="token-applied">3 formats ✓</div>
+          </div>
+
+          <div style="font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;margin:10px 0 8px;">Typography Tokens</div>
+          <div class="token-row">
+            <div style="font-family:'Sora',sans-serif;font-size:14px;font-weight:700;flex-shrink:0;width:24px;">Aa</div>
+            <div class="token-info"><div class="token-name">--font-heading</div><div class="token-val">Sora · 700</div></div>
+            <div class="token-applied">4 formats ✓</div>
+          </div>
+          <div class="token-row">
+            <div style="font-size:12px;flex-shrink:0;width:24px;color:#aaa;">Aa</div>
+            <div class="token-info"><div class="token-name">--font-body</div><div class="token-val">Sora · 400</div></div>
+            <div class="token-applied">4 formats ✓</div>
+          </div>
+
+          <div style="background:rgba(99,102,241,0.1);border:1px solid var(--indigo);border-radius:8px;padding:10px;font-size:11px;color:#a5b4fc;margin-top:8px;">
+            🔄 Update --brand-primary → all components in all formats update in one change.
+          </div>
+        </div>
+
+        <!-- S4: Engineering Handoff -->
+        <div class="scr" id="s4">
+          <div class="slbl">04 — ENGINEERING HANDOFF</div>
+          <div style="font-size:12px;font-weight:700;margin-bottom:4px;color:var(--accent);">CTAButton Primitive Spec</div>
+          <div style="font-size:10px;color:#999;margin-bottom:12px;">Implement once · deploy everywhere</div>
+
+          <div class="spec-row">
+            <div class="spec-key">Component Name</div>
+            <div class="spec-val">CTAButton</div>
+          </div>
+          <div class="spec-row">
+            <div class="spec-key">Props</div>
+            <div class="spec-val">label, href, format, variant</div>
+          </div>
+          <div class="spec-row">
+            <div class="spec-key">Email Constraints</div>
+            <div class="spec-val">min-height:44px · full-width mobile · no hover state</div>
+          </div>
+          <div class="spec-row">
+            <div class="spec-key">Display Constraints</div>
+            <div class="spec-val">scale:proportional · min-width:60px · text-overflow:clip</div>
+          </div>
+          <div class="spec-row">
+            <div class="spec-key">Print Constraints</div>
+            <div class="spec-val">output:SVG · colorSpace:CMYK · resolution:300dpi</div>
+          </div>
+          <div class="spec-row">
+            <div class="spec-key">Accessibility</div>
+            <div class="spec-val">WCAG AA contrast · focus ring · aria-label required</div>
+          </div>
+
+          <div class="mgrid" style="margin-top:10px;">
+            <div class="mbox"><div class="mval">5</div><div class="mlbl">Primitives defined</div></div>
+            <div class="mbox"><div class="mval">4</div><div class="mlbl">Formats covered</div></div>
+            <div class="mbox"><div class="mval">−62%</div><div class="mlbl">Duplicate eng work</div></div>
+            <div class="mbox"><div class="mval">1×</div><div class="mlbl">Implement once</div></div>
+          </div>
+        </div>
+
+      </div>
+      <div class="ndots">
+        <div class="dot active" onclick="go(1)"></div>
+        <div class="dot" onclick="go(2)"></div>
+        <div class="dot" onclick="go(3)"></div>
+        <div class="dot" onclick="go(4)"></div>
+      </div>
+    </div>
+    <div class="navbtns">
+      <button class="nbtn" id="prev" onclick="prev()" disabled>← Prev</button>
+      <button class="nbtn" id="next" onclick="next()">Next →</button>
+    </div>
+  </div>
+
+  <!-- Static phones 2-4 -->
+  <div class="phone-box">
+    <div class="plabel">02 — FORMAT-AWARE RENDERING</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="sbar"><span>PrimitivesKit</span><span>●●●●●</span></div>
+      <div class="scr-wrap">
+        <div class="scr active" style="padding:18px 14px;">
+          <div class="slbl">02 — FORMAT-AWARE RENDERING</div>
+          <div style="font-size:12px;font-weight:700;margin-bottom:10px;">CTAButton · Same primitive, 3 formats</div>
+          <div class="render-box"><div class="render-header"><span>📧 Email</span><span style="color:#999;">44px</span></div><div class="render-body"><div style="background:var(--indigo);color:white;padding:12px 20px;border-radius:8px;font-size:13px;font-weight:700;text-align:center;display:inline-block;">Shop Now →</div><div style="font-size:9px;color:#888;margin-top:6px;">44px touch target · mobile full-width</div></div></div>
+          <div class="render-box"><div class="render-header"><span>🖥 Display 300×250</span><span style="color:#999;">auto-scale</span></div><div class="render-body"><div style="background:var(--indigo);color:white;padding:6px 12px;border-radius:5px;font-size:10px;font-weight:700;display:inline-block;">Shop Now →</div><div style="font-size:9px;color:#888;margin-top:6px;">Scales proportionally to container</div></div></div>
+          <div class="render-box"><div class="render-header"><span>🖨 Print A4</span><span style="color:#999;">SVG vector</span></div><div class="render-body"><div style="background:var(--indigo);color:white;padding:9px 18px;border-radius:6px;font-size:12px;font-weight:700;display:inline-block;">Shop Now →</div><div style="font-size:9px;color:#888;margin-top:6px;">Vector SVG · 300dpi · CMYK</div></div></div>
+          <div style="background:rgba(16,185,129,0.1);border:1px solid var(--bright);border-radius:8px;padding:10px;font-size:11px;color:var(--accent);">💡 One definition. Format constraints handled by the kit.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="phone-box">
+    <div class="plabel">03 — BRAND TOKENS</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="sbar"><span>PrimitivesKit</span><span>●●●●●</span></div>
+      <div class="scr-wrap">
+        <div class="scr active" style="padding:18px 14px;">
+          <div class="slbl">03 — BRAND TOKEN SYSTEM</div>
+          <div style="font-size:12px;font-weight:700;margin-bottom:10px;">Tokens Applied Globally</div>
+          <div class="token-row"><div class="token-swatch" style="background:#6366F1;"></div><div class="token-info"><div class="token-name">--brand-primary</div><div class="token-val">#6366F1</div></div><div class="token-applied">4 formats ✓</div></div>
+          <div class="token-row"><div class="token-swatch" style="background:#EC4899;"></div><div class="token-info"><div class="token-name">--brand-accent</div><div class="token-val">#EC4899</div></div><div class="token-applied">4 formats ✓</div></div>
+          <div class="token-row"><div class="token-swatch" style="background:#F97316;"></div><div class="token-info"><div class="token-name">--cta-color</div><div class="token-val">#F97316</div></div><div class="token-applied">3 formats ✓</div></div>
+          <div class="token-row"><div style="font-size:14px;font-weight:700;flex-shrink:0;width:24px;">Aa</div><div class="token-info"><div class="token-name">--font-heading</div><div class="token-val">Sora · 700</div></div><div class="token-applied">4 formats ✓</div></div>
+          <div style="background:rgba(99,102,241,0.1);border:1px solid var(--indigo);border-radius:8px;padding:10px;font-size:11px;color:#a5b4fc;margin-top:8px;">🔄 Update one token → all formats update instantly.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="phone-box">
+    <div class="plabel">04 — ENGINEERING HANDOFF</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="sbar"><span>PrimitivesKit</span><span>●●●●●</span></div>
+      <div class="scr-wrap">
+        <div class="scr active" style="padding:18px 14px;">
+          <div class="slbl">04 — ENGINEERING HANDOFF</div>
+          <div style="font-size:12px;font-weight:700;margin-bottom:10px;color:var(--accent);">CTAButton Spec</div>
+          <div class="spec-row"><div class="spec-key">Props</div><div class="spec-val">label, href, format, variant</div></div>
+          <div class="spec-row"><div class="spec-key">Email</div><div class="spec-val">min-height:44px · full-width mobile</div></div>
+          <div class="spec-row"><div class="spec-key">Display</div><div class="spec-val">scale:proportional · min-width:60px</div></div>
+          <div class="spec-row"><div class="spec-key">Print</div><div class="spec-val">output:SVG · CMYK · 300dpi</div></div>
+          <div class="spec-row"><div class="spec-key">A11y</div><div class="spec-val">WCAG AA · focus ring · aria-label</div></div>
+          <div class="mgrid" style="margin-top:10px;">
+            <div class="mbox"><div class="mval">5</div><div class="mlbl">Primitives</div></div>
+            <div class="mbox"><div class="mval">4</div><div class="mlbl">Formats</div></div>
+            <div class="mbox"><div class="mval">−62%</div><div class="mlbl">Duplicate work</div></div>
+            <div class="mbox"><div class="mval">1×</div><div class="mlbl">Implement once</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let cur=1;
+function go(n){
+  cur=n;
+  [1,2,3,4].forEach(i=>{document.getElementById('s'+i).classList.remove('active');document.querySelectorAll('.dot')[i-1].classList.remove('active');});
+  document.getElementById('s'+n).classList.add('active');
+  document.querySelectorAll('.dot')[n-1].classList.add('active');
+  document.getElementById('prev').disabled=cur===1;
+  document.getElementById('next').disabled=cur===4;
+}
+function next(){if(cur<4)go(cur+1);}
+function prev(){if(cur>1)go(cur-1);}
+</script>
+</body>
+</html>
