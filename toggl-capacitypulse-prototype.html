@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Toggl Focus — CapacityPulse · Interactive Prototype</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --c-dark: #1F1F1F;
+      --c-hero: #2A2A2A;
+      --c-bright: #E57CD8;
+      --c-accent: #FF9B82;
+      --orange: #FF9B82;
+      --ink: #0f172a;
+      --muted: #8b92a5;
+      --border: rgba(255,255,255,0.08);
+      --gray: #f1f5f9;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Sora',sans-serif; }
+    body { background:#0f0f1a; color:#fff; display:flex; flex-direction:column; align-items:center; min-height:100vh; padding:40px; }
+    .header { font-size:14px; color:var(--muted); letter-spacing:1px; text-transform:uppercase; font-weight:700; margin-bottom:30px; }
+    .wrap { display:flex; gap:40px; max-width:1100px; width:100%; justify-content:center; }
+    
+    /* Browser Frame */
+    .browser { width:640px; height:460px; background:var(--c-hero); border-radius:12px; border:1px solid var(--border); overflow:hidden; position:relative; box-shadow:0 24px 48px rgba(0,0,0,0.4); }
+    .b-chrome { height:40px; background:#1A1A1A; border-bottom:1px solid var(--border); display:flex; align-items:center; padding:0 16px; gap:8px; }
+    .b-dot { width:12px; height:12px; border-radius:50%; background:#ED6A5E; }
+    .b-dot:nth-child(2) { background:#F4BF4F; }
+    .b-dot:nth-child(3) { background:#61C554; }
+    .b-search { flex:1; height:24px; background:#2A2A2A; border-radius:4px; border:1px solid var(--border); margin-left:16px; display:flex; align-items:center; padding:0 12px; font-size:11px; color:var(--muted); font-family:'DM Mono',monospace; }
+    .b-content { height:420px; overflow-y:auto; scrollbar-width:none; position:relative; }
+    
+    /* Screen states */
+    .screen { position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; pointer-events:none; transition:.4s ease; padding:24px; }
+    .screen.active { opacity:1; pointer-events:auto; }
+
+    /* Nav */
+    .nav { position:absolute; bottom:20px; left:50%; transform:translateX(-50%); display:flex; gap:8px; background:rgba(0,0,0,0.6); padding:8px 12px; border-radius:99px; backdrop-filter:blur(10px); border:1px solid var(--border); z-index:100; }
+    .nav-dot { width:32px; height:6px; border-radius:3px; background:rgba(255,255,255,0.2); cursor:pointer; transition:.3s; }
+    .nav-dot.active { background:var(--c-bright); width:48px; }
+
+    /* Annotations */
+    .panel { width:320px; display:flex; flex-direction:column; gap:16px; }
+    .lbl { font-size:12px; font-weight:700; color:var(--muted); font-family:'DM Mono',monospace; margin-bottom:8px; }
+    .anno-cards { display:flex; flex-direction:column; gap:12px; }
+    .anno-card { background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:12px; padding:16px; backdrop-filter:blur(10px); }
+    .anno-num { display:inline-block; font-size:10px; font-family:'DM Mono',monospace; color:var(--c-bright); background:rgba(229,124,216,0.1); padding:4px 8px; border-radius:4px; margin-bottom:12px; font-weight:600; }
+    .anno-title { font-size:14px; font-weight:600; margin-bottom:6px; color:#fff; }
+    .anno-body { font-size:13px; color:var(--muted); line-height:1.5; }
+    .anno-metric { margin-top:12px; padding-top:12px; border-top:1px solid var(--border); display:flex; align-items:baseline; gap:8px; }
+    .anno-metric-val { font-size:24px; font-weight:700; color:var(--c-bright); font-family:'DM Mono',monospace; }
+    .anno-metric-lbl { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; }
+
+    /* UI Components */
+    .dash-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; }
+    .dash-title { font-size:20px; font-weight:600; }
+    .dash-subtitle { font-size:13px; color:var(--muted); margin-top:4px; }
+    
+    .stats-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; margin-bottom:24px; }
+    .stat-card { background:rgba(255,255,255,0.04); border:1px solid var(--border); padding:16px; border-radius:8px; }
+    .sc-lbl { font-size:11px; color:var(--muted); text-transform:uppercase; margin-bottom:8px; font-weight:600; }
+    .sc-val { font-size:24px; font-weight:700; font-family:'DM Mono',monospace; }
+    .sc-trend { font-size:11px; color:#4ADE80; margin-top:4px; }
+    .sc-trend.bad { color:#F87171; }
+
+    .alert-banner { background:rgba(248,113,113,0.1); border:1px solid rgba(248,113,113,0.3); padding:16px; border-radius:8px; display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; cursor:pointer; }
+    .ab-text { font-size:14px; font-weight:600; color:#FCA5A5; }
+    .ab-sub { font-size:12px; color:rgba(252,165,165,0.8); margin-top:4px; }
+    .ab-btn { background:#F87171; color:#fff; border:none; padding:8px 16px; border-radius:4px; font-size:12px; font-weight:600; cursor:pointer; }
+
+    .team-list { background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:8px; overflow:hidden; }
+    .team-row { display:flex; justify-content:space-between; align-items:center; padding:16px; border-bottom:1px solid var(--border); cursor:pointer; transition:.2s; }
+    .team-row:hover { background:rgba(255,255,255,0.05); }
+    .team-info { display:flex; align-items:center; gap:12px; }
+    .avatar { width:32px; height:32px; border-radius:50%; background:var(--c-bright); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:#fff; }
+    .t-name { font-size:14px; font-weight:600; }
+    .t-role { font-size:12px; color:var(--muted); }
+    
+    /* Progress Track */
+    .track { width:120px; height:6px; background:#333; border-radius:3px; position:relative; }
+    .fill { height:100%; border-radius:3px; background:var(--c-bright); }
+    .fill.over { background:#F87171; }
+    .fill.under { background:#FBBF24; }
+    .t-stat { font-size:12px; font-family:'DM Mono',monospace; width:60px; text-align:right; }
+
+    /* Modal */
+    .modal-backdrop { position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:.3s; z-index:50; }
+    .modal { background:var(--c-hero); border:1px solid var(--border); width:400px; border-radius:12px; padding:24px; transform:translateY(20px); transition:.3s; }
+    .modal-backdrop.active { opacity:1; pointer-events:auto; }
+    .modal-backdrop.active .modal { transform:translateY(0); }
+    
+    .m-title { font-size:18px; font-weight:600; margin-bottom:8px; }
+    .m-desc { font-size:13px; color:var(--muted); margin-bottom:24px; line-height:1.5; }
+    .m-action { background:var(--c-bright); color:#fff; text-align:center; padding:12px; border-radius:6px; font-weight:600; font-size:13px; cursor:pointer; }
+    
+    /* Confetti */
+    #conf { position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; overflow:hidden; z-index:99; }
+    .cp { position:absolute; animation: drop linear forwards; }
+    @keyframes drop { 0% { transform:translateY(-10px) rotate(0deg); opacity:1; } 100% { transform:translateY(400px) rotate(360deg); opacity:0; } }
+  </style>
+</head>
+<body>
+
+  <div class="header">Toggl Focus — CapacityPulse · Prototype</div>
+
+  <div class="wrap">
+    
+    <!-- Browser Prototype -->
+    <div class="browser">
+      <div class="b-chrome">
+        <div class="b-dot"></div><div class="b-dot"></div><div class="b-dot"></div>
+        <div class="b-search">toggl.com/app/capacity-pulse</div>
+      </div>
+      <div class="b-content">
+        
+        <!-- Screen 1: Discovery -->
+        <div class="screen active" id="s1">
+          <div class="dash-header">
+            <div>
+              <div class="dash-title">CapacityPulse™</div>
+              <div class="dash-subtitle">Real-time team utilization & burnout risk</div>
+            </div>
+            <div style="font-size:13px; color:var(--c-bright); font-weight:600;">Last Sync: Just now</div>
+          </div>
+
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="sc-lbl">Team Velocity</div>
+              <div class="sc-val">94%</div>
+              <div class="sc-trend">+2% vs last week</div>
+            </div>
+            <div class="stat-card">
+              <div class="sc-lbl">Burnout Risk</div>
+              <div class="sc-val">High</div>
+              <div class="sc-trend bad">2 members flagged</div>
+            </div>
+            <div class="stat-card">
+              <div class="sc-lbl">Under-utilized</div>
+              <div class="sc-val">1</div>
+              <div class="sc-trend">Available capacity</div>
+            </div>
+          </div>
+
+          <div class="alert-banner" onclick="go(2)">
+            <div>
+              <div class="ab-text">⚠️ Burnout Alert: Engineering Team</div>
+              <div class="ab-sub">Sarah and Mike are tracking >50h/wk for 3 consecutive weeks.</div>
+            </div>
+            <button class="ab-btn">Review Workload</button>
+          </div>
+
+          <div class="team-list">
+            <div class="team-row">
+              <div class="team-info">
+                <div class="avatar" style="background:#8B5CF6">S</div>
+                <div>
+                  <div class="t-name">Sarah Jenkins</div>
+                  <div class="t-role">Senior Frontend</div>
+                </div>
+              </div>
+              <div style="display:flex; align-items:center; gap:16px;">
+                <div class="track"><div class="fill over" style="width:120%"></div></div>
+                <div class="t-stat" style="color:#F87171">54h tracked</div>
+              </div>
+            </div>
+            <div class="team-row">
+              <div class="team-info">
+                <div class="avatar" style="background:#3B82F6">M</div>
+                <div>
+                  <div class="t-name">Mike Chen</div>
+                  <div class="t-role">Backend Dev</div>
+                </div>
+              </div>
+              <div style="display:flex; align-items:center; gap:16px;">
+                <div class="track"><div class="fill over" style="width:115%"></div></div>
+                <div class="t-stat" style="color:#F87171">51h tracked</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Screen 2: Feature Detail -->
+        <div class="screen" id="s2">
+          <div class="dash-header" style="margin-bottom:16px; cursor:pointer;" onclick="go(1)">
+            <div style="font-size:12px; color:var(--muted);">← Back to Dashboard</div>
+          </div>
+          
+          <div class="team-info" style="margin-bottom:24px;">
+            <div class="avatar" style="background:#8B5CF6; width:48px; height:48px; font-size:18px;">S</div>
+            <div>
+              <div class="dash-title">Sarah Jenkins</div>
+              <div class="dash-subtitle">Burnout Risk: Critical · 3 Weeks Sustained Overload</div>
+            </div>
+          </div>
+
+          <div class="stat-card" style="margin-bottom:24px;">
+            <div class="sc-lbl">AI Context Analysis</div>
+            <div style="font-size:13px; color:#fff; line-height:1.5;">
+              Sarah's time tracking shows a 40% increase in context switching between the "Auth Migration" and "Billing API" projects. She is spending 14 hours/week on unplanned bug fixes.
+            </div>
+          </div>
+
+          <div style="font-size:12px; font-weight:600; color:var(--muted); margin-bottom:12px; text-transform:uppercase;">Recommended Actions</div>
+          
+          <div class="team-list">
+            <div class="team-row" onclick="document.getElementById('modal').classList.add('active')">
+              <div class="team-info">
+                <div style="font-size:20px;">🔄</div>
+                <div>
+                  <div class="t-name">Reassign "Billing API" tickets</div>
+                  <div class="t-role">Alex has 12h available capacity this week.</div>
+                </div>
+              </div>
+              <div class="t-stat" style="color:var(--c-bright)">Action</div>
+            </div>
+            <div class="team-row">
+              <div class="team-info">
+                <div style="font-size:20px;">📅</div>
+                <div>
+                  <div class="t-name">Schedule 1-on-1 Check-in</div>
+                  <div class="t-role">Draft calendar invite with context.</div>
+                </div>
+              </div>
+              <div class="t-stat" style="color:var(--muted)">Draft</div>
+            </div>
+          </div>
+
+          <!-- Reassign Modal -->
+          <div class="modal-backdrop" id="modal">
+            <div class="modal">
+              <div class="m-title">Reassign Workload</div>
+              <div class="m-desc">Move 3 open tickets from <strong>Sarah Jenkins</strong> to <strong>Alex Kumar</strong> to balance team capacity.</div>
+              <div class="m-action" onclick="go(3)">Confirm Reassignment</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Screen 3: Success -->
+        <div class="screen" id="s3">
+          <div id="conf"></div>
+          <div style="height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;">
+            <div style="width:64px; height:64px; background:rgba(229,124,216,0.1); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:32px; color:var(--c-bright); margin-bottom:24px;">✓</div>
+            <div class="dash-title" style="margin-bottom:8px;">Capacity Rebalanced</div>
+            <div class="m-desc" style="max-width:280px; margin:0 auto 32px;">Tickets have been reassigned. Sarah's projected workload is now back to a healthy 38h/wk.</div>
+            <div class="m-action" style="width:200px;" onclick="go(4)">View Team Projection</div>
+          </div>
+        </div>
+
+        <!-- Screen 4: Ops/Admin -->
+        <div class="screen" id="s4">
+          <div class="dash-header">
+            <div>
+              <div class="dash-title">Future Capacity Projections</div>
+              <div class="dash-subtitle">AI-driven planning for Q3</div>
+            </div>
+          </div>
+
+          <div class="stat-card" style="margin-bottom:24px; border-left:4px solid var(--c-bright);">
+            <div class="sc-lbl">AI Insight</div>
+            <div style="font-size:13px; color:#fff; line-height:1.5;">
+              Based on current burn rates and historical project sizing, your team will hit a capacity wall by Week 6. Recommend delaying "V2 Redesign" to Q4.
+            </div>
+          </div>
+
+          <div class="team-list">
+            <div class="team-row">
+              <div class="t-name">Week 4</div>
+              <div class="track" style="width:200px;"><div class="fill" style="width:85%"></div></div>
+              <div class="t-stat">85%</div>
+            </div>
+            <div class="team-row">
+              <div class="t-name">Week 5</div>
+              <div class="track" style="width:200px;"><div class="fill" style="width:92%"></div></div>
+              <div class="t-stat">92%</div>
+            </div>
+            <div class="team-row">
+              <div class="t-name">Week 6</div>
+              <div class="track" style="width:200px;"><div class="fill over" style="width:110%"></div></div>
+              <div class="t-stat" style="color:#F87171">110%</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      
+      <!-- Nav -->
+      <div class="nav">
+        <div class="nav-dot active" id="d1" onclick="go(1)"></div>
+        <div class="nav-dot" id="d2" onclick="go(2)"></div>
+        <div class="nav-dot" id="d3" onclick="go(3)"></div>
+        <div class="nav-dot" id="d4" onclick="go(4)"></div>
+      </div>
+    </div>
+
+    <!-- Annotations -->
+    <div class="panel">
+      <div class="lbl" id="screen-label">01 — DISCOVERY</div>
+      <div class="anno-cards" id="anno-cards"></div>
+    </div>
+
+  </div>
+
+  <script>
+    const LABELS = {
+      1: '01 — DASHBOARD',
+      2: '02 — RISK DETAIL',
+      3: '03 — RESOLUTION',
+      4: '04 — PROJECTIONS'
+    };
+
+    const ANNO = {
+      1: [
+        { n: 'INSIGHT 01', t: 'Proactive Alerting', b: 'Transforms passive time tracking data into active managerial intelligence.', metric: { v: 'Real-time', l: 'Burnout Detection' } },
+        { n: 'INSIGHT 02', t: 'Data Utility', b: 'Gives teams a reason to track time accurately—it protects their work-life balance.' },
+        { n: 'PM RATIONALE', t: 'Retention Metric', b: 'SaaS churn often correlates with employee burnout; predicting it creates massive enterprise value.' }
+      ],
+      2: [
+        { n: 'INSIGHT 01', t: 'AI Contextualization', b: 'Uses ML to analyze not just hours, but context-switching and unplanned work tags.' },
+        { n: 'INSIGHT 02', t: 'Actionable Nudges', b: 'Does not just report the problem—it surfaces the easiest solution based on available team capacity.' }
+      ],
+      3: [
+        { n: 'INSIGHT 01', t: 'Frictionless Rebalancing', b: '1-click ticket reassignment integrates directly with Jira/Linear.' },
+        { n: 'PM RATIONALE', t: 'Closing the Loop', b: 'Immediate feedback loop proves to managers that Toggl Focus actively manages resources.' }
+      ],
+      4: [
+        { n: 'INSIGHT 01', t: 'Forward-Looking Planning', b: 'Moves Toggl from a "what happened" tool to a "what will happen" intelligence layer.' },
+        { n: 'INSIGHT 02', t: 'Strategic Leverage', b: 'Empowers product leaders to push back on unrealistic roadmaps with data-backed capacity limits.' }
+      ]
+    };
+
+    function go(n) {
+      if(n===3) document.getElementById('modal').classList.remove('active');
+      [1,2,3,4].forEach(i => {
+        document.getElementById('s'+i).classList.remove('active');
+        document.getElementById('d'+i).classList.remove('active');
+      });
+      document.getElementById('s'+n).classList.add('active');
+      document.getElementById('d'+n).classList.add('active');
+      document.getElementById('screen-label').textContent = LABELS[n];
+      renderAnno(n);
+      
+      if(n === 3) fireConfetti();
+    }
+
+    function renderAnno(n) {
+      const cards = ANNO[n];
+      document.getElementById('anno-cards').innerHTML = cards.map(c => `
+        <div class="anno-card">
+          <div class="anno-num">${c.n}</div>
+          <div class="anno-title">${c.t}</div>
+          <div class="anno-body">${c.b}</div>
+          ${c.metric ? `<div class="anno-metric"><span class="anno-metric-val">${c.metric.v}</span><span class="anno-metric-lbl">${c.metric.l}</span></div>` : ''}
+        </div>
+      `).join('');
+    }
+
+    function fireConfetti() {
+      const c = document.getElementById('conf');
+      c.innerHTML = '';
+      const cols = ['#E57CD8','#FF9B82','#4ADE80','#FBBF24'];
+      for(let i=0; i<40; i++){
+        const p = document.createElement('div');
+        p.className='cp';
+        const size = 4+Math.random()*6;
+        p.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*120-10}%;width:${size}px;height:${size}px;background:${cols[Math.floor(Math.random()*cols.length)]};border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${1.2+Math.random()*1.5}s;animation-delay:${Math.random()*0.5}s;`;
+        c.appendChild(p);
+      }
+    }
+
+    renderAnno(1);
+  </script>
+</body>
+</html>

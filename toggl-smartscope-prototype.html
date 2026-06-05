@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Toggl Focus — SmartScope Engine · Interactive Prototype</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --c-dark: #1F1F1F;
+      --c-hero: #2A2A2A;
+      --c-bright: #10B981;
+      --c-accent: #6EE7B7;
+      --orange: #F59E0B;
+      --ink: #0f172a;
+      --muted: #8b92a5;
+      --border: rgba(255,255,255,0.08);
+      --gray: #f1f5f9;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Sora',sans-serif; }
+    body { background:#0f0f1a; color:#fff; display:flex; flex-direction:column; align-items:center; min-height:100vh; padding:40px; }
+    .header { font-size:14px; color:var(--muted); letter-spacing:1px; text-transform:uppercase; font-weight:700; margin-bottom:30px; }
+    .wrap { display:flex; gap:40px; max-width:1100px; width:100%; justify-content:center; }
+    
+    /* Browser Frame */
+    .browser { width:640px; height:460px; background:var(--c-hero); border-radius:12px; border:1px solid var(--border); overflow:hidden; position:relative; box-shadow:0 24px 48px rgba(0,0,0,0.4); }
+    .b-chrome { height:40px; background:#1A1A1A; border-bottom:1px solid var(--border); display:flex; align-items:center; padding:0 16px; gap:8px; }
+    .b-dot { width:12px; height:12px; border-radius:50%; background:#ED6A5E; }
+    .b-dot:nth-child(2) { background:#F4BF4F; }
+    .b-dot:nth-child(3) { background:#61C554; }
+    .b-search { flex:1; height:24px; background:#2A2A2A; border-radius:4px; border:1px solid var(--border); margin-left:16px; display:flex; align-items:center; padding:0 12px; font-size:11px; color:var(--muted); font-family:'DM Mono',monospace; }
+    .b-content { height:420px; overflow-y:auto; scrollbar-width:none; position:relative; }
+    
+    /* Screen states */
+    .screen { position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; pointer-events:none; transition:.4s ease; padding:24px; }
+    .screen.active { opacity:1; pointer-events:auto; }
+
+    /* Nav */
+    .nav { position:absolute; bottom:20px; left:50%; transform:translateX(-50%); display:flex; gap:8px; background:rgba(0,0,0,0.6); padding:8px 12px; border-radius:99px; backdrop-filter:blur(10px); border:1px solid var(--border); z-index:100; }
+    .nav-dot { width:32px; height:6px; border-radius:3px; background:rgba(255,255,255,0.2); cursor:pointer; transition:.3s; }
+    .nav-dot.active { background:var(--c-bright); width:48px; }
+
+    /* Annotations */
+    .panel { width:320px; display:flex; flex-direction:column; gap:16px; }
+    .lbl { font-size:12px; font-weight:700; color:var(--muted); font-family:'DM Mono',monospace; margin-bottom:8px; }
+    .anno-cards { display:flex; flex-direction:column; gap:12px; }
+    .anno-card { background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:12px; padding:16px; backdrop-filter:blur(10px); }
+    .anno-num { display:inline-block; font-size:10px; font-family:'DM Mono',monospace; color:var(--c-bright); background:rgba(16,185,129,0.1); padding:4px 8px; border-radius:4px; margin-bottom:12px; font-weight:600; }
+    .anno-title { font-size:14px; font-weight:600; margin-bottom:6px; color:#fff; }
+    .anno-body { font-size:13px; color:var(--muted); line-height:1.5; }
+    .anno-metric { margin-top:12px; padding-top:12px; border-top:1px solid var(--border); display:flex; align-items:baseline; gap:8px; }
+    .anno-metric-val { font-size:24px; font-weight:700; color:var(--c-bright); font-family:'DM Mono',monospace; }
+    .anno-metric-lbl { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; }
+
+    /* UI Components */
+    .dash-header { display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:24px; }
+    .dash-title { font-size:20px; font-weight:600; }
+    .dash-subtitle { font-size:13px; color:var(--muted); margin-top:4px; }
+    
+    .input-box { background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:8px; padding:16px; margin-bottom:24px; }
+    .input-lbl { font-size:11px; color:var(--muted); text-transform:uppercase; font-weight:600; margin-bottom:8px; }
+    .input-row { display:flex; align-items:center; gap:12px; background:rgba(0,0,0,0.2); padding:12px; border-radius:6px; border:1px solid rgba(255,255,255,0.05); }
+    .chip { font-size:12px; background:rgba(255,255,255,0.1); padding:4px 12px; border-radius:99px; }
+    .btn-gen { background:var(--c-bright); color:#000; font-weight:700; border:none; padding:10px 20px; border-radius:6px; cursor:pointer; }
+    
+    .estimate-card { background:rgba(16,185,129,0.05); border:1px solid rgba(16,185,129,0.3); border-radius:12px; padding:20px; margin-bottom:16px; position:relative; overflow:hidden; }
+    .est-top { display:flex; justify-content:space-between; margin-bottom:16px; }
+    .est-title { font-size:16px; font-weight:600; color:var(--c-accent); }
+    .est-time { font-size:32px; font-weight:800; font-family:'DM Mono',monospace; }
+    
+    .conf-bar { height:6px; background:rgba(255,255,255,0.1); border-radius:3px; margin:16px 0 8px; }
+    .conf-fill { height:100%; background:var(--c-bright); border-radius:3px; width:88%; }
+
+    .ai-insight { display:flex; gap:12px; align-items:flex-start; background:rgba(255,255,255,0.03); padding:12px; border-radius:8px; margin-top:12px; font-size:12px; color:rgba(255,255,255,0.8); line-height:1.5; }
+    .ai-icon { font-size:16px; }
+
+    .chart-row { display:flex; align-items:flex-end; gap:8px; height:80px; margin-top:24px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+    .bar { width:40px; background:var(--muted); border-radius:4px 4px 0 0; position:relative; }
+    .bar.highlight { background:var(--c-bright); }
+    .bar-lbl { position:absolute; bottom:-24px; left:50%; transform:translateX(-50%); font-size:10px; color:var(--muted); font-family:'DM Mono',monospace; }
+
+    /* Modal */
+    .modal-backdrop { position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:.3s; z-index:50; }
+    .modal { background:var(--c-hero); border:1px solid var(--border); width:400px; border-radius:12px; padding:24px; transform:translateY(20px); transition:.3s; }
+    .modal-backdrop.active { opacity:1; pointer-events:auto; }
+    .modal-backdrop.active .modal { transform:translateY(0); }
+    .m-title { font-size:18px; font-weight:600; margin-bottom:8px; }
+    .m-desc { font-size:13px; color:var(--muted); margin-bottom:24px; line-height:1.5; }
+    .m-action { background:var(--c-bright); color:#000; text-align:center; padding:12px; border-radius:6px; font-weight:600; font-size:13px; cursor:pointer; }
+    
+    /* Confetti */
+    #conf { position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; overflow:hidden; z-index:99; }
+    .cp { position:absolute; animation: drop linear forwards; }
+    @keyframes drop { 0% { transform:translateY(-10px) rotate(0deg); opacity:1; } 100% { transform:translateY(400px) rotate(360deg); opacity:0; } }
+  </style>
+</head>
+<body>
+
+  <div class="header">Toggl Focus — SmartScope · Prototype</div>
+
+  <div class="wrap">
+    
+    <div class="browser">
+      <div class="b-chrome">
+        <div class="b-dot"></div><div class="b-dot"></div><div class="b-dot"></div>
+        <div class="b-search">toggl.com/app/smart-scope</div>
+      </div>
+      <div class="b-content">
+        
+        <!-- Screen 1: Discovery -->
+        <div class="screen active" id="s1">
+          <div class="dash-header">
+            <div>
+              <div class="dash-title">New Project Scoping</div>
+              <div class="dash-subtitle">Predict duration using historical time data</div>
+            </div>
+          </div>
+
+          <div class="input-box">
+            <div class="input-lbl">Project Parameters</div>
+            <div class="input-row">
+              <span style="font-size:13px; color:var(--muted);">Name:</span>
+              <span style="font-size:14px; font-weight:600;">Auth Migration V2</span>
+            </div>
+            <div class="input-row" style="margin-top:8px;">
+              <span style="font-size:13px; color:var(--muted);">Tags:</span>
+              <div class="chip">#backend</div>
+              <div class="chip">#security</div>
+              <div class="chip">#high-complexity</div>
+            </div>
+            <div style="margin-top:16px; text-align:right;">
+              <button class="btn-gen" onclick="go(2)">Generate Estimate ✨</button>
+            </div>
+          </div>
+          
+          <div style="font-size:12px; color:var(--muted); text-align:center; margin-top:40px;">
+            Input project tags to see AI-driven estimation models.
+          </div>
+        </div>
+
+        <!-- Screen 2: Estimation Detail -->
+        <div class="screen" id="s2">
+          <div class="dash-header" style="margin-bottom:16px;">
+            <div style="font-size:12px; color:var(--muted); cursor:pointer;" onclick="go(1)">← Back to Parameters</div>
+          </div>
+
+          <div class="estimate-card">
+            <div class="est-top">
+              <div>
+                <div class="est-title">AI Predicted Duration</div>
+                <div style="font-size:12px; color:var(--muted); margin-top:4px;">Based on 14 similar projects</div>
+              </div>
+              <div class="est-time">142h</div>
+            </div>
+            
+            <div class="conf-bar"><div class="conf-fill"></div></div>
+            <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--c-accent); font-family:'DM Mono',monospace;">
+              <span>88% Confidence Score</span>
+              <span>Range: 130h – 165h</span>
+            </div>
+
+            <div class="ai-insight">
+              <div class="ai-icon">💡</div>
+              <div><strong>Historical Insight:</strong> Your team usually underestimates #high-complexity tasks by 35%. The raw estimate was 105h, but we've applied a 35% realism buffer based on past time entries.</div>
+            </div>
+          </div>
+
+          <div style="font-size:13px; font-weight:600; margin:24px 0 12px;">Historical Baseline Distribution</div>
+          <div class="chart-row">
+            <div class="bar" style="height:20%;"><div class="bar-lbl">80h</div></div>
+            <div class="bar" style="height:40%;"><div class="bar-lbl">100h</div></div>
+            <div class="bar highlight" style="height:100%;"><div class="bar-lbl">140h</div></div>
+            <div class="bar" style="height:60%;"><div class="bar-lbl">160h</div></div>
+            <div class="bar" style="height:15%;"><div class="bar-lbl">200h</div></div>
+          </div>
+          
+          <div style="text-align:center; margin-top:32px;">
+            <button class="btn-gen" onclick="document.getElementById('modal').classList.add('active')">Approve Scope & Lock Timeline</button>
+          </div>
+
+          <!-- Lock Modal -->
+          <div class="modal-backdrop" id="modal">
+            <div class="modal">
+              <div class="m-title">Lock Project Scope</div>
+              <div class="m-desc">Commit to the 142h estimate. This will establish the baseline for the project tracker and burndown charts.</div>
+              <div class="m-action" onclick="go(3)">Lock 142h Estimate</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Screen 3: Success -->
+        <div class="screen" id="s3">
+          <div id="conf"></div>
+          <div style="height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;">
+            <div style="width:64px; height:64px; background:rgba(16,185,129,0.1); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:32px; color:var(--c-bright); margin-bottom:24px;">✓</div>
+            <div class="dash-title" style="margin-bottom:8px;">Scope Locked</div>
+            <div class="m-desc" style="max-width:280px; margin:0 auto 32px;">Project created with a realistic 142-hour budget based on your team's actual historical velocity.</div>
+            <div class="btn-gen" style="width:200px;" onclick="go(4)">View Project Tracker</div>
+          </div>
+        </div>
+
+        <!-- Screen 4: Project Tracker -->
+        <div class="screen" id="s4">
+          <div class="dash-header">
+            <div>
+              <div class="dash-title">Auth Migration V2</div>
+              <div class="dash-subtitle">Active Tracker · Started 2 days ago</div>
+            </div>
+            <div style="font-size:24px; font-weight:700; font-family:'DM Mono',monospace; color:var(--c-bright);">18h / 142h</div>
+          </div>
+
+          <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:8px; padding:16px; margin-bottom:16px;">
+            <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--muted); margin-bottom:8px;">
+              <span>Time Budget Burn</span>
+              <span>12% consumed</span>
+            </div>
+            <div class="conf-bar" style="margin:0;"><div class="conf-fill" style="width:12%;"></div></div>
+          </div>
+
+          <div class="ai-insight" style="background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.3); color:rgba(252,211,77,0.9);">
+            <div class="ai-icon">⚠️</div>
+            <div><strong>Pacing Alert:</strong> You are burning through the budget 15% faster than the historical baseline for the first week. We recommend checking in on the "OAuth Handshake" sub-task.</div>
+          </div>
+        </div>
+
+      </div>
+      
+      <!-- Nav -->
+      <div class="nav">
+        <div class="nav-dot active" id="d1" onclick="go(1)"></div>
+        <div class="nav-dot" id="d2" onclick="go(2)"></div>
+        <div class="nav-dot" id="d3" onclick="go(3)"></div>
+        <div class="nav-dot" id="d4" onclick="go(4)"></div>
+      </div>
+    </div>
+
+    <!-- Annotations -->
+    <div class="panel">
+      <div class="lbl" id="screen-label">01 — ESTIMATION</div>
+      <div class="anno-cards" id="anno-cards"></div>
+    </div>
+
+  </div>
+
+  <script>
+    const LABELS = {
+      1: '01 — SCOPE INPUT',
+      2: '02 — AI PREDICTION',
+      3: '03 — LOCK SCOPE',
+      4: '04 — TRACKING'
+    };
+
+    const ANNO = {
+      1: [
+        { n: 'INSIGHT 01', t: 'Data Utility Loop', b: 'Toggl Focus turns simple time tracking into highly valuable predictive planning data.', metric: { v: 'Zero-Click', l: 'Estimation setup' } },
+        { n: 'INSIGHT 02', t: 'Semantic Matching', b: 'Tags and project names are matched against thousands of historical time entries.' }
+      ],
+      2: [
+        { n: 'INSIGHT 01', t: 'Realism Buffer', b: 'AI detects consistent underestimation biases and corrects them automatically.' },
+        { n: 'PM RATIONALE', t: 'Trust vs Black Box', b: 'Showing the "Historical Baseline Distribution" chart ensures PMs trust the AI output by seeing the raw data.' }
+      ],
+      3: [
+        { n: 'INSIGHT 01', t: 'Commitment Moment', b: 'Creates a clear psychological boundary between planning and execution phases.' },
+        { n: 'PM RATIONALE', t: 'Product-Led Growth', b: 'Accurate scopes lead to on-time delivery, which drives high NPS and expansion revenue in B2B SaaS.' }
+      ],
+      4: [
+        { n: 'INSIGHT 01', t: 'Predictive Pacing', b: 'Does not just show current burn—it compares the burn trajectory against historical curves to flag risks early.' },
+        { n: 'INSIGHT 02', t: 'Continuous Value', b: 'The core promise of Time Intelligence: your historical data actively manages your current projects.' }
+      ]
+    };
+
+    function go(n) {
+      if(n===3) document.getElementById('modal').classList.remove('active');
+      [1,2,3,4].forEach(i => {
+        document.getElementById('s'+i).classList.remove('active');
+        document.getElementById('d'+i).classList.remove('active');
+      });
+      document.getElementById('s'+n).classList.add('active');
+      document.getElementById('d'+n).classList.add('active');
+      document.getElementById('screen-label').textContent = LABELS[n];
+      renderAnno(n);
+      
+      if(n === 3) fireConfetti();
+    }
+
+    function renderAnno(n) {
+      const cards = ANNO[n];
+      document.getElementById('anno-cards').innerHTML = cards.map(c => `
+        <div class="anno-card">
+          <div class="anno-num">${c.n}</div>
+          <div class="anno-title">${c.t}</div>
+          <div class="anno-body">${c.b}</div>
+          ${c.metric ? `<div class="anno-metric"><span class="anno-metric-val">${c.metric.v}</span><span class="anno-metric-lbl">${c.metric.l}</span></div>` : ''}
+        </div>
+      `).join('');
+    }
+
+    function fireConfetti() {
+      const c = document.getElementById('conf');
+      c.innerHTML = '';
+      const cols = ['#10B981','#6EE7B7','#F59E0B','#34D399'];
+      for(let i=0; i<40; i++){
+        const p = document.createElement('div');
+        p.className='cp';
+        const size = 4+Math.random()*6;
+        p.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*120-10}%;width:${size}px;height:${size}px;background:${cols[Math.floor(Math.random()*cols.length)]};border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${1.2+Math.random()*1.5}s;animation-delay:${Math.random()*0.5}s;`;
+        c.appendChild(p);
+      }
+    }
+
+    renderAnno(1);
+  </script>
+</body>
+</html>
