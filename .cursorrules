@@ -537,19 +537,20 @@ Hi [Name], I solved [Company's specific problem] as a case study — built a wor
 
 ### 8.2 Email Template
 ```
-Subject: Re: [Role] — I built a [Company] case study before applying
+Subject: Re: [Role] at [Company] — My Fit & Proactive Case Studies
  
 Hi [Name],
  
-I spent time studying [Company]'s [specific problem] and built a working prototype + CEO pitch deck: [case study name].
+I’m reaching out regarding the [Role] position at [Company]. Based on the job description, I am a strong fit because of my experience at PhonePe where I [parallel 1 — verb + outcome mapping to JD]. Prior to that, I [parallel 2 — verb + outcome mapping to JD]. These experiences map directly to what your team is looking to achieve.
  
-At PhonePe, I [parallel 1 — verb + outcome]. Before that, [parallel 2 — verb + outcome]. Both map directly to what [Company]'s [Role] is optimizing for.
+Furthermore, even before applying, I spent time studying [Company]'s [specific problem] and proactively built solutions to solve it. I have created working prototypes and CEO pitch decks for:
+- [Case Study 1 Title]: [1-sentence description of what it solves]
+- [Case Study 2 Title]: [1-sentence description of what it solves]
  
-Would you be open to a 20-minute call, or if this fits, a referral would mean a lot?
+Would you be open to a 20-minute call, or if this aligns with your needs, a referral would mean a lot.
  
-Prototype: [URL]
-Portfolio: https://ajay-avaghade.github.io/Portfolio/#real-world/[company-slug]
-Resume: attached
+Portfolio & Case Studies: https://ajay-avaghade.github.io/Portfolio/#real-world/[company-slug]
+Resume: Attached
  
 Best,
 Ajay Avaghade
