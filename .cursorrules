@@ -674,6 +674,7 @@ These are bugs and patterns discovered across 30+ application runs. **Do not vio
 | Adobe | Codec | adobe-codec-prototype.html | adobe-codec-deck.pptx | rw-adobe |
 | Adobe | PaceIQ | adobe-paceiq-prototype.html | adobe-paceiq-deck.pptx | rw-adobe |
 | Dezerv | SmartSIP | dezerv-smartsip-prototype.html | dezerv-smartsip-deck.pptx | rw-dezerv |
+| Dezerv | WealthTrack Pro | dezerv-wealthtrack-prototype.html | dezerv-wealthtrack-deck.pptx | rw-dezerv |
 
 ---
 
@@ -685,6 +686,7 @@ These are bugs and patterns discovered across 30+ application runs. **Do not vio
 4. **One deliverable at a time.** Deliver phase by phase, wait for confirmation.
 5. **Never fabricate metrics.** Use ranges or "projected/estimated" when numbers aren't confirmed.
 6. **Self-update.** After each run, update the Evolution Log in `apply.md` and the Existing Case Studies table (Section 10 of this file).
+7. **Implicit updates.** Whenever a 2nd or 3rd case study is generated for a company, it is IMPLICIT that you must immediately update their custom Resume (`Ajay_Avaghade_Resume_[Company].html`) and Outreach message (`[Company]_Outreach.txt`) to include all the newly created case studies. Do not ask for permission to do this.
 
 ---
 
