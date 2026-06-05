@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bybit SafeRoute - Fiat Payment Engine</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
+        :root {
+            --bg-base: #0B0E11;
+            --bg-panel: #181A20;
+            --text-primary: #EAECEF;
+            --text-secondary: #848E9C;
+            --accent-yellow: #F7A600;
+            --accent-green: #0ECB81;
+            --accent-red: #F6465D;
+            --border-color: #2B3139;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .browser-mockup {
+            width: 1000px;
+            height: 700px;
+            background: var(--bg-panel);
+            border-radius: 12px;
+            box-shadow: 0 24px 48px rgba(0,0,0,0.5);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--border-color);
+        }
+
+        .browser-header {
+            height: 40px;
+            background: #12161A;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .browser-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        .dot.red { background: #FF5F56; }
+        .dot.yellow { background: #FFBD2E; }
+        .dot.green { background: #27C93F; }
+
+        .browser-url {
+            flex-grow: 1;
+            margin: 0 20px;
+            background: var(--bg-panel);
+            height: 24px;
+            border-radius: 4px;
+            color: var(--text-secondary);
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .app-container {
+            display: flex;
+            flex-grow: 1;
+        }
+
+        .sidebar {
+            width: 240px;
+            border-right: 1px solid var(--border-color);
+            padding: 24px 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--accent-yellow);
+            padding: 0 24px 24px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 16px;
+        }
+
+        .nav-item {
+            padding: 12px 24px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+        }
+
+        .nav-item.active {
+            color: var(--text-primary);
+            background: rgba(247, 166, 0, 0.1);
+            border-right: 3px solid var(--accent-yellow);
+        }
+
+        .main-content {
+            flex-grow: 1;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 32px;
+        }
+
+        .header h1 {
+            margin: 0 0 8px;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .header p {
+            margin: 0;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--accent-yellow);
+            border: 1px solid var(--accent-yellow);
+            border-radius: 4px;
+            padding: 8px 16px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .metric-card {
+            background: var(--bg-base);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .metric-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .metric-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .metric-delta {
+            font-size: 12px;
+            margin-top: 8px;
+        }
+
+        .metric-delta.positive { color: var(--accent-green); }
+
+        .routing-panel {
+            background: var(--bg-base);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .panel-header {
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .route-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .route-row:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .route-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .bank-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: var(--bg-panel);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            border: 1px solid var(--border-color);
+        }
+
+        .bank-details h4 {
+            margin: 0 0 4px;
+            font-size: 14px;
+        }
+
+        .bank-details p {
+            margin: 0;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .route-status {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            background: rgba(14, 203, 129, 0.1);
+            color: var(--accent-green);
+        }
+
+        .routing-toggle {
+            width: 40px;
+            height: 20px;
+            background: var(--accent-yellow);
+            border-radius: 10px;
+            position: relative;
+        }
+
+        .routing-toggle::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            width: 16px;
+            height: 16px;
+            background: #000;
+            border-radius: 50%;
+        }
+
+        .alert-box {
+            background: rgba(14, 203, 129, 0.05);
+            border-left: 3px solid var(--accent-green);
+            padding: 16px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="browser-mockup">
+    <div class="browser-header">
+        <div class="browser-dots">
+            <div class="dot red"></div>
+            <div class="dot yellow"></div>
+            <div class="dot green"></div>
+        </div>
+        <div class="browser-url">
+            🔒 internal.bybit.com/treasury/saferoute-dashboard
+        </div>
+    </div>
+    
+    <div class="app-container">
+        <div class="sidebar">
+            <div class="logo">Bybit <span style="font-weight:400; font-size:14px; color:var(--text-secondary)">SafeRoute</span></div>
+            <div class="nav-item active">
+                <span>⚡</span> Routing Engine
+            </div>
+            <div class="nav-item">
+                <span>🛡️</span> Safeguarding Status
+            </div>
+            <div class="nav-item">
+                <span>💶</span> SEPA Reconciliation
+            </div>
+            <div class="nav-item">
+                <span>📊</span> Partner Analytics
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="header">
+                <div>
+                    <h1>Payment Routing & Safeguarding</h1>
+                    <p>Live SEPA/SWIFT routing for EEA region with automated fund safeguarding.</p>
+                </div>
+                <button class="btn-outline">Download Settlement Report</button>
+            </div>
+
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-label">SEPA Success Rate (24h)</div>
+                    <div class="metric-value">99.8%</div>
+                    <div class="metric-delta positive">↑ 2.4% vs last week</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Automated Safeguarding (T+0)</div>
+                    <div class="metric-value">€142.5M</div>
+                    <div class="metric-delta positive">Fully Reconciled</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Routing Fallback Triggered</div>
+                    <div class="metric-value">124 Txns</div>
+                    <div class="metric-delta positive">100% Recovery Rate</div>
+                </div>
+            </div>
+
+            <div class="routing-panel">
+                <div class="panel-header">
+                    <span>Active Banking Partners (EUR)</span>
+                    <span style="color:var(--text-secondary); font-weight:normal; font-size:13px;">Auto-Routing: Active</span>
+                </div>
+                
+                <div class="route-row">
+                    <div class="route-info">
+                        <div class="bank-icon">🏦</div>
+                        <div class="bank-details">
+                            <h4>ClearBank UK</h4>
+                            <p>Primary SEPA Instant • Cost: €0.05/txn</p>
+                        </div>
+                    </div>
+                    <div class="route-status">
+                        <div style="text-align:right">
+                            <div style="font-size:13px; margin-bottom:4px;">Latency: 120ms</div>
+                            <div class="status-badge">Operational</div>
+                        </div>
+                        <div class="routing-toggle"></div>
+                    </div>
+                </div>
+
+                <div class="route-row">
+                    <div class="route-info">
+                        <div class="bank-icon">🏛️</div>
+                        <div class="bank-details">
+                            <h4>Modulr Europe</h4>
+                            <p>Fallback SEPA • Safeguarding Account Active</p>
+                        </div>
+                    </div>
+                    <div class="route-status">
+                        <div style="text-align:right">
+                            <div style="font-size:13px; margin-bottom:4px;">Latency: 145ms</div>
+                            <div class="status-badge">Operational</div>
+                        </div>
+                        <div class="routing-toggle"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert-box">
+                <strong style="color:var(--text-primary)">Safeguarding Compliance:</strong> All fiat funds (100%) are currently held in segregated safeguarding accounts with Tier 1 banking partners in accordance with EMI regulations. Last reconciled: 2 mins ago.
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
