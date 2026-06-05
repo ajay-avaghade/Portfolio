@@ -16,6 +16,11 @@
 
 **Never fabricate metrics or experiences not listed here.**
 
+⚠️ **CRITICAL ANTI-HALLUCINATION RULE:** 
+NEVER list companies from case studies (e.g., Pencil, Unigage, Rebel Foods, FINN) as employers in the experience section. 
+Ajay's ONLY work experience is PhonePe and Kotak Mahindra Bank.
+NEVER invent contact info. Phone is always +91 9561558439. Location is always Bangalore, India.
+
 **Ajay Avaghade**
 - Location: Bangalore, India
 - Phone: +91 9561558439
@@ -398,6 +403,7 @@ Insert before `<!-- More coming -->` comment (~line 1843).
 ### 6.2 Deep Link
 URL format: `https://ajay-avaghade.github.io/Portfolio/#real-world/[company-slug]`
 Hash router already exists in index.html — just ensure `id="rw-[company-slug]"` is on the block.
+⚠️ **WARNING**: When sharing the link with Ajay, ALWAYS provide the `#real-world/` URL. NEVER share the raw DOM ID (`#rw-`).
 
 ### 6.3 Git Workflow
 ```bash
@@ -405,7 +411,7 @@ git add index.html [company]-[feature]-prototype.html assets/[company]-[feature]
 git commit -m "Add [Company] [Feature] case study — prototype + CEO deck"
 git push origin main
 ```
-⚠️ Never `git add -A` blindly.
+⚠️ **FATAL DEPLOYMENT RISK**: NEVER use `git add .`, `git add -A`, or `git commit -a`. This previously committed a massive `venv/` directory which caused GitHub Pages to silently crash and fail to deploy the website. ALWAYS add exactly the 4 files specified above.
 
 ---
 
@@ -418,6 +424,7 @@ git push origin main
 
 | Rule | Detail |
 |------|--------|
+| **Clone, Don't Create** | NEVER write the resume HTML/CSS from scratch. ALWAYS read the most recent successful resume (e.g., `Ajay_Avaghade_Resume_FINN.html`) and duplicate its exact structure, CSS, and contact header. Only modify the Role Title, Professional Summary, and Case Studies sections. |
 | **One page** | STRICT. Must fit A4/Letter. Must also be >85% filled. |
 | **Font** | Inter, 8.4pt body, never below 8.2pt |
 | **Margins** | `@page { margin:.22in .28in; size:letter; }` — proven tight-but-safe |
