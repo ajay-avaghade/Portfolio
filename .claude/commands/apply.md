@@ -104,6 +104,9 @@ Always use this as the single source of truth. Never fabricate metrics or experi
 | Brain Co. | BrainTrust | brainco-braintrust-prototype.html | assets/brainco-deck.pptx | #real-world/brainco |
 | Brain Co. | BrainSync | brainco-brainsync-prototype.html | assets/brainco-sync-deck.pptx | #real-world/brainco |
 | Brain Co. | BrainOps | brainco-brainops-prototype.html | assets/brainco-ops-deck.pptx | #real-world/brainco |
+| FINN | FinnFlow | finn-finnflow-prototype.html | assets/finn-flow-deck.pptx | #real-world/finn |
+| FINN | FinnGuide | finn-finnguide-prototype.html | assets/finn-guide-deck.pptx | #real-world/finn |
+| FINN | FinnEarn | finn-finnearn-prototype.html | assets/finn-earn-deck.pptx | #real-world/finn |
 
 ---
 

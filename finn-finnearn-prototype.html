@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FINN — FinnEarn · Interactive Prototype</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --c-dark: #020617; 
+      --c-bright: #6366f1; /* Indigo */
+      --c-accent: #f43f5e; /* Rose */
+      --orange: #f59e0b;
+      --teal: #14b8a6;
+      --ink: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --gray: #f8fafc;
+      --white: #ffffff;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Sora',sans-serif; background:#f1f5f9; color:var(--ink); min-height:100vh; }
+
+    .header { background: var(--c-dark); padding: 14px 32px; font-size: 13px; font-weight: 600; color: #cbd5e1; letter-spacing: 0.06em; text-transform: uppercase; display: flex; align-items: center; gap: 12px; }
+    .header-logo { background: var(--white); color: var(--c-bright); font-size: 10px; font-weight: 800; padding: 4px 8px; border-radius: 6px; letter-spacing: 0.04em; }
+
+    .wrap { display: flex; gap: 40px; padding: 40px; justify-content: center; align-items: flex-start; min-height: calc(100vh - 56px); }
+
+    /* PHONE FRAME */
+    .phone-wrap { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+    .screen-label { font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+    .phone { width: 375px; height: 812px; border-radius: 46px; overflow: hidden; box-shadow: 0 40px 100px rgba(0,0,0,0.15), 0 0 0 12px #0f172a; background: var(--gray); position: relative; }
+    
+    .notch { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 140px; height: 28px; background: #0f172a; border-bottom-left-radius: 16px; border-bottom-right-radius: 16px; z-index: 100; }
+    
+    .screen { position: absolute; top:0; left:0; width:100%; height:100%; display:none; background:var(--gray); flex-direction:column; overflow-y:auto; scrollbar-width:none; }
+    .screen::-webkit-scrollbar { display:none; }
+    .screen.active { display:flex; }
+
+    /* NAV DOTS */
+    .nav-dots { display: flex; gap: 8px; margin-top: 16px; }
+    .ndot { width:28px; height:6px; border-radius: 3px; background: #cbd5e1; cursor: pointer; transition: all 0.2s; }
+    .ndot.active { background: var(--c-bright); width: 40px; }
+
+    /* ANNOTATION PANEL */
+    .anno-panel { width: 340px; display: flex; flex-direction: column; gap: 14px; padding-top: 40px; }
+    .anno-card { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+    .anno-num { font-size: 9px; font-weight: 700; letter-spacing: 0.12em; color: var(--c-bright); text-transform: uppercase; margin-bottom: 6px; }
+    .anno-title { font-size: 14px; font-weight: 700; color: var(--ink); margin-bottom: 8px; line-height: 1.3; }
+    .anno-body { font-size: 12px; color: var(--muted); line-height: 1.55; }
+
+    /* UI Elements */
+    .status-bar { height: 44px; display:flex; justify-content:space-between; align-items:center; padding: 0 24px; font-size: 12px; font-weight:600; color: var(--ink); z-index:90; position:relative;}
+    .status-bar.light { color: var(--white); }
+    
+    .btn { background: var(--c-bright); color: white; border: none; padding: 16px; width: 100%; border-radius: 16px; font-size: 15px; font-weight: 600; font-family: 'Sora', sans-serif; cursor: pointer; text-align:center; box-shadow: 0 8px 24px rgba(99, 102, 241, 0.25); transition: 0.2s; }
+    .btn:active { transform: scale(0.98); }
+
+    /* S1: Withdrawal Trigger */
+    .s1 { background: var(--white); }
+    .nav-back { padding: 16px 24px; font-size: 24px; cursor: pointer; }
+    .withdraw-hero { text-align: center; padding: 32px 24px; }
+    .wh-title { font-size: 14px; font-weight: 600; color: var(--muted); margin-bottom: 12px; }
+    .wh-amt { font-size: 56px; font-weight: 800; color: var(--ink); letter-spacing: -0.02em; }
+    
+    .fee-box { background: var(--gray); border: 1px solid var(--border); border-radius: 16px; padding: 16px; margin: 32px 24px; display: flex; justify-content: space-between; font-size: 14px; }
+    .total-box { display: flex; justify-content: space-between; font-size: 16px; font-weight: 700; padding: 0 24px; }
+
+    /* S2: Interstitial Offer */
+    .s2 { background: var(--c-dark); color: var(--white); }
+    .offer-modal { background: var(--white); border-radius: 32px 32px 0 0; margin-top: auto; padding: 32px 24px 40px; color: var(--ink); position: relative; animation: slideUp 0.4s ease-out; }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    
+    .om-badge { position: absolute; top: -16px; left: 50%; transform: translateX(-50%); background: var(--c-accent); color: white; padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; box-shadow: 0 4px 12px rgba(244,63,94,0.3); white-space: nowrap; }
+    .om-title { font-size: 22px; font-weight: 800; text-align: center; margin-bottom: 8px; line-height: 1.2; }
+    .om-sub { font-size: 13px; color: var(--muted); text-align: center; margin-bottom: 24px; line-height: 1.5; }
+    
+    .task-preview { background: var(--gray); border: 1px dashed #cbd5e1; border-radius: 16px; padding: 16px; display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
+    .tp-icon { width: 48px; height: 48px; background: #e0e7ff; color: var(--c-bright); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+    .tp-info { flex: 1; }
+
+    /* S3: Gig Marketplace */
+    .s3 { background: var(--gray); }
+    .market-header { padding: 16px 24px 24px; background: var(--white); border-bottom: 1px solid var(--border); }
+    .mh-title { font-size: 24px; font-weight: 800; margin-bottom: 8px; }
+    
+    .filter-scroll { display: flex; gap: 8px; overflow-x: auto; padding: 16px 24px; scrollbar-width: none; }
+    .filter-chip { background: var(--white); border: 1px solid var(--border); padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 600; white-space: nowrap; color: var(--muted); }
+    .filter-chip.active { background: var(--c-dark); color: var(--white); border-color: var(--c-dark); }
+    
+    .gig-list { padding: 16px 24px; display: flex; flex-direction: column; gap: 16px; }
+    .gig-card { background: var(--white); border-radius: 16px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.02); }
+    .gc-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+    .gc-badge { font-size: 10px; font-weight: 700; color: var(--teal); background: #ccfbf1; padding: 4px 8px; border-radius: 4px; text-transform: uppercase; }
+    .gc-amt { font-size: 18px; font-weight: 800; color: var(--c-bright); }
+    .gc-title { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+    .gc-meta { display: flex; gap: 12px; font-size: 12px; color: var(--muted); }
+
+    /* S4: Instant Crediting */
+    .s4 { background: var(--c-bright); color: var(--white); text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .success-ring { width: 120px; height: 120px; border: 4px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; margin-bottom: 32px; display: flex; align-items: center; justify-content: center; font-size: 40px; animation: spin 1s ease-out forwards; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); border-color: white; } }
+    
+    .s4-title { font-size: 28px; font-weight: 800; margin-bottom: 12px; }
+    .s4-sub { font-size: 15px; opacity: 0.9; line-height: 1.5; padding: 0 32px; margin-bottom: 40px; }
+
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-logo">FN</div>
+  FINN — FinnEarn · Gig-Income Marketplace Activation
+</div>
+
+<div class="wrap">
+  <div class="phone-wrap">
+    <div class="screen-label" id="screen-label">01 — WITHDRAWAL TRIGGER</div>
+    <div class="phone">
+      <div class="notch"></div>
+      
+      <!-- S1: Withdrawal Trigger -->
+      <div class="screen s1 active" id="s1">
+        <div class="status-bar"><span>9:41</span><span>5G 🔋</span></div>
+        <div class="nav-back">←</div>
+        
+        <div class="withdraw-hero">
+          <div class="wh-title">Withdraw to Sparkasse</div>
+          <div class="wh-amt">€50.00</div>
+        </div>
+        
+        <div class="fee-box">
+          <span style="color:var(--muted);">Instant Transfer Fee</span>
+          <span style="font-weight:600;">€1.50</span>
+        </div>
+        
+        <div class="total-box">
+          <span>Total Deduction</span>
+          <span>€51.50</span>
+        </div>
+        
+        <div style="flex:1;"></div>
+        <div style="padding:24px;">
+          <button class="btn" onclick="go(2)">Confirm Withdrawal</button>
+        </div>
+      </div>
+
+      <!-- S2: Interstitial Offer -->
+      <div class="screen s2" id="s2">
+        <div class="status-bar light"><span>9:41</span><span>5G 🔋</span></div>
+        
+        <div style="text-align:center; padding:64px 24px;">
+          <div style="font-size:48px; margin-bottom:16px;">⏳</div>
+          <div style="font-size:18px; font-weight:700;">Processing transfer...</div>
+        </div>
+        
+        <div class="offer-modal">
+          <div class="om-badge">Cover Your Fee</div>
+          <div class="om-title">Want to earn back your €1.50 fee right now?</div>
+          <div class="om-sub">Complete a quick 3-minute brand survey while you wait. We'll credit your account instantly.</div>
+          
+          <div class="task-preview">
+            <div class="tp-icon">📋</div>
+            <div class="tp-info">
+              <div style="font-size:14px; font-weight:700; margin-bottom:4px;">Consumer Habits Survey</div>
+              <div style="font-size:12px; color:var(--muted);">Est. 3 mins • 5 questions</div>
+            </div>
+            <div style="font-size:16px; font-weight:800; color:var(--c-accent);">+€2.00</div>
+          </div>
+          
+          <button class="btn" style="background:var(--c-dark);" onclick="go(3)">Start Survey</button>
+          <div style="text-align:center; margin-top:16px; font-size:12px; color:var(--muted); font-weight:600; cursor:pointer;" onclick="go(4)">Skip, just send my money</div>
+        </div>
+      </div>
+
+      <!-- S3: Gig Marketplace -->
+      <div class="screen s3" id="s3">
+        <div class="status-bar"><span>9:41</span><span>5G 🔋</span></div>
+        <div class="market-header">
+          <div class="mh-title">FinnEarn</div>
+          <div style="font-size:14px; color:var(--muted);">Boost your income on your schedule.</div>
+        </div>
+        
+        <div class="filter-scroll">
+          <div class="filter-chip active">All Gigs</div>
+          <div class="filter-chip">Quick Surveys</div>
+          <div class="filter-chip">Delivery</div>
+          <div class="filter-chip">Micro-Tasks</div>
+        </div>
+        
+        <div class="gig-list">
+          <div class="gig-card" onclick="go(4)">
+            <div class="gc-top">
+              <div class="gc-badge">High Demand</div>
+              <div class="gc-amt">+€15.00</div>
+            </div>
+            <div class="gc-title">Mystery Shopper — Aldi Supermarket</div>
+            <div class="gc-meta">
+              <span>📍 1.2 km away</span>
+              <span>⏱️ Est. 30 mins</span>
+            </div>
+          </div>
+          
+          <div class="gig-card" style="opacity:0.6;">
+            <div class="gc-top">
+              <div style="font-size:10px; font-weight:700; color:var(--muted); background:#e2e8f0; padding:4px 8px; border-radius:4px; text-transform:uppercase;">Survey</div>
+              <div class="gc-amt">+€3.50</div>
+            </div>
+            <div class="gc-title">App Usage Feedback Study</div>
+            <div class="gc-meta">
+              <span>📱 Remote</span>
+              <span>⏱️ Est. 10 mins</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- S4: Instant Crediting -->
+      <div class="screen s4" id="s4">
+        <div class="status-bar light"><span>9:41</span><span>5G 🔋</span></div>
+        <div class="success-ring">✓</div>
+        <div class="s4-title">Gig Completed!</div>
+        <div class="s4-sub">€15.00 has been instantly credited to your available balance.</div>
+        
+        <button class="btn" style="background:white; color:var(--c-bright); width:80%;" onclick="go(1)">Back to Dashboard</button>
+      </div>
+
+    </div>
+    
+    <div class="nav-dots">
+      <div class="ndot active" id="n1" onclick="go(1)"></div>
+      <div class="ndot" id="n2" onclick="go(2)"></div>
+      <div class="ndot" id="n3" onclick="go(3)"></div>
+      <div class="ndot" id="n4" onclick="go(4)"></div>
+    </div>
+  </div>
+
+  <div class="anno-panel" id="anno-cards"></div>
+</div>
+
+<script>
+const LABELS = { 1:'01 — WITHDRAWAL TRIGGER', 2:'02 — INTERSTITIAL OFFER', 3:'03 — GIG MARKETPLACE', 4:'04 — INSTANT CREDITING' };
+const ANNO = {
+  1: [
+    { n:'TRANSACTION MOMENT', t:'High Intent Point', b:'When a user withdraws their earned wages, their attention is fully focused on the app. They are actively managing their liquidity, making it the perfect time to introduce income-generation tools.' },
+    { n:'BEHAVIORAL PSYCHOLOGY', t:'Loss Aversion', b:'The user sees the €1.50 transfer fee. This "loss" creates a psychological opening to offer a way to "earn it back" immediately.' }
+  ],
+  2: [
+    { n:'ACTIVATION', t:'Dynamic Incentivization', b:'Instead of a generic "Go to jobs board" button, we intercept the withdrawal waiting screen with a micro-task (e.g., a survey) specifically priced to cover the withdrawal fee.' },
+    { n:'AJAY’S PARALLEL', t:'Cart Incentivization', b:'At PhonePe, I built dynamic cart incentives that reduced cart abandonment by 60%. This applies the exact same logic to FINN\'s withdrawal funnel.' }
+  ],
+  3: [
+    { n:'PLATFORM GROWTH', t:'The Gig Marketplace', b:'Users who want more than just covering fees can enter the full FinnEarn marketplace. This aggregates part-time jobs and surveys, fulfilling FINN’s promise of income generation.' },
+    { n:'MONETIZATION', t:'B2B Revenue Stream', b:'FINN can charge brands for market research surveys or take a referral cut from gig platforms (like Uber or delivery services) when placing workers.' }
+  ],
+  4: [
+    { n:'REWARD LOOP', t:'Instant Gratification', b:'The defining feature of earned wage access is speed. By instantly crediting gig earnings directly to the user\'s FINN balance, we create a highly addictive, positive feedback loop.' },
+    { n:'RETENTION', t:'Sticky Ecosystem', b:'When users realize they can both access existing wages AND earn new ones instantly on the same platform, FINN becomes their primary financial hub, severely reducing churn.' }
+  ]
+};
+function go(n) {
+  [1,2,3,4].forEach(i => { document.getElementById('s'+i).classList.remove('active'); document.getElementById('n'+i).classList.remove('active'); });
+  document.getElementById('s'+n).classList.add('active'); document.getElementById('n'+n).classList.add('active');
+  document.getElementById('screen-label').textContent = LABELS[n];
+  document.getElementById('anno-cards').innerHTML = ANNO[n].map(c => `<div class="anno-card"><div class="anno-num">${c.n}</div><div class="anno-title">${c.t}</div><div class="anno-body">${c.b}</div></div>`).join('');
+}
+go(1);
+</script>
+</body>
+</html>

@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FINN — FinnGuide · Interactive Prototype</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --c-dark: #0f172a; 
+      --c-bright: #3b82f6; /* Blue */
+      --c-accent: #10b981; /* Emerald */
+      --orange: #f59e0b;
+      --purple: #8b5cf6;
+      --ink: #1e293b;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --gray: #f8fafc;
+      --white: #ffffff;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Sora',sans-serif; background:#f1f5f9; color:var(--ink); min-height:100vh; }
+
+    .header { background: var(--c-dark); padding: 14px 32px; font-size: 13px; font-weight: 600; color: #94a3b8; letter-spacing: 0.06em; text-transform: uppercase; display: flex; align-items: center; gap: 12px; }
+    .header-logo { background: var(--white); color: var(--c-bright); font-size: 10px; font-weight: 800; padding: 4px 8px; border-radius: 6px; letter-spacing: 0.04em; }
+
+    .wrap { display: flex; gap: 40px; padding: 40px; justify-content: center; align-items: flex-start; min-height: calc(100vh - 56px); }
+
+    /* PHONE FRAME */
+    .phone-wrap { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+    .screen-label { font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+    .phone { width: 375px; height: 812px; border-radius: 46px; overflow: hidden; box-shadow: 0 40px 100px rgba(0,0,0,0.15), 0 0 0 12px #0f172a; background: var(--gray); position: relative; }
+    
+    .notch { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 140px; height: 28px; background: #0f172a; border-bottom-left-radius: 16px; border-bottom-right-radius: 16px; z-index: 100; }
+    
+    .screen { position: absolute; top:0; left:0; width:100%; height:100%; display:none; background:var(--gray); flex-direction:column; overflow-y:auto; scrollbar-width:none; }
+    .screen::-webkit-scrollbar { display:none; }
+    .screen.active { display:flex; }
+
+    /* NAV DOTS */
+    .nav-dots { display: flex; gap: 8px; margin-top: 16px; }
+    .ndot { width:28px; height:6px; border-radius: 3px; background: #cbd5e1; cursor: pointer; transition: all 0.2s; }
+    .ndot.active { background: var(--c-bright); width: 40px; }
+
+    /* ANNOTATION PANEL */
+    .anno-panel { width: 340px; display: flex; flex-direction: column; gap: 14px; padding-top: 40px; }
+    .anno-card { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+    .anno-num { font-size: 9px; font-weight: 700; letter-spacing: 0.12em; color: var(--c-bright); text-transform: uppercase; margin-bottom: 6px; }
+    .anno-title { font-size: 14px; font-weight: 700; color: var(--ink); margin-bottom: 8px; line-height: 1.3; }
+    .anno-body { font-size: 12px; color: var(--muted); line-height: 1.55; }
+
+    /* UI Elements */
+    .status-bar { height: 44px; display:flex; justify-content:space-between; align-items:center; padding: 0 24px; font-size: 12px; font-weight:600; color: var(--ink); z-index:90; position:relative;}
+    .status-bar.light { color: var(--white); }
+    
+    .btn { background: var(--c-bright); color: white; border: none; padding: 16px; width: 100%; border-radius: 16px; font-size: 15px; font-weight: 600; font-family: 'Sora', sans-serif; cursor: pointer; text-align:center; box-shadow: 0 8px 24px rgba(59, 130, 246, 0.2); transition: 0.2s; }
+    .btn:active { transform: scale(0.98); }
+
+    /* S1: Contextual Nudge */
+    .s1 { background: var(--gray); }
+    .nav-bar { display:flex; justify-content:space-between; padding:16px 24px; align-items:center;}
+    
+    .ai-toast { background: linear-gradient(135deg, #3b82f6, #8b5cf6); border-radius: 16px; padding: 20px; color: white; margin: 0 24px 24px; box-shadow: 0 10px 25px rgba(59,130,246,0.3); position:relative; overflow:hidden;}
+    .ai-toast::before { content:''; position:absolute; top:-20px; right:-20px; width:100px; height:100px; background:rgba(255,255,255,0.1); border-radius:50%; }
+    .ai-icon { font-size:24px; margin-bottom:8px; }
+    .ai-title { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+    .ai-text { font-size: 13px; line-height: 1.4; opacity: 0.9; margin-bottom: 16px; }
+    .ai-btn { background: white; color: #3b82f6; border: none; padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; }
+
+    .dash-widget { background: var(--white); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin: 0 24px 16px; }
+    .dw-title { font-size: 14px; font-weight: 600; margin-bottom: 16px; display:flex; justify-content:space-between; }
+    .dw-amt { font-size: 28px; font-weight: 800; color: var(--ink); }
+
+    /* S2: Chat Interface */
+    .s2 { background: var(--white); }
+    .chat-header { background: var(--gray); padding: 16px 24px; border-bottom: 1px solid var(--border); display:flex; align-items:center; gap:12px; }
+    .chat-area { flex: 1; padding: 24px; display: flex; flex-direction: column; gap: 16px; background:#f8fafc; }
+    
+    .msg { max-width: 85%; padding: 14px 16px; border-radius: 16px; font-size: 13.5px; line-height: 1.5; }
+    .msg-ai { background: var(--white); border: 1px solid var(--border); border-bottom-left-radius: 4px; align-self: flex-start; box-shadow: 0 2px 8px rgba(0,0,0,0.02);}
+    .msg-user { background: var(--c-bright); color: white; border-bottom-right-radius: 4px; align-self: flex-end; }
+    
+    .suggestion-chips { display: flex; gap: 8px; overflow-x: auto; padding: 16px 24px; background:var(--white); border-top:1px solid var(--border); scrollbar-width:none;}
+    .chip { background: var(--gray); border: 1px solid var(--border); padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 600; white-space: nowrap; color: var(--c-bright); }
+    
+    .input-area { padding: 16px 24px 32px; background: var(--white); }
+    .chat-input { width: 100%; background: var(--gray); border: 1px solid var(--border); padding: 14px 16px; border-radius: 24px; font-size: 14px; outline: none; }
+
+    /* S3: Goal Setting */
+    .s3 { background: var(--gray); padding-bottom:32px;}
+    .s3-header { padding: 24px; }
+    .s3-title { font-size: 24px; font-weight: 800; margin-bottom: 8px; }
+    .s3-sub { font-size: 14px; color: var(--muted); line-height: 1.5; }
+    
+    .goal-card { background: var(--white); border: 2px solid var(--c-bright); border-radius: 16px; padding: 24px; margin: 0 24px 24px; box-shadow: 0 8px 24px rgba(59,130,246,0.1); }
+    .gc-icon { font-size: 32px; margin-bottom: 16px; }
+    .gc-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+    .gc-slider { width: 100%; margin: 24px 0; accent-color: var(--c-bright); }
+    .gc-meta { display:flex; justify-content:space-between; font-size:13px; color:var(--muted); font-weight:600;}
+
+    /* S4: Auto-Save Rule */
+    .s4 { background: var(--gray); padding-bottom:32px;}
+    .rule-box { background: var(--white); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin: 0 24px 16px; display:flex; align-items:center; justify-content:space-between;}
+    .rb-info { flex:1; }
+    .rb-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+    .rb-sub { font-size: 12px; color: var(--muted); line-height: 1.4; }
+    .toggle { width:44px; height:24px; background:var(--c-accent); border-radius:12px; position:relative;}
+    .toggle::after { content:''; position:absolute; right:2px; top:2px; width:20px; height:20px; background:white; border-radius:50%; }
+
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-logo">FN</div>
+  FINN — FinnGuide · AI Financial Literacy Engine
+</div>
+
+<div class="wrap">
+  <div class="phone-wrap">
+    <div class="screen-label" id="screen-label">01 — CONTEXTUAL NUDGE</div>
+    <div class="phone">
+      <div class="notch"></div>
+      
+      <!-- S1: Dashboard & Nudge -->
+      <div class="screen s1 active" id="s1">
+        <div class="status-bar" style="margin-bottom:12px;"><span>9:41</span><span>5G 🔋</span></div>
+        <div class="nav-bar">
+          <div style="font-weight:700; font-size:18px;">Overview</div>
+          <div style="width:32px; height:32px; background:#e2e8f0; border-radius:50%; display:flex; align-items:center; justify-content:center;">AJ</div>
+        </div>
+        
+        <div class="ai-toast" onclick="go(2)" style="cursor:pointer;">
+          <div class="ai-icon">✨</div>
+          <div class="ai-title">Smart Insight</div>
+          <div class="ai-text">You earned €65 today. If you save just €5 from this shift, you'll hit your Emergency Fund goal a month early.</div>
+          <button class="ai-btn">Chat with FinnGuide</button>
+        </div>
+        
+        <div class="dash-widget">
+          <div class="dw-title"><span>Available Wages</span> <span style="color:var(--c-bright);">Withdraw</span></div>
+          <div class="dw-amt">€420.50</div>
+        </div>
+        
+        <div class="dash-widget">
+          <div class="dw-title"><span>Upcoming Bills</span></div>
+          <div style="display:flex; justify-content:space-between; margin-top:12px; font-size:14px; border-bottom:1px solid var(--border); padding-bottom:8px;"><span>Electricity</span><span>€45.00</span></div>
+          <div style="display:flex; justify-content:space-between; margin-top:8px; font-size:14px;"><span>Internet</span><span>€29.99</span></div>
+        </div>
+      </div>
+
+      <!-- S2: Chat Interface -->
+      <div class="screen s2" id="s2">
+        <div class="status-bar" style="background:var(--gray);"><span>9:41</span><span>5G 🔋</span></div>
+        <div class="chat-header">
+          <span style="font-size:20px; cursor:pointer;" onclick="go(1)">←</span>
+          <div style="width:32px; height:32px; background:linear-gradient(135deg, #3b82f6, #8b5cf6); border-radius:50%; display:flex; align-items:center; justify-content:center; color:white;">✨</div>
+          <div>
+            <div style="font-size:14px; font-weight:700;">FinnGuide</div>
+            <div style="font-size:11px; color:var(--c-accent);">Online</div>
+          </div>
+        </div>
+        
+        <div class="chat-area">
+          <div class="msg msg-ai">Hi Ajay! I noticed you just finished a shift. Great job! 🚀</div>
+          <div class="msg msg-ai">You currently have €420.50 available. Since your rent is due next week, it's safe to withdraw up to €150 right now.</div>
+          <div class="msg msg-user">How much should I save?</div>
+          <div class="msg msg-ai">Based on your income history, saving **€25/week** is a healthy balance. Should we set up an Emergency Fund?</div>
+        </div>
+        
+        <div class="suggestion-chips">
+          <div class="chip" onclick="go(3)">Yes, set up a goal</div>
+          <div class="chip">Remind me later</div>
+          <div class="chip">Show me my bills</div>
+        </div>
+        
+        <div class="input-area">
+          <input type="text" class="chat-input" placeholder="Ask FinnGuide anything...">
+        </div>
+      </div>
+
+      <!-- S3: Goal Setting -->
+      <div class="screen s3" id="s3">
+        <div class="status-bar"><span>9:41</span><span>5G 🔋</span></div>
+        <div class="s3-header">
+          <div style="font-size:24px; margin-bottom:16px; cursor:pointer;" onclick="go(2)">←</div>
+          <div class="s3-title">Emergency Fund</div>
+          <div class="s3-sub">Let's build a safety net. FinnGuide suggests starting with a €500 target.</div>
+        </div>
+        
+        <div class="goal-card">
+          <div class="gc-icon">🛡️</div>
+          <div class="gc-title">Target: €500</div>
+          <div style="font-size:13px; color:var(--muted);">Save €25 every week</div>
+          <input type="range" class="gc-slider" min="10" max="100" value="25">
+          <div class="gc-meta">
+            <span>€10</span>
+            <span style="color:var(--c-bright);">€25</span>
+            <span>€100</span>
+          </div>
+        </div>
+        
+        <div style="flex:1;"></div>
+        <div style="padding:0 24px;">
+          <button class="btn" onclick="go(4)">Create Goal</button>
+        </div>
+      </div>
+
+      <!-- S4: Auto-Save Rule -->
+      <div class="screen s4" id="s4">
+        <div class="status-bar"><span>9:41</span><span>5G 🔋</span></div>
+        <div class="s3-header" style="text-align:center; margin-bottom:16px;">
+          <div style="font-size:48px; margin-bottom:16px;">🎉</div>
+          <div class="s3-title">Goal Created!</div>
+          <div class="s3-sub">You're on track to hit €500 in 5 months. Let's make it effortless.</div>
+        </div>
+        
+        <div class="rule-box">
+          <div class="rb-info">
+            <div class="rb-title">Smart Auto-Save</div>
+            <div class="rb-sub">FinnGuide will automatically sweep 5% of every shift's earnings into your fund.</div>
+          </div>
+          <div class="toggle"></div>
+        </div>
+        
+        <div class="rule-box" style="opacity:0.6;">
+          <div class="rb-info">
+            <div class="rb-title">Round-up Withdrawals</div>
+            <div class="rb-sub">Round up earned wage withdrawals to the nearest €10 and save the rest.</div>
+          </div>
+          <div class="toggle" style="background:#e2e8f0;"></div>
+        </div>
+        
+        <div style="flex:1;"></div>
+        <div style="padding:0 24px;">
+          <button class="btn" style="background:var(--ink);" onclick="go(1)">Done</button>
+        </div>
+      </div>
+
+    </div>
+    
+    <div class="nav-dots">
+      <div class="ndot active" id="n1" onclick="go(1)"></div>
+      <div class="ndot" id="n2" onclick="go(2)"></div>
+      <div class="ndot" id="n3" onclick="go(3)"></div>
+      <div class="ndot" id="n4" onclick="go(4)"></div>
+    </div>
+  </div>
+
+  <div class="anno-panel" id="anno-cards"></div>
+</div>
+
+<script>
+const LABELS = { 1:'01 — CONTEXTUAL NUDGE', 2:'02 — AI CHAT INTERFACE', 3:'03 — GOAL SETTING', 4:'04 — AUTOMATED RULES' };
+const ANNO = {
+  1: [
+    { n:'BEHAVIORAL DESIGN', t:'Context is Everything', b:'Generic "save money" banners are ignored. We surface a highly contextual AI nudge right when the user checks their daily earnings, making the advice actionable immediately.' },
+    { n:'AJAY’S PARALLEL', t:'Propensity-to-Transact', b:'At PhonePe, I used ML models to predict when a user was most likely to engage with an offer. FinnGuide uses similar ML logic to time financial nudges perfectly.' }
+  ],
+  2: [
+    { n:'FINANCIAL LITERACY', t:'Conversational AI', b:'Underbanked users often find traditional banking dashboards confusing. An AI chat interface humanizes financial advice, making it safe to ask "dumb" questions.' },
+    { n:'GUARDRAILS', t:'Safe Recommendations', b:'The AI analyzes upcoming bills and only recommends saving what the user can afford, preventing overdrafts and building long-term trust.' }
+  ],
+  3: [
+    { n:'UX DECISION', t:'Frictionless Goals', b:'Instead of making the user do the math, the AI pre-fills a recommended target (€500) and weekly contribution (€25). The user just confirms.' },
+    { n:'METRICS FOCUS', t:'Activation Rate', b:'Reducing cognitive load during goal creation significantly increases the feature activation rate (moving from intent to action).' }
+  ],
+  4: [
+    { n:'RETENTION', t:'Set and Forget', b:'The hardest part of saving is consistency. By tying micro-savings directly to the earned wage stream (sweeping 5% per shift), savings grow automatically.' },
+    { n:'GROWTH LOOP', t:'Increasing AUM', b:'As the AI automates saving habits, the user\'s balance within FINN grows, reducing churn and increasing the platform\'s overall Assets Under Management.' }
+  ]
+};
+function go(n) {
+  [1,2,3,4].forEach(i => { document.getElementById('s'+i).classList.remove('active'); document.getElementById('n'+i).classList.remove('active'); });
+  document.getElementById('s'+n).classList.add('active'); document.getElementById('n'+n).classList.add('active');
+  document.getElementById('screen-label').textContent = LABELS[n];
+  document.getElementById('anno-cards').innerHTML = ANNO[n].map(c => `<div class="anno-card"><div class="anno-num">${c.n}</div><div class="anno-title">${c.t}</div><div class="anno-body">${c.b}</div></div>`).join('');
+}
+go(1);
+</script>
+</body>
+</html>
