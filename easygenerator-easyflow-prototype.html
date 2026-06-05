@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Easygenerator — EasyFlow · Interactive Prototype</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --dark:   #0A1628;
+      --hero:   #112038;
+      --card:   #162846;
+      --teal:   #00C896;
+      --blue:   #3B82F6;
+      --amber:  #F59E0B;
+      --red:    #EF4444;
+      --white:  #FFFFFF;
+      --muted:  #64748b;
+      --border: #1e3a5f;
+      --lgray:  #F0F4F8;
+      --text:   #e2e8f0;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Sora',sans-serif; background:#060f1e; color:var(--white); min-height:100vh; }
+
+    .header {
+      background: linear-gradient(90deg, #0A1628 0%, #162846 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 32px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--teal);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .header-logo {
+      background: var(--teal);
+      color: var(--dark);
+      font-size: 10px;
+      font-weight: 800;
+      padding: 4px 8px;
+      border-radius: 6px;
+      letter-spacing: 0.04em;
+    }
+    .header-pipe { color: var(--border); }
+
+    .wrap {
+      display: flex;
+      gap: 32px;
+      padding: 32px;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: calc(100vh - 56px);
+    }
+
+    /* BROWSER FRAME */
+    .browser-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+    }
+    .browser-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      color: var(--teal);
+      margin-bottom: 10px;
+      text-transform: uppercase;
+    }
+    .screen-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .browser {
+      width: 680px;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 40px 100px rgba(0,0,0,0.5), 0 0 0 1px var(--border);
+      background: var(--lgray);
+    }
+    .browser-chrome {
+      background: #1e293b;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .dot-row { display:flex; gap:6px; }
+    .dot { width:10px; height:10px; border-radius:50%; }
+    .dot-r { background:#ef4444; }
+    .dot-y { background:#f59e0b; }
+    .dot-g { background:#22c55e; }
+    .addr-bar {
+      flex:1;
+      background: #0f172a;
+      border-radius: 6px;
+      padding: 5px 12px;
+      font-size: 11px;
+      font-family: 'DM Mono', monospace;
+      color: #94a3b8;
+    }
+    .screen-content {
+      height: 580px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      scrollbar-width: none;
+      background: var(--lgray);
+    }
+    .screen-content::-webkit-scrollbar { display:none; }
+    .screen { display:none; }
+    .screen.active { display:block; }
+
+    /* NAV DOTS */
+    .nav-dots {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+    }
+    .ndot {
+      width:28px; height:6px;
+      border-radius: 3px;
+      background: var(--border);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .ndot.active { background: var(--teal); width: 40px; }
+
+    /* ANNOTATION PANEL */
+    .anno-panel {
+      width: 300px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      padding-top: 40px;
+    }
+    .anno-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+    }
+    .anno-num {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      color: var(--teal);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .anno-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 6px;
+      line-height: 1.3;
+    }
+    .anno-body {
+      font-size: 11.5px;
+      color: #94a3b8;
+      line-height: 1.55;
+    }
+    .anno-metric {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+    }
+    .anno-metric-val { font-size: 22px; font-weight: 800; color: var(--teal); font-family:'DM Mono',monospace; }
+    .anno-metric-lbl { font-size: 10px; color: var(--muted); font-weight: 600; }
+
+    /* ===== SCREEN 1: TOPIC INPUT ===== */
+    .s1 { background: #fff; min-height: 580px; }
+    .eg-topbar {
+      background: #fff;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      height: 52px;
+      gap: 20px;
+    }
+    .eg-logo { font-size: 14px; font-weight: 800; color: #0A1628; }
+    .eg-logo span { color: #00C896; }
+    .eg-nav { display:flex; gap:4px; margin-left: auto; }
+    .eg-nav-item {
+      font-size: 12px;
+      font-weight: 500;
+      color: #64748b;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .eg-nav-item.active { background: #f0fdf4; color: #00a876; font-weight: 600; }
+    .eg-btn {
+      background: #00C896;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: 'Sora', sans-serif;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .eg-btn-ghost {
+      background: transparent;
+      color: #64748b;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Sora', sans-serif;
+    }
+    .s1-body { padding: 32px 32px 24px; }
+    .s1-hero {
+      background: linear-gradient(135deg, #0A1628 0%, #162846 100%);
+      border-radius: 16px;
+      padding: 28px 28px 24px;
+      margin-bottom: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    .s1-hero::after {
+      content: '';
+      position: absolute;
+      right: -20px; top: -20px;
+      width: 140px; height: 140px;
+      background: radial-gradient(circle, rgba(0,200,150,0.15) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .s1-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(0,200,150,0.15);
+      border: 1px solid rgba(0,200,150,0.3);
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 10px;
+      font-weight: 700;
+      color: #00C896;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .s1-hero-title { font-size: 20px; font-weight: 800; color: #fff; margin-bottom: 8px; line-height: 1.25; }
+    .s1-hero-sub { font-size: 12px; color: #94a3b8; line-height: 1.5; max-width: 380px; }
+    .s1-form-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 24px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+    .s1-form-title { font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 18px; }
+    .s1-field { margin-bottom: 16px; }
+    .s1-label { font-size: 11px; font-weight: 700; color: #374151; margin-bottom: 6px; display: block; text-transform: uppercase; letter-spacing: 0.06em; }
+    .s1-input {
+      width: 100%;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 12.5px;
+      color: #0f172a;
+      font-family: 'Sora', sans-serif;
+      background: #f8fafc;
+      outline: none;
+    }
+    .s1-input:focus { border-color: #00C896; background: #fff; }
+    .s1-input.filled { border-color: #00C896; background: #f0fdf4; color: #065f46; }
+    .s1-audience { display: flex; gap: 8px; flex-wrap: wrap; }
+    .aud-chip {
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      border: 1.5px solid #e2e8f0;
+      color: #64748b;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .aud-chip.selected { background: #00C896; border-color: #00C896; color: #fff; }
+    .s1-actions { display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end; }
+    .ai-generate-btn {
+      background: linear-gradient(135deg, #00C896 0%, #00a876 100%);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 24px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: 'Sora', sans-serif;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 14px rgba(0,200,150,0.3);
+    }
+    .ai-icon { font-size: 16px; }
+
+    /* ===== SCREEN 2: AI DRAFT OUTLINE ===== */
+    .s2 { background: #f8fafc; min-height: 580px; }
+    .s2-layout { display: flex; height: 580px; }
+    .s2-sidebar {
+      width: 220px;
+      background: #fff;
+      border-right: 1px solid #e2e8f0;
+      padding: 16px;
+      overflow-y: auto;
+      scrollbar-width: none;
+      flex-shrink: 0;
+    }
+    .s2-sidebar::-webkit-scrollbar { display:none; }
+    .s2-sidebar-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; margin-bottom: 12px; }
+    .s2-module {
+      margin-bottom: 6px;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .s2-module-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      background: #f8fafc;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 600;
+      color: #374151;
+      border-radius: 8px;
+    }
+    .s2-module-header.active { background: #f0fdf4; color: #00a876; }
+    .s2-module-num {
+      width: 20px; height: 20px;
+      border-radius: 6px;
+      background: #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      font-weight: 800;
+      color: #64748b;
+      flex-shrink: 0;
+    }
+    .s2-module-num.active { background: #00C896; color: #fff; }
+    .s2-section-item {
+      padding: 6px 10px 6px 36px;
+      font-size: 10.5px;
+      color: #64748b;
+      cursor: pointer;
+      border-radius: 6px;
+    }
+    .s2-section-item:hover { background: #f0fdf4; color: #00a876; }
+    .s2-section-item.active { background: #f0fdf4; color: #065f46; font-weight: 600; }
+    .s2-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .s2-toolbar {
+      background: #fff;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .s2-toolbar-title { font-size: 12px; font-weight: 700; color: #0f172a; flex: 1; }
+    .regen-btn {
+      background: transparent;
+      border: 1.5px solid #00C896;
+      color: #00C896;
+      border-radius: 7px;
+      padding: 6px 12px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: 'Sora',sans-serif;
+      display: flex; align-items:center; gap:5px;
+    }
+    .accept-btn {
+      background: #00C896;
+      border: none;
+      color: #fff;
+      border-radius: 7px;
+      padding: 6px 12px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: 'Sora',sans-serif;
+      display: flex; align-items:center; gap:5px;
+    }
+    .s2-content-area {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      scrollbar-width: none;
+    }
+    .s2-content-area::-webkit-scrollbar { display:none; }
+    .ai-generated-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(0,200,150,0.1);
+      border: 1px solid rgba(0,200,150,0.25);
+      border-radius: 6px;
+      padding: 3px 8px;
+      font-size: 9.5px;
+      font-weight: 700;
+      color: #00a876;
+      margin-bottom: 12px;
+      letter-spacing: 0.06em;
+    }
+    .s2-section-title { font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 12px; }
+    .s2-content-block {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 12px;
+      font-size: 12px;
+      color: #374151;
+      line-height: 1.6;
+    }
+    .s2-content-block .block-label {
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #00C896;
+      margin-bottom: 8px;
+    }
+    .s2-quiz-block {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+    .s2-quiz-block .block-label { color: #d97706; }
+    .s2-quiz-q { font-size: 12px; font-weight: 600; color: #0f172a; margin-bottom: 8px; }
+    .s2-quiz-opt { font-size: 11px; color: #374151; padding: 3px 0; }
+    .s2-quiz-opt::before { content: '○  '; color: #94a3b8; }
+    .s2-quiz-opt.correct::before { content: '● '; color: #00C896; }
+    .s2-progress {
+      background: #f0f4f8;
+      padding: 12px 20px;
+      border-top: 1px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+    .s2-prog-label { font-size: 10px; font-weight: 600; color: #64748b; }
+    .s2-prog-bar { flex: 1; height: 6px; background: #e2e8f0; border-radius: 3px; }
+    .s2-prog-fill { height: 100%; background: #00C896; border-radius: 3px; width: 45%; }
+    .s2-prog-pct { font-size: 10px; font-weight: 700; color: #00a876; font-family:'DM Mono',monospace; }
+
+    /* ===== SCREEN 3: EDITOR ===== */
+    .s3 { background: #fff; min-height: 580px; }
+    .s3-layout { display: flex; height: 580px; }
+    .s3-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .s3-editor-bar {
+      background: #f8fafc;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .fmt-btn {
+      padding: 4px 8px;
+      background: transparent;
+      border: 1px solid #e2e8f0;
+      border-radius: 5px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #374151;
+      cursor: pointer;
+    }
+    .fmt-btn.active { background: #0A1628; color: #fff; border-color: #0A1628; }
+    .ai-assist-btn {
+      margin-left: auto;
+      background: linear-gradient(135deg, #00C896 0%, #00a876 100%);
+      border: none;
+      border-radius: 7px;
+      padding: 5px 12px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #fff;
+      cursor: pointer;
+      font-family: 'Sora',sans-serif;
+      display: flex; align-items:center; gap:4px;
+    }
+    .s3-editor {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      scrollbar-width: none;
+      font-size: 13px;
+      color: #1e293b;
+      line-height: 1.7;
+    }
+    .s3-editor::-webkit-scrollbar { display:none; }
+    .s3-para { margin-bottom: 14px; }
+    .s3-h2 { font-size: 16px; font-weight: 700; color: #0f172a; margin-bottom: 10px; }
+    .ai-suggestion {
+      background: rgba(0,200,150,0.08);
+      border-left: 3px solid #00C896;
+      border-radius: 0 8px 8px 0;
+      padding: 10px 14px;
+      margin: 12px 0;
+      position: relative;
+    }
+    .ai-suggestion::before {
+      content: '✦ AI Suggestion';
+      display: block;
+      font-size: 9px;
+      font-weight: 700;
+      color: #00C896;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 6px;
+    }
+    .ai-suggestion-text { font-size: 12px; color: #374151; line-height: 1.55; }
+    .ai-suggestion-actions { display: flex; gap: 6px; margin-top: 8px; }
+    .ai-sug-btn {
+      padding: 4px 10px;
+      border-radius: 5px;
+      font-size: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: 'Sora',sans-serif;
+    }
+    .ai-sug-accept { background: #00C896; color: #fff; border: none; }
+    .ai-sug-skip { background: transparent; border: 1px solid #e2e8f0; color: #64748b; }
+    .s3-sidebar {
+      width: 200px;
+      background: #f8fafc;
+      border-left: 1px solid #e2e8f0;
+      padding: 16px;
+      overflow-y: auto;
+      scrollbar-width: none;
+    }
+    .s3-sidebar::-webkit-scrollbar { display:none; }
+    .s3-side-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; margin-bottom: 12px; }
+    .s3-quiz-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 8px;
+    }
+    .s3-quiz-q { font-size: 11px; font-weight: 600; color: #0f172a; margin-bottom: 6px; }
+    .s3-quiz-opt { font-size: 10px; color: #64748b; padding: 2px 0; }
+    .s3-quiz-opt.correct { color: #00a876; font-weight: 600; }
+
+    /* ===== SCREEN 4: QUALITY DASHBOARD ===== */
+    .s4 { background: #f8fafc; min-height: 580px; padding: 24px; }
+    .s4-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+    .s4-title { font-size: 16px; font-weight: 700; color: #0f172a; }
+    .s4-publish-btn {
+      background: #00C896;
+      border: none;
+      color: #fff;
+      border-radius: 10px;
+      padding: 10px 20px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: 'Sora',sans-serif;
+      display: flex; align-items:center; gap:6px;
+    }
+    .s4-score-row { display: flex; gap: 16px; margin-bottom: 20px; align-items: flex-start; }
+    .s4-donut-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+    .donut-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; }
+    .donut-svg { position: relative; }
+    .donut-center {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .donut-pct { font-size: 26px; font-weight: 800; color: #00a876; font-family:'DM Mono',monospace; }
+    .donut-sub { font-size: 9px; color: #64748b; font-weight: 600; }
+    .s4-dim-grid { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .s4-dim-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 14px;
+    }
+    .s4-dim-label { font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+    .s4-dim-score { font-size: 20px; font-weight: 800; font-family:'DM Mono',monospace; margin-bottom: 8px; }
+    .s4-dim-score.great { color: #00a876; }
+    .s4-dim-score.ok { color: #d97706; }
+    .s4-track { height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden; }
+    .s4-fill { height: 100%; border-radius: 3px; }
+    .s4-fill.great { background: #00C896; }
+    .s4-fill.ok { background: #f59e0b; }
+    .s4-actions-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 20px;
+    }
+    .s4-act-title { font-size: 13px; font-weight: 700; color: #0f172a; margin-bottom: 14px; }
+    .s4-action-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .s4-action-item:last-child { border-bottom: none; }
+    .s4-act-icon {
+      width: 28px; height: 28px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+    .s4-act-icon.amber { background: #fffbeb; }
+    .s4-act-icon.blue { background: #eff6ff; }
+    .s4-act-text { font-size: 11.5px; color: #374151; line-height: 1.45; }
+    .s4-act-fix {
+      margin-left: auto;
+      background: transparent;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 10px;
+      font-weight: 700;
+      color: #64748b;
+      cursor: pointer;
+      font-family: 'Sora',sans-serif;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-logo">EG</div>
+  Easygenerator — EasyFlow · AI Authoring Co-pilot &nbsp;<span class="header-pipe">|</span>&nbsp; Interactive Prototype
+</div>
+
+<div class="wrap">
+  <!-- BROWSER -->
+  <div class="browser-wrap">
+    <div class="screen-label" id="screen-label">01 — TOPIC SETUP</div>
+    <div class="browser">
+      <div class="browser-chrome">
+        <div class="dot-row">
+          <div class="dot dot-r"></div>
+          <div class="dot dot-y"></div>
+          <div class="dot dot-g"></div>
+        </div>
+        <div class="addr-bar">app.easygenerator.com/create/new</div>
+      </div>
+      <div class="screen-content">
+
+        <!-- SCREEN 1: TOPIC INPUT -->
+        <div class="screen s1 active" id="s1">
+          <div class="eg-topbar">
+            <div class="eg-logo">easy<span>generator</span></div>
+            <div class="eg-nav">
+              <div class="eg-nav-item">My Courses</div>
+              <div class="eg-nav-item active">+ New Course</div>
+              <div class="eg-nav-item">Team Library</div>
+            </div>
+            <button class="eg-btn-ghost">Save Draft</button>
+          </div>
+          <div class="s1-body">
+            <div class="s1-hero">
+              <div class="s1-badge">✦ EasyFlow — AI Authoring Co-pilot</div>
+              <div class="s1-hero-title">What do you want to teach?</div>
+              <div class="s1-hero-sub">Describe your topic in plain language. EasyFlow will generate a full structured course draft — outline, content, and quiz — in under 30 seconds.</div>
+            </div>
+            <div class="s1-form-card">
+              <div class="s1-form-title">Course Details</div>
+              <div class="s1-field">
+                <span class="s1-label">Course Topic</span>
+                <input class="s1-input filled" type="text" value="GDPR Compliance for Customer Success Teams" readonly>
+              </div>
+              <div class="s1-field">
+                <span class="s1-label">Who is this course for?</span>
+                <div class="s1-audience">
+                  <div class="aud-chip">Beginners</div>
+                  <div class="aud-chip selected">Intermediate</div>
+                  <div class="aud-chip">Experts</div>
+                  <div class="aud-chip">Mixed</div>
+                </div>
+              </div>
+              <div class="s1-field">
+                <span class="s1-label">Estimated Duration</span>
+                <input class="s1-input filled" type="text" value="30 minutes" readonly>
+              </div>
+              <div class="s1-field">
+                <span class="s1-label">Learning Objectives (optional)</span>
+                <input class="s1-input" type="text" placeholder="e.g. Understand GDPR rights, Handle subject access requests..." readonly>
+              </div>
+              <div class="s1-actions">
+                <button class="eg-btn-ghost">Cancel</button>
+                <button class="ai-generate-btn" onclick="go(2)">
+                  <span class="ai-icon">✦</span> Generate Draft with AI
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SCREEN 2: AI DRAFT OUTLINE -->
+        <div class="screen s2" id="s2">
+          <div class="s2-layout">
+            <div class="s2-sidebar">
+              <div class="s2-sidebar-title">Course Outline</div>
+              <div class="s2-module">
+                <div class="s2-module-header active">
+                  <div class="s2-module-num active">1</div> GDPR Fundamentals
+                </div>
+                <div class="s2-section-item active">What is GDPR?</div>
+                <div class="s2-section-item">Key Definitions</div>
+                <div class="s2-section-item">Legal Bases</div>
+              </div>
+              <div class="s2-module">
+                <div class="s2-module-header">
+                  <div class="s2-module-num">2</div> Data Subject Rights
+                </div>
+                <div class="s2-section-item">Right to Access</div>
+                <div class="s2-section-item">Right to Erasure</div>
+                <div class="s2-section-item">Handling SARs</div>
+              </div>
+              <div class="s2-module">
+                <div class="s2-module-header">
+                  <div class="s2-module-num">3</div> CS Team Obligations
+                </div>
+                <div class="s2-section-item">Data Minimisation</div>
+                <div class="s2-section-item">Breach Reporting</div>
+              </div>
+              <div class="s2-module">
+                <div class="s2-module-header">
+                  <div class="s2-module-num">4</div> Final Assessment
+                </div>
+                <div class="s2-section-item">10-Question Quiz</div>
+              </div>
+            </div>
+            <div class="s2-main">
+              <div class="s2-toolbar">
+                <div class="s2-toolbar-title">Module 1 · What is GDPR?</div>
+                <button class="regen-btn">↺ Regenerate</button>
+                <button class="accept-btn">✓ Accept Section</button>
+              </div>
+              <div class="s2-content-area">
+                <div class="ai-generated-tag">✦ AI Generated · Review before accepting</div>
+                <div class="s2-section-title">What is GDPR?</div>
+                <div class="s2-content-block">
+                  <div class="block-label">Introduction</div>
+                  The General Data Protection Regulation (GDPR) is the EU's comprehensive data protection law, effective May 25, 2018. It governs how organisations collect, process, store, and share personal data of EU/EEA residents — regardless of where the organisation is located.
+                </div>
+                <div class="s2-content-block">
+                  <div class="block-label">Key Principles</div>
+                  GDPR is built on 7 principles: Lawfulness & Transparency · Purpose Limitation · Data Minimisation · Accuracy · Storage Limitation · Integrity & Confidentiality · Accountability. As a Customer Success team member, principles 1, 3, and 7 are most directly relevant to your daily work.
+                </div>
+                <div class="s2-quiz-block">
+                  <div class="block-label">📝 Knowledge Check</div>
+                  <div class="s2-quiz-q">Which of the following is NOT one of the 7 GDPR principles?</div>
+                  <div class="s2-quiz-opt">Data Minimisation</div>
+                  <div class="s2-quiz-opt correct">Unlimited Data Retention</div>
+                  <div class="s2-quiz-opt">Accountability</div>
+                  <div class="s2-quiz-opt">Accuracy</div>
+                </div>
+              </div>
+              <div class="s2-progress">
+                <div class="s2-prog-label">Outline Complete</div>
+                <div class="s2-prog-bar"><div class="s2-prog-fill"></div></div>
+                <div class="s2-prog-pct">45%</div>
+                <button class="accept-btn" onclick="go(3)" style="padding:6px 14px; font-size:11px;">Next →</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SCREEN 3: CONTENT EDITOR -->
+        <div class="screen s3" id="s3">
+          <div class="s3-layout">
+            <div class="s3-main">
+              <div class="s3-editor-bar">
+                <button class="fmt-btn active">B</button>
+                <button class="fmt-btn"><i>I</i></button>
+                <button class="fmt-btn">H1</button>
+                <button class="fmt-btn">H2</button>
+                <button class="fmt-btn">• List</button>
+                <button class="fmt-btn">🔗</button>
+                <button class="ai-assist-btn">✦ AI Assist</button>
+              </div>
+              <div class="s3-editor">
+                <div class="s3-h2">Key Definitions Under GDPR</div>
+                <div class="s3-para">Understanding GDPR starts with its vocabulary. Three terms will come up in nearly every customer interaction: <strong>personal data</strong>, <strong>data subject</strong>, and <strong>data controller</strong>.</div>
+                <div class="s3-para"><strong>Personal data</strong> is any information that can identify a living individual — directly (name, email) or indirectly (IP address, cookie ID, combination of attributes).</div>
+
+                <div class="ai-suggestion">
+                  <div class="ai-suggestion-text">Consider adding a real-world example here: "For CS teams, this includes customer email addresses, support ticket history, and even call recordings stored in your CRM." This grounds the definition in your audience's daily context.</div>
+                  <div class="ai-suggestion-actions">
+                    <button class="ai-sug-btn ai-sug-accept">✓ Insert</button>
+                    <button class="ai-sug-btn ai-sug-skip">Skip</button>
+                  </div>
+                </div>
+
+                <div class="s3-para">A <strong>data subject</strong> is the identifiable person the data belongs to — in your context, almost always a customer or end user. A <strong>data controller</strong> is your company, which determines the purpose and means of processing that personal data.</div>
+
+                <div class="ai-suggestion">
+                  <div class="ai-suggestion-text">The term "data processor" is missing here — third-party tools like Salesforce or Zendesk that process data on your behalf. Adding this prevents a common misconception among CS teams.</div>
+                  <div class="ai-suggestion-actions">
+                    <button class="ai-sug-btn ai-sug-accept">✓ Insert</button>
+                    <button class="ai-sug-btn ai-sug-skip">Skip</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="s3-sidebar">
+              <div class="s3-side-title">Section Quizzes</div>
+              <div class="s3-quiz-card">
+                <div class="s3-quiz-q">Which of these is personal data under GDPR?</div>
+                <div class="s3-quiz-opt correct">✓ IP address</div>
+                <div class="s3-quiz-opt">Company revenue</div>
+              </div>
+              <div class="s3-quiz-card">
+                <div class="s3-quiz-q">Who is the data controller?</div>
+                <div class="s3-quiz-opt">Zendesk</div>
+                <div class="s3-quiz-opt correct">✓ Your company</div>
+              </div>
+              <button class="accept-btn" onclick="go(4)" style="width:100%; margin-top:12px; padding:10px; justify-content:center; font-size:12px;">
+                View Quality Score →
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- SCREEN 4: QUALITY SCORE DASHBOARD -->
+        <div class="screen s4" id="s4">
+          <div class="s4-header">
+            <div>
+              <div class="ai-generated-tag" style="margin-bottom:6px;">✦ AI Quality Analysis</div>
+              <div class="s4-title">GDPR Compliance for Customer Success Teams</div>
+            </div>
+            <button class="s4-publish-btn">🚀 Publish Course</button>
+          </div>
+          <div class="s4-score-row">
+            <div class="s4-donut-card">
+              <div class="donut-label">Overall Quality</div>
+              <div class="donut-svg" style="position:relative; width:100px; height:100px;">
+                <svg width="100" height="100" viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="40" fill="none" stroke="#e2e8f0" stroke-width="10"/>
+                  <circle cx="50" cy="50" r="40" fill="none" stroke="#00C896" stroke-width="10"
+                    stroke-dasharray="213" stroke-dashoffset="43" stroke-linecap="round"
+                    transform="rotate(-90 50 50)"/>
+                </svg>
+                <div class="donut-center">
+                  <div class="donut-pct">80</div>
+                  <div class="donut-sub">/ 100</div>
+                </div>
+              </div>
+              <div style="font-size:11px; font-weight:700; color:#00a876; text-align:center;">Good Quality</div>
+            </div>
+            <div class="s4-dim-grid">
+              <div class="s4-dim-card">
+                <div class="s4-dim-label">Completeness</div>
+                <div class="s4-dim-score great">92%</div>
+                <div class="s4-track"><div class="s4-fill great" style="width:92%"></div></div>
+              </div>
+              <div class="s4-dim-card">
+                <div class="s4-dim-label">Readability</div>
+                <div class="s4-dim-score great">88%</div>
+                <div class="s4-track"><div class="s4-fill great" style="width:88%"></div></div>
+              </div>
+              <div class="s4-dim-card">
+                <div class="s4-dim-label">Quiz Coverage</div>
+                <div class="s4-dim-score ok">64%</div>
+                <div class="s4-track"><div class="s4-fill ok" style="width:64%"></div></div>
+              </div>
+              <div class="s4-dim-card">
+                <div class="s4-dim-label">Audience Fit</div>
+                <div class="s4-dim-score great">85%</div>
+                <div class="s4-track"><div class="s4-fill great" style="width:85%"></div></div>
+              </div>
+            </div>
+          </div>
+          <div class="s4-actions-card">
+            <div class="s4-act-title">⚡ Recommended Improvements</div>
+            <div class="s4-action-item">
+              <div class="s4-act-icon amber">📝</div>
+              <div class="s4-act-text">Quiz coverage is low for Module 2 (Data Subject Rights). Add 2–3 more questions to reach recommended 1 question per 5 minutes of content.</div>
+              <button class="s4-act-fix">Auto-Fix</button>
+            </div>
+            <div class="s4-action-item">
+              <div class="s4-act-icon blue">📖</div>
+              <div class="s4-act-text">Section 3.2 readability score is 6th-grade equivalent. Consider simplifying legal terminology for intermediate learners.</div>
+              <button class="s4-act-fix">Simplify</button>
+            </div>
+            <div class="s4-action-item">
+              <div class="s4-act-icon amber">🖼</div>
+              <div class="s4-act-text">No visual assets detected. Adding a process diagram for "SAR Handling Workflow" could increase engagement by 34% (Easygenerator benchmark).</div>
+              <button class="s4-act-fix">Add Visual</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div class="nav-dots">
+      <div class="ndot active" id="n1" onclick="go(1)"></div>
+      <div class="ndot" id="n2" onclick="go(2)"></div>
+      <div class="ndot" id="n3" onclick="go(3)"></div>
+      <div class="ndot" id="n4" onclick="go(4)"></div>
+    </div>
+  </div>
+
+  <!-- ANNOTATION PANEL -->
+  <div class="anno-panel" id="anno-cards"></div>
+</div>
+
+<script>
+const LABELS = {
+  1: '01 — TOPIC SETUP',
+  2: '02 — AI DRAFT OUTLINE',
+  3: '03 — CONTENT EDITOR',
+  4: '04 — QUALITY DASHBOARD'
+};
+
+const ANNO = {
+  1: [
+    { n:'INSIGHT 01', t:'Blank Page = #1 Activation Killer', b:'80% of SME authors abandon course creation before publishing. The friction is not motivation — it\'s knowing how to structure knowledge into a learning format.', metric:{v:'80%', l:'SME Draft Abandonment'} },
+    { n:'INSIGHT 02', t:'Plain Language Input → Structured Output', b:'EasyFlow accepts how people actually think — a topic description — and converts it to ADDIE-compliant course structure with learning objectives, sections, and quiz questions.'},
+    { n:'PM RATIONALE', t:'Discovery Finding → Feature Bet', b:'This screen is the PM bet: reducing input friction by removing the blank page. The more natural the input, the higher the activation rate. Same principle as PhonePe\'s self-serve offer setup — remove expert dependency.' }
+  ],
+  2: [
+    { n:'INSIGHT 01', t:'Regenerate Per Section = Trust Control', b:'The key UX insight: authors don\'t trust AI at the document level, but they will trust it at the paragraph level. Per-section regenerate gives control without killing efficiency.', metric:{v:'45%', l:'Outline Complete'} },
+    { n:'INSIGHT 02', t:'Outline First, Content Second', b:'The two-step pattern (outline → accept → generate content) mirrors how expert instructional designers actually work. AI adopts professional workflow, not replaces it. This raises trust and adoption.'},
+    { n:'PM RATIONALE', t:'Scope Trade-off: Accept Before Edit', b:'A core product decision: show outline for approval before generating full content. This saves compute cost and ensures the SME stays in the driver\'s seat — critical for enterprise trust and legal sign-off.' }
+  ],
+  3: [
+    { n:'INSIGHT 01', t:'Inline AI Suggestions = Ambient Co-authoring', b:'Rather than a separate AI panel, suggestions appear in context — at the exact point in the text where they\'re relevant. Reduces cognitive switching, increases suggestion acceptance rate by ~40% vs sidebar AI.', metric:{v:'~40%', l:'Suggestion Accept Rate ↑'} },
+    { n:'INSIGHT 02', t:'Quizzes as First-Class Content', b:'The sidebar quiz panel treats quizzes as integral content, not an afterthought. SME edits text and sees how it maps to knowledge check questions in real time. Drives better quiz coverage before publishing.'},
+    { n:'DESIGN DECISION', t:'Why Not Generative Fill?', b:'Generative fill (click → replace) was considered but rejected. Authors need to read and approve AI additions — especially in compliance topics. Inline suggestion with explicit "Insert" prevents unreviewed AI content going live.' }
+  ],
+  4: [
+    { n:'INSIGHT 01', t:'Quality Score Removes Publish Anxiety', b:'L&D managers hesitate to publish AI-generated content because they don\'t know what they\'re missing. The 4-dimension score gives them an objective signal — and a clear to-do list before publishing.', metric:{v:'80/100', l:'Quality Score'} },
+    { n:'INSIGHT 02', t:'Auto-Fix = One-Click Quality Loop', b:'"Auto-Fix" buttons close the feedback loop instantly. Rather than navigating back to edit, the L&D manager applies improvements from the dashboard. Reduces time-to-publish by eliminating context switching.'},
+    { n:'PM RATIONALE', t:'Trust Layer for Enterprise Adoption', b:'For Kellogg\'s, T-Mobile, Siemens: AI-generated content needs institutional sign-off. The Quality Score is the mechanism. It\'s not about scoring — it\'s about creating an auditable quality gate that legal and compliance teams can point to.' }
+  ]
+};
+
+function go(n) {
+  [1,2,3,4].forEach(i => {
+    document.getElementById('s'+i).classList.remove('active');
+    document.getElementById('n'+i).classList.remove('active');
+  });
+  document.getElementById('s'+n).classList.add('active');
+  document.getElementById('n'+n).classList.add('active');
+  document.getElementById('screen-label').textContent = LABELS[n];
+  renderAnno(n);
+}
+
+function renderAnno(n) {
+  const cards = ANNO[n];
+  document.getElementById('anno-cards').innerHTML = cards.map(c => `
+    <div class="anno-card">
+      <div class="anno-num">${c.n}</div>
+      <div class="anno-title">${c.t}</div>
+      <div class="anno-body">${c.b}</div>
+      ${c.metric ? `<div class="anno-metric"><span class="anno-metric-val">${c.metric.v}</span><span class="anno-metric-lbl">${c.metric.l}</span></div>` : ''}
+    </div>
+  `).join('');
+}
+renderAnno(1);
+</script>
+</body>
+</html>

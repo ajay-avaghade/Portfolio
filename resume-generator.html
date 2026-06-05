@@ -713,8 +713,9 @@ Product: 0→1 Launches, Growth Strategy, Monetisation, Marketplace Design, ML P
 Data & Tools: SQL, Mixpanel, Amplitude, CleverTap, Metabase, Tableau, Figma, Jira, Vibe-coded Prototyping (HTML/CSS/JS)
 
 PROJECTS:
-- Antigravity Resume Agent — Gemini-powered multi-agent pipeline (6 parallel agents: scraping, synthesis, layout, ATS scoring, outreach) auto-generating >90 ATS-scored resumes from a JD URL
 - AI Mock PM Interviewer — Conversational AI for PM interview practice with structured scoring and real-time coaching; built on intent-classification and response-evaluation layer
+- Job Apply AI — Chrome extension auto-filling job applications on LinkedIn, Workday, Lever, Greenhouse; AI-generated outreach emails
+- Antigravity Resume Agent — Gemini-powered multi-agent pipeline (6 parallel agents: scraping, synthesis, layout, ATS scoring, outreach) auto-generating >90 ATS-scored resumes from a JD URL
 
 AWARDS:
 - ITC Interrobang — National Finalist, Top 15 teams, ITC's premier pan-India strategy competition
@@ -744,6 +745,15 @@ SKILLS SECTION: Tailor "Product & Domain" line keywords to match JD ATS terms. K
 ${isUAE ? 'RELOCATION: Include this exact div after .contact: ' + relocationNote : 'LOCATION: This is an India job. Do NOT include any relocation or visa note.'}
 
 SINGLE PAGE RULE: The resume MUST fit on one page when printed. Keep bullet descriptions tight. No bullet should orphan (end with a single word on a new line).
+
+PROJECTS SECTION INSTRUCTIONS:
+- Do NOT include all 3 side projects every time. Depending on the remaining vertical space on the page (the resume must be exactly one page and completely filled to >85% of the page), choose how many side projects to include.
+- The sequence of picking projects MUST be: (1) AI Mock PM Interviewer, (2) Job Apply AI, and (3) Antigravity Resume Agent.
+- Make the selected projects hyperlinked using standard HTML anchor tags (<a href="..." target="_blank">Name</a>):
+  - AI Mock PM Interviewer -> https://github.com/ajay-avaghade/AI-Mock-PM-Interviewer
+  - Job Apply AI -> https://github.com/ajay-avaghade/Job-Apply-AI
+  - Antigravity Resume Agent -> https://github.com/ajay-avaghade/Portfolio
+- If there is additional space, also include 1-2 most relevant portfolio case studies (excluding the current company's).
 
 ${caseStudyInstructions}
 

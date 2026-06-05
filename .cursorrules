@@ -1,0 +1,711 @@
+# AGENT_RULES — Portfolio Job Application Engine (.cursorrules)
+
+> **Purpose**: Self-contained rules file for any AI agent to execute the `/apply` workflow for a new JD.
+> No need to re-read every prototype or deck — this file contains the best samples, templates, and all learned rules.
+> Read this file ONCE, then execute.
+
+---
+
+## 1 · IDENTITY — WHO IS AJAY (Source of Truth)
+
+**Never fabricate metrics or experiences not listed here.**
+
+**Ajay Avaghade**
+- Location: Bangalore, India
+- Phone: +91 9561558439
+- Email: avaghadeajay009@gmail.com
+- LinkedIn: linkedin.com/in/ajay-avaghade
+- Portfolio: https://ajay-avaghade.github.io/Portfolio/
+- Relocation: Planning active relocation to Dubai, UAE in Q3 2026. Requires visa sponsorship.
+  - **UAE jobs only**: Include relocation line.
+  - **India jobs**: Omit entirely.
+  - **Other countries**: Custom relocation line (e.g., "Actively relocating to the Netherlands · Q2 2026 · Visa Sponsorship Required").
+
+### 1.1 Experience (Exact Metrics — Do NOT Invent)
+
+**Product Manager — PhonePe · Consumer Offers & Growth Platform (May 2023 – Present)**
+- Redesigned end-to-end offers placement, eligibility surfacing, and redemption UX → **22% checkout conversion lift**
+- Led deployment of Propensity-to-Transact ML models → **32% marketing burn reduction**, sustained GMV growth
+- Pincode (quick commerce): Built dynamic cart incentivization engine → **35% AOV uplift, 60% cart abandonment reduction, 20% improvement in 30-day retention**
+
+**Associate Product Manager — PhonePe · Third-Party Rewards & Merchant Growth (Apr 2022 – Apr 2023)**
+- Rebuilt ₹100 Cr/yr rewards into ML-driven marketplace → **500+ brand partners, 11% YoY revenue growth, 26% user engagement increase**
+- Built self-serve PG integration with Instant Discount & EMI subvention → **5,000+ B2B merchants acquired, 23% lower CAC, 5Mn+ new users/month**
+- Redesigned offer operations workflow → **30-min offer ops TAT** (down from 2 days)
+- ⚠️ **Critical accuracy note**: The 5K merchant acquisition was driven by Instant Discount + EMI subvention capabilities — NOT by KYC automation. The 30-min TAT applies to offer operations, not merchant onboarding.
+
+**Product Manager — Founding Team (Intern) — Kotak Mahindra Bank (Apr 2021 – Jun 2021)**
+- Founding team for Kotak Cherry (WealthTech app), zero-to-launch → **100K+ downloads in launch window**
+
+### 1.2 Education
+- **MBA** — IIM Indore (2020–2022)
+- **Exchange** — NEOMA Business School, France (2021)
+- **B.Tech, CS&E** — VNIT Nagpur (2016–2020)
+
+### 1.3 Side Projects (Dynamic selection based on page space; Priority: Mock Interviewer -> Chrome extension -> Resume maker)
+- [AI Mock PM Interviewer](https://huggingface.co/spaces/ajay-avaghade/AI-Mock-Product-Manager-Interviewer) — Conversational AI for PM interview practice with structured scoring and real-time coaching
+- [Job Apply AI](https://chromewebstore.google.com/detail/antigravity-apply/accbghdhdmdigaohfaggdcnjlifdclbc) — Chrome extension auto-filling job applications on LinkedIn, Workday, Lever, Greenhouse with AI-generated outreach
+- [Antigravity Resume Agent](https://ajay-avaghade.github.io/Antigravity-Resume-Agent/index.html) — Multi-agent AI pipeline (Gemini) that auto-generates >90 ATS-scored resumes from a JD URL; 6 specialised agents in parallel
+
+### 1.4 Awards (Always Include All Three)
+- ITC Interrobang — National Finalist (Top 15 teams)
+- Asian Paints Canvas — 1st place, pan-India brand strategy & product innovation challenge
+- Education Minister Award — State-level academic excellence, Government of Maharashtra
+
+---
+
+## 2 · REPO ARCHITECTURE
+
+```
+Portfolio/
+├── index.html                          # Main portfolio page (~1843 lines)
+├── styles.css                          # Glassmorphism design system (~1377 lines)
+├── script.js                           # Scroll animations, typewriter, promo code
+├── [company]-[feature]-prototype.html  # ~60+ standalone prototype files
+├── assets/
+│   ├── build-[company]-[feature]-deck.js  # PptxGenJS build scripts
+│   └── [company]-[feature]-deck.pptx      # Generated CEO decks
+├── .claude/commands/apply.md           # Self-evolving workflow skill
+├── CLAUDE.md                           # Claude Code rules
+├── .clinerules                         # Roo-Code/Cline agent rules
+├── .cursorrules                        # Cursor agent rules (this file)
+├── package.json                        # http-server + pptxgenjs
+└── vercel.json                         # Static hosting config
+```
+
+**No build step.** Plain HTML/CSS/JS. Serve with `npm start` (port 3000).
+
+### 2.1 Design System Tokens (styles.css)
+- Font: Inter (body), Outfit (headings) — Google Fonts
+- Accent: `#7c3aed` (purple), Glow: `rgba(124,58,237,0.3)`
+- Background: `#0f0f1a`, Surface: `rgba(255,255,255,0.03)`
+- Text: `#f8f8ff` (primary), `#8b92a5` (muted)
+- Border: `rgba(255,255,255,0.08)`
+- Glass panel: `background rgba(255,255,255,0.04)`, `border 1px solid rgba(255,255,255,0.08)`, `backdrop-filter blur(12px)`
+
+---
+
+## 3 · WORKFLOW — 6 PHASES (Never Skip Any)
+
+```
+Phase 1 → Parse JD → Brainstorm 3–5 case studies → Get Ajay's input → Confirm brief
+Phase 2 → Build HTML prototype (4 screens) → QA checklist
+Phase 3 → Build PptxGenJS CEO deck (8 slides) → Text extraction QA
+Phase 4 → Add portfolio block to index.html → git push → Update case studies table
+Phase 5 → Generate HTML resume → Self-check → Generate PDF via Chrome Headless
+Phase 6 → Write LinkedIn note (≤300 chars) + email in .txt format → QA
+```
+
+**Rule: Always confirm the case study direction (Phase 1.4 brief) before building anything.**
+
+---
+
+## 4 · PROTOTYPE TEMPLATE (Phase 2)
+
+### 4.1 File Convention
+`/Users/ajayavaghade/Portfolio/[company-slug]-[feature]-prototype.html`
+
+All prototypes are fully self-contained — single HTML file, no external JS (except Google Fonts).
+
+### 4.2 Best Reference Sample
+**`adyen-smartcheckout-prototype.html`** — has both phone + browser frames, full tab-switching navigation, annotation panel, confetti.
+
+### 4.3 Two Frame Types
+
+| Type | Width | Use When |
+|------|-------|----------|
+| Phone Frame | 375px, border-radius 46px | Consumer-facing features (app screens) |
+| Browser Frame | 640px, browser chrome | Dashboards, ops tools, admin panels |
+
+### 4.4 Skeleton Template
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>[Company] — [Feature] · Interactive Prototype</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --c-dark: #[PRIMARY_DARK];
+      --c-hero: #[SLIGHTLY_LIGHTER];
+      --c-bright: #[ACCENT];
+      --c-accent: #[SECONDARY_ACCENT];
+      --orange: #[HIGHLIGHT];
+      --ink: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --gray: #f1f5f9;
+    }
+    /* ... all CSS inline ... */
+  </style>
+</head>
+<body>
+  <div class="header">[Company] — [Feature] · Interactive Prototype</div>
+  <div class="wrap">
+    <!-- Prototype frame + annotation panel -->
+  </div>
+  <script>
+    // Navigation + Annotations + Confetti
+  </script>
+</body>
+</html>
+```
+
+### 4.5 Navigation Pattern (Tab-Switched)
+
+```js
+const LABELS = {
+  1: '01 — DISCOVERY',
+  2: '02 — FEATURE DETAIL',
+  3: '03 — SUCCESS',
+  4: '04 — OPS / ADMIN'
+};
+
+const ANNO = {
+  1: [
+    { n: 'INSIGHT 01', t: 'Title Here', b: 'Body explanation.', metric: { v: '+22%', l: 'Conversion Lift' } },
+    { n: 'INSIGHT 02', t: 'Title Here', b: 'Body explanation.', metric: { v: '3.1x', l: 'Engagement' } },
+    { n: 'PM RATIONALE', t: 'Why This Matters', b: 'Strategic reasoning.' }
+  ],
+  // ... repeat for screens 2–4
+};
+
+function go(n) {
+  [1,2,3,4].forEach(i => {
+    document.getElementById('s'+i).classList.remove('active');
+    document.getElementById('d'+i).classList.remove('active');
+    document.getElementById('n'+i).classList.remove('active');
+  });
+  document.getElementById('s'+n).classList.add('active');
+  document.getElementById('d'+n).classList.add('active');
+  document.getElementById('n'+n).classList.add('active');
+  document.getElementById('screen-label').textContent = LABELS[n];
+  renderAnno(n);
+}
+
+function renderAnno(n) {
+  const cards = ANNO[n];
+  document.getElementById('anno-cards').innerHTML = cards.map(c => `
+    <div class="anno-card">
+      <div class="anno-num">${c.n}</div>
+      <div class="anno-title">${c.t}</div>
+      <div class="anno-body">${c.b}</div>
+      ${c.metric ? `<div class="anno-metric"><span class="anno-metric-val">${c.metric.v}</span><span class="anno-metric-lbl">${c.metric.l}</span></div>` : ''}
+    </div>
+  `).join('');
+}
+renderAnno(1); // init
+```
+
+### 4.6 Mandatory 4 Screens
+
+| # | Screen | Purpose |
+|---|--------|---------|
+| 1 | Home / Discovery | Main app surface with the feature surfaced (banner, card, feed) |
+| 2 | Feature Detail / Tracker | Core mechanics — progress bars, goals, timers, product detail |
+| 3 | Success / Completion | Reward moment — confetti, benefit displayed, next-step CTA |
+| 4 | Ops / Admin / Nudge | Backstage — how ops team manages/nudges the user |
+
+### 4.7 Phone Anatomy
+- Status bar: time left, signal right
+- Screen container: `overflow-y: auto; max-height: 724px; scrollbar-width: none`
+- Notch: 118px × 28px, dark, border-radius `0 0 16px 16px`
+- Camera circle: `.nc` class
+- Sensor dot: `.ndot` class (or `.ndot-n`)
+- ⚠️ **NEVER use `.ns` as a classname** — it collides with the notch sensor dot (known bug)
+
+### 4.8 Confetti (Screen 3 Standard)
+
+```js
+const c = document.getElementById('conf');
+const cols = ['#4ADE80','#F97316','#60A5FA','#FBBF24','#F472B6','#A78BFA','#34D399'];
+for(let i=0;i<32;i++){
+  const p = document.createElement('div');
+  p.className='cp';
+  const size = 4+Math.random()*7;
+  p.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*120-10}%;width:${size}px;height:${size}px;background:${cols[Math.floor(Math.random()*cols.length)]};border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${1.4+Math.random()*1.8}s;animation-delay:${Math.random()*2.4}s;`;
+  c.appendChild(p);
+}
+```
+
+### 4.9 Progress Bar Component
+
+```html
+<div class="track"><div class="fill" style="width:[N]%"><span class="fill-badge">[N]%</span></div></div>
+```
+```css
+.track { height:8px; background:#e2e8f0; border-radius:99px; overflow:visible; position:relative; }
+.fill { height:100%; border-radius:99px; background:var(--c-bright); position:relative; transition:.6s ease; }
+.fill-badge { position:absolute; right:-2px; top:-9px; background:var(--c-bright); color:#fff; font-size:9px; font-weight:700; padding:2px 5px; border-radius:6px; }
+```
+
+### 4.10 Annotation Panel
+- Fixed width: 300px, positioned to the right of the prototype frame
+- 3 cards per screen: `INSIGHT 01`, `INSIGHT 02`, `PM RATIONALE` (or `DESIGN DECISION`)
+- Each card has: tag label → title → body → optional metric callout
+- Metric callout: large value + small label
+
+### 4.11 Prototype QA Checklist
+
+- [ ] All 4 screens render without overlap
+- [ ] No class name collisions (especially `.ns`)
+- [ ] Scrollable content doesn't overflow the phone chrome
+- [ ] Fonts load (Sora + DM Mono)
+- [ ] Confetti animates on Screen 3
+- [ ] Progress bars show fill-badge correctly
+- [ ] Touch targets ≥ 44px
+- [ ] Company colors consistent across all 4 screens
+- [ ] Annotation panel renders 3 cards per screen
+
+---
+
+## 5 · CEO DECK TEMPLATE (Phase 3)
+
+### 5.1 File Convention
+- Build script: `assets/build-[company-slug]-[feature]-deck.js`
+- Output: `assets/[company-slug]-[feature]-deck.pptx`
+- Run: `node assets/build-[company-slug]-[feature]-deck.js`
+
+### 5.2 Best Reference Sample
+**`assets/build-adyen-smartcheckout-deck.js`** — cleanest structure, covers all 8 slides with consistent patterns.
+
+### 5.3 Boilerplate
+
+```js
+const PptxGenJS = require('pptxgenjs');
+const prs = new PptxGenJS();
+prs.layout = 'LAYOUT_16x9'; // 10" × 7.5"
+
+const C = {
+  dark:   '[HEX_NO_HASH]',   // e.g. '0D1F12'
+  hero:   '[SLIGHTLY_LIGHTER]',
+  bright: '[ACCENT]',
+  orange: '[HIGHLIGHT]',
+  white:  'FFFFFF',
+  lgray:  'F1F5F9',
+  muted:  '94A3B8',
+};
+
+// ⚠️ MUST be a factory function — never reuse the same shadow object
+const makeShadow = () => ({
+  type: 'outer', color: '000000', blur: 3, offset: 1, angle: 45, opacity: 0.12
+});
+```
+
+### 5.4 Mandatory 8-Slide Structure
+
+| # | Name | Background | Key Elements |
+|---|------|-----------|-------------|
+| 1 | **Cover** | Dark | Product name (28-30pt), subtitle, "By Ajay Avaghade", company tag, big stat bottom-right |
+| 2 | **The Problem** | Dark | "THE PROBLEM" eyebrow (9pt, ALL CAPS), H1 with stat, 3 stat columns, insight box |
+| 3 | **The Insight** | Light | "THE INSIGHT" eyebrow, H1, 2-column comparison (❌ current vs ✅ proposed), VS oval |
+| 4 | **The Mechanic** | Dark | "THE MECHANIC" eyebrow, H1, 5-step numbered timeline, connecting dashed line |
+| 5 | **The Product** | Light | "THE PRODUCT" eyebrow, H1, 2×2 card grid (one per screen) |
+| 6 | **Impact & ROI** | Dark | "IMPACT & ROI" eyebrow, 2×4 metric grid |
+| 7 | **Proof of Work** | Split | Left (dark): PhonePe proof. Right (light): JD mapping. Quote box. |
+| 8 | **Rollout Plan** | Dark | 3 phase cards, "What I Need" ask box, contact footer |
+
+### 5.5 Typography Rules
+
+| Element | Size | Style |
+|---------|------|-------|
+| Eyebrow (slide title) | 9–10pt | ALL CAPS, 0.08em letterSpacing, muted |
+| H1 (main heading) | 26–30pt | Bold, high contrast |
+| Body / metric labels | 13–14pt | Regular |
+| Big stat numbers | 36–44pt | Bold, accent color |
+| Footer / captions | 9–10pt | Muted |
+
+### 5.6 Design Rules
+
+- ❌ NEVER use underline accent lines under titles (AI cliché)
+- ✅ Use background color blocks or whitespace to separate
+- Every slide must have ≥ 1 visual element (shape, colored block, icon character)
+- Alternate dark/light (sandwich): Dark → Dark → Light → Dark → Light → Dark → Light → Dark
+- No `#` prefix on hex colors in PptxGenJS
+- Apostrophes inside single-quoted JS strings cause `SyntaxError` — always rephrase or escape
+
+### 5.7 Deck QA
+
+```bash
+python3 -c "
+from pptx import Presentation
+prs = Presentation('assets/[company]-[feature]-deck.pptx')
+for i, slide in enumerate(prs.slides, 1):
+    print(f'--- SLIDE {i} ---')
+    for shape in slide.shapes:
+        if shape.has_text_frame:
+            for para in shape.text_frame.paragraphs:
+                t = para.text.strip()
+                if t: print(t)
+"
+```
+Check: missing slides, placeholder text (XXX, TODO, lorem), must be exactly 8 slides.
+
+---
+
+## 6 · PORTFOLIO INTEGRATION (Phase 4)
+
+### 6.1 Company Block Template (index.html)
+
+Insert before `<!-- More coming -->` comment (~line 1843).
+
+```html
+<div class="rw-company-block animate-on-scroll" id="rw-[company-slug]" style="margin-top: 64px;">
+  <div class="rw-company-header">
+    <div class="rw-company-logo-wrap" style="background: [gradient]; border: 2px solid [accent]33;">
+      <span class="rw-company-logo-text" style="color: [accent]; font-weight: 800;">[LOGO_TEXT]</span>
+    </div>
+    <div>
+      <h3 class="rw-company-name">[Company Full Name]</h3>
+      <p class="rw-company-desc">[1-2 sentence context + what problem you solved]</p>
+    </div>
+  </div>
+  <div class="rw-case-grid">
+    <div class="rw-case-card glass-panel animate-on-scroll" style="border-top: 3px solid [accent];">
+      <div class="rw-problem-tag" style="background: [dark]; color: [accent]; border: 1px solid [accent]44;">[Domain Tag]</div>
+      <h3 class="rw-case-title">[Case Study Title]</h3>
+      <p class="rw-case-problem">[Problem — 2-3 sentences, specific, data-led]</p>
+      <div class="rw-metrics-row">
+        <div class="rw-metric"><span class="rw-val" style="color:[accent];">[Metric1]</span><span class="rw-lbl">[Label1]</span></div>
+        <div class="rw-metric"><span class="rw-val" style="color:[accent];">[Metric2]</span><span class="rw-lbl">[Label2]</span></div>
+        <div class="rw-metric"><span class="rw-val" style="color:[accent];">[Metric3]</span><span class="rw-lbl">[Label3]</span></div>
+      </div>
+      <div class="rw-case-actions">
+        <a href="[company]-[feature]-prototype.html" target="_blank" class="btn btn-primary rw-btn" style="background:[accent]; box-shadow:0 4px 14px [accent-glow];">
+          <i data-lucide="smartphone"></i> Live Prototype
+        </a>
+        <a href="assets/[company]-[feature]-deck.pptx" download class="btn btn-outline rw-btn" style="border-color:[accent]; color:[accent];">
+          <i data-lucide="download"></i> CEO Pitch Deck
+        </a>
+      </div>
+    </div>
+    <!-- Add more case cards if dual/triple case study -->
+  </div>
+</div>
+```
+
+**Button classes**: ALWAYS use `btn btn-primary rw-btn` and `btn btn-outline rw-btn` — never invent new classes.
+
+### 6.2 Deep Link
+URL format: `https://ajay-avaghade.github.io/Portfolio/#real-world/[company-slug]`
+Hash router already exists in index.html — just ensure `id="rw-[company-slug]"` is on the block.
+
+### 6.3 Git Workflow
+```bash
+git add index.html [company]-[feature]-prototype.html assets/[company]-[feature]-deck.pptx assets/build-[company]-[feature]-deck.js
+git commit -m "Add [Company] [Feature] case study — prototype + CEO deck"
+git push origin main
+```
+⚠️ Never `git add -A` blindly.
+
+---
+
+## 7 · RESUME TEMPLATE (Phase 5)
+
+### 7.1 Output Path
+`/Users/ajayavaghade/Job Apply AI/Ajay_Avaghade_Resume_[Company].html`
+
+### 7.2 Core Rules
+
+| Rule | Detail |
+|------|--------|
+| **One page** | STRICT. Must fit A4/Letter. Must also be >85% filled. |
+| **Font** | Inter, 8.4pt body, never below 8.2pt |
+| **Margins** | `@page { margin:.22in .28in; size:letter; }` — proven tight-but-safe |
+| **Text justify** | `text-align:justify; text-align-last:left` on ALL text — kills orphan stretching |
+| **Title** | Mirrors JD language exactly (e.g., JD says "Senior PM, Growth" → "Product Manager — Growth & Monetization") |
+| **STAR bullets** | Every bullet: Situation (15 words) → Action (20 words) → Result (metric, 10 words) |
+| **Bold metrics** | Must appear MID-sentence, never trailing |
+| **Last line rule** | Every bullet's last line must have ≥ 6 words |
+| **Case study separation** | Experience bullets NEVER reference the case study built for this application |
+| **Summary ending** | Name + ≤5-word description of case study. No metrics, no mechanics. |
+
+### 7.3 Section Order (Mandatory)
+
+1. **Name** (large, centered, bold)
+2. **Role title** (centered, italic, adapted to JD)
+3. **Contact line** (city, phone, email, LinkedIn, Portfolio)
+4. **Relocation line** (UAE only; custom for other countries; omit for India)
+5. **PROFESSIONAL SUMMARY** — 3–4 sentences, opens with category + years, mentions company domain, ends with case study signal
+6. **EXPERIENCE** — Reverse chronological, STAR bullets, 2–3 per role
+7. **EDUCATION** — IIM, NEOMA, VNIT
+8. **SKILLS** — Two rows: "Product & Strategy" and "Data & AI Tools"
+9. **CASE STUDIES** — The case study just built. Format: `• [Title] — [1-sentence what was solved]. [prototype] [deck]`
+10. **PROJECTS & SIDE BUILDS** — Do NOT include all 3 side projects by default. Depending on the remaining vertical space (to keep the resume strictly to one page and >85% filled), pick 1, 2, or all 3 projects in this sequence: (1) AI Mock PM Interviewer, (2) Job Apply AI, and (3) Antigravity Resume Agent. Make them hyperlinked using HTML anchor tags pointing to their URLs: AI Mock PM Interviewer (https://huggingface.co/spaces/ajay-avaghade/AI-Mock-Product-Manager-Interviewer), Job Apply AI (https://chromewebstore.google.com/detail/antigravity-apply/accbghdhdmdigaohfaggdcnjlifdclbc), Antigravity Resume Agent (https://ajay-avaghade.github.io/Antigravity-Resume-Agent/index.html). Additionally, include 1-2 most relevant portfolio case studies (excluding the current company's).
+    Format each project as a bullet with an anchor tag:
+    - `• <a href="https://huggingface.co/spaces/ajay-avaghade/AI-Mock-Product-Manager-Interviewer" target="_blank">AI Mock PM Interviewer</a> — Conversational AI for structured PM interview practice with real-time coaching feedback.`
+    - `• <a href="https://chromewebstore.google.com/detail/antigravity-apply/accbghdhdmdigaohfaggdcnjlifdclbc" target="_blank">Job Apply AI</a> — Chrome extension auto-filling job applications on LinkedIn, Workday, Lever, Greenhouse; AI-generated outreach emails.`
+    - `• <a href="https://ajay-avaghade.github.io/Antigravity-Resume-Agent/index.html" target="_blank">Antigravity Resume Agent</a> — Gemini-powered multi-agent pipeline (6 parallel agents) auto-generating >90 ATS-scored resumes from a JD URL.`
+11. **AWARDS & RECOGNITION** — All 3 awards
+
+### 7.4 CSS Baseline (Proven Working)
+
+```css
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Inter',Arial,sans-serif; font-size:8.4pt; color:#1a1a1a; background:#fff; padding:14px 26px; max-width:800px; margin:0 auto; line-height:1.35; }
+.name       { font-size:19pt; font-weight:700; text-align:center; letter-spacing:.04em; }
+.role-title { font-size:9pt; font-style:italic; text-align:center; color:#444; margin:1px 0 2px; }
+.contact    { font-size:7.6pt; text-align:center; color:#444; margin-bottom:5px; }
+.contact a  { color:#1a56db; text-decoration:none; }
+.relocation { font-size:7.6pt; font-style:italic; text-align:center; color:#555; margin-bottom:5px; }
+hr { border:none; border-top:1.5px solid #1a56db; margin:3px 0 2px; }
+h2 { font-size:7.8pt; font-weight:700; color:#1a56db; text-transform:uppercase; letter-spacing:.07em; margin:5px 0 1px; }
+.job-row   { display:flex; justify-content:space-between; align-items:baseline; }
+.job-title { font-size:8.8pt; font-weight:700; }
+.job-date  { font-size:7.6pt; color:#555; white-space:nowrap; }
+.company   { font-size:7.6pt; color:#555; font-style:italic; margin-bottom:1px; }
+ul { padding-left:12px; margin:1px 0 3px; }
+li { font-size:8.2pt; line-height:1.38; margin-bottom:2px; text-align:justify; text-align-last:left; }
+.summary { font-size:8.2pt; line-height:1.42; text-align:justify; text-align-last:left; }
+.skills-row { font-size:8.1pt; line-height:1.42; margin-bottom:1px; text-align:justify; text-align-last:left; }
+.skills-row strong { font-weight:600; color:#0f0f0f; }
+.edu-row  { display:flex; justify-content:space-between; align-items:baseline; }
+.edu-name { font-size:8.6pt; font-weight:600; }
+.edu-date { font-size:7.6pt; color:#555; }
+.edu-sub  { font-size:7.6pt; color:#555; font-style:italic; margin-bottom:2px; }
+a { color:#1a56db; font-weight:500; text-decoration:none; }
+.awards-line { font-size:8.1pt; line-height:1.42; text-align:justify; text-align-last:left; }
+@media print { body { padding:0; } @page { margin:.22in .28in; size:letter; } }
+```
+
+### 7.5 Resume QA Checklist
+
+**Page check:**
+- [ ] Exactly 1 page in Chrome print preview (⌘P)
+- [ ] Page is >85% filled — not ending halfway
+- [ ] If overflowing: reduce `@page` margins first, then trim text. Never shrink font below 8.2pt
+
+**Case study separation check:**
+- [ ] No experience bullet names or describes the case study built for this application
+- [ ] Summary ends with case study name + ≤5-word description only
+- [ ] Case studies section = name + 1 sentence + links only
+
+**Orphan line check:**
+- [ ] No bullet's last line has fewer than 6 words
+- [ ] No bold metric phrase is the trailing text on a bullet
+- [ ] Awards paragraph doesn't end with a single standalone word
+
+**Content check:**
+- [ ] Role title mirrors JD language
+- [ ] Top 7 JD keywords in summary + skills
+- [ ] Every bullet is STAR-structured
+- [ ] Case study links to prototype + deck
+- [ ] Relocation line correct (present/absent based on location)
+- [ ] No invented metrics
+- [ ] All links work
+
+### 7.6 Generate PDF & After Delivery
+Automatically generate the PDF from the HTML using headless Chrome:
+```bash
+/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --headless --no-pdf-header-footer --print-to-pdf="/Users/ajayavaghade/Job Apply AI/Ajay_Avaghade_Resume_[Company].pdf" "file:///Users/ajayavaghade/Job Apply AI/Ajay_Avaghade_Resume_[Company].html"
+```
+Then open both the PDF and HTML:
+```bash
+open "/Users/ajayavaghade/Job Apply AI/Ajay_Avaghade_Resume_[Company].pdf"
+open -a "Google Chrome" "/Users/ajayavaghade/Job Apply AI/Ajay_Avaghade_Resume_[Company].html"
+```
+Always provide the quick-edit tip:
+> **Quick edits:** In Chrome, press ⌘⌥I → Console → type `document.body.contentEditable='true'` → Enter. Click any text and edit. Then ⌘P to save as PDF.
+
+---
+
+## 8 · OUTREACH TEMPLATES (Phase 6)
+
+**File Format**: ALWAYS write outreach messages into a plain text file (`/Users/ajayavaghade/Job Apply AI/[Company]_Outreach.txt`). Do NOT use markdown syntax (like `**bold**` or `[link](url)`) as it requires manual sorting.
+
+### 8.1 LinkedIn Note (≤300 chars)
+```
+Hi [Name], I solved [Company's specific problem] as a case study — built a working prototype + CEO deck. Applying for [Role]. Would love your take or a referral if it fits. Portfolio: [link]
+```
+
+### 8.2 Email Template
+```
+Subject: Re: [Role] — I built a [Company] case study before applying
+ 
+Hi [Name],
+ 
+I spent time studying [Company]'s [specific problem] and built a working prototype + CEO pitch deck: [case study name].
+ 
+At PhonePe, I [parallel 1 — verb + outcome]. Before that, [parallel 2 — verb + outcome]. Both map directly to what [Company]'s [Role] is optimizing for.
+ 
+Would you be open to a 20-minute call, or if this fits, a referral would mean a lot?
+ 
+Prototype: [URL]
+Portfolio: https://ajay-avaghade.github.io/Portfolio/#real-world/[company-slug]
+Resume: attached
+ 
+Best,
+Ajay Avaghade
++91 9561558439
+```
+
+---
+
+## 9 · HARD-WON RULES (Learned From 30+ Applications)
+
+These are bugs and patterns discovered across 30+ application runs. **Do not violate these.**
+
+### 9.1 JavaScript / Prototype Bugs
+| Rule | Reason |
+|------|--------|
+| Never use `.ns` as a CSS class | Collides with notch sensor dot — use `.ndot` or `.ndot-n` |
+| Apostrophes in single-quoted JS strings | Causes `SyntaxError` — always rephrase or escape |
+| `makeShadow()` must be a factory function | PptxGenJS mutates the object — reusing causes corrupted slides |
+| 8-digit hex alpha codes (e.g. `#00BFA544`) | Throw PptxGenJS warnings — cosmetic only, deck still generates |
+
+### 9.2 Resume Formatting
+| Rule | Reason |
+|------|--------|
+| `text-align:justify; text-align-last:left` | Prevents orphan-word stretching on last lines |
+| Bold metrics MID-sentence only | Prevents "32%" dangling alone on last line |
+| ≥6 words on every bullet's last line | Prevents wasted whitespace row |
+| `@page { margin:.22in .28in }` | Proven tight-but-safe — do not increase |
+| Never shrink font below 8.2pt | Illegible in print |
+| Experience ≠ Case Study | They are separate proof points; conflating them kills the effect |
+
+### 9.3 Design Patterns
+| Pattern | How |
+|---------|-----|
+| Consumer screens (light/white background) | Add `.light` class on phone div for white-themed screens (e.g., checkout UX) |
+| Dashboard/ops screens (dark background) | Default dark theme |
+| Dual-accent within same company | Use different accent colors per case study (e.g., GrowthIQ = blue, PlanPass = purple) |
+| Luxury brands | Cream/ivory backgrounds, navy headers, gold accents |
+| Payment companies | Dark navy base, company's brand color as accent |
+
+### 9.4 Content Accuracy
+| Rule | Detail |
+|------|--------|
+| PhonePe 5K merchants | Driven by Instant Discount + EMI subvention — NOT by KYC automation |
+| 30-min TAT | Applies to offer operations — NOT merchant onboarding |
+| Navi | Distribution layer — does NOT own loan books or credit underwriting |
+| Projected metrics | Use ranges ("15–20%") or label as "estimated/projected" — never state unverified numbers as fact |
+
+---
+
+## 10 · EXISTING CASE STUDIES (Keep Updated)
+
+| Company | Case Study | Prototype | Deck | Slug |
+|---------|-----------|-----------|------|------|
+| Talabat | Steal Deals | steal-deals-prototype.html | steal-deals-deck.pptx | rw-talabat |
+| Talabat | AI Beauty Match | ai-beauty-match-prototype.html | ai-beauty-match-deck.pptx | rw-talabat |
+| Talabat | Talabat Reels | talabat-reels-prototype.html | talabat-reels-deck.pptx | rw-talabat |
+| Virtusa | MerchantOS Milestone | virtusa-milestone-prototype.html | virtusa-milestone-deck.pptx | rw-virtusa |
+| Snapmint | SnapPay | snapmint-snappay-prototype.html | snapmint-snappay-deck.pptx | rw-snapmint |
+| Amazon | SmartOffer Engine | amazon-smartoffer-prototype.html | amazon-smartoffer-deck.pptx | rw-amazon |
+| Amazon | Pay Milestone | amazon-milestone-prototype.html | amazon-milestone-deck.pptx | rw-amazon |
+| Ralph Lauren | ClientIQ | rl-clientiq-prototype.html | rl-clientiq-deck.pptx | rw-ralphlauren |
+| Ralph Lauren | CartBridge | rl-cartbridge-prototype.html | rl-cartbridge-deck.pptx | rw-ralphlauren |
+| Agoda | Spark | agoda-spark-prototype.html | agoda-spark-deck.pptx | rw-agoda |
+| Agoda | TripAgent | agoda-tripagent-prototype.html | agoda-tripagent-deck.pptx | rw-agoda |
+| Agoda | TrustScore | agoda-trustscore-prototype.html | agoda-trustscore-deck.pptx | rw-agoda |
+| MultiBank | TradeRise | multibank-traderise-prototype.html | multibank-traderise-deck.pptx | rw-multibank |
+| MultiBank | TradeCircle | multibank-tradecircle-prototype.html | multibank-tradecircle-deck.pptx | rw-multibank |
+| ADCB | CorporateLens | adcb-corporatelens-prototype.html | adcb-corporatelens-deck.pptx | rw-adcb |
+| ADCB | CardLaunch | adcb-cardlaunch-prototype.html | adcb-cardlaunch-deck.pptx | rw-adcb |
+| PayPay | SmartBonus | paypay-smartbonus-prototype.html | paypay-smartbonus-deck.pptx | rw-paypay |
+| PayPay | NearPay | paypay-nearpay-prototype.html | paypay-nearpay-deck.pptx | rw-paypay |
+| J.P. Morgan | PayIQ | jpmorgan-payiq-prototype.html | jpmorgan-payiq-deck.pptx | rw-jpmorgan |
+| J.P. Morgan | ClearPath | jpmorgan-clearpath-prototype.html | jpmorgan-clearpath-deck.pptx | rw-jpmorgan |
+| Adyen | SmartCheckout | adyen-smartcheckout-prototype.html | adyen-smartcheckout-deck.pptx | rw-adyen |
+| Adyen | RegSense | adyen-regsense-prototype.html | adyen-regsense-deck.pptx | rw-adyen |
+| Navi | GrowthOS | navi-growthos-prototype.html | navi-growthos-deck.pptx | rw-navi |
+| Navi | CategoryLeap | navi-categoryleap-prototype.html | navi-categoryleap-deck.pptx | rw-navi |
+| Revolut | GrowthIQ | revolut-growthiq-prototype.html | revolut-growthiq-deck.pptx | rw-revolut |
+| Revolut | PlanPass | revolut-planpass-prototype.html | revolut-planpass-deck.pptx | rw-revolut |
+| inDrive | BidBand | indrive-bidband-prototype.html | indrive-bidband-deck.pptx | rw-indrive |
+| inDrive | Pass | indrive-pass-prototype.html | indrive-pass-deck.pptx | rw-indrive |
+| Nykaa | QuickStore | nykaa-quickstore-prototype.html | nykaa-quickstore-deck.pptx | rw-nykaa |
+| Nykaa | AdAgent | nykaa-adagent-prototype.html | nykaa-adagent-deck.pptx | rw-nykaa |
+| Nykaa | SellerIQ | nykaa-selleriq-prototype.html | nykaa-selleriq-deck.pptx | rw-nykaa |
+| Tesco | WalletBridge | tesco-walletbridge-prototype.html | tesco-walletbridge-deck.pptx | rw-tesco |
+| Tesco | AuthSense | tesco-authsense-prototype.html | tesco-authsense-deck.pptx | rw-tesco |
+| HealthifyMe | UpgradeIQ | healthifyme-upgradeiq-prototype.html | healthifyme-upgradeiq-deck.pptx | rw-healthifyme |
+| HealthifyMe | RetentionOS | healthifyme-retentionos-prototype.html | healthifyme-retentionos-deck.pptx | rw-healthifyme |
+| HealthifyMe | MealMatch | healthifyme-mealmatch-prototype.html | healthifyme-mealmatch-deck.pptx | rw-healthifyme |
+| Bolt | CityScore | bolt-cityscore-prototype.html | bolt-cityscore-deck.pptx | rw-bolt |
+| Bolt | LaunchKit | bolt-launchkit-prototype.html | bolt-launchkit-deck.pptx | rw-bolt |
+| Bolt | RideGuide | bolt-rideguide-prototype.html | bolt-rideguide-deck.pptx | rw-bolt |
+| Bolt | ZoneIQ | bolt-zoneiq-prototype.html | bolt-zoneiq-deck.pptx | rw-bolt |
+| Botim | ClearRoute | botim-clearroute-prototype.html | botim-clearroute-deck.pptx | rw-botim |
+| Botim | CompliFlow | botim-compliflow-prototype.html | botim-compliflow-deck.pptx | rw-botim |
+| Botim | CorridorIQ | botim-corridoriq-prototype.html | botim-corridoriq-deck.pptx | rw-botim |
+| Circles | ChurnShield | circles-churnshield-prototype.html | circles-churnshield-deck.pptx | rw-circles |
+| Circles | OnboardIQ | circles-onboardiq-prototype.html | circles-onboardiq-deck.pptx | rw-circles |
+| Circles | SmartPlan | circles-smartplan-prototype.html | circles-smartplan-deck.pptx | rw-circles |
+| CoinSwitch | FirstBuy | coinswitch-firstbuy-prototype.html | coinswitch-firstbuy-deck.pptx | rw-coinswitch |
+| CoinSwitch | SmartSIP | coinswitch-smartsip-prototype.html | coinswitch-smartsip-deck.pptx | rw-coinswitch |
+| CoinSwitch | WealthBridge | coinswitch-wealthbridge-prototype.html | coinswitch-wealthbridge-deck.pptx | rw-coinswitch |
+| Deel | EquityConnect | deel-equityconnect-prototype.html | deel-equityconnect-deck.pptx | rw-deel |
+| Deel | EquityOnboard | deel-equityonboard-prototype.html | deel-equityonboard-deck.pptx | rw-deel |
+| Deel | EquityPulse | deel-equitypulse-prototype.html | deel-equitypulse-deck.pptx | rw-deel |
+| Deel | TotalRewards | deel-totalrewards-prototype.html | deel-totalrewards-deck.pptx | rw-deel |
+| Delivery Hero | AgentEval | dh-agenteval-prototype.html | dh-agenteval-deck.pptx | rw-dh |
+| Delivery Hero | FoodGenie | dh-foodgenie-prototype.html | dh-foodgenie-deck.pptx | rw-dh |
+| ENBD | AdvisorPulse | enbd-advisorpulse-prototype.html | enbd-advisorpulse-deck.pptx | rw-enbd |
+| ENBD | BranchIQ | enbd-branchiq-prototype.html | enbd-branchiq-deck.pptx | rw-enbd |
+| ENBD | FeedbackLoop | enbd-feedbackloop-prototype.html | enbd-feedbackloop-deck.pptx | rw-enbd |
+| Eyewa | InventoryIQ | eyewa-inventoryiq-prototype.html | eyewa-inventoryiq-deck.pptx | rw-eyewa |
+| Eyewa | OpsBuddy | eyewa-opsbuddy-prototype.html | eyewa-opsbuddy-deck.pptx | rw-eyewa |
+| Eyewa | RxOps | eyewa-rxops-prototype.html | eyewa-rxops-deck.pptx | rw-eyewa |
+| Mastercard | CreditBridge | mastercard-creditbridge-prototype.html | mastercard-creditbridge-deck.pptx | rw-mastercard |
+| Mastercard | InstantID | mastercard-instantid-prototype.html | mastercard-instantid-deck.pptx | rw-mastercard |
+| Mastercard | PartnerHub | mastercard-partnerhub-prototype.html | mastercard-partnerhub-deck.pptx | rw-mastercard |
+| Pencil | AdCanvas | pencil-adcanvas-prototype.html | pencil-adcanvas-deck.pptx | rw-pencil |
+| Pencil | BriefOS | pencil-briefos-prototype.html | pencil-briefos-deck.pptx | rw-pencil |
+| Pencil | PrimitivesKit | pencil-primitiveskit-prototype.html | pencil-primitiveskit-deck.pptx | rw-pencil |
+| Adobe | AutoPilot | adobe-autopilot-prototype.html | adobe-autopilot-deck.pptx | rw-adobe |
+| Adobe | Codec | adobe-codec-prototype.html | adobe-codec-deck.pptx | rw-adobe |
+| Adobe | PaceIQ | adobe-paceiq-prototype.html | adobe-paceiq-deck.pptx | rw-adobe |
+
+---
+
+## 11 · INTERACTION RULES
+
+1. **Confirm before building.** Never start prototypes or decks without Ajay's sign-off on the Phase 1.4 brief.
+2. **Ask targeted questions.** Not "What do you think?" but "Between option A (flash deals) and option B (loyalty tier), which maps to your PhonePe experience?"
+3. **Flag gaps honestly.** If the JD asks for experience Ajay doesn't have, say so. Offer framing to close it.
+4. **One deliverable at a time.** Deliver phase by phase, wait for confirmation.
+5. **Never fabricate metrics.** Use ranges or "projected/estimated" when numbers aren't confirmed.
+6. **Self-update.** After each run, update the Evolution Log in `apply.md` and the Existing Case Studies table (Section 10 of this file).
+
+---
+
+## 12 · BEST SAMPLE FILES (Read These, Not All 60+)
+
+When you need to reference implementation details, read **only** these files:
+
+| Purpose | File | Why |
+|------|------|-----|
+| Phone prototype (consumer) | `adyen-smartcheckout-prototype.html` | Phone + browser frames, annotations, confetti, tab nav |
+| Browser prototype (ops/dashboard) | `bolt-launchkit-prototype.html` | Browser frame pattern, ops dashboard layout |
+| CEO deck build script | `assets/build-adyen-smartcheckout-deck.js` | Cleanest 8-slide structure, well-commented |
+| Portfolio site structure | `index.html` (lines 1280–1843) | Real World section, company blocks |
+| Portfolio design system | `styles.css` | All CSS tokens, glass panel classes |
+| Navigation + interactions | `script.js` | caseStudies object, scroll animations |
+| Full workflow spec | `.claude/commands/apply.md` | Complete 6-phase workflow with evolution log |
+
+**You do NOT need to read any other prototype or deck script** unless Ajay asks you to replicate a specific one's style.
+
+---
+
+## 13 · QUICK START FOR NEW JD
+
+```
+1. Read the agent rules (.clinerules / .cursorrules) — you now have full context
+2. Parse the JD → Extract role, priorities, keywords, gaps, location
+3. Brainstorm 3-5 case studies → Present to Ajay → Get sign-off
+4. Build prototype using Section 4 template → QA with Section 4.11
+5. Build CEO deck using Section 5 template → QA with Section 5.7
+6. Add portfolio block using Section 6.1 template → git push
+7. Generate resume using Section 7 template → QA with Section 7.5
+8. Write outreach using Section 8 templates → QA
+9. Update Section 10 table + Evolution Log in apply.md
+```
+
+**Estimated effort per run:** 45–90 minutes. Prototype is the longest phase.
+
+**Deliverables per run:** 1 prototype HTML, 1 PPTX deck, 1 HTML resume, 1 LinkedIn note, 1 email.

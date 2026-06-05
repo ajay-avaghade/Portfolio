@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Easygenerator — EasyExpert · Interactive Prototype</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --dark:   #0A1628;
+      --hero:   #112038;
+      --card:   #162846;
+      --teal:   #00C896;
+      --blue:   #3B82F6;
+      --amber:  #F59E0B;
+      --red:    #EF4444;
+      --white:  #FFFFFF;
+      --muted:  #64748b;
+      --border: #1e3a5f;
+      --lgray:  #F0F4F8;
+      --text:   #e2e8f0;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Sora',sans-serif; background:#060f1e; color:var(--white); min-height:100vh; }
+
+    .header {
+      background: linear-gradient(90deg, #0A1628 0%, #162846 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 32px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--teal);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .header-logo {
+      background: var(--teal);
+      color: var(--dark);
+      font-size: 10px;
+      font-weight: 800;
+      padding: 4px 8px;
+      border-radius: 6px;
+      letter-spacing: 0.04em;
+    }
+    .header-pipe { color: var(--border); }
+
+    .wrap {
+      display: flex;
+      gap: 32px;
+      padding: 32px;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: calc(100vh - 56px);
+    }
+
+    /* BROWSER FRAME */
+    .browser-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+    }
+    .screen-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .browser {
+      width: 680px;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 40px 100px rgba(0,0,0,0.5), 0 0 0 1px var(--border);
+      background: var(--lgray);
+    }
+    .browser-chrome {
+      background: #1e293b;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .dot-row { display:flex; gap:6px; }
+    .dot { width:10px; height:10px; border-radius:50%; }
+    .dot-r { background:#ef4444; }
+    .dot-y { background:#f59e0b; }
+    .dot-g { background:#22c55e; }
+    .addr-bar {
+      flex:1;
+      background: #0f172a;
+      border-radius: 6px;
+      padding: 5px 12px;
+      font-size: 11px;
+      font-family: 'DM Mono', monospace;
+      color: #94a3b8;
+    }
+    .screen-content {
+      height: 580px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      scrollbar-width: none;
+      background: var(--lgray);
+    }
+    .screen-content::-webkit-scrollbar { display:none; }
+    .screen { display:none; }
+    .screen.active { display:block; }
+
+    /* NAV DOTS */
+    .nav-dots {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+    }
+    .ndot {
+      width:28px; height:6px;
+      border-radius: 3px;
+      background: var(--border);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .ndot.active { background: var(--teal); width: 40px; }
+
+    /* ANNOTATION PANEL */
+    .anno-panel {
+      width: 300px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      padding-top: 40px;
+    }
+    .anno-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+    }
+    .anno-num {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      color: var(--teal);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .anno-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 6px;
+      line-height: 1.3;
+    }
+    .anno-body {
+      font-size: 11.5px;
+      color: #94a3b8;
+      line-height: 1.55;
+    }
+
+    /* Common */
+    .eg-topbar {
+      background: #fff;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      height: 52px;
+      gap: 20px;
+    }
+    .eg-logo { font-size: 14px; font-weight: 800; color: #0A1628; }
+    .eg-logo span { color: #00C896; }
+
+    /* S1: Session Setup */
+    .s1 { background: #fff; min-height: 580px; }
+    .s1-body { padding: 40px; display: flex; flex-direction: column; align-items: center; text-align: center; }
+    .s1-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(0,200,150,0.15); border: 1px solid rgba(0,200,150,0.3);
+      border-radius: 20px; padding: 6px 14px; font-size: 11px; font-weight: 700; color: #00C896; margin-bottom: 24px;
+    }
+    .s1-title { font-size: 24px; font-weight: 800; color: #0f172a; margin-bottom: 12px; }
+    .s1-sub { font-size: 14px; color: #64748b; max-width: 400px; margin-bottom: 32px; line-height: 1.5; }
+    .s1-form { width: 100%; max-width: 440px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; text-align: left; }
+    .s1-field { margin-bottom: 16px; }
+    .s1-label { font-size: 11px; font-weight: 700; color: #374151; margin-bottom: 6px; display: block; text-transform: uppercase; letter-spacing: 0.05em; }
+    .s1-input { width: 100%; border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 12px; font-size: 13px; font-family: 'Sora', sans-serif; background: #fff; }
+    .s1-btn {
+      width: 100%; background: #00C896; color: #fff; border: none; border-radius: 8px; padding: 14px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: 'Sora', sans-serif; margin-top: 10px; display: flex; justify-content: center; align-items: center; gap: 8px;
+    }
+
+    /* S2: AI Interview */
+    .s2 { background: #f8fafc; min-height: 580px; }
+    .s2-chat-area { padding: 24px; display: flex; flex-direction: column; gap: 16px; height: 490px; overflow-y: auto; }
+    .msg { display: flex; gap: 12px; max-width: 85%; }
+    .msg-ai { align-self: flex-start; }
+    .msg-user { align-self: flex-end; flex-direction: row-reverse; }
+    .avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; flex-shrink: 0; }
+    .ava-ai { background: #0A1628; color: #00C896; }
+    .ava-user { background: #3B82F6; color: #fff; }
+    .bubble { padding: 14px 18px; border-radius: 12px; font-size: 13px; line-height: 1.5; }
+    .bub-ai { background: #fff; border: 1px solid #e2e8f0; color: #374151; border-top-left-radius: 4px; }
+    .bub-user { background: #3B82F6; color: #fff; border-top-right-radius: 4px; }
+    .s2-input-area { background: #fff; border-top: 1px solid #e2e8f0; padding: 16px 24px; display: flex; gap: 12px; align-items: center; }
+    .s2-text-input { flex: 1; border: 1.5px solid #e2e8f0; border-radius: 20px; padding: 10px 16px; font-size: 13px; outline: none; font-family: 'Sora', sans-serif; }
+    .s2-mic-btn { width: 40px; height: 40px; border-radius: 50%; background: #f0fdf4; border: 1px solid #00C896; color: #00C896; display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; }
+    .s2-finish-btn { background: #0A1628; color: #fff; border: none; border-radius: 20px; padding: 10px 20px; font-size: 12px; font-weight: 700; cursor: pointer; }
+
+    /* S3: Auto-Generated Draft */
+    .s3 { background: #fff; min-height: 580px; }
+    .s3-banner { background: #f0fdf4; border-bottom: 1px solid #bbf7d0; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; }
+    .s3-banner-text { font-size: 12px; color: #065f46; font-weight: 600; }
+    .s3-content { padding: 32px; max-width: 600px; margin: 0 auto; }
+    .s3-title { font-size: 20px; font-weight: 800; color: #0f172a; margin-bottom: 24px; }
+    .s3-section { margin-bottom: 24px; }
+    .s3-h3 { font-size: 15px; font-weight: 700; color: #1e293b; margin-bottom: 12px; }
+    .s3-p { font-size: 13px; color: #475569; line-height: 1.6; margin-bottom: 12px; }
+    .s3-source-tag { display: inline-block; font-size: 9px; font-weight: 700; color: #3B82F6; background: #eff6ff; padding: 4px 8px; border-radius: 4px; margin-bottom: 8px; }
+
+    /* S4: L&D Review */
+    .s4 { background: #f8fafc; min-height: 580px; padding: 24px; }
+    .s4-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .s4-title { font-size: 18px; font-weight: 800; color: #0f172a; }
+    .s4-actions { display: flex; gap: 12px; }
+    .s4-btn-sec { background: #fff; border: 1px solid #e2e8f0; padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 600; color: #374151; cursor: pointer; }
+    .s4-btn-pri { background: #00C896; border: none; padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 700; color: #fff; cursor: pointer; }
+    .s4-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+    .s4-card-title { font-size: 13px; font-weight: 700; color: #0f172a; margin-bottom: 12px; display: flex; justify-content: space-between; }
+    .s4-stat-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+    .s4-stat { background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #f1f5f9; }
+    .s4-stat-val { font-size: 18px; font-weight: 800; color: #0A1628; margin-bottom: 4px; }
+    .s4-stat-lbl { font-size: 10px; color: #64748b; font-weight: 600; text-transform: uppercase; }
+    .s4-review-item { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid #f1f5f9; }
+    .s4-review-item:last-child { border-bottom: none; }
+    .s4-review-icon { width: 24px; height: 24px; border-radius: 6px; background: #e0e7ff; color: #4f46e5; display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; }
+    .s4-review-text { font-size: 12px; color: #374151; flex: 1; line-height: 1.5; }
+    .s4-review-approve { background: transparent; border: 1px solid #00C896; color: #00C896; padding: 4px 12px; border-radius: 6px; font-size: 10px; font-weight: 700; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-logo">EG</div>
+  Easygenerator — EasyExpert · AI Knowledge Extraction &nbsp;<span class="header-pipe">|</span>&nbsp; Interactive Prototype
+</div>
+
+<div class="wrap">
+  <div class="browser-wrap">
+    <div class="screen-label" id="screen-label">01 — EXPERT SETUP</div>
+    <div class="browser">
+      <div class="browser-chrome">
+        <div class="dot-row">
+          <div class="dot dot-r"></div>
+          <div class="dot dot-y"></div>
+          <div class="dot dot-g"></div>
+        </div>
+        <div class="addr-bar">app.easygenerator.com/expert-session</div>
+      </div>
+      <div class="screen-content">
+
+        <!-- SCREEN 1 -->
+        <div class="screen s1 active" id="s1">
+          <div class="eg-topbar">
+            <div class="eg-logo">easy<span>generator</span></div>
+          </div>
+          <div class="s1-body">
+            <div class="s1-badge">✦ EasyExpert Interview</div>
+            <div class="s1-title">Share your knowledge naturally.</div>
+            <div class="s1-sub">Don't write a course. Just chat with our AI interviewer about your expertise, and we'll automatically generate a structured learning module.</div>
+            <div class="s1-form">
+              <div class="s1-field">
+                <span class="s1-label">What is the topic?</span>
+                <input class="s1-input" type="text" value="Handling Escalated Enterprise Customers" readonly>
+              </div>
+              <div class="s1-field">
+                <span class="s1-label">Target Audience</span>
+                <input class="s1-input" type="text" value="Junior Customer Success Managers" readonly>
+              </div>
+              <button class="s1-btn" onclick="go(2)">Start AI Interview →</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- SCREEN 2 -->
+        <div class="screen s2" id="s2">
+          <div class="eg-topbar">
+            <div class="eg-logo">easy<span>generator</span></div>
+            <div style="margin-left:auto; font-size:12px; font-weight:600; color:#64748b;">Session time: 04:12</div>
+          </div>
+          <div class="s2-chat-area">
+            <div class="msg msg-ai">
+              <div class="avatar ava-ai">✦</div>
+              <div class="bubble bub-ai">Hi! Let's talk about handling escalated enterprise customers. To start, what's the very first thing a junior CSM should do when a VIP client threatens to churn over a bug?</div>
+            </div>
+            <div class="msg msg-user">
+              <div class="avatar ava-user">SME</div>
+              <div class="bubble bub-user">The first step is always validation and de-escalation. Don't immediately jump into technical fixes. Acknowledge the pain, assure them a senior engineering resource is engaged, and set a strict communication cadence—like updates every 2 hours.</div>
+            </div>
+            <div class="msg msg-ai">
+              <div class="avatar ava-ai">✦</div>
+              <div class="bubble bub-ai">That makes sense. "Validation before fixing." Can you give me an example of what NOT to say to the client in that first hour?</div>
+            </div>
+            <div class="msg msg-user">
+              <div class="avatar ava-user">SME</div>
+              <div class="bubble bub-user">Never say "I don't know why this happened." Say "We are investigating the root cause and will have an update by 3 PM." Also, don't promise a fix timeline until engineering gives you one. Over-promising here ruins trust completely.</div>
+            </div>
+          </div>
+          <div class="s2-input-area">
+            <div class="s2-mic-btn">🎙</div>
+            <input type="text" class="s2-text-input" placeholder="Type or speak your answer...">
+            <button class="s2-finish-btn" onclick="go(3)">Generate Course</button>
+          </div>
+        </div>
+
+        <!-- SCREEN 3 -->
+        <div class="screen s3" id="s3">
+          <div class="eg-topbar">
+            <div class="eg-logo">easy<span>generator</span></div>
+          </div>
+          <div class="s3-banner">
+            <div class="s3-banner-text">✦ Course automatically generated from your 15-minute interview.</div>
+            <button style="background:#00C896; border:none; padding:6px 12px; color:#fff; border-radius:6px; font-weight:700; font-size:11px; cursor:pointer;" onclick="go(4)">Send to L&D</button>
+          </div>
+          <div class="s3-content">
+            <div class="s3-title">Handling Escalated Enterprise Customers</div>
+            <div class="s3-section">
+              <div class="s3-source-tag">Extracted from Interview</div>
+              <div class="s3-h3">Step 1: Validation & De-escalation</div>
+              <div class="s3-p">When a VIP client experiences a critical bug, the immediate priority is validation, not technical problem-solving. Acknowledge their frustration and assure them that senior resources are engaged.</div>
+              <div class="s3-p">Establish a strict communication cadence immediately (e.g., updates every 2 hours).</div>
+            </div>
+            <div class="s3-section">
+              <div class="s3-source-tag">Extracted from Interview</div>
+              <div class="s3-h3">What NOT to Say (The Trust Killers)</div>
+              <div class="s3-p"><strong>Avoid:</strong> "I don't know why this happened."<br><strong>Use instead:</strong> "We are investigating the root cause and will have an update by [Time]."</div>
+              <div class="s3-p"><strong>Avoid:</strong> Promising a fix timeline before engineering confirms it. Over-promising during an escalation permanently damages trust.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SCREEN 4 -->
+        <div class="screen s4" id="s4">
+          <div class="eg-topbar">
+            <div class="eg-logo">easy<span>generator</span></div>
+            <div style="margin-left:auto; font-size:12px; color:#64748b;">L&D Manager View</div>
+          </div>
+          <div class="s4-header">
+            <div class="s4-title">Review Submission: Escalation Handling</div>
+            <div class="s4-actions">
+              <button class="s4-btn-sec">Request Edits</button>
+              <button class="s4-btn-pri">Approve & Publish</button>
+            </div>
+          </div>
+          <div class="s4-stat-grid">
+            <div class="s4-stat">
+              <div class="s4-stat-val">15 min</div>
+              <div class="s4-stat-lbl">SME Time Spent</div>
+            </div>
+            <div class="s4-stat">
+              <div class="s4-stat-val">4 Modules</div>
+              <div class="s4-stat-lbl">Generated Content</div>
+            </div>
+            <div class="s4-stat">
+              <div class="s4-stat-val">100%</div>
+              <div class="s4-stat-lbl">Source Alignment</div>
+            </div>
+          </div>
+          <div class="s4-card">
+            <div class="s4-card-title"><span>AI Verification</span><span style="color:#00C896;">All Checks Passed</span></div>
+            <div class="s4-review-item">
+              <div class="s4-review-icon">📝</div>
+              <div class="s4-review-text"><strong>No Hallucinations:</strong> All generated text traces back directly to the SME interview transcript.</div>
+              <button class="s4-review-approve">View Trace</button>
+            </div>
+            <div class="s4-review-item">
+              <div class="s4-review-icon">🎯</div>
+              <div class="s4-review-text"><strong>Audience Fit:</strong> Tone and vocabulary match the "Junior CSM" target audience perfectly.</div>
+            </div>
+            <div class="s4-review-item">
+              <div class="s4-review-icon">❓</div>
+              <div class="s4-review-text"><strong>Assessment Generated:</strong> 5 quiz questions automatically created based on key SME points.</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div class="nav-dots">
+      <div class="ndot active" id="n1" onclick="go(1)"></div>
+      <div class="ndot" id="n2" onclick="go(2)"></div>
+      <div class="ndot" id="n3" onclick="go(3)"></div>
+      <div class="ndot" id="n4" onclick="go(4)"></div>
+    </div>
+  </div>
+
+  <div class="anno-panel" id="anno-cards"></div>
+</div>
+
+<script>
+const LABELS = { 1:'01 — EXPERT SETUP', 2:'02 — AI INTERVIEW', 3:'03 — AUTO-GENERATED DRAFT', 4:'04 — L&D REVIEW' };
+const ANNO = {
+  1: [
+    { n:'INSIGHT 01', t:'Bypassing the UI Friction', b:'SMEs hate authoring tools. They view course creation as "not my job." The easiest way to extract their knowledge is to remove the authoring UI entirely and replace it with conversation.' },
+    { n:'AJAY’S PARALLEL', t:'AI Mock PM Interviewer', b:'Ajay built this exact architecture as a side project: an AI agent that conducts an interview, captures responses, evaluates them, and generates structured feedback. This is that same tech applied to B2B SaaS.' }
+  ],
+  2: [
+    { n:'UX DECISION', t:'Conversational Extraction', b:'The AI acts like an investigative journalist or instructional designer. It asks probing questions based on the topic. Voice input (🎙) is critical here—SMEs speak faster than they type.' },
+    { n:'PM RATIONALE', t:'Asynchronous Knowledge Capture', b:'Normally, an L&D person has to schedule a 1-hour Zoom call with an SME to extract this knowledge. EasyExpert makes this asynchronous, saving expensive SME hours.' }
+  ],
+  3: [
+    { n:'TECHNICAL FEAT', t:'Transcript to SCORM/ADDIE', b:'The backend takes an unstructured chat transcript and maps it to a pedagogical framework (introduction, concepts, do\'s and don\'ts, quiz). It handles the instructional design piece automatically.' },
+    { n:'TRUST METRIC', t:'Source Tagging', b:'Notice the "Extracted from Interview" tags. This reassures the SME that the AI isn\'t inventing facts, it\'s just formatting their own words.' }
+  ],
+  4: [
+    { n:'WORKFLOW DESIGN', t:'The L&D Approval Gate', b:'SMEs generate, but L&D governs. The L&D manager sees exactly how much time the SME spent (15 mins) vs. the output value (4 modules). This proves ROI of the tool immediately.' },
+    { n:'PM RATIONALE', t:'Anti-Hallucination Guardrails', b:'For enterprise B2B, AI cannot hallucinate. The "Source Alignment" metric explicitly proves to the L&D manager that the AI did not pull external data, only the SME\'s approved transcript.' }
+  ]
+};
+function go(n) {
+  [1,2,3,4].forEach(i => { document.getElementById('s'+i).classList.remove('active'); document.getElementById('n'+i).classList.remove('active'); });
+  document.getElementById('s'+n).classList.add('active'); document.getElementById('n'+n).classList.add('active');
+  document.getElementById('screen-label').textContent = LABELS[n];
+  document.getElementById('anno-cards').innerHTML = ANNO[n].map(c => `<div class="anno-card"><div class="anno-num">${c.n}</div><div class="anno-title">${c.t}</div><div class="anno-body">${c.b}</div></div>`).join('');
+}
+go(1);
+</script>
+</body>
+</html>
