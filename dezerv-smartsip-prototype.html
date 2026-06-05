@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1700">
+  <title>Dezerv — SmartSIP Engine · Interactive Prototype</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --c-dark: #0A0A0A;
+      --c-hero: #141414;
+      --c-bright: #C2A582;
+      --c-accent: #D4B895;
+      --orange: #F97316;
+      --ink: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --gray: #f1f5f9;
+      --red: #DC2626;
+    }
+    
+    * { margin:0; padding:0; box-sizing:border-box; }
+    
+    body {
+      background: linear-gradient(135deg, #050505 0%, #111 50%, #080808 100%);
+      min-height: 100vh;
+      font-family: 'Sora', sans-serif;
+      padding: 40px 32px 60px;
+      display: flex;
+      justify-content: center;
+      gap: 60px;
+    }
+
+    /* ══ HEADER ══ */
+    .header-strip { position: absolute; top: 40px; left: 0; right: 0; text-align:center; z-index: 100; pointer-events: none; }
+    .co-badge {
+      display:inline-flex; align-items:center; gap:10px;
+      background:rgba(194, 165, 130, 0.08); border:1px solid rgba(194, 165, 130, 0.2);
+      border-radius:99px; padding:6px 18px 6px 10px; margin-bottom:16px;
+    }
+    .co-logo {
+      width:28px; height:28px; background:var(--c-bright); color:var(--c-dark);
+      border-radius:6px; display:flex; align-items:center; justify-content:center;
+      font-size:11px; font-weight:800;
+    }
+    .co-badge span { font-size:12px; font-weight:600; color:rgba(255,255,255,0.7); letter-spacing:.06em; }
+    .header-strip h1 { font-size:26px; font-weight:800; color:#fff; letter-spacing:-.02em; margin-bottom:6px; }
+    .header-strip h1 em { font-style:normal; color:var(--c-bright); }
+    .header-strip p { font-size:13px; color:rgba(255,255,255,0.45); }
+
+    /* ══ NAV ══ */
+    .nav-panel {
+      position: fixed; left: 40px; top: 160px; width: 220px;
+      display: flex; flex-direction: column; gap: 8px; z-index: 50;
+    }
+    .nav-btn {
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+      color: rgba(255,255,255,0.5); padding: 14px 18px; border-radius: 12px;
+      font-family: 'Sora', sans-serif; font-size: 12px; font-weight: 700;
+      text-align: left; cursor: pointer; transition: 0.3s ease;
+    }
+    .nav-btn:hover { background: rgba(255,255,255,0.08); }
+    .nav-btn.active {
+      background: rgba(194, 165, 130, 0.1); border-color: rgba(194, 165, 130, 0.3);
+      color: var(--c-bright);
+    }
+
+    /* ══ PROTOTYPE CONTAINER ══ */
+    .proto-wrap { margin-top: 140px; position: relative; width: 375px; height: 812px; perspective: 1000px; }
+    
+    .phone {
+      position: absolute; top: 0; left: 0; width: 375px; height: 812px;
+      border-radius: 46px; overflow: hidden;
+      box-shadow: 0 40px 100px rgba(0,0,0,0.55), 0 0 0 1.5px rgba(255,255,255,0.08);
+      background: var(--c-dark);
+      opacity: 0; pointer-events: none; transform: translateX(20px); transition: 0.4s ease;
+    }
+    .phone.active { opacity: 1; pointer-events: auto; transform: translateX(0); z-index: 10; }
+    .phone.light { background: #fff; }
+
+    /* Notch */
+    .notch {
+      width:118px; height:28px; border-radius:0 0 16px 16px;
+      margin:0 auto; display:flex; align-items:center; justify-content:center;
+      gap:6px; position:absolute; left: 50%; transform: translateX(-50%); z-index:100;
+      background: var(--c-dark);
+    }
+    .phone.light .notch { background: var(--c-dark); }
+    .nc { width:10px; height:10px; border-radius:50%; background: rgba(255,255,255,0.1); }
+    .ndot-n { width:5px; height:5px; border-radius:50%; background: rgba(255,255,255,0.15); }
+
+    /* Status Bar */
+    .sb {
+      display:flex; justify-content:space-between; align-items:center; 
+      padding:12px 24px 6px; font-family:'DM Mono',monospace; font-size:11px; font-weight:500;
+      color: #fff; position: relative; z-index: 90;
+    }
+    .phone.light .sb { color: var(--ink); }
+    
+    /* Screen Content Area */
+    .sc { overflow-y:auto; height: 784px; scrollbar-width:none; padding-top: 10px; }
+    .sc::-webkit-scrollbar { display:none; }
+
+    /* ══ ANNOTATIONS ══ */
+    .anno-panel {
+      position: fixed; right: 40px; top: 160px; width: 320px;
+      display: flex; flex-direction: column; gap: 16px; z-index: 50;
+    }
+    .anno-card {
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px; padding: 20px; backdrop-filter: blur(12px);
+      transform: translateX(20px); opacity: 0; transition: 0.4s ease;
+    }
+    .anno-card.active { transform: translateX(0); opacity: 1; }
+    .anno-num {
+      font-size: 10px; font-weight: 800; color: var(--c-bright);
+      letter-spacing: .12em; text-transform: uppercase; margin-bottom: 8px;
+    }
+    .anno-title { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+    .anno-body { font-size: 12px; color: rgba(255,255,255,0.6); line-height: 1.5; }
+    .anno-metric {
+      margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.08);
+      display: flex; align-items: baseline; gap: 8px;
+    }
+    .anno-metric-val { font-family: 'DM Mono', monospace; font-size: 24px; font-weight: 500; color: var(--c-bright); }
+    .anno-metric-lbl { font-size: 11px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: .05em; }
+
+    /* ══ REUSABLE UI COMPONENTS ══ */
+    .glass-card {
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px; padding: 16px; margin: 0 16px 16px;
+    }
+    .glass-card.light {
+      background: #fff; border: 1px solid var(--border);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    }
+    .flex-bt { display: flex; justify-content: space-between; align-items: center; }
+    .kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; padding: 0 16px; }
+    .kpi-box {
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px; padding: 14px;
+    }
+    .kpi-val { font-family: 'DM Mono', monospace; font-size: 20px; font-weight: 500; color: #fff; margin-bottom: 4px; }
+    .kpi-val.highlight { color: var(--c-bright); }
+    .kpi-val.alert { color: var(--red); }
+    .kpi-lbl { font-size: 10px; color: rgba(255,255,255,0.4); }
+    
+    .btn-primary {
+      background: var(--c-bright); color: var(--c-dark); border: none;
+      width: 100%; padding: 16px; border-radius: 14px;
+      font-family: 'Sora', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer;
+      box-shadow: 0 8px 20px rgba(194, 165, 130, 0.25);
+    }
+    .track { height:8px; background:rgba(255,255,255,0.1); border-radius:99px; overflow:visible; position:relative; }
+    .track.light { background: var(--border); }
+    .fill { height:100%; border-radius:99px; background:var(--c-bright); position:relative; transition:.6s ease; }
+    .fill-badge { position:absolute; right:-2px; top:-9px; background:var(--c-bright); color:var(--c-dark); font-size:9px; font-weight:700; padding:2px 5px; border-radius:6px; }
+
+    /* Confetti */
+    #conf { position:absolute; top:0; left:0; right:0; bottom:0; pointer-events:none; overflow:hidden; z-index:10; }
+    .cp { position:absolute; animation:fall linear forwards; }
+    @keyframes fall {
+      0% { transform:translateY(-20px) rotate(0deg); opacity:1; }
+      100% { transform:translateY(820px) rotate(360deg); opacity:0; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <div class="header-strip">
+    <div class="co-badge">
+      <div class="co-logo">D</div>
+      <span>Dezerv · Investment Execution · Product Manager</span>
+    </div>
+    <h1>SmartSIP Engine — <em>Zero-Drop Execution</em></h1>
+    <p>Predictive ML retry routing & automated fallback resolution · Interactive Prototype by Ajay Avaghade</p>
+  </div>
+
+  <!-- NAV -->
+  <div class="nav-panel">
+    <button class="nav-btn active" onclick="go(1)">01 — OPS RECONCILIATION</button>
+    <button class="nav-btn" onclick="go(2)">02 — SMARTSIP ROUTING</button>
+    <button class="nav-btn" onclick="go(3)">03 — CONSUMER RESOLUTION</button>
+    <button class="nav-btn" onclick="go(4)">04 — IMPACT & ANALYTICS</button>
+  </div>
+
+  <!-- PROTOTYPE FRAMES -->
+  <div class="proto-wrap">
+
+    <!-- ══ SCREEN 1: OPS RECONCILIATION ══ -->
+    <div id="s1" class="phone active">
+      <div class="notch"><div class="nc"></div><div class="ndot-n"></div></div>
+      <div class="sb"><span>10:22</span><span>▲▲▲ 100%</span></div>
+      <div class="sc">
+        <div style="padding: 24px 16px 16px;">
+          <h2 style="font-size: 20px; font-weight: 800; color: #fff; margin-bottom: 4px;">Ops Command Center</h2>
+          <p style="font-size: 12px; color: rgba(255,255,255,0.5);">Real-time SIP Execution & Settlement</p>
+        </div>
+
+        <div class="kpi-grid">
+          <div class="kpi-box">
+            <div class="kpi-val highlight">18,245</div>
+            <div class="kpi-lbl">SIPs Due Today</div>
+          </div>
+          <div class="kpi-box" style="border-color: rgba(220, 38, 38, 0.4);">
+            <div class="kpi-val alert">1,432</div>
+            <div class="kpi-lbl">Failed / Dropped</div>
+          </div>
+        </div>
+
+        <div style="padding: 0 16px 12px; font-size: 11px; font-weight: 700; color: var(--c-bright); letter-spacing: .1em; text-transform: uppercase;">Failure Root Cause</div>
+        
+        <div class="glass-card">
+          <div class="flex-bt" style="margin-bottom: 12px;">
+            <div>
+              <div style="font-size: 14px; font-weight: 700; color: #fff;">Insufficient Funds (NPCI)</div>
+              <div style="font-size: 11px; color: rgba(255,255,255,0.4);">NACH mandate bounce</div>
+            </div>
+            <div style="font-family: 'DM Mono', monospace; font-size: 16px; font-weight: 500; color: var(--red);">68%</div>
+          </div>
+          <div class="track"><div class="fill" style="width: 68%; background: var(--red);"></div></div>
+        </div>
+
+        <div class="glass-card">
+          <div class="flex-bt" style="margin-bottom: 12px;">
+            <div>
+              <div style="font-size: 14px; font-weight: 700; color: #fff;">PG Downtime (BillDesk)</div>
+              <div style="font-size: 11px; color: rgba(255,255,255,0.4);">Gateway timeout during debit</div>
+            </div>
+            <div style="font-family: 'DM Mono', monospace; font-size: 16px; font-weight: 500; color: var(--orange);">21%</div>
+          </div>
+          <div class="track"><div class="fill" style="width: 21%; background: var(--orange);"></div></div>
+        </div>
+
+        <div class="glass-card" style="background: rgba(194,165,130,0.1); border-color: rgba(194,165,130,0.3);">
+          <div class="flex-bt" style="margin-bottom: 8px;">
+            <div style="font-size: 16px;">⚡</div>
+            <div style="font-size: 12px; font-weight: 700; color: var(--c-bright);">SmartSIP Intervention</div>
+          </div>
+          <p style="font-size: 11px; color: rgba(255,255,255,0.6); margin-bottom: 14px; line-height: 1.5;">SmartSIP engine can automatically route PG timeouts to alternate gateways and push UPI Autopay fallback links for insufficient funds.</p>
+          <button class="btn-primary" style="padding: 12px; font-size: 12px;">Activate SmartSIP Rules →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ SCREEN 2: SMARTSIP ROUTING ══ -->
+    <div id="s2" class="phone">
+      <div class="notch"><div class="nc"></div><div class="ndot-n"></div></div>
+      <div class="sb"><span>10:24</span><span>▲▲▲ 100%</span></div>
+      <div class="sc">
+        <div style="padding: 24px 16px 16px;">
+          <div class="flex-bt">
+            <div>
+              <h2 style="font-size: 20px; font-weight: 800; color: #fff; margin-bottom: 4px;">Routing Config</h2>
+              <p style="font-size: 12px; color: rgba(255,255,255,0.5);">ML-driven retry logic</p>
+            </div>
+            <div style="background: rgba(194,165,130,0.2); color: var(--c-bright); padding: 6px 12px; border-radius: 99px; font-size: 10px; font-weight: 700;">ACTIVE</div>
+          </div>
+        </div>
+
+        <div class="glass-card">
+          <div style="font-size: 11px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: .1em; margin-bottom: 12px;">Scenario 1: PG Timeout</div>
+          <div class="flex-bt" style="margin-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 16px;">
+            <div style="font-size: 13px; color: #fff; font-weight: 600;">BillDesk <span style="color: var(--c-bright);">→</span> Razorpay Route</div>
+            <div style="width: 36px; height: 20px; background: var(--c-bright); border-radius: 99px; position: relative;">
+              <div style="position: absolute; right: 2px; top: 2px; width: 16px; height: 16px; background: var(--c-dark); border-radius: 50%;"></div>
+            </div>
+          </div>
+          <p style="font-size: 10px; color: rgba(255,255,255,0.5);">If primary gateway times out, instantly execute via secondary PG with same mandate token.</p>
+        </div>
+
+        <div class="glass-card">
+          <div style="font-size: 11px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: .1em; margin-bottom: 12px;">Scenario 2: Insufficient Funds</div>
+          <div class="flex-bt" style="margin-bottom: 16px;">
+            <div style="font-size: 13px; color: #fff; font-weight: 600;">T+1 Retry Model</div>
+            <div style="width: 36px; height: 20px; background: rgba(255,255,255,0.2); border-radius: 99px; position: relative;">
+              <div style="position: absolute; left: 2px; top: 2px; width: 16px; height: 16px; background: #fff; border-radius: 50%;"></div>
+            </div>
+          </div>
+          <div class="flex-bt" style="margin-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 16px;">
+            <div style="font-size: 13px; color: #fff; font-weight: 600;">Instant Fallback Nudge</div>
+            <div style="width: 36px; height: 20px; background: var(--c-bright); border-radius: 99px; position: relative;">
+              <div style="position: absolute; right: 2px; top: 2px; width: 16px; height: 16px; background: var(--c-dark); border-radius: 50%;"></div>
+            </div>
+          </div>
+          <p style="font-size: 10px; color: rgba(255,255,255,0.5);">Trigger automated WhatsApp & Push notification with 1-click UPI Autopay replacement link to affluent clients immediately upon NACH failure.</p>
+        </div>
+
+        <div style="padding: 0 16px;">
+          <button class="btn-primary">Save Routing Logic</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ SCREEN 3: CONSUMER RESOLUTION (LIGHT THEME) ══ -->
+    <div id="s3" class="phone light">
+      <div id="conf"></div>
+      <div class="notch"><div class="nc" style="background:#1e293b;"></div><div class="ndot-n" style="background:#334155;"></div></div>
+      <div class="sb"><span>10:35</span><span>▲▲▲ 100%</span></div>
+      <div class="sc">
+        <div style="padding: 24px 16px 16px; text-align: center;">
+          <div style="width: 64px; height: 64px; background: #FEE2E2; color: #DC2626; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; margin: 0 auto 16px;">!</div>
+          <h2 style="font-size: 22px; font-weight: 800; color: var(--ink); margin-bottom: 8px;">SIP Debit Failed</h2>
+          <p style="font-size: 13px; color: var(--muted); line-height: 1.5; padding: 0 20px;">Your auto-debit for <strong>Dezerv Equity PMS (₹50,000)</strong> failed due to insufficient funds in your HDFC account.</p>
+        </div>
+
+        <div class="glass-card light" style="background: #FFFBEB; border-color: #FEF3C7; position: relative; overflow: hidden;" id="resolution-card">
+          <div style="font-size: 11px; font-weight: 700; color: #D97706; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 12px;">Instant Resolution</div>
+          <div class="flex-bt" style="margin-bottom: 16px;">
+            <div>
+              <div style="font-size: 15px; font-weight: 700; color: var(--ink);">Pay via UPI App</div>
+              <div style="font-size: 12px; color: var(--muted);">Secure 1-click execution</div>
+            </div>
+            <div style="font-size: 24px;">📱</div>
+          </div>
+          <button class="btn-primary" style="background: var(--ink); color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" onclick="triggerSuccess()">Pay ₹50,000 Now</button>
+        </div>
+
+        <!-- Success Overlay (Hidden initially) -->
+        <div id="success-overlay" style="position: absolute; bottom: -400px; left: 0; right: 0; background: var(--c-dark); border-radius: 32px 32px 0 0; padding: 32px 24px; transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 50; text-align: center;">
+          <div style="width: 56px; height: 56px; background: var(--c-bright); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; margin: 0 auto 16px;">✓</div>
+          <h3 style="font-size: 20px; font-weight: 800; color: #fff; margin-bottom: 8px;">Investment Secured</h3>
+          <p style="font-size: 13px; color: rgba(255,255,255,0.6); margin-bottom: 24px;">₹50,000 successfully allocated to Dezerv Equity PMS.</p>
+          <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 16px; text-align: left;">
+            <div class="flex-bt" style="margin-bottom: 8px;"><span style="font-size: 12px; color: rgba(255,255,255,0.5);">Reference ID</span><span style="font-family: 'DM Mono'; font-size: 12px; color: #fff;">DZ-8942-AX</span></div>
+            <div class="flex-bt"><span style="font-size: 12px; color: rgba(255,255,255,0.5);">Settlement</span><span style="font-size: 12px; font-weight: 700; color: var(--c-bright);">T+0 (Instant)</span></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ══ SCREEN 4: IMPACT & ANALYTICS ══ -->
+    <div id="s4" class="phone">
+      <div class="notch"><div class="nc"></div><div class="ndot-n"></div></div>
+      <div class="sb"><span>10:40</span><span>▲▲▲ 100%</span></div>
+      <div class="sc">
+        <div style="padding: 24px 16px 16px;">
+          <h2 style="font-size: 20px; font-weight: 800; color: #fff; margin-bottom: 4px;">Executive Summary</h2>
+          <p style="font-size: 12px; color: rgba(255,255,255,0.5);">SmartSIP Impact (Last 30 Days)</p>
+        </div>
+
+        <div class="kpi-grid">
+          <div class="kpi-box" style="grid-column: span 2; background: linear-gradient(135deg, rgba(194,165,130,0.15), rgba(194,165,130,0.05)); border-color: rgba(194,165,130,0.3);">
+            <div class="kpi-val highlight" style="font-size: 28px;">₹42.5 Cr</div>
+            <div class="kpi-lbl" style="font-size: 12px; color: #fff;">AUM Recovered Instantly</div>
+            <div style="font-size: 10px; font-weight: 700; color: var(--c-bright); margin-top: 8px;">↑ 68% Resolution Rate</div>
+          </div>
+          
+          <div class="kpi-box">
+            <div class="kpi-val" style="color: #fff;">99.8%</div>
+            <div class="kpi-lbl">PG Success Rate</div>
+            <div style="font-size: 9px; color: var(--c-bright); margin-top: 4px;">Dynamic routing</div>
+          </div>
+          <div class="kpi-box">
+            <div class="kpi-val" style="color: #fff;">4 Mins</div>
+            <div class="kpi-lbl">Avg. Fallback TAT</div>
+            <div style="font-size: 9px; color: var(--c-bright); margin-top: 4px;">Down from T+2 days</div>
+          </div>
+        </div>
+
+        <div style="padding: 0 16px 12px; font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.4); letter-spacing: .1em; text-transform: uppercase;">Recovery Funnel</div>
+
+        <div class="glass-card">
+          <div class="flex-bt" style="margin-bottom: 8px;">
+            <div style="font-size: 13px; color: #fff; font-weight: 600;">Failed SIPs Detected</div>
+            <div style="font-family: 'DM Mono'; font-size: 13px; color: rgba(255,255,255,0.6);">4,280</div>
+          </div>
+          <div class="track" style="margin-bottom: 16px;"><div class="fill" style="width: 100%; background: rgba(255,255,255,0.2);"></div></div>
+
+          <div class="flex-bt" style="margin-bottom: 8px;">
+            <div style="font-size: 13px; color: #fff; font-weight: 600;">Fallback Push Sent</div>
+            <div style="font-family: 'DM Mono'; font-size: 13px; color: rgba(255,255,255,0.6);">4,280</div>
+          </div>
+          <div class="track" style="margin-bottom: 16px;"><div class="fill" style="width: 100%; background: rgba(255,255,255,0.4);"></div></div>
+
+          <div class="flex-bt" style="margin-bottom: 8px;">
+            <div style="font-size: 13px; color: var(--c-bright); font-weight: 700;">Instantly Resolved (UPI)</div>
+            <div style="font-family: 'DM Mono'; font-size: 13px; font-weight: 700; color: var(--c-bright);">2,910</div>
+          </div>
+          <div class="track"><div class="fill" style="width: 68%;"></div></div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ANNOTATION PANEL -->
+  <div class="anno-panel" id="anno-cards">
+    <!-- Populated by JS -->
+  </div>
+
+  <script>
+    const LABELS = {
+      1: '01 — OPS RECONCILIATION',
+      2: '02 — SMARTSIP ROUTING',
+      3: '03 — CONSUMER RESOLUTION',
+      4: '04 — IMPACT & ANALYTICS'
+    };
+
+    const ANNO = {
+      1: [
+        { n: 'INSIGHT 01', t: 'Ops Command Center', b: 'Real-time dashboard eliminating manual reconciliation. Highlights exact failure points across PG timeouts and NACH mandate bounces.' },
+        { n: 'INSIGHT 02', t: 'Proactive Alerting', b: 'Instead of waiting for T+2 settlement reports, ops teams get live visibility into execution drops, enabling immediate intervention.' },
+        { n: 'PM RATIONALE', t: 'Reliability as a Feature', b: 'Affluent investors expect zero-friction wealth management. High ops TATs directly erode trust. We solve this at the platform layer.', metric: { v: 'T+0', l: 'Recon Target' } }
+      ],
+      2: [
+        { n: 'INSIGHT 01', t: 'Dynamic Gateway Routing', b: 'Automatically failover from primary to secondary PG during execution without dropping the user session or SIP mandate.' },
+        { n: 'INSIGHT 02', t: 'Instant Fallback Triggers', b: 'When NACH fails due to insufficient funds, ML models trigger immediate WhatsApp/Push APIs to offer an alternative payment method.' },
+        { n: 'PM RATIONALE', t: 'Execution Architecture', b: 'Matches PhonePe’s philosophy of building highly resilient, multi-gateway transactional systems to handle high volume.', metric: { v: '99.8%', l: 'PG Uptime' } }
+      ],
+      3: [
+        { n: 'INSIGHT 01', t: 'Consumer Friction Elimination', b: 'Instead of a generic "Failed" email, the user receives an actionable, contextual deep-link to clear the mandate instantly via UPI.' },
+        { n: 'INSIGHT 02', t: 'Instant Gratification', b: 'Upon successful fallback payment, the settlement is marked T+0 internally, preserving the SIP streak and AUM.' },
+        { n: 'DESIGN DECISION', t: 'Light, Trust-Building UI', b: 'Consumer-facing flows utilize a clean, bright interface to communicate transparency and security.', metric: { v: '1-Click', l: 'Resolution' } }
+      ],
+      4: [
+        { n: 'INSIGHT 01', t: 'AUM Recovery Tracking', b: 'Executive view demonstrating the direct business impact of the SmartSIP engine—measuring retained wealth vs baseline.' },
+        { n: 'INSIGHT 02', t: 'Funnel Optimization', b: 'Tracks the exact conversion rate of the fallback nudges (68%), proving the effectiveness of real-time intervention.' },
+        { n: 'PM RATIONALE', t: 'Owning the P&L', b: 'As expected in the JD, the PM isn\'t just building features, but owning the final business outcome: maximizing invested AUM.', metric: { v: '₹42.5Cr', l: 'Recovered' } }
+      ]
+    };
+
+    function renderAnno(n) {
+      const cards = ANNO[n];
+      const container = document.getElementById('anno-cards');
+      
+      // Fade out
+      const existingCards = container.querySelectorAll('.anno-card');
+      existingCards.forEach(c => c.classList.remove('active'));
+      
+      setTimeout(() => {
+        container.innerHTML = cards.map((c, i) => `
+          <div class="anno-card" style="transition-delay: ${i * 0.1}s">
+            <div class="anno-num">${c.n}</div>
+            <div class="anno-title">${c.t}</div>
+            <div class="anno-body">${c.b}</div>
+            ${c.metric ? `<div class="anno-metric"><span class="anno-metric-val">${c.metric.v}</span><span class="anno-metric-lbl">${c.metric.l}</span></div>` : ''}
+          </div>
+        `).join('');
+        
+        // Trigger reflow
+        void container.offsetWidth;
+        
+        // Fade in
+        const newCards = container.querySelectorAll('.anno-card');
+        newCards.forEach(c => c.classList.add('active'));
+      }, 300);
+    }
+
+    function go(n) {
+      [1,2,3,4].forEach(i => {
+        document.getElementById('s'+i).classList.remove('active');
+      });
+      document.getElementById('s'+n).classList.add('active');
+      
+      const btns = document.querySelectorAll('.nav-btn');
+      btns.forEach((b, i) => {
+        if(i === (n-1)) b.classList.add('active');
+        else b.classList.remove('active');
+      });
+
+      renderAnno(n);
+    }
+
+    function triggerSuccess() {
+      const overlay = document.getElementById('success-overlay');
+      overlay.style.bottom = '0';
+      
+      // Fire confetti
+      const c = document.getElementById('conf');
+      c.innerHTML = '';
+      const cols = ['#C2A582','#D4B895','#F97316','#10B981','#3B82F6'];
+      for(let i=0; i<40; i++){
+        const p = document.createElement('div');
+        p.className='cp';
+        const size = 6+Math.random()*8;
+        p.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*120-10}%;width:${size}px;height:${size}px;background:${cols[Math.floor(Math.random()*cols.length)]};border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${1.4+Math.random()*1.8}s;animation-delay:${Math.random()*2.4}s;`;
+        c.appendChild(p);
+      }
+    }
+
+    // Init
+    setTimeout(() => renderAnno(1), 100);
+  </script>
+</body>
+</html>
