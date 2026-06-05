@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Brain Co. — BrainSync · Interactive Prototype</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --dark:   #0B1120;
+      --hero:   #1E293B;
+      --card:   #0F172A;
+      --teal:   #0EA5E9; /* Sky blue */
+      --blue:   #3B82F6;
+      --amber:  #F59E0B;
+      --red:    #EF4444;
+      --white:  #F8FAFC;
+      --muted:  #64748B;
+      --border: #334155;
+      --lgray:  #F1F5F9;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Sora',sans-serif; background:#04080F; color:var(--white); min-height:100vh; }
+
+    .header { background: linear-gradient(90deg, #0B1120 0%, #1E293B 100%); border-bottom: 1px solid var(--border); padding: 14px 32px; font-size: 13px; font-weight: 600; color: var(--teal); letter-spacing: 0.06em; text-transform: uppercase; display: flex; align-items: center; gap: 12px; }
+    .header-logo { background: var(--teal); color: #04080F; font-size: 10px; font-weight: 800; padding: 4px 8px; border-radius: 6px; letter-spacing: 0.04em; }
+
+    .wrap { display: flex; gap: 32px; padding: 32px; justify-content: center; align-items: flex-start; min-height: calc(100vh - 56px); }
+
+    /* BROWSER FRAME */
+    .browser-wrap { display: flex; flex-direction: column; align-items: center; gap: 0; }
+    .screen-label { font-size: 11px; font-weight: 600; color: var(--muted); margin-bottom: 10px; letter-spacing: 0.08em; text-transform: uppercase; }
+    .browser { width: 720px; border-radius: 12px; overflow: hidden; box-shadow: 0 40px 100px rgba(0,0,0,0.5), 0 0 0 1px var(--border); background: var(--lgray); }
+    .browser-chrome { background: #0F172A; padding: 10px 16px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); }
+    .dot-row { display:flex; gap:6px; }
+    .dot { width:10px; height:10px; border-radius:50%; }
+    .dot-r { background:#ef4444; } .dot-y { background:#f59e0b; } .dot-g { background:#22c55e; }
+    .addr-bar { flex:1; background: #1E293B; border-radius: 6px; padding: 5px 12px; font-size: 11px; font-family: 'DM Mono', monospace; color: #94a3b8; }
+    .screen-content { height: 600px; overflow-y: auto; overflow-x: hidden; scrollbar-width: none; background: #0B1120; }
+    .screen-content::-webkit-scrollbar { display:none; }
+    .screen { display:none; } .screen.active { display:block; }
+
+    /* NAV DOTS */
+    .nav-dots { display: flex; gap: 8px; margin-top: 16px; }
+    .ndot { width:28px; height:6px; border-radius: 3px; background: var(--border); cursor: pointer; transition: all 0.2s; }
+    .ndot.active { background: var(--teal); width: 40px; }
+
+    /* ANNOTATION PANEL */
+    .anno-panel { width: 320px; display: flex; flex-direction: column; gap: 14px; padding-top: 40px; }
+    .anno-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+    .anno-num { font-size: 9px; font-weight: 700; letter-spacing: 0.12em; color: var(--teal); text-transform: uppercase; margin-bottom: 6px; }
+    .anno-title { font-size: 13px; font-weight: 700; color: var(--white); margin-bottom: 6px; line-height: 1.3; }
+    .anno-body { font-size: 11.5px; color: #94a3b8; line-height: 1.55; }
+
+    /* Common App Header */
+    .app-topbar { background: #0F172A; border-bottom: 1px solid #1E293B; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; height: 56px; }
+    .app-logo { font-size: 16px; font-weight: 800; color: #F8FAFC; display:flex; align-items:center; gap:8px;} 
+    .app-logo span { color: var(--teal); }
+    .app-logo-icon { width:20px; height:20px; background:var(--teal); border-radius:4px; }
+    .app-nav { display:flex; gap:20px; font-size:12px; font-weight:600; color:#64748b;}
+    .app-nav span.active { color:var(--white); border-bottom:2px solid var(--teal); padding-bottom:18px; margin-bottom:-19px;}
+
+    /* S1: Data Sources */
+    .s1 { min-height: 600px; padding: 24px; }
+    .s1-header { margin-bottom: 24px; }
+    .s1-title { font-size: 20px; font-weight: 700; }
+    .s1-sub { font-size: 12px; color: var(--muted); margin-top: 6px; }
+    
+    .source-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .source-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; cursor: pointer; transition: 0.2s; }
+    .source-card:hover { border-color: var(--teal); }
+    .sc-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .sc-icon { width: 32px; height: 32px; background: #1E293B; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 12px; color: var(--white); }
+    .sc-status { padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; background: rgba(16,185,129,0.1); color: #10B981; }
+    .sc-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+    .sc-desc { font-size: 11px; color: var(--muted); }
+
+    /* S2: PII Redaction Mapping */
+    .s2 { min-height: 600px; padding: 24px; }
+    .mapping-area { background: #04080F; border: 1px solid var(--border); border-radius: 12px; padding: 20px; min-height: 400px; position: relative; overflow: hidden; }
+    
+    .schema-node { background: var(--card); border: 1px solid var(--border); border-radius: 8px; width: 220px; position: absolute; z-index: 2; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+    .sn-head { background: #1E293B; padding: 10px 12px; font-size: 12px; font-weight: 700; border-radius: 8px 8px 0 0; border-bottom: 1px solid var(--border); }
+    .sn-body { padding: 8px 0; }
+    .sn-field { display: flex; justify-content: space-between; align-items: center; padding: 6px 12px; font-size: 11px; font-family: 'DM Mono', monospace; }
+    
+    .badge-pii { background: rgba(239,68,68,0.2); color: #EF4444; padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: 700; font-family: 'Sora', sans-serif; }
+    .badge-ok { background: rgba(16,185,129,0.2); color: #10B981; padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: 700; font-family: 'Sora', sans-serif; }
+    
+    .redact-panel { position: absolute; right: 20px; top: 20px; width: 280px; background: var(--card); border: 1px solid var(--teal); border-radius: 8px; z-index: 3; padding: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.6); }
+    .rp-title { font-size: 13px; font-weight: 700; color: var(--teal); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    .rp-desc { font-size: 11px; color: var(--muted); margin-bottom: 16px; line-height: 1.4; }
+    
+    .toggle-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); }
+    .toggle-lbl { font-size: 12px; font-weight: 600; }
+    .toggle-btn { width: 36px; height: 20px; background: var(--teal); border-radius: 10px; position: relative; }
+    .toggle-knob { width: 16px; height: 16px; background: #04080F; border-radius: 50%; position: absolute; right: 2px; top: 2px; }
+
+    /* S3: Pipeline Health */
+    .s3 { min-height: 600px; padding: 24px; }
+    .chart-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+    .cc-title { font-size: 14px; font-weight: 600; margin-bottom: 16px; }
+    .bar-chart { display: flex; align-items: flex-end; gap: 8px; height: 120px; margin-top: 20px; }
+    .bar { flex: 1; background: var(--teal); border-radius: 4px 4px 0 0; min-height: 10px; position: relative; }
+    .bar:hover { opacity: 0.8; }
+    .bar-lbl { position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%); font-size: 9px; color: var(--muted); }
+
+    .metric-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .metric-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+    .m-lbl { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; margin-bottom: 8px; }
+    .m-val { font-size: 28px; font-weight: 700; font-family: 'DM Mono', monospace; }
+
+    /* S4: Safe Handoff */
+    .s4 { min-height: 600px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; text-align: center; }
+    .s4-shield { width: 80px; height: 80px; background: rgba(16, 185, 129, 0.1); border: 2px solid #10B981; border-radius: 24px; display: flex; align-items: center; justify-content: center; font-size: 32px; color: #10B981; margin-bottom: 24px; transform: rotate(45deg); }
+    .s4-shield span { transform: rotate(-45deg); display: block; }
+    .s4-title { font-size: 24px; font-weight: 800; margin-bottom: 12px; }
+    .s4-desc { font-size: 14px; color: var(--muted); max-width: 400px; line-height: 1.6; margin-bottom: 32px; }
+    
+    .code-box { background: #04080F; border: 1px solid var(--border); border-radius: 8px; padding: 16px; width: 100%; max-width: 440px; text-align: left; font-family: 'DM Mono', monospace; font-size: 11px; color: #94A3B8; margin-bottom: 24px; }
+    .cb-line { margin-bottom: 6px; }
+    .cb-line span { color: #10B981; }
+    
+    .deploy-btn { background: var(--teal); color: #04080F; border: none; padding: 14px 32px; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 20px rgba(14, 165, 233, 0.3); }
+
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-logo">BC</div>
+  Brain Co. — BrainSync · Data Ingestion & PII Redaction
+</div>
+
+<div class="wrap">
+  <div class="browser-wrap">
+    <div class="screen-label" id="screen-label">01 — ENTERPRISE DATA SOURCES</div>
+    <div class="browser">
+      <div class="browser-chrome">
+        <div class="dot-row"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+        <div class="addr-bar">sync.brain.co/gov-finance/pipelines</div>
+      </div>
+      <div class="screen-content">
+
+        <!-- SCREEN 1 -->
+        <div class="screen s1 active" id="s1">
+          <div class="app-topbar">
+            <div class="app-logo"><div class="app-logo-icon"></div> Brain<span>Sync</span></div>
+            <div class="app-nav">
+              <span class="active">Pipelines</span>
+              <span>Connectors</span>
+              <span>Security</span>
+            </div>
+          </div>
+          
+          <div style="padding: 32px;">
+            <div class="s1-header">
+              <div class="s1-title">Connected Databases — Ministry of Health</div>
+              <div class="s1-sub">Select sources to ingest and harmonize for AI model training.</div>
+            </div>
+
+            <div class="source-grid">
+              <div class="source-card" onclick="go(2)">
+                <div class="sc-header">
+                  <div class="sc-icon">PG</div>
+                  <div class="sc-status">Connected</div>
+                </div>
+                <div class="sc-title">Patient Records (PostgreSQL)</div>
+                <div class="sc-desc">1.4M rows · Syncs every 24h</div>
+              </div>
+              <div class="source-card">
+                <div class="sc-header">
+                  <div class="sc-icon">S3</div>
+                  <div class="sc-status" style="background:rgba(245,158,11,0.1);color:#F59E0B;">Syncing</div>
+                </div>
+                <div class="sc-title">Historical Claims (AWS S3)</div>
+                <div class="sc-desc">840K documents · Parquet</div>
+              </div>
+              <div class="source-card">
+                <div class="sc-header">
+                  <div class="sc-icon">SF</div>
+                  <div class="sc-status">Connected</div>
+                </div>
+                <div class="sc-title">Service Desk (Salesforce)</div>
+                <div class="sc-desc">Live API connection</div>
+              </div>
+              <div class="source-card" style="border: 1px dashed var(--border); display:flex; align-items:center; justify-content:center; flex-direction:column; background:transparent;">
+                <div style="font-size:24px; color:var(--muted); margin-bottom:8px;">+</div>
+                <div style="font-size:13px; font-weight:600; color:var(--teal);">Add Data Source</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SCREEN 2 -->
+        <div class="screen s2" id="s2">
+          <div class="app-topbar">
+            <div class="app-logo"><div class="app-logo-icon"></div> Brain<span>Sync</span></div>
+            <div class="app-nav">
+              <span style="cursor:pointer;" onclick="go(1)">← Back</span>
+              <span class="active">Schema & Redaction</span>
+            </div>
+          </div>
+          
+          <div style="padding:24px;">
+            <div class="mapping-area">
+              
+              <!-- Source Node -->
+              <div class="schema-node" style="left: 20px; top: 40px;">
+                <div class="sn-head">Source: Patient Records</div>
+                <div class="sn-body">
+                  <div class="sn-field"><span>id</span><span class="badge-ok">UUID</span></div>
+                  <div class="sn-field"><span>first_name</span><span class="badge-pii">PII Alert</span></div>
+                  <div class="sn-field"><span>ssn</span><span class="badge-pii">Critical PII</span></div>
+                  <div class="sn-field"><span>diagnosis_code</span><span class="badge-ok">Safe</span></div>
+                </div>
+              </div>
+              
+              <!-- Connection Line -->
+              <div style="position:absolute; left:240px; top:100px; width:120px; height:2px; background:var(--border); z-index:1;"></div>
+              
+              <!-- Dest Node -->
+              <div class="schema-node" style="left: 360px; top: 40px; border-color:var(--teal);">
+                <div class="sn-head" style="background:#0F172A;">Target: ML Ingestion</div>
+                <div class="sn-body">
+                  <div class="sn-field"><span>patient_id</span><span class="badge-ok">Tokenized</span></div>
+                  <div class="sn-field" style="color:var(--muted); text-decoration:line-through;"><span>first_name</span><span>Dropped</span></div>
+                  <div class="sn-field" style="color:var(--muted); text-decoration:line-through;"><span>ssn</span><span>Dropped</span></div>
+                  <div class="sn-field"><span>diag_code</span><span class="badge-ok">Mapped</span></div>
+                </div>
+              </div>
+
+              <!-- Action Panel -->
+              <div class="redact-panel">
+                <div class="rp-title">⚡ Auto-Redaction Active</div>
+                <div class="rp-desc">BrainSync has detected 2 columns containing Personal Identifiable Information (PII). Apply security policies before syncing to the ML pipeline.</div>
+                
+                <div class="toggle-row">
+                  <span class="toggle-lbl">Drop Direct Identifiers (Name, SSN)</span>
+                  <div class="toggle-btn"><div class="toggle-knob"></div></div>
+                </div>
+                <div class="toggle-row">
+                  <span class="toggle-lbl">Tokenize Primary Keys (UUIDs)</span>
+                  <div class="toggle-btn"><div class="toggle-knob"></div></div>
+                </div>
+                
+                <button class="deploy-btn" style="width:100%; padding:10px; margin-top:20px; font-size:12px;" onclick="go(3)">Apply Policies & Sync</button>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- SCREEN 3 -->
+        <div class="screen s3" id="s3">
+          <div class="app-topbar">
+            <div class="app-logo"><div class="app-logo-icon"></div> Brain<span>Sync</span></div>
+            <div class="app-nav">
+              <span class="active">Health & Telemetry</span>
+            </div>
+          </div>
+          
+          <div style="padding:24px;">
+            <div class="metric-grid" style="margin-bottom:24px;">
+              <div class="metric-card">
+                <div class="m-lbl">Records Cleaned</div>
+                <div class="m-val">1.42M</div>
+              </div>
+              <div class="metric-card">
+                <div class="m-lbl">PII Fields Dropped</div>
+                <div class="m-val" style="color:var(--teal);">2.8M</div>
+              </div>
+              <div class="metric-card">
+                <div class="m-lbl">Sync Error Rate</div>
+                <div class="m-val" style="color:#10B981;">0.01%</div>
+              </div>
+            </div>
+
+            <div class="chart-card">
+              <div class="cc-title">Ingestion Throughput (Records/min)</div>
+              <div class="bar-chart">
+                <div class="bar" style="height:30%;"><div class="bar-lbl">10:00</div></div>
+                <div class="bar" style="height:50%;"></div>
+                <div class="bar" style="height:40%;"></div>
+                <div class="bar" style="height:80%;"></div>
+                <div class="bar" style="height:100%;"></div>
+                <div class="bar" style="height:90%;"></div>
+                <div class="bar" style="height:60%;"></div>
+                <div class="bar" style="height:70%;"><div class="bar-lbl">10:07</div></div>
+              </div>
+            </div>
+            
+            <div style="text-align:right;">
+              <button class="deploy-btn" style="padding:10px 24px; font-size:12px;" onclick="go(4)">Complete Handoff →</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- SCREEN 4 -->
+        <div class="screen s4" id="s4">
+          <div class="app-topbar" style="width:100%; position:absolute; top:0;">
+            <div class="app-logo"><div class="app-logo-icon"></div> Brain<span>Sync</span></div>
+          </div>
+          
+          <div class="s4-shield"><span>✓</span></div>
+          <div class="s4-title">Safe Handoff Complete</div>
+          <div class="s4-desc">The dataset has been scrubbed of all PII and successfully delivered to the model ingestion bucket.</div>
+          
+          <div class="code-box">
+            <div class="cb-line">> initializing validation... <span>OK</span></div>
+            <div class="cb-line">> checking for PII leakage... <span>0 found</span></div>
+            <div class="cb-line">> generating secure token map... <span>OK</span></div>
+            <div class="cb-line">> S3 upload complete: s3://gov-data/clean/v1/</div>
+          </div>
+          
+          <button class="deploy-btn" style="background:#1E293B; color:var(--white);">Return to Pipelines</button>
+        </div>
+
+      </div>
+    </div>
+    <div class="nav-dots">
+      <div class="ndot active" id="n1" onclick="go(1)"></div>
+      <div class="ndot" id="n2" onclick="go(2)"></div>
+      <div class="ndot" id="n3" onclick="go(3)"></div>
+      <div class="ndot" id="n4" onclick="go(4)"></div>
+    </div>
+  </div>
+
+  <div class="anno-panel" id="anno-cards"></div>
+</div>
+
+<script>
+const LABELS = { 1:'01 — ENTERPRISE DATA SOURCES', 2:'02 — SCHEMA & REDACTION', 3:'03 — PIPELINE HEALTH', 4:'04 — SAFE ML HANDOFF' };
+const ANNO = {
+  1: [
+    { n:'INSIGHT 01', t:'The Data Silo Block', b:'Gov agencies have massive datasets stuck in fragmented, legacy databases. If they can\'t easily ingest this data into Brain Co.\'s models, the AI is useless.' },
+    { n:'PM RATIONALE', t:'Self-Serve Connectors', b:'By providing a UI for standard connectors (Postgres, S3, Salesforce), we remove engineering bottlenecks and empower IT admins to onboard their own data securely.' }
+  ],
+  2: [
+    { n:'UX DECISION', t:'Visual PII Redaction', b:'Data privacy is the #1 objection from enterprise infosec teams. BrainSync automatically scans schemas and flags PII (SSNs, Names) before data ever moves.' },
+    { n:'AJAY’S PARALLEL', t:'B2B Workflows', b:'At PhonePe, Ajay built a B2B SaaS workflow builder that allowed merchants to configure payment logic without coding. BrainSync uses the same philosophy: abstract complex pipeline logic into a visual, secure UI.' }
+  ],
+  3: [
+    { n:'INSIGHT 02', t:'Visibility = Trust', b:'Data engineering pipelines are usually invisible. Exposing telemetry (Records Cleaned, PII Dropped, Error Rates) builds confidence that the system is stable and secure.' },
+    { n:'DESIGN DECISION', t:'Actionable Telemetry', b:'Instead of showing CPU spikes, the dashboard translates technical metrics into business value (e.g., "2.8M PII Fields Dropped" proves the redaction policy works).' }
+  ],
+  4: [
+    { n:'INSIGHT 03', t:'The Handoff Contract', b:'Once data is secure, the handoff to the ML team must be seamless and verifiable. The CLI-style readout confirms to infosec that zero PII leaked.' },
+    { n:'PRODUCT OUTCOME', t:'Unblocking Sales', b:'BrainSync eliminates the 6-month security review cycle by guaranteeing a "clean room" for data. Brain Co. can now deploy models faster and safer.' }
+  ]
+};
+function go(n) {
+  [1,2,3,4].forEach(i => { document.getElementById('s'+i).classList.remove('active'); document.getElementById('n'+i).classList.remove('active'); });
+  document.getElementById('s'+n).classList.add('active'); document.getElementById('n'+n).classList.add('active');
+  document.getElementById('screen-label').textContent = LABELS[n];
+  document.getElementById('anno-cards').innerHTML = ANNO[n].map(c => `<div class="anno-card"><div class="anno-num">${c.n}</div><div class="anno-title">${c.t}</div><div class="anno-body">${c.b}</div></div>`).join('');
+}
+go(1);
+</script>
+</body>
+</html>
