@@ -101,6 +101,7 @@ Always use this as the single source of truth. Never fabricate metrics or experi
 | Easygenerator | EasyFlow | easygenerator-easyflow-prototype.html | assets/easygenerator-easyflow-deck.pptx | #real-world/easygenerator |
 | Easygenerator | EasyExpert | easygenerator-easyexpert-prototype.html | assets/easygenerator-easyexpert-deck.pptx | #real-world/easygenerator |
 | Easygenerator | EasyTrust | easygenerator-easytrust-prototype.html | assets/easygenerator-easytrust-deck.pptx | #real-world/easygenerator |
+| Rebel Foods | RebelOS | rebelfoods-rebelos-prototype.html | assets/rebelfoods-rebelos-deck.pptx | #real-world/rebelfoods |
 | Brain Co. | BrainTrust | brainco-braintrust-prototype.html | assets/brainco-deck.pptx | #real-world/brainco |
 | Brain Co. | BrainSync | brainco-brainsync-prototype.html | assets/brainco-sync-deck.pptx | #real-world/brainco |
 | Brain Co. | BrainOps | brainco-brainops-prototype.html | assets/brainco-ops-deck.pptx | #real-world/brainco |

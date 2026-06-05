@@ -633,6 +633,8 @@ const makeShadow = () => ({ type: 'outer', color: '000000', blur: 4, offset: 2, 
   });
 }
 
-prs.writeFile({ fileName: 'assets/revolut-growthiq-deck.pptx' })
+await prs.writeFile({ fileName: 'assets/revolut-growthiq-deck.pptx' })
   .then(() => console.log('✅  revolut-growthiq-deck.pptx written'))
   .catch(e => { console.error(e); process.exit(1); });
+
+})();

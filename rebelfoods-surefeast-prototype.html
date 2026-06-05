@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rebel Foods — SureFeast · Interactive Prototype</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --c-dark: #1e1b4b; /* Deep Indigo */
+      --c-bright: #6d28d9; /* Purple */
+      --c-accent: #f59e0b; /* Amber/Orange */
+      --orange: #f97316;
+      --teal: #14b8a6;
+      --ink: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --gray: #f8fafc;
+      --white: #ffffff;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Sora',sans-serif; background:#f1f5f9; color:var(--ink); min-height:100vh; }
+
+    .header { background: var(--c-dark); padding: 14px 32px; font-size: 13px; font-weight: 600; color: #cbd5e1; letter-spacing: 0.06em; text-transform: uppercase; display: flex; align-items: center; gap: 12px; }
+    .header-logo { background: var(--c-accent); color: var(--c-dark); font-size: 10px; font-weight: 800; padding: 4px 8px; border-radius: 6px; letter-spacing: 0.04em; }
+
+    .wrap { display: flex; gap: 40px; padding: 40px; justify-content: center; align-items: flex-start; min-height: calc(100vh - 56px); }
+
+    /* PHONE FRAME */
+    .phone-wrap { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+    .screen-label { font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+    .phone { width: 375px; height: 812px; border-radius: 46px; overflow: hidden; box-shadow: 0 40px 100px rgba(0,0,0,0.15), 0 0 0 12px #0f172a; background: var(--gray); position: relative; }
+    
+    .notch { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 140px; height: 28px; background: #0f172a; border-bottom-left-radius: 16px; border-bottom-right-radius: 16px; z-index: 100; }
+    
+    .screen { position: absolute; top:0; left:0; width:100%; height:100%; display:none; background:var(--gray); flex-direction:column; overflow-y:auto; scrollbar-width:none; }
+    .screen::-webkit-scrollbar { display:none; }
+    .screen.active { display:flex; }
+
+    /* NAV DOTS */
+    .nav-dots { display: flex; gap: 8px; margin-top: 16px; }
+    .ndot { width:28px; height:6px; border-radius: 3px; background: #cbd5e1; cursor: pointer; transition: all 0.2s; }
+    .ndot.active { background: var(--c-bright); width: 40px; }
+
+    /* ANNOTATION PANEL */
+    .anno-panel { width: 340px; display: flex; flex-direction: column; gap: 14px; padding-top: 40px; }
+    .anno-card { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+    .anno-num { font-size: 9px; font-weight: 700; letter-spacing: 0.12em; color: var(--c-bright); text-transform: uppercase; margin-bottom: 6px; }
+    .anno-title { font-size: 14px; font-weight: 700; color: var(--ink); margin-bottom: 8px; line-height: 1.3; }
+    .anno-body { font-size: 12px; color: var(--muted); line-height: 1.55; }
+
+    /* UI Elements */
+    .status-bar { height: 44px; display:flex; justify-content:space-between; align-items:center; padding: 0 24px; font-size: 12px; font-weight:600; color: var(--ink); z-index:90; position:relative;}
+    .status-bar.light { color: var(--white); }
+    
+    .btn { background: var(--c-bright); color: white; border: none; padding: 16px; width: 100%; border-radius: 16px; font-size: 15px; font-weight: 600; font-family: 'Sora', sans-serif; cursor: pointer; text-align:center; box-shadow: 0 8px 24px rgba(109, 40, 217, 0.25); transition: 0.2s; }
+    .btn:active { transform: scale(0.98); }
+
+    .top-nav { padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; font-weight: 700; font-size: 18px; }
+
+    /* S1: Prompt Input */
+    .s1 { background: var(--white); }
+    .hero-bg { background: linear-gradient(135deg, #1e1b4b, #6d28d9); height: 280px; position: absolute; top:0; left:0; width:100%; border-bottom-left-radius: 32px; border-bottom-right-radius: 32px; z-index:0; }
+    .hero-content { position: relative; z-index: 10; padding: 60px 24px 24px; color: white; }
+    .hc-title { font-size: 28px; font-weight: 800; line-height: 1.2; margin-bottom: 8px; }
+    .hc-sub { font-size: 14px; opacity: 0.9; margin-bottom: 32px; }
+    
+    .search-box { background: var(--white); padding: 24px; border-radius: 20px; box-shadow: 0 12px 32px rgba(0,0,0,0.1); }
+    .sb-label { font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.05em;}
+    .sb-input { width: 100%; border: 1px solid var(--border); border-radius: 12px; padding: 16px; font-size: 15px; font-family: 'Sora', sans-serif; margin-bottom: 16px; outline:none; background: var(--gray); resize:none; height:100px;}
+    
+    .suggestion-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+    .chip { background: var(--gray); border: 1px solid var(--border); padding: 8px 12px; border-radius: 16px; font-size: 12px; font-weight: 600; color: var(--muted); cursor:pointer; }
+
+    /* S2: AI Generation */
+    .s2 { background: var(--c-dark); color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+    .loader { width: 64px; height: 64px; border: 4px solid rgba(255,255,255,0.2); border-top-color: var(--c-accent); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 32px; }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+    .loading-text { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+    .loading-sub { font-size: 14px; color: #94a3b8; }
+    .brand-logos { display:flex; gap:16px; margin-top:40px; opacity:0.5;}
+    .bl-item { font-size:24px; }
+
+    /* S3: Curated Cart */
+    .s3 { background: var(--gray); }
+    .cart-header { padding: 24px; background: var(--white); border-bottom: 1px solid var(--border); }
+    .ch-title { font-size: 20px; font-weight: 800; margin-bottom: 4px; }
+    .ch-sub { font-size: 13px; color: var(--muted); }
+    
+    .curated-section { margin-top: 16px; }
+    .cs-head { padding: 0 24px 12px; font-size: 12px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    
+    .cart-item { background: var(--white); padding: 16px 24px; display: flex; align-items: center; gap: 16px; border-bottom: 1px solid var(--border); }
+    .ci-img { width: 48px; height: 48px; border-radius: 8px; background: #e2e8f0; display:flex; align-items:center; justify-content:center; font-size:20px; }
+    .ci-info { flex: 1; }
+    .ci-title { font-size: 13px; font-weight: 700; margin-bottom: 2px; }
+    .ci-brand { font-size: 10px; color: var(--c-bright); font-weight: 700; }
+    .ci-qty { background: var(--gray); border: 1px solid var(--border); border-radius: 8px; padding: 4px 12px; font-size: 12px; font-weight: 700; }
+
+    .bottom-bar { background: var(--white); border-top: 1px solid var(--border); padding: 16px 24px 24px; position: sticky; bottom: 0; display:flex; justify-content:space-between; align-items:center;}
+
+    /* S4: Success / Data */
+    .s4 { background: var(--white); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 40px; }
+    .metric-hero { font-size: 64px; font-weight: 800; color: var(--c-accent); margin-bottom: 8px; }
+    .metric-lbl { font-size: 16px; font-weight: 600; margin-bottom: 32px; color: var(--ink); }
+
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-logo">RF</div>
+  Rebel Foods — SureFeast · AI-Curated Occasion Ordering
+</div>
+
+<div class="wrap">
+  <div class="phone-wrap">
+    <div class="screen-label" id="screen-label">01 — OCCASION INPUT</div>
+    <div class="phone">
+      <div class="notch"></div>
+      
+      <!-- S1: Input -->
+      <div class="screen s1 active" id="s1">
+        <div class="hero-bg"></div>
+        <div class="status-bar light"><span>9:41</span><span>5G 🔋</span></div>
+        
+        <div class="hero-content">
+          <div class="hc-title">Hosting a party?</div>
+          <div class="hc-sub">Tell us what you need. Our AI will build the perfect multi-brand menu from a single kitchen.</div>
+          
+          <div class="search-box">
+            <div class="sb-label">What's the occasion?</div>
+            <textarea class="sb-input" placeholder="e.g., Movie night for 4 friends who want burgers and pizza...">Dinner for 6 people. We want Biryani, but two people are vegetarians.</textarea>
+            
+            <div class="suggestion-chips">
+              <div class="chip">Movie Night for 4</div>
+              <div class="chip">Office Lunch for 10</div>
+            </div>
+            
+            <button class="btn" style="margin-top:24px;" onclick="go(2)">Curate My Feast ✨</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- S2: AI Generation -->
+      <div class="screen s2" id="s2">
+        <div class="status-bar light"><span>9:41</span><span>5G 🔋</span></div>
+        <div class="loader"></div>
+        <div class="loading-text">Curating your menu...</div>
+        <div class="loading-sub">Sourcing from our closest multi-brand kitchen.</div>
+        
+        <div class="brand-logos">
+          <div class="bl-item">🥘</div>
+          <div class="bl-item">🍔</div>
+          <div class="bl-item">🌯</div>
+          <div class="bl-item">🍫</div>
+        </div>
+        
+        <button class="btn" style="background:var(--c-accent); color:var(--c-dark); margin-top:60px; width:60%;" onclick="go(3)">Ready!</button>
+      </div>
+
+      <!-- S3: Curated Cart -->
+      <div class="screen s3" id="s3">
+        <div class="status-bar"><span>9:41</span><span>5G 🔋</span></div>
+        <div class="top-nav"><span style="cursor:pointer;" onclick="go(1)">←</span> Menu Curated</div>
+        
+        <div class="cart-header">
+          <div class="ch-title">Dinner for 6</div>
+          <div class="ch-sub">Custom feast mapped to a single cloud kitchen to ensure everything arrives together, hot.</div>
+        </div>
+        
+        <div class="curated-section">
+          <div class="cs-head">The Mains</div>
+          <div class="cart-item">
+            <div class="ci-img">🥘</div>
+            <div class="ci-info">
+              <div class="ci-title">Murgh Afghani Biryani</div>
+              <div class="ci-brand">BEHROUZ</div>
+            </div>
+            <div class="ci-qty">2x</div>
+          </div>
+          <div class="cart-item">
+            <div class="ci-img">🥗</div>
+            <div class="ci-info">
+              <div class="ci-title">Paneer Subz Biryani (Veg)</div>
+              <div class="ci-brand">BEHROUZ</div>
+            </div>
+            <div class="ci-qty">2x</div>
+          </div>
+        </div>
+        
+        <div class="curated-section">
+          <div class="cs-head">The Sides & Desserts</div>
+          <div class="cart-item">
+            <div class="ci-img">🌯</div>
+            <div class="ci-info">
+              <div class="ci-title">Cheese Melt Paneer Roll</div>
+              <div class="ci-brand">FAASOS</div>
+            </div>
+            <div class="ci-qty">2x</div>
+          </div>
+          <div class="cart-item">
+            <div class="ci-img">🍫</div>
+            <div class="ci-info">
+              <div class="ci-title">Chocolate Fantasy</div>
+              <div class="ci-brand">SWEET TRUTH</div>
+            </div>
+            <div class="ci-qty">6x</div>
+          </div>
+        </div>
+        
+        <div class="bottom-bar">
+          <div>
+            <div style="font-size:12px; color:var(--muted); font-weight:700;">TOTAL (12 ITEMS)</div>
+            <div style="font-size:20px; font-weight:800;">₹1,850</div>
+          </div>
+          <button class="btn" style="width:140px; padding:12px;" onclick="go(4)">Checkout</button>
+        </div>
+      </div>
+
+      <!-- S4: Success / Data -->
+      <div class="screen s4" id="s4">
+        <div class="status-bar"><span>9:41</span><span>5G 🔋</span></div>
+        
+        <div style="font-size:48px; margin-bottom:24px;">🚀</div>
+        
+        <div class="metric-hero">4x</div>
+        <div class="metric-lbl">Average Order Value</div>
+        
+        <div class="metric-hero">1-Click</div>
+        <div class="metric-lbl">Cart Building</div>
+        
+        <p style="font-size:14px; line-height:1.6; color:var(--muted); padding:0 24px;">
+          Leveraging Rebel Foods' multi-brand USP to eliminate the cognitive load of organizing group orders.
+        </p>
+        
+        <button class="btn" style="margin-top:40px; width:80%;" onclick="go(1)">Reset Prototype</button>
+      </div>
+
+    </div>
+    
+    <div class="nav-dots">
+      <div class="ndot active" id="n1" onclick="go(1)"></div>
+      <div class="ndot" id="n2" onclick="go(2)"></div>
+      <div class="ndot" id="n3" onclick="go(3)"></div>
+      <div class="ndot" id="n4" onclick="go(4)"></div>
+    </div>
+  </div>
+
+  <div class="anno-panel" id="anno-cards"></div>
+</div>
+
+<script>
+const LABELS = { 1:'01 — OCCASION INPUT', 2:'02 — AI GENERATION', 3:'03 — CURATED MULTI-BRAND CART', 4:'04 — IMPACT METRICS' };
+const ANNO = {
+  1: [
+    { n:'THE PROBLEM', t:'Cognitive Load', b:'Ordering for a group of 6 people with different dietary preferences across multiple brands takes 10-15 minutes of scrolling, leading to high drop-off.' },
+    { n:'THE SOLUTION', t:'Prompt-Based UI', b:'Let the user describe their occasion naturally. The AI translates intent into inventory.' }
+  ],
+  2: [
+    { n:'REBEL FOODS USP', t:'The Cloud Kitchen Advantage', b:'Because Rebel Foods operates Behrouz, Faasos, and Sweet Truth from the same physical kitchen, this feature is impossible for Swiggy or Zomato to replicate without charging 3x delivery fees.' },
+    { n:'LOGISTICS', t:'Unified Fulfillment', b:'The AI only curates items that are currently in stock at the user’s nearest multi-brand kitchen, ensuring a single delivery rider.' }
+  ],
+  3: [
+    { n:'UX DECISION', t:'1-Click Edit', b:'The AI generates a complete cart. The user only has to review and checkout. They can easily swap an item if needed, but the heavy lifting is done.' },
+    { n:'AJAY’S PARALLEL', t:'Platform Discovery', b:'At PhonePe, I rebuilt discovery workflows to reduce the steps to conversion. SureFeast does exactly this for large-basket food orders.' }
+  ],
+  4: [
+    { n:'BUSINESS IMPACT', t:'Massive AOV Growth', b:'Occasion-based orders naturally have 4x-5x higher Average Order Value (AOV). Capturing this market segment drives massive topline GMV.' },
+    { n:'LOWER FUNNEL', t:'Frictionless Checkout', b:'By skipping the menu browsing phase entirely, we funnel high-intent "party" users straight to the checkout page.' }
+  ]
+};
+function go(n) {
+  [1,2,3,4].forEach(i => { document.getElementById('s'+i).classList.remove('active'); document.getElementById('n'+i).classList.remove('active'); });
+  document.getElementById('s'+n).classList.add('active'); document.getElementById('n'+n).classList.add('active');
+  document.getElementById('screen-label').textContent = LABELS[n];
+  document.getElementById('anno-cards').innerHTML = ANNO[n].map(c => `<div class="anno-card"><div class="anno-num">${c.n}</div><div class="anno-title">${c.t}</div><div class="anno-body">${c.b}</div></div>`).join('');
+}
+go(1);
+</script>
+</body>
+</html>

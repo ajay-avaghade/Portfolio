@@ -1,0 +1,77 @@
+Executive Summary
+Led the end-to-end revamp of the PhonePe offer journey, addressing critical market share attrition. By architecting a unified experience spanning discovery, application, benefit disbursal, and post-transaction flows, we transformed a fragmented reward system into a primary growth and retention lever. This initiative drove a 67% increase in user benefit redemption, successfully clawing back 200 bps in market share while simultaneously reducing marketing burn by 32% through algorithmic targeting.
+
+The Challenge: The "Invisible" Offer Problem
+Despite running a robust catalog of offers, PhonePe experienced a critical 300 bps drop in market share (slipping from 49% to 46%). The landscape was hyper-competitive: aggressive new entrants like Navi and Super Money were flooding the market with cashbacks, while competitors aggressively utilized homepage pop-ups to become the default receiving app.
+
+User research and Voice of Customer (VOC) data revealed a stark disconnect. Users weren't churning because PhonePe lacked offers; they were churning because the offers were practically invisible.
+
+Core VOC Insights:
+
+"PhonePe isn't giving offers anymore."
+
+"I don't know where to find offers for recharges or bill payments."
+
+"I can't find the reward I was promised."
+
+"There are no offers on my preferred payment instruments."
+
+The fundamental problem was not offer supply, but ubiquitous offer discovery, application transparency, and a frictionless checkout experience.
+
+Strategic Approach & Target Audience
+Instead of engaging in a blind price war, we took a targeted, data-driven approach. We identified "switchers"—highly price-sensitive users migrating to competitor platforms for rewards.
+
+To acquire and retain this cohort efficiently, I architected a 'propensity-to-transact' model. This allowed us to intelligently cohort users and target aggressive offers specifically toward these high-flight-risk offer seekers, effectively optimizing our acquisition cost and reducing overall marketing burn by 32%.
+
+Product Solutions & Execution
+1. Contextual & Ubiquitous Discovery
+
+Homepage Integration: Brought offer discovery out of hidden menus directly onto the homepage within category tiles.
+
+Smart Placements: Integrated with the recommendation engine to dynamically showcase relevant offers at various high-intent placements throughout the app.
+
+[Insert Design: Homepage category tiles with dynamic offer badges/banners]
+
+2. Revamped Checkout & Application Experience
+
+Supplementary Constraints: Instead of only showing the single offer being automatically applied during checkout, we introduced visibility for other probable offers.
+
+Intelligent Nudging: Implemented real-time checkout nudges prompting users to change their payment instrument or adjust their cart total to unlock a higher-value reward.
+
+Stacks & Sections Logic: Built a robust taxonomy to differentiate "Category-based" and "Instrument-based" offers, allowing users to maximize selectable combinations without breaking unit economics.
+
+[Insert Design: Checkout screen showing nudges, supplementary offers, and Stacks/Sections UI]
+
+3. Closing the Loop: Disbursal & Recall
+
+Post-Transaction Validation: Redesigned the success screen to prominently display the disbursed benefit, featuring direct redirects to the actual reward (closing the cognitive loop on "I didn't get my reward").
+
+Multi-Channel Confirmation: Triggered automated CRM communications confirming benefit disbursal to reinforce brand trust and offer recall.
+
+[Insert Design: Post-transaction success screen with benefit disbursal and redirect flows]
+
+Technical Architecture & Scale
+To power this dynamic experience without degrading core app performance, we overhauled the backend architecture:
+
+The "Catalogue" Service: Introduced a dedicated service to treat offers as highly marketable, dynamic entities.
+
+Smart Caching: Implemented advanced caching via Catalogue to handle peak homepage traffic loads without relying on heavy database queries.
+
+Latency Guardrails: Maintained strict checkout network latency under 180 ms, ensuring the augmented offer logic didn't slow down the core payment flow.
+
+Business Impact & Key Metrics
+Success Metrics (The "Why"):
+
+Market Share: Clawed back 200 bps in market share, directly countering the aggressive tactics of new entrants.
+
+NPS: Jumped from 67% to 71%, with qualitative data citing "ease of finding offers" and "recall of benefits" as the primary drivers.
+
+Product & Support Metrics (The "How"):
+
+Redemption Lift: 67% increase in overall user benefit redemption.
+
+Scratch Card Engagement: Scratch rate improved dramatically from 23% to 76%.
+
+Checkout Conversion: 22% uplift in successful checkouts for offer-applied transactions.
+
+Strategic Instrument Acquisition: 66% increase in users voluntarily switching their default payment option to claim an offer—creating a massive, zero-cost acquisition channel for strategic products like UPI Lite, RuPay Credit Cards, and Co-branded cards.
