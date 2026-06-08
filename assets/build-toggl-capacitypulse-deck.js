@@ -53,11 +53,11 @@ slide.addText('From Reporting to Intervention', { x: 0.5, y: 1, w: 9, fontSize: 
 
 slide.addShape(prs.ShapeType.rect, { x: 0.5, y: 2.5, w: 4, h: 4, fill: { color: C.white }, shadow: makeShadow(), rectRadius: 0.1 });
 slide.addText('❌ Legacy Time Tracking', { x: 1, y: 3, w: 3, fontSize: 16, bold: true, color: C.dark });
-slide.addText('• Backward-looking data\n• Used primarily for billing/payroll\n• Manual capacity calculation\n• Employees feel surveilled', { x: 1, y: 3.5, w: 3, fontSize: 13, color: C.muted, bullet: true, lineSpacing: 24 });
+slide.addText('• Backward-looking data\n• Used primarily for billing/payroll\n• Manual capacity calculation\n• Employees feel surveilled', { x: 1, y: 3.5, w: 3, h: 2.5, valign: "top", fontSize: 13, color: C.muted, bullet: true, lineSpacing: 24 });
 
 slide.addShape(prs.ShapeType.rect, { x: 5.5, y: 2.5, w: 4, h: 4, fill: { color: C.dark }, shadow: makeShadow(), rectRadius: 0.1 });
 slide.addText('✅ Toggl CapacityPulse', { x: 6, y: 3, w: 3, fontSize: 16, bold: true, color: C.bright });
-slide.addText('• Forward-looking predictive ML\n• Identifies context-switching strain\n• 1-click workload redistribution\n• Employees feel protected', { x: 6, y: 3.5, w: 3, fontSize: 13, color: C.lgray, bullet: true, lineSpacing: 24 });
+slide.addText('• Forward-looking predictive ML\n• Identifies context-switching strain\n• 1-click workload redistribution\n• Employees feel protected', { x: 6, y: 3.5, w: 3, h: 2.5, valign: "top", fontSize: 13, color: C.lgray, bullet: true, lineSpacing: 24 });
 
 slide.addShape(prs.ShapeType.ellipse, { x: 4.6, y: 4.1, w: 0.8, h: 0.8, fill: { color: C.bright }, shadow: makeShadow() });
 slide.addText('VS', { x: 4.6, y: 4.1, w: 0.8, h: 0.8, fontSize: 12, bold: true, color: C.dark, align: 'center' });
@@ -128,11 +128,11 @@ slide.addShape(prs.ShapeType.rect, { x: 5, y: 0, w: 5, h: 7.5, fill: { color: C.
 
 slide.addText('MY EXPERIENCE', { x: 0.5, y: 0.5, w: 4, fontSize: 10, bold: true, color: C.muted, letterSpacing: 0.08 });
 slide.addText('PhonePe ML Scale', { x: 0.5, y: 1, w: 4, fontSize: 24, bold: true, color: C.white });
-slide.addText('• Led ML-driven Propensity-to-Transact modeling for 350M+ users.\n• Abstracted complex ML logic into clear, actionable dashboards.\n• Optimized checkout workflows to drive +22% conversion lift.', { x: 0.5, y: 2, w: 4, fontSize: 14, color: C.muted, bullet: true, lineSpacing: 24 });
+slide.addText('• Led ML-driven Propensity-to-Transact modeling for 350M+ users.\n• Abstracted complex ML logic into clear, actionable dashboards.\n• Optimized checkout workflows to drive +22% conversion lift.', { x: 0.5, y: 2, w: 4, h: 2.5, valign: "top", fontSize: 14, color: C.muted, bullet: true, lineSpacing: 24 });
 
 slide.addText('TOGGL ALIGNMENT', { x: 5.5, y: 0.5, w: 4, fontSize: 10, bold: true, color: C.muted, letterSpacing: 0.08 });
 slide.addText('Why I fit this role', { x: 5.5, y: 1, w: 4, fontSize: 24, bold: true, color: C.dark });
-slide.addText('• Proven ability to leverage data & ML for intelligent products.\n• Embedded highly with engineering and design to execute complex architectures.\n• Deeply problem-first, obsessed with uncovering user utility.', { x: 5.5, y: 2, w: 4, fontSize: 14, color: C.dark, bullet: true, lineSpacing: 24 });
+slide.addText('• Proven ability to leverage data & ML for intelligent products.\n• Embedded highly with engineering and design to execute complex architectures.\n• Deeply problem-first, obsessed with uncovering user utility.', { x: 5.5, y: 2, w: 4, h: 2.5, valign: "top", fontSize: 14, color: C.dark, bullet: true, lineSpacing: 24 });
 
 slide.addShape(prs.ShapeType.rect, { x: 0.5, y: 5.5, w: 9, h: 1.5, fill: { color: C.bright }, rectRadius: 0.1 });
 slide.addText('"The best PMs do not just organize tickets. They use ML and data logic to fundamentally shift how users perceive value and scale product-led growth."', { x: 1, y: 5.6, w: 8, h: 1.3, fontSize: 16, bold: true, color: C.dark, align: 'center', italic: true });

@@ -33,31 +33,31 @@ slide.addText('Ajay Avaghade', { x: 1, y: 4.5, w: 4, fontSize: 12, bold: true, c
 
 // SLIDE 2: The Problem
 slide = prs.addSlide({ masterName: 'BYBIT_MASTER' });
-slide.addText('The Friction', { x: 0.5, y: 0.5, w: 4, fontSize: 20, bold: true, color: C.bright });
+slide.addText('The Friction', { x: 0.5, y: 0.5, w: 4, h: 0.6, valign: "top", fontSize: 20, bold: true, color: C.bright });
 slide.addShape(prs.ShapeType.rect, { x: 0.5, y: 1.5, w: 4, h: 2.5, fill: { color: C.panel } });
-slide.addText('Current State', { x: 0.7, y: 1.7, w: 3.6, fontSize: 14, bold: true, color: C.white });
-slide.addText('• 100% upfront verification required\n• Heavy document uploads at step 1\n• 40% drop-off in institutional funnels\n• Delayed time-to-first-trade', { x: 0.7, y: 2.1, w: 3.6, fontSize: 12, color: C.lgray, bullet: true, lineSpacing: 20 });
+slide.addText('Current State', { x: 0.7, y: 1.7, w: 3.6, h: 0.4, valign: "top", fontSize: 14, bold: true, color: C.white });
+slide.addText('• 100% upfront verification required\n• Heavy document uploads at step 1\n• 40% drop-off in institutional funnels\n• Delayed time-to-first-trade', { x: 0.7, y: 2.1, w: 3.6, h: 2.5, valign: "top", fontSize: 12, color: C.lgray, bullet: true, lineSpacing: 20 });
 
 slide.addShape(prs.ShapeType.rect, { x: 5.5, y: 1.5, w: 4, h: 2.5, fill: { color: C.panel }, line: { color: C.bright, width: 1 } });
-slide.addText('The Business Impact', { x: 5.7, y: 1.7, w: 3.6, fontSize: 14, bold: true, color: C.white });
-slide.addText('• Lost AUM from high-net-worth clients\n• Overwhelmed compliance ops teams\n• Poor UX vs local EEA competitors', { x: 5.7, y: 2.1, w: 3.6, fontSize: 12, color: C.lgray, bullet: true, lineSpacing: 20 });
+slide.addText('The Business Impact', { x: 5.7, y: 1.7, w: 3.6, h: 0.4, valign: "top", fontSize: 14, bold: true, color: C.white });
+slide.addText('• Lost AUM from high-net-worth clients\n• Overwhelmed compliance ops teams\n• Poor UX vs local EEA competitors', { x: 5.7, y: 2.1, w: 3.6, h: 2.5, valign: "top", fontSize: 12, color: C.lgray, bullet: true, lineSpacing: 20 });
 
 // SLIDE 3: The Solution
 slide = prs.addSlide({ masterName: 'BYBIT_MASTER' });
-slide.addText('ClearKYB Architecture', { x: 0.5, y: 0.5, w: 5, fontSize: 20, bold: true, color: C.bright });
+slide.addText('ClearKYB Architecture', { x: 0.5, y: 0.5, w: 5, h: 0.6, valign: "top", fontSize: 20, bold: true, color: C.bright });
 
-slide.addText('❌ Legacy Verification', { x: 0.5, y: 1.5, w: 3, fontSize: 16, bold: true, color: C.lgray });
-slide.addText('• Monolithic forms\n• Synchronous checks\n• High cognitive load\n• Binary access (all/none)', { x: 0.5, y: 2, w: 3, fontSize: 13, color: C.lgray, bullet: true, lineSpacing: 24 });
+slide.addText('❌ Legacy Verification', { x: 0.5, y: 1.5, w: 3, h: 0.4, valign: "top", fontSize: 16, bold: true, color: C.lgray });
+slide.addText('• Monolithic forms\n• Synchronous checks\n• High cognitive load\n• Binary access (all/none)', { x: 0.5, y: 2, w: 3, h: 2.5, valign: "top", fontSize: 13, color: C.lgray, bullet: true, lineSpacing: 24 });
 
-slide.addText('✅ ClearKYB Flow', { x: 6, y: 1.5, w: 3, fontSize: 16, bold: true, color: C.bright });
-slide.addText('• Progressive profiling\n• Tiered API access limits\n• Async document review\n• Immediate Crypto-only access', { x: 6, y: 2, w: 3, fontSize: 13, color: C.white, bullet: true, lineSpacing: 24 });
+slide.addText('✅ ClearKYB Flow', { x: 6, y: 1.5, w: 3, h: 0.4, valign: "top", fontSize: 16, bold: true, color: C.bright });
+slide.addText('• Progressive profiling\n• Tiered API access limits\n• Async document review\n• Immediate Crypto-only access', { x: 6, y: 2, w: 3, h: 2.5, valign: "top", fontSize: 13, color: C.white, bullet: true, lineSpacing: 24 });
 
 slide.addShape(prs.ShapeType.ellipse, { x: 4.6, y: 2.1, w: 0.8, h: 0.8, fill: { color: C.bright }, shadow: makeShadow() });
 slide.addText('VS', { x: 4.6, y: 2.1, w: 0.8, h: 0.8, fontSize: 12, bold: true, color: C.dark, align: 'center' });
 
 // SLIDE 4: The Mechanic
 slide = prs.addSlide({ masterName: 'BYBIT_MASTER' });
-slide.addText('How it works', { x: 0.5, y: 0.5, w: 4, fontSize: 20, bold: true, color: C.bright });
+slide.addText('How it works', { x: 0.5, y: 0.5, w: 4, h: 0.6, valign: "top", fontSize: 20, bold: true, color: C.bright });
 
 const steps = ['Basic Reg', 'Tier 1 Access', 'Doc Upload', 'Full SEPA'];
 slide.addShape(prs.ShapeType.rect, { x: 1, y: 2.5, w: 8, h: 0.05, fill: { color: C.lgray } });
@@ -70,7 +70,7 @@ steps.forEach((step, i) => {
 
 // SLIDE 5: Metrics
 slide = prs.addSlide({ masterName: 'BYBIT_MASTER' });
-slide.addText('Impact & KPIs', { x: 0.5, y: 0.5, w: 4, fontSize: 20, bold: true, color: C.bright });
+slide.addText('Impact & KPIs', { x: 0.5, y: 0.5, w: 4, h: 0.6, valign: "top", fontSize: 20, bold: true, color: C.bright });
 
 const metrics = [
   { val: '+35%', lbl: 'Onboarding Conv.' },

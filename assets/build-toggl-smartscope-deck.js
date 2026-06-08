@@ -51,11 +51,11 @@ slide.addText('Data-Driven Realism', { x: 0.5, y: 1, w: 9, fontSize: 28, bold: t
 
 slide.addShape(prs.ShapeType.rect, { x: 0.5, y: 2.5, w: 4, h: 4, fill: { color: C.white }, shadow: makeShadow(), rectRadius: 0.1 });
 slide.addText('❌ Manual Estimation', { x: 1, y: 3, w: 3, fontSize: 16, bold: true, color: C.dark });
-slide.addText('• Relies on PM gut feeling\n• Optimism bias uncorrected\n• Missed deadlines\n• Data goes unused', { x: 1, y: 3.5, w: 3, fontSize: 13, color: C.muted, bullet: true, lineSpacing: 24 });
+slide.addText('• Relies on PM gut feeling\n• Optimism bias uncorrected\n• Missed deadlines\n• Data goes unused', { x: 1, y: 3.5, w: 3, h: 2.5, valign: "top", fontSize: 13, color: C.muted, bullet: true, lineSpacing: 24 });
 
 slide.addShape(prs.ShapeType.rect, { x: 5.5, y: 2.5, w: 4, h: 4, fill: { color: C.dark }, shadow: makeShadow(), rectRadius: 0.1 });
 slide.addText('✅ Toggl SmartScope', { x: 6, y: 3, w: 3, fontSize: 16, bold: true, color: C.bright });
-slide.addText('• AI matches similar projects\n• Applies realism buffers\n• Confidence scoring\n• Pacing alerts', { x: 6, y: 3.5, w: 3, fontSize: 13, color: C.lgray, bullet: true, lineSpacing: 24 });
+slide.addText('• AI matches similar projects\n• Applies realism buffers\n• Confidence scoring\n• Pacing alerts', { x: 6, y: 3.5, w: 3, h: 2.5, valign: "top", fontSize: 13, color: C.lgray, bullet: true, lineSpacing: 24 });
 
 slide.addShape(prs.ShapeType.ellipse, { x: 4.6, y: 4.1, w: 0.8, h: 0.8, fill: { color: C.bright }, shadow: makeShadow() });
 slide.addText('VS', { x: 4.6, y: 4.1, w: 0.8, h: 0.8, fontSize: 12, bold: true, color: C.dark, align: 'center' });
@@ -126,11 +126,11 @@ slide.addShape(prs.ShapeType.rect, { x: 5, y: 0, w: 5, h: 7.5, fill: { color: C.
 
 slide.addText('MY EXPERIENCE', { x: 0.5, y: 0.5, w: 4, fontSize: 10, bold: true, color: C.muted, letterSpacing: 0.08 });
 slide.addText('PhonePe Ops Data', { x: 0.5, y: 1, w: 4, fontSize: 24, bold: true, color: C.white });
-slide.addText('• Reduced offer operations TAT from 2 days to 30 mins.\n• Used complex data ingestion to build self-serve merchant toolsets.\n• Focused entirely on leveraging existing data to optimize workflows.', { x: 0.5, y: 2, w: 4, fontSize: 14, color: C.muted, bullet: true, lineSpacing: 24 });
+slide.addText('• Reduced offer operations TAT from 2 days to 30 mins.\n• Used complex data ingestion to build self-serve merchant toolsets.\n• Focused entirely on leveraging existing data to optimize workflows.', { x: 0.5, y: 2, w: 4, h: 2.5, valign: "top", fontSize: 14, color: C.muted, bullet: true, lineSpacing: 24 });
 
 slide.addText('TOGGL ALIGNMENT', { x: 5.5, y: 0.5, w: 4, fontSize: 10, bold: true, color: C.muted, letterSpacing: 0.08 });
 slide.addText('Why I fit this role', { x: 5.5, y: 1, w: 4, fontSize: 24, bold: true, color: C.dark });
-slide.addText('• Strong outcome-driven product management.\n• Heavily utilizes AI in execution and planning (as requested in JD).\n• Problem-first thinker focused on B2B SaaS retention metrics.', { x: 5.5, y: 2, w: 4, fontSize: 14, color: C.dark, bullet: true, lineSpacing: 24 });
+slide.addText('• Strong outcome-driven product management.\n• Heavily utilizes AI in execution and planning (as requested in JD).\n• Problem-first thinker focused on B2B SaaS retention metrics.', { x: 5.5, y: 2, w: 4, h: 2.5, valign: "top", fontSize: 14, color: C.dark, bullet: true, lineSpacing: 24 });
 
 slide.addShape(prs.ShapeType.rect, { x: 0.5, y: 5.5, w: 9, h: 1.5, fill: { color: C.bright }, rectRadius: 0.1 });
 slide.addText('"Time tracking data is a goldmine that most tools ignore. Building intelligence on top of it creates unshakeable B2B stickiness."', { x: 1, y: 5.6, w: 8, h: 1.3, fontSize: 16, bold: true, color: C.dark, align: 'center', italic: true });
