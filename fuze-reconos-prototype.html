@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fuze ReconOS - Ledger & Settlements</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
+        :root {
+            --bg-base: #0A0E17;
+            --bg-panel: #111827;
+            --text-primary: #F3F4F6;
+            --text-secondary: #9CA3AF;
+            --accent-blue: #3B82F6;
+            --accent-cyan: #06B6D4;
+            --accent-green: #10B981;
+            --accent-orange: #F59E0B;
+            --border-color: #1F2937;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .browser-mockup {
+            width: 1000px;
+            height: 700px;
+            background: var(--bg-panel);
+            border-radius: 12px;
+            box-shadow: 0 24px 48px rgba(0,0,0,0.5);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--border-color);
+        }
+
+        .browser-header {
+            height: 40px;
+            background: #0A0E17;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .browser-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        .dot.red { background: #FF5F56; }
+        .dot.yellow { background: #FFBD2E; }
+        .dot.green { background: #27C93F; }
+
+        .browser-url {
+            flex-grow: 1;
+            margin: 0 20px;
+            background: var(--bg-panel);
+            height: 24px;
+            border-radius: 4px;
+            color: var(--text-secondary);
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .app-container {
+            display: flex;
+            flex-grow: 1;
+        }
+
+        .sidebar {
+            width: 240px;
+            border-right: 1px solid var(--border-color);
+            padding: 24px 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            padding: 0 24px 24px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo span {
+            color: var(--text-primary);
+        }
+
+        .nav-item {
+            padding: 12px 24px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+        }
+
+        .nav-item.active {
+            color: var(--accent-cyan);
+            background: rgba(6, 182, 212, 0.1);
+            border-right: 3px solid var(--accent-cyan);
+        }
+
+        .main-content {
+            flex-grow: 1;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 32px;
+        }
+
+        .header h1 {
+            margin: 0 0 8px;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .header p {
+            margin: 0;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        
+        .filters {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        
+        .filter-btn {
+            background: var(--bg-base);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        
+        .filter-btn.active {
+            background: rgba(6, 182, 212, 0.1);
+            color: var(--accent-cyan);
+            border-color: var(--accent-cyan);
+        }
+
+        .table-container {
+            background: var(--bg-base);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px 16px;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-panel);
+        }
+
+        td {
+            padding: 16px;
+            font-size: 13px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+        
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        .badge.matched {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--accent-green);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+        
+        .badge.pending {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--accent-orange);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        .hash {
+            font-family: monospace;
+            color: var(--accent-blue);
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="browser-mockup">
+    <div class="browser-header">
+        <div class="browser-dots">
+            <div class="dot red"></div>
+            <div class="dot yellow"></div>
+            <div class="dot green"></div>
+        </div>
+        <div class="browser-url">
+            🔒 console.fuze.finance/recon-os/ledger
+        </div>
+    </div>
+    
+    <div class="app-container">
+        <div class="sidebar">
+            <div class="logo">⚡ Fuze <span>ReconOS</span></div>
+            <div class="nav-item">
+                📊 Dashboard
+            </div>
+            <div class="nav-item active">
+                📑 Multi-Rail Ledger
+            </div>
+            <div class="nav-item">
+                🏦 Bank Settlements
+            </div>
+            <div class="nav-item">
+                🛡️ Risk Alerts (0)
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="header">
+                <div>
+                    <h1>Automated Transaction Ledger</h1>
+                    <p>Auto-matching on-chain digital asset flows with fiat bank settlements.</p>
+                </div>
+            </div>
+            
+            <div class="filters">
+                <button class="filter-btn active">All Transactions</button>
+                <button class="filter-btn">Matched</button>
+                <button class="filter-btn">Pending Fiat</button>
+                <button class="filter-btn">Exceptions</button>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>TX ID</th>
+                            <th>Partner App</th>
+                            <th>Digital Asset (On-Chain)</th>
+                            <th>Fiat Rail (Off-Chain)</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="hash">tx_98A2f...</td>
+                            <td>MerchantPay LLC</td>
+                            <td>+50,000 USDC<br><span style="color:var(--text-secondary); font-size:11px;">0x3f5c...a1b2</span></td>
+                            <td>-183,650 AED<br><span style="color:var(--text-secondary); font-size:11px;">FAB Corporate Auto-Sweep</span></td>
+                            <td><span class="badge matched">Auto-Matched</span></td>
+                        </tr>
+                        <tr>
+                            <td class="hash">tx_71B9e...</td>
+                            <td>SuperApp MENA</td>
+                            <td>-12,500 USDT<br><span style="color:var(--text-secondary); font-size:11px;">0x8a9d...4f2e</span></td>
+                            <td>+12,500 USD<br><span style="color:var(--text-secondary); font-size:11px;">JP Morgan SWIFT (Pending)</span></td>
+                            <td><span class="badge pending">Awaiting Fiat Settlement</span></td>
+                        </tr>
+                        <tr>
+                            <td class="hash">tx_33C4d...</td>
+                            <td>Retail Broker Co</td>
+                            <td>+10.5 BTC<br><span style="color:var(--text-secondary); font-size:11px;">bc1q...9jkp</span></td>
+                            <td>-682,500 USD<br><span style="color:var(--text-secondary); font-size:11px;">Internal Treasury Pool</span></td>
+                            <td><span class="badge matched">Auto-Matched</span></td>
+                        </tr>
+                        <tr>
+                            <td class="hash">tx_55D1a...</td>
+                            <td>MerchantPay LLC</td>
+                            <td>+5,000 USDC<br><span style="color:var(--text-secondary); font-size:11px;">0x1b2c...8f9e</span></td>
+                            <td>-18,365 AED<br><span style="color:var(--text-secondary); font-size:11px;">FAB Corporate Auto-Sweep</span></td>
+                            <td><span class="badge matched">Auto-Matched</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div style="margin-top: 24px; padding: 16px; background: var(--bg-panel); border: 1px solid var(--border-color); border-radius: 8px; display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                    <div style="font-weight: 600; font-size: 14px;">Daily Reconciliation Run</div>
+                    <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">4,281 transactions matched. Zero compliance anomalies.</div>
+                </div>
+                <button style="background: transparent; color: var(--accent-cyan); border: 1px solid var(--accent-cyan); padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 500;">Export Compliance Report</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

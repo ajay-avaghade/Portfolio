@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fuze PayBridge - Cross-Border API</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
+        :root {
+            --bg-base: #0A0E17;
+            --bg-panel: #111827;
+            --text-primary: #F3F4F6;
+            --text-secondary: #9CA3AF;
+            --accent-blue: #3B82F6;
+            --accent-cyan: #06B6D4;
+            --accent-green: #10B981;
+            --border-color: #1F2937;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .browser-mockup {
+            width: 1000px;
+            height: 700px;
+            background: var(--bg-panel);
+            border-radius: 12px;
+            box-shadow: 0 24px 48px rgba(0,0,0,0.5);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--border-color);
+        }
+
+        .browser-header {
+            height: 40px;
+            background: #0A0E17;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .browser-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        .dot.red { background: #FF5F56; }
+        .dot.yellow { background: #FFBD2E; }
+        .dot.green { background: #27C93F; }
+
+        .browser-url {
+            flex-grow: 1;
+            margin: 0 20px;
+            background: var(--bg-panel);
+            height: 24px;
+            border-radius: 4px;
+            color: var(--text-secondary);
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .app-container {
+            display: flex;
+            flex-grow: 1;
+        }
+
+        .sidebar {
+            width: 240px;
+            border-right: 1px solid var(--border-color);
+            padding: 24px 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--accent-blue);
+            padding: 0 24px 24px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo span {
+            color: var(--text-primary);
+        }
+
+        .nav-item {
+            padding: 12px 24px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+        }
+
+        .nav-item.active {
+            color: var(--accent-blue);
+            background: rgba(59, 130, 246, 0.1);
+            border-right: 3px solid var(--accent-blue);
+        }
+
+        .main-content {
+            flex-grow: 1;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 32px;
+        }
+
+        .header h1 {
+            margin: 0 0 8px;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .header p {
+            margin: 0;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .panel {
+            background: var(--bg-base);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 24px;
+        }
+
+        .panel-header {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .stat-large {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .stat-sub {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .flow-diagram {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 24px;
+        }
+
+        .flow-node {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+            flex: 1;
+        }
+
+        .flow-node-title {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .flow-node-val {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .flow-arrow {
+            color: var(--accent-cyan);
+            font-size: 20px;
+            padding: 0 16px;
+        }
+
+        .api-console {
+            background: #000;
+            border-radius: 8px;
+            padding: 16px;
+            font-family: monospace;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 16px;
+        }
+
+        .api-console .line { margin-bottom: 4px; }
+        .api-console .key { color: var(--accent-blue); }
+        .api-console .string { color: var(--accent-green); }
+        
+        .badge {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--accent-green);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="browser-mockup">
+    <div class="browser-header">
+        <div class="browser-dots">
+            <div class="dot red"></div>
+            <div class="dot yellow"></div>
+            <div class="dot green"></div>
+        </div>
+        <div class="browser-url">
+            🔒 console.fuze.finance/paybridge/simulator
+        </div>
+    </div>
+    
+    <div class="app-container">
+        <div class="sidebar">
+            <div class="logo">⚡ Fuze <span>PayBridge</span></div>
+            <div class="nav-item">
+                📊 Dashboard
+            </div>
+            <div class="nav-item active">
+                🌐 Cross-Border API
+            </div>
+            <div class="nav-item">
+                💱 Liquidity Pools
+            </div>
+            <div class="nav-item">
+                ⚙️ Webhooks
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="header">
+                <div>
+                    <h1>Cross-Border Settlement Simulator</h1>
+                    <p>Simulate T+0 remittance routing using digital asset liquidity pools.</p>
+                </div>
+            </div>
+
+            <div class="dashboard-grid">
+                <div class="panel">
+                    <div class="panel-header">
+                        Live Execution (AED to EUR)
+                        <span class="badge">T+0 Settlement</span>
+                    </div>
+                    
+                    <div class="flow-diagram">
+                        <div class="flow-node" style="border-color: var(--accent-blue)">
+                            <div class="flow-node-title">Originating Fiat (AED)</div>
+                            <div class="flow-node-val">100,000 AED</div>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-node" style="border-color: var(--accent-cyan); background: rgba(6, 182, 212, 0.05)">
+                            <div class="flow-node-title">Digital Asset Pool</div>
+                            <div class="flow-node-val">USDC Router</div>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-node" style="border-color: var(--accent-green)">
+                            <div class="flow-node-title">Receiving Fiat (EUR)</div>
+                            <div class="flow-node-val">25,230 EUR</div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 24px; font-size: 13px; color: var(--text-secondary); display: flex; justify-content: space-between;">
+                        <span>Effective Exchange Rate: 0.2523</span>
+                        <span>Estimated Savings vs SWIFT: 1.4%</span>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-header">API Request Payload</div>
+                    <div class="api-console">
+                        <div class="line">{</div>
+                        <div class="line">  <span class="key">"intent"</span>: <span class="string">"cross_border_remittance"</span>,</div>
+                        <div class="line">  <span class="key">"source_currency"</span>: <span class="string">"AED"</span>,</div>
+                        <div class="line">  <span class="key">"target_currency"</span>: <span class="string">"EUR"</span>,</div>
+                        <div class="line">  <span class="key">"amount"</span>: <span class="string">100000</span>,</div>
+                        <div class="line">  <span class="key">"routing_preference"</span>: <span class="string">"stablecoin_pool"</span>,</div>
+                        <div class="line">  <span class="key">"kyb_status"</span>: <span class="string">"verified"</span></div>
+                        <div class="line">}</div>
+                    </div>
+                    <button style="margin-top: 16px; background: var(--accent-blue); color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 500;">Execute POST /v1/settlements</button>
+                </div>
+            </div>
+            
+            <div class="panel" style="background: rgba(16, 185, 129, 0.05); border-color: var(--accent-green);">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="font-size: 24px;">✓</div>
+                    <div>
+                        <div style="font-weight: 600; color: var(--text-primary);">Transaction Settled Automatically</div>
+                        <div style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">The API abstracted the crypto conversion entirely. The end-user super app in UAE debited AED, and the merchant in Europe received EUR in 4 seconds.</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
