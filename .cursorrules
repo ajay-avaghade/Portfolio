@@ -529,7 +529,14 @@ Always provide the quick-edit tip:
 ## 8 · OUTREACH TEMPLATES (Phase 6)
 
 **File Format**: ALWAYS write outreach messages into a plain text file (`/Users/ajayavaghade/Job Apply AI/[Company]_Outreach.txt`). Do NOT use markdown syntax (like `**bold**` or `[link](url)`) as it requires manual sorting.
-**Cover Letter**: You MUST also generate a formal Cover Letter (`/Users/ajayavaghade/Job Apply AI/[Company]_COVER_LETTER.txt`) every time as part of the outreach, referencing the newly created case studies and mapping past experience directly to the specific JD points.
+**Cover Letter**: You MUST also generate a formal Cover Letter every time as part of the outreach.
+1. Build it as an HTML file first (`/Users/ajayavaghade/Job Apply AI/[Company]_COVER_LETTER.html`) using an elegant, professional CSS layout (similar to the resume format, max-width 800px).
+2. Generate a PDF from the HTML using Headless Chrome (`[Company]_COVER_LETTER.pdf`).
+3. The content MUST be verbose and explicitly structured around:
+   - Interest in the job and company.
+   - Why Ajay is a good fit for the role based on past work experience (PhonePe scale, metrics, etc).
+   - The specific case studies we solved for them in the portfolio.
+   - Relocation status and Visa sponsorship requirements (Open to Remote APJ/EMEA & Relocation UAE/Europe; requires visa).
 
 ### 8.1 LinkedIn Note (≤300 chars)
 ```
