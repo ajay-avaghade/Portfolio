@@ -104,7 +104,7 @@ Phase 2 → Build HTML prototype (4 screens) → QA checklist
 Phase 3 → Build PptxGenJS CEO deck (8 slides) → Text extraction QA
 Phase 4 → Add portfolio block to index.html → git push → Update case studies table
 Phase 5 → Generate HTML resume → Self-check → Generate PDF via Chrome Headless
-Phase 6 → Write LinkedIn note (≤300 chars) + email in .txt format → QA
+Phase 6 → Write LinkedIn note (≤300 chars) + email + Cover Letter in .txt format → QA
 ```
 
 **Rule: Always confirm the case study direction (Phase 1.4 brief) before building anything.**
@@ -529,6 +529,7 @@ Always provide the quick-edit tip:
 ## 8 · OUTREACH TEMPLATES (Phase 6)
 
 **File Format**: ALWAYS write outreach messages into a plain text file (`/Users/ajayavaghade/Job Apply AI/[Company]_Outreach.txt`). Do NOT use markdown syntax (like `**bold**` or `[link](url)`) as it requires manual sorting.
+**Cover Letter**: You MUST also generate a formal Cover Letter (`/Users/ajayavaghade/Job Apply AI/[Company]_COVER_LETTER.txt`) every time as part of the outreach, referencing the newly created case studies and mapping past experience directly to the specific JD points.
 
 ### 8.1 LinkedIn Note (≤300 chars)
 ```
