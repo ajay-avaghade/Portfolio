@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hala FlexiCap — Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --navy: #0F172A; --navy-light: #1E293B; --teal: #0D9488; --teal-light: #CCFBF1;
+  --gray: #F1F5F9; --gray-dark: #64748B; --white: #FFFFFF; --success: #10B981;
+}
+body {
+  font-family: 'Inter', sans-serif;
+  background: #E2E8F0;
+  display: flex; align-items: flex-start; justify-content: center;
+  min-height: 100vh; padding: 40px 24px;
+}
+.phone { width: 375px; background: var(--gray); border-radius: 40px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); overflow: hidden; position: relative; border: 12px solid var(--navy); }
+.notch { width: 140px; height: 28px; background: var(--navy); border-radius: 0 0 16px 16px; margin: 0 auto; position: absolute; top: 0; left: 50%; transform: translateX(-50%); z-index: 10; }
+.status-bar { padding: 12px 24px 8px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: 600; color: var(--navy); }
+.header { padding: 24px 24px 16px; background: var(--white); border-bottom: 1px solid #E2E8F0; }
+.title { font-size: 20px; font-weight: 700; color: var(--navy); }
+.subtitle { font-size: 13px; color: var(--gray-dark); margin-top: 4px; }
+.content { padding: 20px; height: 600px; overflow-y: auto; scrollbar-width: none; }
+.content::-webkit-scrollbar { display: none; }
+
+.card { background: var(--white); border-radius: 16px; padding: 20px; margin-bottom: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+.card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.card-title { font-size: 14px; font-weight: 600; color: var(--navy); }
+.badge { background: var(--teal-light); color: var(--teal); padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+
+.amount-display { text-align: center; margin: 20px 0; }
+.amount-label { font-size: 12px; color: var(--gray-dark); margin-bottom: 8px; }
+.amount-value { font-size: 36px; font-weight: 700; color: var(--navy); letter-spacing: -1px; }
+
+.slider-group { margin-bottom: 24px; }
+.slider-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 13px; }
+.slider-label { font-weight: 500; color: var(--navy-light); }
+.slider-val { font-weight: 700; color: var(--teal); }
+input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 24px; width: 24px; border-radius: 50%; background: var(--teal); cursor: pointer; margin-top: -10px; border: 4px solid var(--white); box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px; cursor: pointer; background: #CBD5E1; border-radius: 3px; }
+
+.summary-box { background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 16px; margin-bottom: 24px; }
+.summary-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 12px; }
+.summary-row:last-child { margin-bottom: 0; padding-top: 12px; border-top: 1px dashed #CBD5E1; font-weight: 600; color: var(--navy); }
+.summary-label { color: var(--gray-dark); }
+.summary-value { color: var(--navy-light); font-weight: 500; }
+
+.info-text { font-size: 12px; color: var(--gray-dark); text-align: center; margin-bottom: 20px; line-height: 1.5; }
+
+.btn { display: block; width: 100%; padding: 16px; background: var(--navy); color: var(--white); border: none; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; text-align: center; }
+.btn:active { transform: scale(0.98); }
+
+.nav-bar { background: var(--white); border-top: 1px solid #E2E8F0; padding: 12px 24px 24px; display: flex; justify-content: space-between; }
+.nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--gray-dark); font-size: 10px; font-weight: 500; cursor: pointer; }
+.nav-item.active { color: var(--teal); }
+.nav-icon { width: 24px; height: 24px; background: #CBD5E1; border-radius: 6px; }
+.nav-item.active .nav-icon { background: var(--teal); }
+
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="notch"></div>
+  <div class="status-bar">
+    <span>9:41</span>
+    <div style="display:flex; gap:4px; align-items:center;">
+      <svg width="16" height="10" viewBox="0 0 16 10" fill="none"><path d="M14 3V7C14 7.55228 13.5523 8 13 8H3C2.44772 8 2 7.55228 2 7V3C2 2.44772 2.44772 2 3 2H13C13.5523 2 14 2.44772 14 3Z" stroke="#0F172A" stroke-width="1.5"/><path d="M16 4V6H14V4H16Z" fill="#0F172A"/><rect x="3" y="3" width="9" height="4" fill="#0F172A"/></svg>
+    </div>
+  </div>
+  
+  <div class="header">
+    <div class="title">Hala FlexiCap</div>
+    <div class="subtitle">Embedded Working Capital</div>
+  </div>
+
+  <div class="content">
+    
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Available Limit</span>
+        <span class="badge">Pre-Approved</span>
+      </div>
+      <p style="font-size: 12px; color: var(--gray-dark);">Based on your SAR 145,000 digital sales volume over the last 30 days.</p>
+      
+      <div class="amount-display">
+        <div class="amount-label">You can borrow up to</div>
+        <div class="amount-value">SAR 50,000</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="margin-bottom: 20px;">Configure Advance</div>
+      
+      <div class="slider-group">
+        <div class="slider-header">
+          <span class="slider-label">Advance Amount</span>
+          <span class="slider-val" id="amt-val">SAR 20,000</span>
+        </div>
+        <input type="range" id="amt-slider" min="5000" max="50000" step="1000" value="20000">
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-header">
+          <span class="slider-label">Daily Deduction</span>
+          <span class="slider-val" id="deduct-val">10%</span>
+        </div>
+        <input type="range" id="deduct-slider" min="5" max="25" step="1" value="10">
+      </div>
+
+      <div class="summary-box">
+        <div class="summary-row">
+          <span class="summary-label">Advance Amount</span>
+          <span class="summary-value" id="sum-amt">SAR 20,000</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Fixed Fee (No hidden interest)</span>
+          <span class="summary-value" id="sum-fee">SAR 600</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Est. Payoff Time</span>
+          <span class="summary-value" id="sum-time">~42 days</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Total Repayment</span>
+          <span class="summary-value" id="sum-total">SAR 20,600</span>
+        </div>
+      </div>
+
+      <p class="info-text">Repayment is fully automated. We will simply deduct <span id="info-percent">10%</span> from your daily incoming Hala POS and App settlements until the balance is cleared.</p>
+
+      <button class="btn" id="action-btn">Drawdown Instantly</button>
+    </div>
+
+  </div>
+
+  <div class="nav-bar">
+    <div class="nav-item">
+      <div class="nav-icon"></div>
+      Home
+    </div>
+    <div class="nav-item">
+      <div class="nav-icon"></div>
+      Sales
+    </div>
+    <div class="nav-item active">
+      <div class="nav-icon" style="background:var(--teal)"></div>
+      FlexiCap
+    </div>
+    <div class="nav-item">
+      <div class="nav-icon"></div>
+      Settings
+    </div>
+  </div>
+</div>
+
+<script>
+  const amtSlider = document.getElementById('amt-slider');
+  const deductSlider = document.getElementById('deduct-slider');
+  
+  function updateUI() {
+    const amt = parseInt(amtSlider.value);
+    const pct = parseInt(deductSlider.value);
+    
+    document.getElementById('amt-val').innerText = 'SAR ' + amt.toLocaleString();
+    document.getElementById('deduct-val').innerText = pct + '%';
+    
+    const fee = Math.round(amt * 0.03); // 3% flat fee
+    const total = amt + fee;
+    
+    // Assume average daily sales = 4800
+    const dailySales = 4800;
+    const dailyDeduction = dailySales * (pct / 100);
+    const days = Math.ceil(total / dailyDeduction);
+    
+    document.getElementById('sum-amt').innerText = 'SAR ' + amt.toLocaleString();
+    document.getElementById('sum-fee').innerText = 'SAR ' + fee.toLocaleString();
+    document.getElementById('sum-time').innerText = '~' + days + ' days';
+    document.getElementById('sum-total').innerText = 'SAR ' + total.toLocaleString();
+    document.getElementById('info-percent').innerText = pct + '%';
+  }
+
+  amtSlider.addEventListener('input', updateUI);
+  deductSlider.addEventListener('input', updateUI);
+
+  document.querySelectorAll('.nav-item').forEach(el => {
+    el.addEventListener('click', () => {
+        document.querySelectorAll('.nav-item').forEach(n => {
+          n.classList.remove('active');
+          n.querySelector('.nav-icon').style.background = '#CBD5E1';
+        });
+        el.classList.add('active');
+        el.querySelector('.nav-icon').style.background = 'var(--teal)';
+    });
+  });
+  
+  const btn = document.getElementById('action-btn');
+  btn.addEventListener('click', () => {
+      const originalText = btn.innerText;
+      btn.innerText = 'Processing...';
+      btn.style.opacity = '0.8';
+      setTimeout(() => {
+          btn.innerText = 'Funds Deposited \u2713';
+          btn.style.background = 'var(--success)';
+          btn.style.opacity = '1';
+          setTimeout(() => {
+              btn.innerText = originalText;
+              btn.style.background = 'var(--navy)';
+          }, 2000);
+      }, 1000);
+  });
+</script>
+</body>
+</html>

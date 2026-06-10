@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hala PayFlow — Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --navy: #0F172A; --navy-light: #1E293B; --teal: #0D9488; --teal-light: #CCFBF1;
+  --gray: #F8FAFC; --gray-dark: #64748B; --gray-border: #E2E8F0; --white: #FFFFFF;
+  --danger: #EF4444; --danger-light: #FEE2E2; --warning: #F59E0B; --warning-light: #FEF3C7;
+  --success: #10B981; --success-light: #D1FAE5;
+}
+body {
+  font-family: 'Inter', sans-serif;
+  background: #CBD5E1;
+  display: flex; align-items: center; justify-content: center;
+  min-height: 100vh; padding: 40px;
+}
+.browser-window {
+  width: 1024px; height: 700px;
+  background: var(--gray);
+  border-radius: 12px;
+  box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+  overflow: hidden;
+  display: flex; flex-direction: column;
+}
+.browser-top {
+  height: 48px; background: #E2E8F0; border-bottom: 1px solid #CBD5E1;
+  display: flex; align-items: center; padding: 0 16px; gap: 8px;
+}
+.mac-btn { width: 12px; height: 12px; border-radius: 50%; }
+.mac-red { background: #FF5F56; }
+.mac-yellow { background: #FFBD2E; }
+.mac-green { background: #27C93F; }
+.url-bar { background: var(--white); margin-left: 20px; padding: 6px 16px; border-radius: 6px; font-size: 12px; color: var(--gray-dark); width: 300px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+
+.app-container {
+  display: flex; flex: 1; overflow: hidden;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 240px; background: var(--navy); color: var(--gray);
+  padding: 24px 16px; display: flex; flex-direction: column;
+}
+.brand { font-size: 20px; font-weight: 700; color: var(--white); margin-bottom: 40px; padding-left: 12px; letter-spacing: -0.5px; }
+.brand span { color: var(--teal); }
+.nav-item {
+  padding: 12px; margin-bottom: 8px; border-radius: 8px;
+  font-size: 14px; font-weight: 500; cursor: pointer; color: #94A3B8;
+  transition: all 0.2s;
+}
+.nav-item:hover { background: rgba(255,255,255,0.05); color: var(--white); }
+.nav-item.active { background: var(--teal); color: var(--white); }
+
+/* Main Content */
+.main-content {
+  flex: 1; overflow-y: auto; padding: 32px;
+}
+.header-row { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 32px; }
+.page-title { font-size: 24px; font-weight: 700; color: var(--navy); }
+.page-subtitle { font-size: 14px; color: var(--gray-dark); margin-top: 4px; }
+
+/* Alert Box */
+.alert-box {
+  background: var(--danger-light); border: 1px solid #FCA5A5; border-radius: 12px; padding: 20px;
+  display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px;
+}
+.alert-text { display: flex; align-items: center; gap: 12px; }
+.alert-icon { width: 32px; height: 32px; background: var(--danger); color: var(--white); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+.alert-title { font-size: 15px; font-weight: 600; color: #991B1B; }
+.alert-desc { font-size: 13px; color: #B91C1C; margin-top: 4px; }
+.btn-advance { background: var(--navy); color: var(--white); border: none; padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+.btn-advance:hover { background: var(--teal); }
+
+/* Grid */
+.dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }
+.card { background: var(--white); border: 1px solid var(--gray-border); border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
+.card-header { font-size: 15px; font-weight: 600; color: var(--navy); margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+
+/* Chart Mockup */
+.chart-container { height: 180px; position: relative; border-bottom: 1px solid var(--gray-border); margin-bottom: 16px; }
+.bar-in { position: absolute; bottom: 0; width: 30px; background: var(--teal); border-radius: 4px 4px 0 0; }
+.bar-out { position: absolute; bottom: 0; width: 30px; background: var(--danger); border-radius: 4px 4px 0 0; opacity: 0.8; }
+.chart-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--gray-dark); }
+.legend { display: flex; gap: 16px; font-size: 12px; color: var(--gray-dark); margin-top: 16px; }
+.legend-item { display: flex; align-items: center; gap: 6px; }
+.dot { width: 8px; height: 8px; border-radius: 50%; }
+
+/* Table */
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table th, .data-table td { padding: 12px; text-align: left; font-size: 13px; border-bottom: 1px solid var(--gray-border); }
+.data-table th { font-weight: 500; color: var(--gray-dark); font-size: 12px; }
+.data-table tr:last-child td { border-bottom: none; }
+.status { padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; }
+.status.pending { background: var(--warning-light); color: #B45309; }
+.status.settled { background: var(--success-light); color: #047857; }
+
+</style>
+</head>
+<body>
+
+<div class="browser-window">
+  <div class="browser-top">
+    <div class="mac-btn mac-red"></div>
+    <div class="mac-btn mac-yellow"></div>
+    <div class="mac-btn mac-green"></div>
+    <div class="url-bar">merchant.hala.com/dashboard/payflow</div>
+  </div>
+  
+  <div class="app-container">
+    <div class="sidebar">
+      <div class="brand">HALA <span>PayFlow</span></div>
+      <div class="nav-item">Overview</div>
+      <div class="nav-item active">Cash Flow Predictor</div>
+      <div class="nav-item">POS Sales</div>
+      <div class="nav-item">Vendor Payouts</div>
+      <div class="nav-item">FlexiCap Loans</div>
+      <div class="nav-item">Settings</div>
+    </div>
+    
+    <div class="main-content">
+      <div class="header-row">
+        <div>
+          <div class="page-title">Operations & Cash Flow</div>
+          <div class="page-subtitle">Real-time reconciliation and forecasting for your business</div>
+        </div>
+      </div>
+      
+      <div class="alert-box" id="deficit-alert">
+        <div class="alert-text">
+          <div class="alert-icon">!</div>
+          <div>
+            <div class="alert-title">Cash Flow Deficit Expected This Thursday</div>
+            <div class="alert-desc">Upcoming supplier payout (SAR 25,000) exceeds projected POS sales (SAR 13,000).</div>
+          </div>
+        </div>
+        <button class="btn-advance" id="advance-btn">Advance SAR 12,000 via FlexiCap</button>
+      </div>
+      
+      <div class="dashboard-grid">
+        <div class="card">
+          <div class="card-header">
+            7-Day Cash Flow Forecast
+            <span style="font-size:12px; color:var(--gray-dark); font-weight:400;">Last updated: Just now</span>
+          </div>
+          <div class="chart-container">
+            <!-- Mon -->
+            <div class="bar-in" style="height: 60px; left: 10px;"></div>
+            <div class="bar-out" style="height: 30px; left: 45px;"></div>
+            <!-- Tue -->
+            <div class="bar-in" style="height: 80px; left: 100px;"></div>
+            <div class="bar-out" style="height: 20px; left: 135px;"></div>
+            <!-- Wed -->
+            <div class="bar-in" style="height: 70px; left: 190px;"></div>
+            <div class="bar-out" style="height: 40px; left: 225px;"></div>
+            <!-- Thu (Deficit) -->
+            <div class="bar-in" style="height: 40px; left: 280px;"></div>
+            <div class="bar-out" style="height: 140px; left: 315px; border: 2px dashed #991B1B;"></div>
+            <!-- Fri -->
+            <div class="bar-in" style="height: 100px; left: 370px;"></div>
+            <div class="bar-out" style="height: 10px; left: 405px;"></div>
+          </div>
+          <div class="chart-labels">
+            <span>Mon</span><span>Tue</span><span>Wed</span><span style="color:#991B1B; font-weight:600;">Thu</span><span>Fri</span>
+          </div>
+          <div class="legend">
+            <div class="legend-item"><div class="dot" style="background:var(--teal);"></div> Projected POS Sales</div>
+            <div class="legend-item"><div class="dot" style="background:var(--danger);"></div> Scheduled Vendor Payouts</div>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-header">Upcoming Vendor Payouts</div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Vendor / Supplier</th>
+                <th>Due Date</th>
+                <th>Amount</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="font-weight:500;">Almarai Distribution</td>
+                <td>Wed, Jun 17</td>
+                <td>SAR 4,500</td>
+                <td><span class="status pending">Pending</span></td>
+              </tr>
+              <tr>
+                <td style="font-weight:500;">National Foods Co.</td>
+                <td style="color:#991B1B; font-weight:600;">Thu, Jun 18</td>
+                <td style="color:#991B1B; font-weight:600;">SAR 25,000</td>
+                <td><span class="status pending">Insufficient Funds</span></td>
+              </tr>
+              <tr>
+                <td style="font-weight:500;">Store Rent (Property)</td>
+                <td>Fri, Jun 19</td>
+                <td>SAR 12,000</td>
+                <td><span class="status settled">Scheduled</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</div>
+
+<script>
+  // Interactivity Script
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', () => {
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      item.classList.add('active');
+    });
+  });
+
+  const advanceBtn = document.getElementById('advance-btn');
+  const alertBox = document.getElementById('deficit-alert');
+  
+  advanceBtn.addEventListener('click', () => {
+    const originalText = advanceBtn.innerText;
+    advanceBtn.innerText = 'Processing via FlexiCap...';
+    advanceBtn.style.opacity = '0.8';
+    
+    setTimeout(() => {
+      advanceBtn.innerText = 'Funds Advanced \u2713';
+      advanceBtn.style.background = 'var(--success)';
+      advanceBtn.style.color = 'var(--white)';
+      advanceBtn.style.opacity = '1';
+      
+      setTimeout(() => {
+        alertBox.style.background = 'var(--success-light)';
+        alertBox.style.borderColor = '#34D399';
+        alertBox.querySelector('.alert-icon').style.background = 'var(--success)';
+        alertBox.querySelector('.alert-icon').innerText = '\u2713';
+        alertBox.querySelector('.alert-title').innerText = 'Cash Flow Deficit Resolved';
+        alertBox.querySelector('.alert-title').style.color = '#065F46';
+        alertBox.querySelector('.alert-desc').innerText = 'SAR 12,000 advanced via FlexiCap. Vendor payout is now fully funded.';
+        alertBox.querySelector('.alert-desc').style.color = '#047857';
+        advanceBtn.style.display = 'none';
+        
+        // Update Chart
+        document.querySelector('.bar-in[style*="left: 280px"]').style.height = '140px';
+        document.querySelector('.bar-in[style*="left: 280px"]').style.background = '#34D399'; // Highlight new funds
+        
+        // Update Table
+        const tdDesc = document.querySelector('.data-table tbody tr:nth-child(2) td:nth-child(2)');
+        tdDesc.style.color = '';
+        const tdAmt = document.querySelector('.data-table tbody tr:nth-child(2) td:nth-child(3)');
+        tdAmt.style.color = '';
+        const statusSpan = document.querySelector('.data-table tbody tr:nth-child(2) td:nth-child(4) span');
+        statusSpan.className = 'status settled';
+        statusSpan.innerText = 'Scheduled';
+        
+      }, 1500);
+    }, 1000);
+  });
+</script>
+</body>
+</html>
