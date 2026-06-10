@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mastercard AI-Gen Offer Engine</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --mc-red: #EB001B;
+            --mc-yellow: #F79E1B;
+            --mc-dark: #141414;
+            --mc-gray: #2A2A2A;
+            --mc-light: #F5F5F5;
+            --accent: #2196F3;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        
+        body { background-color: var(--mc-light); color: #333; display: flex; height: 100vh; overflow: hidden; }
+        
+        .sidebar {
+            width: 250px; background: var(--mc-dark); color: white; padding: 20px;
+            display: flex; flex-direction: column; gap: 20px;
+        }
+        
+        .logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.2rem; }
+        .logo-circles { display: flex; }
+        .circle { width: 20px; height: 20px; border-radius: 50%; }
+        .circle.red { background: var(--mc-red); }
+        .circle.yellow { background: var(--mc-yellow); margin-left: -8px; mix-blend-mode: multiply; }
+        
+        .nav-item { padding: 10px 15px; border-radius: 6px; cursor: pointer; transition: 0.2s; opacity: 0.7; font-size: 0.9rem; }
+        .nav-item:hover, .nav-item.active { opacity: 1; background: rgba(255,255,255,0.1); }
+        
+        .main-content { flex: 1; overflow-y: auto; padding: 30px; }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .header h1 { font-size: 1.8rem; font-weight: 600; }
+        .header-actions button { background: var(--mc-red); color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; cursor: pointer; }
+        
+        .dashboard-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+        
+        .card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .card-header { font-weight: 600; margin-bottom: 15px; font-size: 1.1rem; display: flex; justify-content: space-between; }
+        
+        .audience-builder { display: flex; flex-direction: column; gap: 15px; }
+        .filter-row { display: flex; gap: 10px; align-items: center; }
+        .filter-select { padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; flex: 1; outline: none; }
+        
+        .gen-preview-area { display: flex; flex-direction: column; gap: 15px; align-items: center; justify-content: center; height: 300px; background: #fafafa; border: 1px dashed #ccc; border-radius: 8px; position: relative; overflow: hidden;}
+        
+        .mock-ad { width: 100%; height: 100%; display: flex; flex-direction: column; position: relative; }
+        .ad-image { height: 60%; background: url('https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=500&q=80') center/cover; transition: 0.5s; }
+        .ad-copy { height: 40%; background: #1a1a1a; color: white; padding: 15px; display: flex; flex-direction: column; justify-content: center; }
+        .ad-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 5px; color: var(--mc-yellow); }
+        .ad-desc { font-size: 0.85rem; opacity: 0.8; }
+        
+        .ai-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 600; color: var(--accent); transition: 0.3s; opacity: 0; pointer-events: none;}
+        .ai-overlay.active { opacity: 1; pointer-events: all; }
+        .spinner { border: 3px solid rgba(33,150,243,0.3); border-top: 3px solid var(--accent); border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin-bottom: 10px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        .metric-box { background: #f9f9f9; padding: 15px; border-radius: 8px; border-left: 3px solid var(--mc-red); }
+        .metric-val { font-size: 1.5rem; font-weight: 700; margin-bottom: 5px; }
+        .metric-lbl { font-size: 0.8rem; color: #666; }
+        
+        .generate-btn { background: var(--mc-dark); color: white; padding: 10px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; margin-top: 10px; }
+        
+        .channel-pill { display: inline-block; padding: 4px 8px; border-radius: 12px; font-size: 0.75rem; background: #e0f7fa; color: #006064; margin-right: 5px; margin-bottom: 5px;}
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <div class="logo-circles">
+                <div class="circle red"></div>
+                <div class="circle yellow"></div>
+            </div>
+            MC Marketing AI
+        </div>
+        <div class="nav-item active">AI-Gen Campaigner</div>
+        <div class="nav-item">Audience Propensity</div>
+        <div class="nav-item">Partner Ecosystem</div>
+        <div class="nav-item">Analytics Hub</div>
+    </div>
+    
+    <div class="main-content">
+        <div class="header">
+            <h1>Create Gen-AI Campaign</h1>
+            <div class="header-actions">
+                <button>Deploy Campaign</button>
+            </div>
+        </div>
+        
+        <div class="dashboard-grid">
+            <div class="card">
+                <div class="card-header">1. AI Audience Definition</div>
+                <div class="audience-builder">
+                    <div class="filter-row">
+                        <select class="filter-select" id="segment-select">
+                            <option value="travel">High-Propensity Travel (Telco Roaming Data)</option>
+                            <option value="dining">Weekend Dining (Aggregator Spend)</option>
+                            <option value="groceries">Grocery Loyalists (Supermarket Spend)</option>
+                        </select>
+                        <select class="filter-select">
+                            <option>Target: Spend Stimulation</option>
+                            <option>Target: Card Activation</option>
+                            <option>Target: Cross-Sell</option>
+                        </select>
+                    </div>
+                    <div class="filter-row">
+                        <select class="filter-select">
+                            <option>Propensity Score > 85%</option>
+                            <option>Propensity Score > 70%</option>
+                        </select>
+                        <select class="filter-select">
+                            <option>Budget: Dynamic Allocation</option>
+                        </select>
+                    </div>
+                    <button class="generate-btn" onclick="generateCreative()">Generate Hyper-Targeted Creative</button>
+                </div>
+                
+                <div class="card-header" style="margin-top: 30px;">Predicted Outcomes (ML Model)</div>
+                <div class="metrics-grid">
+                    <div class="metric-box">
+                        <div class="metric-val">45,200</div>
+                        <div class="metric-lbl">Target Audience Size</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-val" style="color:var(--mc-red);">18.4%</div>
+                        <div class="metric-lbl">Predicted Conv. Rate (+4.2% vs baseline)</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-val">$1.2M</div>
+                        <div class="metric-lbl">Estimated Incremental Spend</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-val">Omnichannel</div>
+                        <div class="metric-lbl">Optimal Delivery Channels</div>
+                        <div style="margin-top: 5px;">
+                            <span class="channel-pill">Instagram</span>
+                            <span class="channel-pill">Telco SMS</span>
+                            <span class="channel-pill">Bank App Push</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">2. Gen-AI Creative Preview</div>
+                <div class="gen-preview-area">
+                    <div class="ai-overlay" id="ai-loader">
+                        <div class="spinner"></div>
+                        Generating Custom Assets...
+                    </div>
+                    <div class="mock-ad" id="ad-preview">
+                        <div class="ad-image" id="ad-img" style="background-image: url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=500&q=80')"></div>
+                        <div class="ad-copy">
+                            <div class="ad-title" id="ad-title">Unlock 10% Cash Back on Flights</div>
+                            <div class="ad-desc" id="ad-desc">Book your next getaway with your Mastercard.</div>
+                        </div>
+                    </div>
+                </div>
+                <p style="font-size: 0.8rem; color: #666; margin-top: 15px; text-align: center;">
+                    Image and copy automatically generated based on segment propensity and historical A/B performance.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const templates = {
+            travel: {
+                img: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=500&q=80',
+                title: 'Unlock 10% Cash Back on Flights',
+                desc: 'Book your next getaway with your Mastercard. Exclusive offer based on your recent searches.'
+            },
+            dining: {
+                img: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=500&q=80',
+                title: 'Craving Something Special?',
+                desc: 'Double points at premium dining venues this weekend when you tap to pay.'
+            },
+            groceries: {
+                img: 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=500&q=80',
+                title: 'Everyday Essentials, Rewarded',
+                desc: 'Get a $20 statement credit when you spend $100 on groceries this week.'
+            }
+        };
+
+        function generateCreative() {
+            const loader = document.getElementById('ai-loader');
+            const segment = document.getElementById('segment-select').value;
+            
+            loader.classList.add('active');
+            
+            setTimeout(() => {
+                document.getElementById('ad-img').style.backgroundImage = `url('${templates[segment].img}')`;
+                document.getElementById('ad-title').innerText = templates[segment].title;
+                document.getElementById('ad-desc').innerText = templates[segment].desc;
+                loader.classList.remove('active');
+            }, 1200);
+        }
+    </script>
+</body>
+</html>

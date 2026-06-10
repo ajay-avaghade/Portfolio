@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mastercard Ecosystem Acquire Platform</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --mc-red: #EB001B;
+            --mc-yellow: #F79E1B;
+            --mc-dark: #0A1F2E;
+            --mc-blue: #1E90FF;
+            --mc-gray: #F0F2F5;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        
+        body { background-color: var(--mc-gray); color: #333; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        
+        .topbar { background: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 10; }
+        
+        .logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.2rem; }
+        .logo-circles { display: flex; }
+        .circle { width: 20px; height: 20px; border-radius: 50%; }
+        .circle.red { background: var(--mc-red); }
+        .circle.yellow { background: var(--mc-yellow); margin-left: -8px; mix-blend-mode: multiply; }
+        
+        .main-layout { display: flex; flex: 1; overflow: hidden; }
+        
+        .content { flex: 1; padding: 30px; overflow-y: auto; }
+        
+        .header { margin-bottom: 25px; }
+        .header h1 { font-size: 1.6rem; margin-bottom: 5px; color: var(--mc-dark); }
+        .header p { color: #666; font-size: 0.9rem; }
+        
+        .funnel-container { background: white; border-radius: 12px; padding: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 30px; }
+        
+        .partner-matching { display: flex; align-items: center; justify-content: space-between; margin-bottom: 40px; padding: 20px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; }
+        
+        .entity { display: flex; flex-direction: column; align-items: center; gap: 10px; flex: 1; }
+        .entity-icon { width: 60px; height: 60px; background: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 700; box-shadow: 0 4px 10px rgba(0,0,0,0.05); font-size: 1.2rem;}
+        .entity-name { font-weight: 600; font-size: 0.9rem; }
+        .entity-size { font-size: 0.8rem; color: #666; }
+        
+        .match-connector { display: flex; flex-direction: column; align-items: center; flex: 2; position: relative; }
+        .line { width: 100%; height: 2px; background: #cbd5e1; position: absolute; top: 50%; z-index: 1; }
+        .ml-badge { background: var(--mc-blue); color: white; padding: 5px 15px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; z-index: 2; display: flex; align-items: center; gap: 5px; box-shadow: 0 4px 10px rgba(30,144,255,0.3); }
+        
+        .workflow-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        
+        .step-card { border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; position: relative; }
+        .step-num { position: absolute; top: -15px; left: 20px; background: var(--mc-dark); color: white; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: 600; font-size: 0.9rem; }
+        
+        .step-title { font-weight: 600; margin-bottom: 10px; font-size: 1.05rem; margin-top: 5px;}
+        .step-desc { font-size: 0.85rem; color: #555; line-height: 1.5; margin-bottom: 15px;}
+        
+        .mini-metric { display: flex; justify-content: space-between; padding: 8px 0; border-top: 1px dashed #e2e8f0; font-size: 0.8rem; }
+        .mini-metric:first-of-type { margin-top: 10px; border-top: none; }
+        .val { font-weight: 600; color: var(--mc-blue); }
+        
+        .launch-btn { background: var(--mc-dark); color: white; width: 100%; padding: 12px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: 0.2s; margin-top: 20px;}
+        .launch-btn:hover { background: var(--mc-blue); }
+        
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div class="logo">
+            <div class="logo-circles">
+                <div class="circle red"></div>
+                <div class="circle yellow"></div>
+            </div>
+            Ecosystem Acquire
+        </div>
+        <div style="font-size: 0.9rem; font-weight: 500;">B2B2C Partner Network</div>
+    </div>
+    
+    <div class="main-layout">
+        <div class="content">
+            <div class="header">
+                <h1>Co-Brand Acquisition & Lifecycle Engine</h1>
+                <p>Map overlapping audiences and automate lifecycle campaigns across non-traditional partners.</p>
+            </div>
+            
+            <div class="funnel-container">
+                <div class="partner-matching">
+                    <div class="entity">
+                        <div class="entity-icon" style="color:var(--mc-red);">I</div>
+                        <div class="entity-name">Tier 1 Issuer</div>
+                        <div class="entity-size">2.4M Cards</div>
+                    </div>
+                    
+                    <div class="match-connector">
+                        <div class="line"></div>
+                        <div class="ml-badge">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                            ML Audience Match: 42% Overlap
+                        </div>
+                    </div>
+                    
+                    <div class="entity">
+                        <div class="entity-icon" style="color:var(--mc-blue);">T</div>
+                        <div class="entity-name">Regional Telco</div>
+                        <div class="entity-size">8.1M Subscribers</div>
+                    </div>
+                </div>
+                
+                <h3 style="margin-bottom: 20px; font-size: 1.1rem;">Automated Lifecycle Execution</h3>
+                
+                <div class="workflow-grid">
+                    <div class="step-card">
+                        <div class="step-num">1</div>
+                        <div class="step-title">Cross-Acquisition</div>
+                        <div class="step-desc">Target Telco subscribers with high credit propensity but no existing Issuer relationship.</div>
+                        <div class="mini-metric"><span>Target Segment</span> <span class="val">1.2M Users</span></div>
+                        <div class="mini-metric"><span>Est. Conversion</span> <span class="val">8.4%</span></div>
+                        <div class="mini-metric"><span>Channel</span> <span class="val">Telco App Push</span></div>
+                    </div>
+                    
+                    <div class="step-card">
+                        <div class="step-num">2</div>
+                        <div class="step-title">EMOB Activation</div>
+                        <div class="step-desc">Automated first-30-days nudges offering Telco data bonuses for first card swipe.</div>
+                        <div class="mini-metric"><span>Trigger Event</span> <span class="val">Card Issued</span></div>
+                        <div class="mini-metric"><span>Reward</span> <span class="val">5GB Data</span></div>
+                        <div class="mini-metric"><span>Est. Lift</span> <span class="val">+22% Activation</span></div>
+                    </div>
+                    
+                    <div class="step-card">
+                        <div class="step-num">3</div>
+                        <div class="step-title">Spend Stimulation</div>
+                        <div class="step-desc">Machine learning identifies drop-off risk and triggers customized retention offers.</div>
+                        <div class="mini-metric"><span>Risk Model</span> <span class="val">Active (94% Acc.)</span></div>
+                        <div class="mini-metric"><span>Action</span> <span class="val">Bill Pay Discount</span></div>
+                        <div class="mini-metric"><span>ROI</span> <span class="val">3.1x</span></div>
+                    </div>
+                </div>
+                
+                <button class="launch-btn">Launch Co-Brand Lifecycle Program</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
