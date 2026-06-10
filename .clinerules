@@ -740,3 +740,5 @@ When you need to reference implementation details, read **only** these files:
 **Estimated effort per run:** 45–90 minutes. Prototype is the longest phase.
 
 **Deliverables per run:** 1 prototype HTML, 1 PPTX deck, 1 HTML resume, 1 LinkedIn note, 1 email.
+| HALA | FlexiCap | hala-flexicap-prototype.html | hala-flexicap-deck.pptx | rw-hala |
+| HALA | PayFlow | hala-payflow-prototype.html | hala-payflow-deck.pptx | rw-hala |
