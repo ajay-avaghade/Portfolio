@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Almosafer — Milestone Explorer · Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --c-dark: #07132B;
+  --c-hero: #0C2240;
+  --c-bright: #FF5A00;
+  --c-accent: #10B981;
+  --c-gold: #F5A623;
+  --ink: #0f172a;
+  --muted: #8B92A5;
+  --border: rgba(255,255,255,0.08);
+  --light-border: #e2e8f0;
+  --gray: #f8fafc;
+  --white: #FFFFFF;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family:'Sora',sans-serif;
+  background:#030816;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:40px 24px 60px;
+  color: #fff;
+}
+.header-strip {
+  background: rgba(255, 90, 0, 0.1);
+  border: 1px solid rgba(255, 90, 0, 0.25);
+  border-radius: 10px;
+  padding: 10px 28px;
+  color: var(--c-bright);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  margin-bottom: 36px;
+}
+.prototype-wrap { display:flex; gap:32px; align-items:flex-start; flex-wrap:wrap; justify-content:center; }
+.phone-col { display:flex; flex-direction:column; align-items:center; gap:14px; }
+.phone-label { font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#4a5568; font-family:'DM Mono',monospace; }
+.phone { width:375px; height:812px; border-radius:46px; background:#fff; position:relative; overflow:hidden; box-shadow:0 40px 100px rgba(0,0,0,0.55), 0 0 0 2px rgba(255,255,255,0.07); flex-shrink:0; border: 4px solid #1a2536; }
+.notch { position:absolute; top:0; left:50%; transform:translateX(-50%); width:118px; height:28px; background:var(--c-dark); border-radius:0 0 16px 16px; z-index:100; display:flex; align-items:center; justify-content:center; gap:6px; }
+.ncam { width:10px; height:10px; border-radius:50%; background:#040914; border:1px solid #1a2536; }
+.ndot-sensor { width:5px; height:5px; border-radius:50%; background:#1a2536; }
+.statusbar { display:flex; justify-content:space-between; align-items:center; padding:34px 20px 6px; font-size:10px; font-weight:700; font-family:'DM Mono',monospace; position:relative; z-index:90; }
+.sc { overflow-y:auto; max-height:724px; scrollbar-width:none; -ms-overflow-style:none; }
+.sc::-webkit-scrollbar { display:none; }
+
+/* SCREEN 1 — GAMIFIED MAP DASHBOARD */
+.s1-bg { background: var(--gray); color: var(--ink); min-height: 724px; }
+.s1-topbar { background: var(--c-dark); color: #fff; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; }
+.s1-title { font-size: 14px; font-weight: 800; }
+.s1-coins { background: rgba(245, 166, 35, 0.15); border: 1px solid rgba(245, 166, 35, 0.3); border-radius: 20px; padding: 2px 8px; font-size: 9px; font-weight: 700; color: var(--c-gold); display: flex; align-items: center; gap: 4px; }
+
+.s1-dashboard { padding: 14px; }
+.s1-campaign-card { background: var(--c-dark); color: #white; color: #fff; border-radius: 16px; padding: 16px; margin-bottom: 16px; position: relative; overflow: hidden; }
+.s1-camp-title { font-size: 16px; font-weight: 800; margin-bottom: 4px; color: #fff; }
+.s1-camp-subtitle { font-size: 10px; color: var(--muted); margin-bottom: 12px; }
+
+/* Progress bar */
+.track { height:8px; background:rgba(255,255,255,0.08); border-radius:99px; overflow:visible; position:relative; margin-bottom: 4px; }
+.fill { height:100%; border-radius:99px; background:var(--c-bright); position:relative; transition:.6s ease; }
+.fill-badge { position:absolute; right:-2px; top:-9px; background:var(--c-bright); color:#fff; font-size:9px; font-weight:700; padding:2px 5px; border-radius:6px; }
+
+.s1-camp-stats { display: flex; justify-content: space-between; font-size: 10px; color: var(--muted); margin-top: 10px; }
+.s1-camp-stats span { font-weight: 700; color: var(--c-gold); }
+
+/* Toss Pedometer Map Trail */
+.s1-trail-container { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px 14px; position: relative; box-shadow: 0 4px 12px rgba(0,0,0,0.02); }
+.s1-trail-label { font-size: 10px; font-weight: 800; color: var(--c-dark); letter-spacing: .05em; text-transform: uppercase; margin-bottom: 16px; text-align: center; }
+
+/* SVG Trail Line */
+.s1-map-svg { position: absolute; top: 56px; left: 0; width: 100%; height: 320px; pointer-events: none; z-index: 5; }
+
+.s1-trail-list { display: flex; flex-direction: column; gap: 40px; position: relative; z-index: 10; align-items: center; padding: 10px 0; }
+
+.s1-node { display: flex; flex-direction: column; align-items: center; cursor: pointer; position: relative; width: 80px; }
+/* Node avatar circle representing user photo step */
+.s1-node-circle { width: 64px; height: 64px; border-radius: 50%; border: 3px solid var(--c-accent); background: #f1f5f9; display: flex; align-items: center; justify-content: center; font-size: 24px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1); position: relative; }
+.s1-node-circle.active { border-color: var(--c-bright); animation: pulse-border 1.5s infinite; }
+.s1-node-circle.locked { border-color: #cbd5e1; background: #f1f5f9; color: #94a3b8; }
+.s1-node-img { width: 100%; height: 100%; object-fit: cover; }
+
+.s1-node-check { position: absolute; bottom: 0; right: 0; background: var(--c-accent); color: #fff; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; border: 2px solid #fff; }
+.s1-node-check.active { background: var(--c-bright); font-size: 9px; }
+
+.s1-node-label { font-size: 11px; font-weight: 800; color: var(--c-dark); margin-top: 6px; text-align: center; }
+.s1-node-sub { font-size: 9px; color: var(--muted); text-align: center; }
+
+@keyframes pulse-border {
+  0% { box-shadow: 0 0 0 0 rgba(255, 90, 0, 0.4); }
+  70% { box-shadow: 0 0 0 8px rgba(255, 90, 0, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 90, 0, 0); }
+}
+
+/* SCREEN 2 — STEP DETAIL & UPLOAD */
+.s2-bg { background: var(--gray); color: var(--ink); min-height: 724px; }
+.s2-topbar { background: var(--c-dark); color: #fff; padding: 12px 16px; display: flex; align-items: center; gap: 8px; }
+.s2-back { font-size: 14px; cursor: pointer; }
+.s2-top-title { font-size: 14px; font-weight: 800; }
+
+.s2-body { padding: 14px; }
+.s2-step-card { background: #fff; border-radius: 16px; padding: 16px; border: 1px solid #e2e8f0; margin-bottom: 14px; }
+.s2-step-status { display: inline-block; background: rgba(255, 90, 0, 0.1); color: var(--c-bright); font-size: 9px; font-weight: 800; padding: 3px 8px; border-radius: 4px; margin-bottom: 8px; }
+.s2-step-name { font-size: 18px; font-weight: 800; color: var(--c-dark); margin-bottom: 4px; }
+.s2-step-booking { font-size: 10px; color: var(--c-accent); font-weight: 700; margin-bottom: 12px; }
+
+/* Photo upload area */
+.s2-upload-zone { border: 2px dashed #cbd5e1; border-radius: 12px; padding: 24px 16px; text-align: center; background: #f8fafc; cursor: pointer; margin-bottom: 16px; }
+.s2-upload-icon { font-size: 32px; margin-bottom: 8px; }
+.s2-upload-title { font-size: 12px; font-weight: 700; color: var(--c-dark); margin-bottom: 2px; }
+.s2-upload-desc { font-size: 9.5px; color: var(--muted); }
+
+/* Quick select photos */
+.s2-photo-grid-label { font-size: 10px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 8px; }
+.s2-photo-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 20px; }
+.s2-photo-option { height: 80px; border-radius: 8px; overflow: hidden; border: 2px solid transparent; cursor: pointer; position: relative; }
+.s2-photo-option.selected { border-color: var(--c-bright); }
+.s2-photo-option img { width: 100%; height: 100%; object-fit: cover; }
+.s2-photo-select-badge { position: absolute; top: 4px; right: 4px; background: var(--c-bright); color: #fff; width: 14px; height: 14px; border-radius: 50%; font-size: 9px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+
+.s2-complete-btn { background: var(--c-dark); color: #fff; border: none; border-radius: 12px; padding: 14px; width: 100%; font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; text-align: center; }
+
+/* SCREEN 3 — CELEBRATION & REWARDS */
+.s3-bg { background: var(--gray); color: var(--ink); min-height: 724px; position: relative; }
+#conf { position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; overflow:hidden; z-index:50; }
+@keyframes confetti-fall { 0% { transform:translateY(-20px) rotate(0deg); opacity:1; } 100% { transform:translateY(820px) rotate(720deg); opacity:0; } }
+.cp { position:absolute; animation:confetti-fall linear both; }
+
+.s3-celebrate-top { background: linear-gradient(145deg, var(--c-dark), #102a54); padding: 40px 16px 24px; text-align: center; color: #fff; }
+.s3-celebrate-icon { width: 56px; height: 56px; border-radius: 50%; background: var(--c-gold); display: flex; align-items: center; justify-content: center; font-size: 26px; margin: 0 auto 12px; }
+.s3-celebrate-title { font-size: 18px; font-weight: 800; color: #fff; margin-bottom: 4px; }
+.s3-celebrate-sub { font-size: 10px; color: rgba(255,255,255,0.6); }
+
+.s3-reward-card { margin: 16px 14px; background: #fff; border: 1.5px solid rgba(245, 166, 35, 0.3); border-radius: 16px; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.05); }
+.s3-reward-header { background: linear-gradient(90deg, var(--c-gold), var(--c-bright)); padding: 8px 14px; font-size: 9px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #fff; }
+.s3-reward-body { padding: 14px; display: flex; gap: 12px; align-items: center; }
+.s3-reward-icon { font-size: 32px; }
+.s3-reward-info {}
+.s3-reward-title { font-size: 13px; font-weight: 800; color: var(--c-dark); }
+.s3-reward-desc { font-size: 10px; color: var(--muted); }
+
+.s3-journal-preview { margin: 0 14px 16px; background: #fff; border-radius: 12px; padding: 12px; border: 1px solid #e2e8f0; }
+.s3-journal-title { font-size: 10px; font-weight: 800; color: var(--c-dark); margin-bottom: 8px; text-transform: uppercase; letter-spacing: .05em; }
+.s3-journal-collage { display: flex; gap: 6px; }
+.s3-journal-img { flex: 1; height: 110px; border-radius: 6px; overflow: hidden; position: relative; }
+.s3-journal-img img { width: 100%; height: 100%; object-fit: cover; }
+.s3-journal-img-lbl { position: absolute; bottom: 6px; left: 6px; background: rgba(0,0,0,0.6); color: #fff; font-size: 8px; font-weight: 700; padding: 2px 6px; border-radius: 4px; }
+
+.s3-share-row { display: flex; gap: 8px; margin: 14px; }
+.s3-share-btn { flex: 1; background: #fff; border: 1.5px solid #cbd5e1; border-radius: 10px; padding: 12px; font-family: 'Sora', sans-serif; font-size: 11px; font-weight: 700; color: var(--c-dark); cursor: pointer; text-align: center; }
+.s3-share-btn.primary { background: var(--c-dark); color: #fff; border-color: var(--c-dark); }
+
+/* SCREEN 4 — CAMPAIGN OPS & MODERATION */
+.s4-bg { background: var(--c-dark); color: #fff; min-height: 724px; }
+.s4-header { padding: 12px 16px; border-bottom: 1px solid var(--border); }
+.s4-header-label { font-size: 9px; font-weight: 700; color: var(--c-bright); letter-spacing: .1em; text-transform: uppercase; margin-bottom: 2px; }
+.s4-header-title { font-size: 14px; font-weight: 800; }
+
+.s4-metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 12px 14px; }
+.s4-metric-card { background: var(--c-hero); border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px; }
+.s4-metric-icon { font-size: 14px; margin-bottom: 4px; }
+.s4-metric-val { font-size: 16px; font-weight: 700; font-family: 'DM Mono', monospace; margin-bottom: 1px; }
+.s4-metric-val.orange { color: var(--c-bright); }
+.s4-metric-val.green { color: var(--c-accent); }
+.s4-metric-val.gold { color: var(--c-gold); }
+.s4-metric-label { font-size: 9px; color: var(--muted); }
+
+.s4-section-title { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); padding: 10px 14px 4px; }
+
+.s4-queue-item { background: var(--c-hero); border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px; margin: 0 14px 8px; display: flex; gap: 10px; align-items: center; }
+.s4-queue-thumb { width: 50px; height: 50px; border-radius: 6px; overflow: hidden; flex-shrink: 0; }
+.s4-queue-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.s4-queue-info { flex: 1; }
+.s4-queue-user { font-size: 11px; font-weight: 700; }
+.s4-queue-loc { font-size: 9px; color: var(--muted); }
+.s4-queue-score { font-size: 9px; color: var(--c-accent); font-weight: 700; }
+.s4-queue-action { display: flex; flex-direction: column; gap: 4px; }
+.s4-action-btn-small { background: var(--c-accent); color: #fff; border: none; border-radius: 4px; padding: 2px 6px; font-size: 8px; font-weight: 700; cursor: pointer; text-align: center; }
+.s4-action-btn-small.flag { background: #ef4444; }
+
+.s4-moderation-box { margin: 10px 14px; padding: 12px; background: rgba(245, 166, 35, 0.05); border: 1px dashed rgba(245, 166, 35, 0.2); border-radius: 10px; font-size: 9.5px; line-height: 1.4; }
+.s4-moderation-box strong { color: var(--c-gold); }
+
+</style>
+</head>
+<body>
+<div class="header-strip">Almosafer — Milestone Explorer · Toss-Inspired Destination Pedometer Prototype</div>
+<div class="prototype-wrap">
+
+  <!-- SCREEN 1: GAMIFIED MAP DASHBOARD -->
+  <div class="phone-col">
+    <div class="phone-label">01 — MILESTONE TRAIL</div>
+    <div class="phone">
+      <div class="notch"><div class="ncam"></div><div class="ndot-sensor"></div></div>
+      <div class="s1-bg">
+        <div class="statusbar" style="background:var(--c-dark);color:#fff;">
+          <span>9:41</span><span style="display:flex;gap:4px;">▲ ◆ ■</span>
+        </div>
+        <div class="s1-topbar">
+          <span class="s1-title">Milestone Explorer</span>
+          <div class="s1-coins">
+            <span>⭐</span> 450 pts
+          </div>
+        </div>
+        <div class="sc">
+          <div class="s1-dashboard">
+            
+            <div class="s1-campaign-card">
+              <div class="s1-camp-title">Saudi Heritage Trail</div>
+              <div class="s1-camp-subtitle">Sponsor: Saudi Tourism Authority</div>
+              
+              <!-- Custom dynamic progress bar -->
+              <div class="track">
+                <div class="fill" style="width: 66%;">
+                  <span class="fill-badge">66%</span>
+                </div>
+              </div>
+
+              <div class="s1-camp-stats">
+                <div>Completed: <span>2 / 3 Steps</span></div>
+                <div>Next Reward: <span>AlUla Voucher</span></div>
+              </div>
+            </div>
+
+            <div class="s1-trail-container">
+              <div class="s1-trail-label">Your Travel Trail</div>
+
+              <!-- SVG Connective Path (Toss step line style) -->
+              <svg class="s1-map-svg">
+                <path d="M 172,40 C 172,120 172,120 172,160 C 172,200 172,200 172,280" fill="none" stroke="#e2e8f0" stroke-width="4" stroke-dasharray="8,6" />
+                <path d="M 172,40 L 172,160" fill="none" stroke="#10B981" stroke-width="4" />
+              </svg>
+
+              <div class="s1-trail-list">
+                
+                <!-- Node 1: Completed -->
+                <div class="s1-node">
+                  <div class="s1-node-circle">
+                    <!-- Riyadh image mockup -->
+                    <img class="s1-node-img" src="https://images.unsplash.com/photo-1582233479376-e82e23714c35?w=100&auto=format&fit=crop&q=60" alt="Riyadh photo step">
+                    <div class="s1-node-check">✓</div>
+                  </div>
+                  <div class="s1-node-label">1. Riyadh</div>
+                  <div class="s1-node-sub">Completed</div>
+                </div>
+
+                <!-- Node 2: Active / Upload needed (Highlighted) -->
+                <div class="s1-node">
+                  <div class="s1-node-circle active">
+                    <span style="font-size:24px;">📸</span>
+                    <div class="s1-node-check active">NEW</div>
+                  </div>
+                  <div class="s1-node-label" style="color:var(--c-bright);">2. Jeddah</div>
+                  <div class="s1-node-sub" style="font-weight:700; color:var(--c-bright);">Upload Photo</div>
+                </div>
+
+                <!-- Node 3: Locked -->
+                <div class="s1-node">
+                  <div class="s1-node-circle locked">
+                    🔒
+                  </div>
+                  <div class="s1-node-label" style="color:#94a3b8;">3. AlUla</div>
+                  <div class="s1-node-sub">Locked</div>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+          <div style="height: 20px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 2: STEP DETAIL & UPLOAD -->
+  <div class="phone-col">
+    <div class="phone-label">02 — UPLOAD PHOTO</div>
+    <div class="phone">
+      <div class="notch"><div class="ncam"></div><div class="ndot-sensor"></div></div>
+      <div class="s2-bg">
+        <div class="statusbar" style="background:var(--c-dark);color:#fff;">
+          <span>9:41</span><span style="display:flex;gap:4px;">▲ ◆ ■</span>
+        </div>
+        <div class="s2-topbar">
+          <span class="s2-back">← Trail</span>
+          <span class="s2-top-title">Step 2: Jeddah Milestone</span>
+        </div>
+        <div class="sc">
+          <div class="s2-body">
+            
+            <div class="s2-step-card">
+              <span class="s2-step-status">BOOKING DETECTED</span>
+              <div class="s2-step-name">Jeddah, Saudi Arabia</div>
+              <div class="s2-step-booking">✓ Flight SV-224 & Radisson Jeddah verified</div>
+              <p style="font-size:10px; color:var(--muted); line-height:1.4;">
+                You stayed in Jeddah from June 2 to June 4. Complete this step by picking the photo you liked the most from your trip.
+              </p>
+            </div>
+
+            <!-- Upload drag drop zone -->
+            <div class="s2-upload-zone">
+              <div class="s2-upload-icon">📷</div>
+              <div class="s2-upload-title">Choose trip photo</div>
+              <div class="s2-upload-desc">JPG or PNG up to 10MB</div>
+            </div>
+
+            <div class="s2-photo-grid-label">Choose from your camera roll</div>
+            <div class="s2-photo-grid">
+              
+              <div class="s2-photo-option selected">
+                <img src="https://images.unsplash.com/photo-1597466765990-64ad1c35dafc?w=120&auto=format&fit=crop&q=60" alt="Jeddad Al-Balad">
+                <div class="s2-photo-select-badge">✓</div>
+              </div>
+
+              <div class="s2-photo-option">
+                <img src="https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=120&auto=format&fit=crop&q=60" alt="Jeddah Hotel Room">
+              </div>
+
+              <div class="s2-photo-option">
+                <img src="https://images.unsplash.com/photo-1544644181-1484b3fdfc62?w=120&auto=format&fit=crop&q=60" alt="Red Sea Beach">
+              </div>
+
+            </div>
+
+            <button class="s2-complete-btn">Complete Milestone Step</button>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 3: CELEBRATION & REWARDS -->
+  <div class="phone-col">
+    <div class="phone-label">03 — STEP COMPLETED</div>
+    <div class="phone">
+      <div class="notch"><div class="ncam"></div><div class="ndot-sensor"></div></div>
+      <div id="conf"></div>
+      <div class="s3-bg">
+        <div class="statusbar" style="background:var(--c-dark);color:#fff;">
+          <span>9:41</span><span style="display:flex;gap:4px;">▲ ◆ ■</span>
+        </div>
+        <div class="s3-celebrate-top">
+          <div class="s3-celebrate-icon">🏆</div>
+          <div class="s3-celebrate-title">Jeddah Step Completed!</div>
+          <div class="s3-celebrate-sub">Your travel visual diary has been updated</div>
+          <div class="s3-reward-badge">🔑 AlUla Step Unlocked</div>
+        </div>
+        <div class="sc">
+          
+          <div class="s3-reward-card">
+            <div class="s3-reward-header">UNLOCKED REWARD VOUCHER</div>
+            <div class="s3-reward-body">
+              <div class="s3-reward-icon">🎁</div>
+              <div class="s3-reward-info">
+                <div class="s3-reward-title">50% Off AlUla Tomb Tour</div>
+                <div class="s3-reward-desc">Valid for 30 days · Sponsor: STA</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="s3-journal-preview">
+            <div class="s3-journal-title">Your Heritage Journal Postcard</div>
+            
+            <div class="s3-journal-collage">
+              
+              <div class="s3-journal-img">
+                <img src="https://images.unsplash.com/photo-1582233479376-e82e23714c35?w=120&auto=format&fit=crop&q=60" alt="Riyadh">
+                <div class="s3-journal-img-lbl">Riyadh 🏯</div>
+              </div>
+
+              <div class="s3-journal-img">
+                <img src="https://images.unsplash.com/photo-1597466765990-64ad1c35dafc?w=120&auto=format&fit=crop&q=60" alt="Jeddah">
+                <div class="s3-journal-img-lbl">Jeddah 🕌</div>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="s3-share-row">
+            <button class="s3-share-btn">Save Journal Card</button>
+            <button class="s3-share-btn primary">Share to WhatsApp</button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 4: CAMPAIGN OPS & MODERATION -->
+  <div class="phone-col">
+    <div class="phone-label">04 — OPS & MODERATION</div>
+    <div class="phone">
+      <div class="notch"><div class="ncam"></div><div class="ndot-sensor"></div></div>
+      <div class="s4-bg">
+        <div class="statusbar" style="background:var(--c-dark);color:#fff;">
+          <span>9:41</span><span style="display:flex;gap:4px;">▲ ◆ ■</span>
+        </div>
+        <div class="s4-header">
+          <div class="s4-header-label">Milestone Campaign Manager</div>
+          <div class="s4-header-title">Almosafer B2B Console</div>
+        </div>
+        <div class="sc">
+          <div class="s4-metric-grid">
+            <div class="s4-metric-card">
+              <div class="s4-metric-icon">👥</div>
+              <div class="s4-metric-val orange">84.6K</div>
+              <div class="s4-metric-label">Active Explorers</div>
+            </div>
+            <div class="s4-metric-card">
+              <div class="s4-metric-icon">🔄</div>
+              <div class="s4-metric-val green">63.2%</div>
+              <div class="s4-metric-label">Trail Completion Rate</div>
+            </div>
+            <div class="s4-metric-card">
+              <div class="s4-metric-icon">🎫</div>
+              <div class="s4-metric-val gold">12.4K</div>
+              <div class="s4-metric-label">STA Vouchers Issued</div>
+            </div>
+            <div class="s4-metric-card">
+              <div class="s4-metric-icon">📸</div>
+              <div class="s4-metric-val" style="color:#60A5FA;">42.1K</div>
+              <div class="s4-metric-label">Social Media Shares</div>
+            </div>
+          </div>
+
+          <div class="s4-section-title">AI Content Moderation Queue</div>
+
+          <div class="s4-queue-item">
+            <div class="s4-queue-thumb">
+              <img src="https://images.unsplash.com/photo-1597466765990-64ad1c35dafc?w=60&auto=format&fit=crop&q=60" alt="Jeddah Balad">
+            </div>
+            <div class="s4-queue-info">
+              <div class="s4-queue-user">Ajay A. (#95615)</div>
+              <div class="s4-queue-loc">Jeddah, KSA step</div>
+              <div class="s4-queue-score">✓ AI Safe (99.4%)</div>
+            </div>
+            <div class="s4-queue-action">
+              <span class="s4-partner-status" style="font-size:8px;">Auto-Approved</span>
+            </div>
+          </div>
+
+          <div class="s4-queue-item">
+            <div class="s4-queue-thumb">
+              <span style="font-size:24px; display:flex; justify-content:center; align-items:center; height:100%;">🍔</span>
+            </div>
+            <div class="s4-queue-info">
+              <div class="s4-queue-user">Sarah K. (#88301)</div>
+              <div class="s4-queue-loc">Jeddah, KSA step</div>
+              <div class="s4-queue-score" style="color:var(--c-bright);">⚠ Off-topic: Food (42%)</div>
+            </div>
+            <div class="s4-queue-action">
+              <button class="s4-action-btn-small flag">Flag</button>
+              <button class="s4-action-btn-small" style="margin-top:2px;">Approve</button>
+            </div>
+          </div>
+
+          <div class="s4-moderation-box">
+            📢 <strong>STA Campaign insights:</strong> Connecting destinations with user-uploaded photo diary steps (inspired by Toss Korea) drives <strong>2.4× higher social share rates</strong> and increases long-term customer retention by <strong>20%</strong>.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const c=document.getElementById('conf');
+const cols=['#FF5A00','#10B981','#F5A623','#60A5FA','#34D399','#F472B6','#A78BFA'];
+for(let i=0;i<32;i++){
+  const p=document.createElement('div');p.className='cp';
+  const size=4+Math.random()*7;
+  p.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*120-10}%;width:${size}px;height:${size}px;background:${cols[Math.floor(Math.random()*cols.length)]};border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${1.4+Math.random()*1.8}s;animation-delay:${Math.random()*2.4}s;`;
+  c.appendChild(p);
+}
+</script>
+</body>
+</html>

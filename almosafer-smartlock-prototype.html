@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Almosafer — SmartLock · Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --c-dark: #07132B;
+  --c-hero: #0C2240;
+  --c-bright: #FF5A00;
+  --c-accent: #10B981;
+  --c-gold: #F5A623;
+  --ink: #0f172a;
+  --muted: #8B92A5;
+  --border: rgba(255,255,255,0.08);
+  --light-border: #e2e8f0;
+  --gray: #f8fafc;
+  --white: #FFFFFF;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family:'Sora',sans-serif;
+  background:#030816;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:40px 24px 60px;
+  color: #fff;
+}
+.header-strip {
+  background: rgba(255, 90, 0, 0.1);
+  border: 1px solid rgba(255, 90, 0, 0.25);
+  border-radius: 10px;
+  padding: 10px 28px;
+  color: var(--c-bright);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  margin-bottom: 36px;
+}
+.prototype-wrap { display:flex; gap:32px; align-items:flex-start; flex-wrap:wrap; justify-content:center; }
+.phone-col { display:flex; flex-direction:column; align-items:center; gap:14px; }
+.phone-label { font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#4a5568; font-family:'DM Mono',monospace; }
+.phone { width:375px; height:812px; border-radius:46px; background:#fff; position:relative; overflow:hidden; box-shadow:0 40px 100px rgba(0,0,0,0.55), 0 0 0 2px rgba(255,255,255,0.07); flex-shrink:0; border: 4px solid #1a2536; }
+.notch { position:absolute; top:0; left:50%; transform:translateX(-50%); width:118px; height:28px; background:var(--c-dark); border-radius:0 0 16px 16px; z-index:100; display:flex; align-items:center; justify-content:center; gap:6px; }
+.ncam { width:10px; height:10px; border-radius:50%; background:#040914; border:1px solid #1a2536; }
+.ndot-sensor { width:5px; height:5px; border-radius:50%; background:#1a2536; }
+.statusbar { display:flex; justify-content:space-between; align-items:center; padding:34px 20px 6px; font-size:10px; font-weight:700; font-family:'DM Mono',monospace; position:relative; z-index:90; }
+.sc { overflow-y:auto; max-height:724px; scrollbar-width:none; -ms-overflow-style:none; }
+.sc::-webkit-scrollbar { display:none; }
+
+/* SCREEN 1 — FLIGHT SEARCH & FARE FREEZE SURFACE */
+.s1-bg { background: var(--gray); color: var(--ink); min-height: 724px; }
+.s1-header { background: var(--c-dark); color: #fff; padding: 12px 16px 20px; }
+.s1-route-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+.s1-route-title { font-size: 16px; font-weight: 800; }
+.s1-route-sub { font-size: 10px; color: var(--muted); }
+.s1-back { font-size: 14px; margin-right: 8px; cursor: pointer; }
+
+.s1-card { background: #fff; margin: 12px 14px; border-radius: 16px; padding: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.02); }
+.s1-airline-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.s1-airline-info { display: flex; align-items: center; gap: 8px; }
+.s1-logo-icon { font-size: 20px; }
+.s1-airline-name { font-size: 11px; font-weight: 700; color: var(--ink); }
+.s1-time-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.s1-time-block { text-align: left; }
+.s1-time-block.right { text-align: right; }
+.s1-time { font-size: 15px; font-weight: 700; color: var(--ink); }
+.s1-airport { font-size: 10px; color: var(--muted); font-weight: 600; }
+.s1-duration-block { text-align: center; flex: 1; position: relative; margin: 0 10px; }
+.s1-duration { font-size: 9px; color: var(--muted); margin-bottom: 2px; }
+.s1-stops-line { height: 1.5px; background: #cbd5e1; position: relative; }
+.s1-stops-line::after { content: ''; width: 6px; height: 6px; background: #ef4444; border-radius: 50%; position: absolute; top: -2px; left: 50%; transform: translateX(-50%); }
+.s1-stops { font-size: 8px; color: #ef4444; font-weight: 700; margin-top: 2px; }
+
+.s1-price-row { display: flex; justify-content: space-between; align-items: flex-end; border-top: 1px dashed #e2e8f0; padding-top: 12px; }
+.s1-price-block {}
+.s1-price-label { font-size: 9px; color: var(--muted); }
+.s1-price { font-size: 18px; font-weight: 800; color: var(--c-dark); font-family: 'DM Mono', monospace; }
+.s1-action-btn { background: var(--c-bright); color: #white; border: none; border-radius: 10px; padding: 8px 14px; font-size: 11px; font-weight: 700; color:#fff; cursor: pointer; }
+
+/* SmartLock Promo Box */
+.s1-lock-promo { background: linear-gradient(135deg, rgba(255, 90, 0, 0.04), rgba(245, 166, 35, 0.06)); border: 1.5px solid rgba(255, 90, 0, 0.15); border-radius: 12px; padding: 12px; margin-top: 8px; display: flex; align-items: flex-start; gap: 10px; }
+.s1-lock-badge { background: var(--c-bright); color: #fff; font-size: 8px; font-weight: 800; padding: 2px 6px; border-radius: 4px; display: inline-block; letter-spacing: 0.05em; margin-bottom: 4px; }
+.s1-lock-desc { font-size: 10px; color: #475569; line-height: 1.4; }
+.s1-lock-cta { font-size: 10px; font-weight: 700; color: var(--c-bright); text-decoration: underline; margin-top: 6px; cursor: pointer; display: inline-block; }
+
+/* SCREEN 2 — SMARTLOCK DRAWER VIEW */
+.s2-bg { background: var(--gray); color: var(--ink); min-height: 724px; position: relative; }
+.s2-overlay { position: absolute; inset: 0; background: rgba(7, 19, 43, 0.6); z-index: 10; }
+.s2-drawer { position: absolute; bottom: 0; left: 0; right: 0; background: #fff; border-radius: 24px 24px 0 0; padding: 20px 16px 24px; z-index: 20; box-shadow: 0 -10px 30px rgba(0,0,0,0.15); }
+.s2-drawer-bar { width: 40px; height: 4px; background: #cbd5e1; border-radius: 2px; margin: 0 auto 16px; }
+.s2-drawer-title { font-size: 16px; font-weight: 800; color: var(--c-dark); display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+.s2-drawer-title span { color: var(--c-bright); }
+.s2-drawer-desc { font-size: 10px; color: var(--muted); margin-bottom: 16px; }
+
+.s2-timer-box { background: var(--c-dark); color: #fff; border-radius: 12px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.s2-timer-label { font-size: 10px; color: var(--muted); font-weight: 600; }
+.s2-timer-val { font-size: 16px; font-weight: 700; color: var(--c-gold); font-family: 'DM Mono', monospace; }
+
+.s2-metric-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.s2-metric-card { background: var(--gray); border-radius: 10px; padding: 10px 12px; border: 1px solid #e2e8f0; }
+.s2-metric-lbl { font-size: 9px; color: var(--muted); margin-bottom: 2px; }
+.s2-metric-val { font-size: 14px; font-weight: 800; color: var(--c-dark); }
+.s2-metric-val.green { color: var(--c-accent); }
+
+.s2-conditions { background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 10px; padding: 10px 12px; font-size: 9.5px; color: #065f46; line-height: 1.4; margin-bottom: 20px; }
+
+.s2-cost-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-top: 1px solid #e2e8f0; padding-top: 12px; }
+.s2-cost-info {}
+.s2-cost-label { font-size: 10px; color: var(--muted); }
+.s2-cost-title { font-size: 12px; font-weight: 700; color: var(--ink); }
+.s2-cost-val { font-size: 20px; font-weight: 800; color: var(--c-bright); font-family: 'DM Mono', monospace; }
+
+.s2-pay-btn { background: var(--c-dark); color: #fff; border: none; border-radius: 12px; padding: 14px; width: 100%; font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; }
+.s2-pay-btn span { color: var(--c-gold); }
+
+/* SCREEN 3 — FARE SECURED / SUCCESS VIEW */
+.s3-bg { background: var(--gray); color: var(--ink); min-height: 724px; position: relative; }
+#conf { position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; overflow:hidden; z-index:50; }
+@keyframes confetti-fall { 0% { transform:translateY(-20px) rotate(0deg); opacity:1; } 100% { transform:translateY(820px) rotate(720deg); opacity:0; } }
+.cp { position:absolute; animation:confetti-fall linear both; }
+
+.s3-success-top { background: linear-gradient(145deg, var(--c-dark), #102a54); padding: 40px 16px 24px; text-align: center; color: #fff; }
+.s3-success-icon { width: 56px; height: 56px; border-radius: 50%; background: var(--c-accent); display: flex; align-items: center; justify-content: center; font-size: 26px; margin: 0 auto 12px; }
+.s3-success-title { font-size: 18px; font-weight: 800; color: #fff; margin-bottom: 4px; }
+.s3-success-sub { font-size: 10px; color: rgba(255,255,255,0.6); }
+
+.s3-lock-status { background: rgba(245, 166, 35, 0.1); border: 1.5px solid rgba(245, 166, 35, 0.3); border-radius: 8px; padding: 6px 12px; margin-top: 12px; font-size: 10px; color: var(--c-gold); font-weight: 700; display: inline-flex; align-items: center; gap: 6px; }
+
+.s3-details-card { margin: 16px 14px; background: #fff; border-radius: 14px; border: 1px solid #e2e8f0; overflow: hidden; }
+.s3-details-header { background: #f1f5f9; padding: 8px 14px; font-size: 9px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.s3-details-body { padding: 12px 14px; }
+.s3-details-route { font-size: 13px; font-weight: 800; color: var(--c-dark); margin-bottom: 2px; }
+.s3-details-date { font-size: 10px; color: var(--muted); margin-bottom: 12px; }
+
+.s3-line-item { padding: 8px 0; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #f1f5f9; }
+.s3-line-item:last-child { border-bottom: none; }
+.s3-li-label { font-size: 10px; color: #475569; }
+.s3-li-val { font-size: 11px; font-weight: 700; color: var(--ink); font-family: 'DM Mono', monospace; }
+.s3-li-val.saved { color: var(--c-accent); font-weight: 800; }
+
+.s3-action-row { display: flex; gap: 8px; margin: 14px; }
+.s3-action-btn { flex: 1; background: #fff; border: 1.5px solid #cbd5e1; border-radius: 10px; padding: 12px; font-family: 'Sora', sans-serif; font-size: 11px; font-weight: 700; color: var(--c-dark); cursor: pointer; text-align: center; }
+.s3-action-btn.primary { background: var(--c-dark); color: #white; border-color: var(--c-dark); color: #fff; }
+
+/* SCREEN 4 — RISK OPS CONTROLLER */
+.s4-bg { background: var(--c-dark); color: #fff; min-height: 724px; }
+.s4-header { padding: 12px 16px; border-bottom: 1px solid var(--border); }
+.s4-header-label { font-size: 9px; font-weight: 700; color: var(--c-bright); letter-spacing: .1em; text-transform: uppercase; margin-bottom: 2px; }
+.s4-header-title { font-size: 14px; font-weight: 800; }
+
+.s4-metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 12px 14px; }
+.s4-metric-card { background: var(--c-hero); border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px; }
+.s4-metric-icon { font-size: 14px; margin-bottom: 4px; }
+.s4-metric-val { font-size: 16px; font-weight: 700; font-family: 'DM Mono', monospace; margin-bottom: 1px; }
+.s4-metric-val.green { color: var(--c-accent); }
+.s4-metric-val.orange { color: var(--c-bright); }
+.s4-metric-val.gold { color: var(--c-gold); }
+.s4-metric-label { font-size: 9px; color: var(--muted); }
+
+.s4-section-title { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); padding: 10px 14px 4px; }
+
+.s4-route-row { background: var(--c-hero); border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px; margin: 0 14px 8px; }
+.s4-route-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.s4-route-name { font-size: 11px; font-weight: 700; }
+.s4-route-risk { font-size: 9px; font-weight: 700; background: rgba(239, 68, 68, 0.15); color: #f87171; border: 0.5px solid rgba(239, 68, 68, 0.3); border-radius: 4px; padding: 1px 5px; }
+.s4-route-risk.low { background: rgba(16, 185, 129, 0.15); color: #34d399; border-color: rgba(16, 185, 129, 0.3); }
+
+.s4-route-stats { display: flex; justify-content: space-between; align-items: center; }
+.s4-route-stat { font-size: 9px; color: var(--muted); }
+.s4-route-stat span { font-weight: 700; color: #fff; font-family: 'DM Mono', monospace; }
+
+.s4-toggle-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: rgba(255, 90, 0, 0.05); border: 1px dashed rgba(255, 90, 0, 0.2); border-radius: 10px; margin: 10px 14px; }
+.s4-toggle-text { font-size: 9px; color: var(--muted); }
+.s4-toggle-text strong { color: var(--c-bright); }
+.s4-toggle-btn { background: var(--c-bright); border: none; padding: 4px 8px; border-radius: 6px; color: #fff; font-size: 8px; font-weight: 700; cursor: pointer; }
+
+</style>
+</head>
+<body>
+<div class="header-strip">Almosafer — SmartLock · Interactive Price-Freeze Prototype</div>
+<div class="prototype-wrap">
+
+  <!-- SCREEN 1: FLIGHT SEARCH -->
+  <div class="phone-col">
+    <div class="phone-label">01 — FLIGHT SEARCH</div>
+    <div class="phone">
+      <div class="notch"><div class="ncam"></div><div class="ndot-sensor"></div></div>
+      <div class="s1-bg">
+        <div class="statusbar" style="background:var(--c-dark);color:#fff;">
+          <span>9:41</span><span style="display:flex;gap:4px;">▲ ◆ ■</span>
+        </div>
+        <div class="s1-header">
+          <div class="s1-route-row">
+            <span class="s1-route-title">✈ Dubai (DXB) → Riyadh (RUH)</span>
+            <span style="font-size: 12px;">🔍</span>
+          </div>
+          <div class="s1-route-sub">June 25 · 1 Adult · Economy</div>
+        </div>
+        <div class="sc">
+          <!-- Flight Card 1 -->
+          <div class="s1-card">
+            <div class="s1-airline-row">
+              <div class="s1-airline-info">
+                <span class="s1-logo-icon">🇸🇦</span>
+                <span class="s1-airline-name">Saudia · SV-561</span>
+              </div>
+              <span style="font-size: 10px; color: var(--c-accent); font-weight: 700;">On Time</span>
+            </div>
+            <div class="s1-time-row">
+              <div class="s1-time-block">
+                <div class="s1-time">08:15</div>
+                <div class="s1-airport">DXB</div>
+              </div>
+              <div class="s1-duration-block">
+                <div class="s1-duration">2h 05m</div>
+                <div class="s1-stops-line"></div>
+                <div class="s1-stops">Non-stop</div>
+              </div>
+              <div class="s1-time-block right">
+                <div class="s1-time">10:20</div>
+                <div class="s1-airport">RUH</div>
+              </div>
+            </div>
+            <div class="s1-price-row">
+              <div class="s1-price-block">
+                <div class="s1-price-label">Fare total</div>
+                <div class="s1-price">840 AED</div>
+              </div>
+              <button class="s1-action-btn" onclick="alert('Proceeding to standard checkout')">Select</button>
+            </div>
+            <!-- SmartLock callout -->
+            <div class="s1-lock-promo">
+              <span style="font-size: 20px;">🛡️</span>
+              <div style="flex:1;">
+                <span class="s1-lock-badge">FARES FLUCTUATING</span>
+                <div class="s1-lock-desc">Not ready to book? Lock this fare at <strong>840 AED</strong> for 48 hours for just <strong>45 AED</strong>.</div>
+                <span class="s1-lock-cta" style="color:var(--c-bright); font-weight:700;">Secure Rate Now</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Flight Card 2 -->
+          <div class="s1-card">
+            <div class="s1-airline-row">
+              <div class="s1-airline-info">
+                <span class="s1-logo-icon">✈️</span>
+                <span class="s1-airline-name">flynas · XY-224</span>
+              </div>
+            </div>
+            <div class="s1-time-row">
+              <div class="s1-time-block">
+                <div class="s1-time">11:30</div>
+                <div class="s1-airport">DXB</div>
+              </div>
+              <div class="s1-duration-block">
+                <div class="s1-duration">2h 10m</div>
+                <div class="s1-stops-line"></div>
+                <div class="s1-stops">Non-stop</div>
+              </div>
+              <div class="s1-time-block right">
+                <div class="s1-time">13:40</div>
+                <div class="s1-airport">RUH</div>
+              </div>
+            </div>
+            <div class="s1-price-row">
+              <div class="s1-price-block">
+                <div class="s1-price-label">Fare total</div>
+                <div class="s1-price">720 AED</div>
+              </div>
+              <button class="s1-action-btn" onclick="alert('Proceeding to standard checkout')">Select</button>
+            </div>
+          </div>
+          <div style="height: 20px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 2: SMARTLOCK DRAWER -->
+  <div class="phone-col">
+    <div class="phone-label">02 — SECURE RATE</div>
+    <div class="phone">
+      <div class="notch"><div class="ncam"></div><div class="ndot-sensor"></div></div>
+      <div class="s2-bg">
+        <div class="statusbar" style="background:var(--c-dark);color:#fff;">
+          <span>9:41</span><span style="display:flex;gap:4px;">▲ ◆ ■</span>
+        </div>
+        <div class="s2-overlay"></div>
+        <div class="s2-drawer">
+          <div class="s2-drawer-bar"></div>
+          <div class="s2-drawer-title">🛡️ Almosafer <span>SmartLock</span></div>
+          <div class="s2-drawer-desc">Freeze your ticket fare. Decide within 48 hours.</div>
+          
+          <div class="s2-timer-box">
+            <span class="s2-timer-label">RATE SECURED FOR</span>
+            <span class="s2-timer-val">47:59:58</span>
+          </div>
+
+          <div class="s2-metric-row">
+            <div class="s2-metric-card">
+              <div class="s2-metric-lbl">Target Rate</div>
+              <div class="s2-metric-val">840 AED</div>
+            </div>
+            <div class="s2-metric-card">
+              <div class="s2-metric-lbl">Model Stability</div>
+              <div class="s2-metric-val green">92% High</div>
+            </div>
+          </div>
+
+          <div class="s2-conditions">
+            ℹ️ If the fare rises, Almosafer covers the difference. If the fare drops, you pay the lower rate! Lock fee is non-refundable.
+          </div>
+
+          <div class="s cost-detail" style="margin-bottom:12px; font-size:11px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+              <span style="color:var(--muted);">Flight (DXB→RUH)</span>
+              <span style="font-weight:600;">840 AED</span>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+              <span style="color:var(--muted);">Price Protection</span>
+              <span style="color:var(--c-accent); font-weight:700;">Included (Free)</span>
+            </div>
+          </div>
+
+          <div class="s2-cost-row">
+            <div class="s2-cost-info">
+              <div class="s2-cost-label">SmartLock Fee</div>
+              <div class="s2-cost-title">Non-refundable</div>
+            </div>
+            <div class="s2-cost-val">45 AED</div>
+          </div>
+
+          <button class="s2-pay-btn">Pay Lock Fee · <span>45 AED</span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 3: FARE SECURED -->
+  <div class="phone-col">
+    <div class="phone-label">03 — SECURED SUCCESS</div>
+    <div class="phone">
+      <div class="notch"><div class="ncam"></div><div class="ndot-sensor"></div></div>
+      <div id="conf"></div>
+      <div class="s3-bg">
+        <div class="statusbar" style="background:var(--c-dark);color:#fff;">
+          <span>9:41</span><span style="display:flex;gap:4px;">▲ ◆ ■</span>
+        </div>
+        <div class="s3-success-top">
+          <div class="s3-success-icon">✓</div>
+          <div class="s3-success-title">Fare Secured!</div>
+          <div class="s3-success-sub">Confirmation lock ID: #SL-884920-RUH</div>
+          <div class="s3-lock-status">⏳ Locked for 47h : 59m</div>
+        </div>
+        <div class="sc">
+          <div class="s3-details-card">
+            <div class="s3-details-header">Lock Details</div>
+            <div class="s3-details-body">
+              <div class="s3-details-route">Dubai (DXB) ➔ Riyadh (RUH)</div>
+              <div class="s3-details-date">Saudia SV-561 · June 25, 2026</div>
+              
+              <div class="s3-line-item">
+                <span class="s3-li-label">Locked Fare Rate</span>
+                <span class="s3-li-val">840 AED</span>
+              </div>
+              <div class="s3-line-item">
+                <span class="s3-li-label">SmartLock Fee Paid</span>
+                <span class="s3-li-val">45 AED</span>
+              </div>
+              <div class="s3-line-item">
+                <span class="s3-li-label">Current Live Fare</span>
+                <span class="s3-li-val" style="color:#ef4444; font-weight:700;">920 AED (↑ 80 AED)</span>
+              </div>
+              <div class="s3-line-item" style="background:rgba(16, 185, 129, 0.05); padding: 8px 6px; border-radius: 6px;">
+                <span class="s3-li-label" style="font-weight:700; color:var(--c-accent);">Current Savings</span>
+                <span class="s3-li-val saved">80 AED Saved!</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin: 0 14px; padding: 12px; background:#fff; border-radius: 12px; border:1px solid #e2e8f0; font-size:10px; line-height:1.4;">
+            💡 <strong>What next?</strong> You have until June 14, 2026 at 19:40 to purchase this ticket at the locked price of 840 AED. We will notify you if the price drops further.
+          </div>
+
+          <div class="s3-action-row">
+            <button class="s3-action-btn">Share Lock</button>
+            <button class="s3-action-btn primary">Book Ticket Now</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 4: RISK OPS CONTROLLER -->
+  <div class="phone-col">
+    <div class="phone-label">04 — RISK OPS PANEL</div>
+    <div class="phone">
+      <div class="notch"><div class="ncam"></div><div class="ndot-sensor"></div></div>
+      <div class="s4-bg">
+        <div class="statusbar" style="background:var(--c-dark);color:#fff;">
+          <span>9:41</span><span style="display:flex;gap:4px;">▲ ◆ ■</span>
+        </div>
+        <div class="s4-header">
+          <div class="s4-header-label">Almosafer SmartLock</div>
+          <div class="s4-header-title">Risk Control Room</div>
+        </div>
+        <div class="sc">
+          <div class="s4-metric-grid">
+            <div class="s4-metric-card">
+              <div class="s4-metric-icon">💰</div>
+              <div class="s4-metric-val orange">82.4K AED</div>
+              <div class="s4-metric-label">Lock Fees Collected</div>
+            </div>
+            <div class="s4-metric-card">
+              <div class="s4-metric-icon">🛡️</div>
+              <div class="s4-metric-val gold">18.6K AED</div>
+              <div class="s4-metric-label">Payouts Covered</div>
+            </div>
+            <div class="s4-metric-card">
+              <div class="s4-metric-icon">📈</div>
+              <div class="s4-metric-val green">+63.8K AED</div>
+              <div class="s4-metric-label">Net Risk Margin (77%)</div>
+            </div>
+            <div class="s4-metric-card">
+              <div class="s4-metric-icon">👥</div>
+              <div class="s4-metric-val" style="color:#60A5FA;">24.2%</div>
+              <div class="s4-metric-label">Conversion of Locks</div>
+            </div>
+          </div>
+
+          <div class="s4-section-title">Active Volatility Corridor Control</div>
+          
+          <div class="s4-route-row">
+            <div class="s4-route-header">
+              <span class="s4-route-name">DXB ➔ RUH (Middle East Route)</span>
+              <span class="s4-route-risk">High Volatility</span>
+            </div>
+            <div class="s4-route-stats">
+              <div class="s4-route-stat">Lock Fee: <span>45 AED</span></div>
+              <div class="s4-route-stat">Conv: <span>28.1%</span></div>
+              <div class="s4-route-stat">Margin: <span style="color:var(--c-accent);">+81%</span></div>
+            </div>
+          </div>
+
+          <div class="s4-route-row">
+            <div class="s4-route-header">
+              <span class="s4-route-name">DXB ➔ LHR (Europe Corridor)</span>
+              <span class="s4-route-risk low">Stable</span>
+            </div>
+            <div class="s4-route-stats">
+              <div class="s4-route-stat">Lock Fee: <span>95 AED</span></div>
+              <div class="s4-route-stat">Conv: <span>14.2%</span></div>
+              <div class="s4-route-stat">Margin: <span style="color:var(--c-accent);">+91%</span></div>
+            </div>
+          </div>
+
+          <div class="s4-toggle-row">
+            <div class="s4-toggle-text">
+              <strong>ML Auto-Hedging</strong> is Active.<br>
+              Adjusts lock fees in real-time.
+            </div>
+            <button class="s4-toggle-btn">Configure</button>
+          </div>
+          
+          <div style="margin: 0 14px 14px; background: rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:12px; padding:10px; font-size:9.5px; line-height:1.4; color:var(--muted);">
+            💡 <strong>Ops recommendation:</strong> DXB-RUH weekend flight volatility has increased by 14% due to seasonal holidays. Recommend dynamic lock fee bump to 55 AED to safeguard margins.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const c=document.getElementById('conf');
+const cols=['#FF5A00','#10B981','#F5A623','#60A5FA','#34D399','#F472B6','#A78BFA'];
+for(let i=0;i<32;i++){
+  const p=document.createElement('div');p.className='cp';
+  const size=4+Math.random()*7;
+  p.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*120-10}%;width:${size}px;height:${size}px;background:${cols[Math.floor(Math.random()*cols.length)]};border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${1.4+Math.random()*1.8}s;animation-delay:${Math.random()*2.4}s;`;
+  c.appendChild(p);
+}
+</script>
+</body>
+</html>
