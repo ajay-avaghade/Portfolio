@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Meesho — Vaani-Cart · Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --c-dark: #353543;       /* Meesho Dark Slate */
+  --c-hero: #F43397;       /* Meesho Primary Pink */
+  --c-bright: #038543;     /* Meesho Success Green */
+  --c-accent: #E7E0FC;     /* Meesho Light Lavender */
+  --c-purple: #7D58BA;     /* Vaani Purple */
+  --orange: #FF7043;       /* Meesho Alert Orange */
+  --ink: #121212;
+  --muted: #6E6E82;
+  --border: #EAEAEF;
+  --gray: #F8F8F9;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family:'Sora',sans-serif;
+  background:#0B0B12;
+  color:#F8F8F9;
+  min-height:100vh;
+  display:flex; flex-direction:column; align-items:center;
+  padding:40px 24px 60px;
+}
+.header-strip { color:var(--c-hero); font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; margin-bottom:36px; text-shadow:0 0 10px rgba(244,51,151,0.2); }
+.prototype-wrap { display:flex; gap:32px; align-items:flex-start; flex-wrap:wrap; justify-content:center; }
+.phone-col { display:flex; flex-direction:column; align-items:center; gap:14px; }
+.phone-label { font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:#B39DDB; opacity:.9; }
+.phone {
+  width:375px; height:812px; background:#FFFFFF; color:var(--ink);
+  border-radius:46px;
+  box-shadow:0 40px 100px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.08);
+  overflow:hidden; position:relative; display:flex; flex-direction:column;
+  border: 4px solid #1A1A24;
+}
+.notch { width:118px; height:28px; background:#1A1A24; border-radius:0 0 16px 16px; position:absolute; top:0; left:50%; transform:translateX(-50%); z-index:10; display:flex; align-items:center; justify-content:center; gap:6px; }
+.nc { width:10px; height:10px; background:#08080A; border-radius:50%; }
+.ndot { width:5px; height:5px; background:#141418; border-radius:50%; }
+.status { display:flex; justify-content:space-between; align-items:center; padding:38px 22px 6px; font-size:10px; font-weight:700; color:#555; font-family:'DM Mono',monospace; background:#FFFFFF; border-bottom:1px solid var(--border); }
+.screen { flex:1; overflow-y:auto; scrollbar-width:none; padding-bottom:30px; background:var(--gray); position:relative; display:flex; flex-direction:column; }
+.screen::-webkit-scrollbar { display:none; }
+
+/* Global components */
+.app-header { background:#FFFFFF; padding:12px 16px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--border); position:sticky; top:0; z-index:5; }
+.app-header .title { font-size:16px; font-weight:800; color:var(--c-hero); }
+.back-btn { font-size:18px; color:var(--c-dark); cursor:pointer; }
+.card { background:#FFFFFF; border-radius:12px; padding:14px; margin:10px 12px; border:1px solid var(--border); }
+.btn-primary { background:var(--c-hero); color:#FFFFFF; border:none; border-radius:8px; padding:12px; font-size:12px; font-weight:700; text-align:center; display:block; width:100%; cursor:pointer; box-shadow:0 4px 12px rgba(244,51,151,0.25); text-decoration:none; transition:0.2s; }
+.btn-primary:hover { opacity:0.9; }
+
+/* SCREEN 1: Cart Voice Entry */
+.cart-item { display:flex; gap:12px; padding-bottom:12px; border-bottom:1px solid var(--border); margin-bottom:12px; }
+.cart-item-img { width:64px; height:64px; background:#FFE6F0; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:32px; }
+.cart-item-info { flex:1; }
+.cart-item-title { font-size:12px; font-weight:700; color:var(--ink); }
+.cart-item-price-row { display:flex; align-items:baseline; gap:6px; margin-top:4px; }
+.cart-item-price { font-size:14px; font-weight:800; color:var(--ink); }
+.cart-item-price-old { font-size:10px; text-decoration:line-through; color:var(--muted); }
+.cart-item-qty { font-size:10px; color:var(--muted); margin-top:2px; }
+
+.vaani-banner-card { background:linear-gradient(135deg, #7D58BA, #5E35B1); border-radius:12px; padding:16px; margin:10px 12px; color:#FFFFFF; position:relative; overflow:hidden; box-shadow:0 8px 20px rgba(125,88,186,0.3); border:1px solid rgba(255,255,255,0.1); }
+.vaani-glow { position:absolute; right:-20px; bottom:-20px; width:100px; height:100px; background:radial-gradient(circle, rgba(244,51,151,0.4) 0%, rgba(125,88,186,0) 70%); pointer-events:none; }
+.vaani-lbl { font-size:9px; font-weight:800; letter-spacing:0.1em; text-transform:uppercase; background:rgba(255,255,255,0.2); padding:2px 6px; border-radius:4px; display:inline-block; margin-bottom:8px; }
+.vaani-title { font-size:14px; font-weight:800; margin-bottom:4px; }
+.vaani-desc { font-size:10px; opacity:0.9; line-height:1.45; margin-bottom:14px; }
+.vaani-mic-btn { display:flex; align-items:center; justify-content:center; gap:8px; background:#FFFFFF; color:#5E35B1; border:none; border-radius:8px; padding:12px; font-size:12px; font-weight:800; cursor:pointer; width:100%; transition:0.2s; }
+.vaani-mic-btn:hover { background:rgba(255,255,255,0.9); }
+.vaani-wave { display:flex; gap:3px; align-items:center; }
+.vaani-bar { width:3px; height:12px; background:#5E35B1; border-radius:99px; animation:wave 1s ease-in-out infinite alternate; }
+.vaani-bar:nth-child(2) { animation-delay: 0.2s; height:18px; }
+.vaani-bar:nth-child(3) { animation-delay: 0.4s; height:8px; }
+.vaani-bar:nth-child(4) { animation-delay: 0.1s; height:14px; }
+@keyframes wave { from { transform: scaleY(0.5); } to { transform: scaleY(1.5); } }
+
+/* SCREEN 2: Speech Address Parsing */
+.address-progress-box { padding:14px; background:#FFFFFF; border-bottom:1px solid var(--border); }
+.ap-title { font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; }
+.ap-status-text { font-size:13px; font-weight:800; color:#5E35B1; margin-top:4px; display:flex; align-items:center; gap:6px; }
+
+.mic-active-overlay { background:#F5F3FF; border:1.5px solid var(--c-purple); border-radius:12px; padding:14px; margin:10px 12px; text-align:center; position:relative; overflow:hidden; }
+.listening-indicator { width:44px; height:44px; background:var(--c-purple); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:20px; color:#FFFFFF; margin:0 auto 10px; animation:pulse 1.5s infinite; }
+@keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(125,88,186,0.4); } 70% { box-shadow: 0 0 0 12px rgba(125,88,186,0); } 100% { box-shadow: 0 0 0 0 rgba(125,88,186,0); } }
+.speech-bubble-text { font-size:12px; font-weight:700; color:#5E35B1; font-style:italic; line-height:1.4; }
+
+.form-group { margin-bottom:10px; }
+.form-group label { font-size:10px; font-weight:700; color:var(--muted); display:block; margin-bottom:4px; }
+.form-input { width:100%; border:1px solid var(--border); border-radius:8px; padding:10px; font-size:12px; color:var(--ink); background:#FFFFFF; }
+.form-input.filled { border-color:var(--c-bright); background:#F1FDF6; font-weight:600; }
+
+/* SCREEN 3: Voice Order Confirmation */
+.voice-success-circle { width:64px; height:64px; background:#F1FDF6; border:2px solid var(--c-bright); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:28px; color:var(--c-bright); margin:20px auto 10px; }
+.vs-title { font-size:16px; font-weight:800; text-align:center; color:var(--ink); }
+.vs-sub { font-size:11px; text-align:center; color:var(--muted); margin-top:4px; padding:0 30px; line-height:1.45; }
+
+.speaking-box { background:#F5F3FF; border:1px solid var(--c-accent); border-radius:10px; padding:12px; margin:14px 12px; display:flex; align-items:center; gap:10px; }
+.speaking-avatar { width:32px; height:32px; background:var(--c-purple); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; color:#FFFFFF; }
+.speaking-text { font-size:11px; color:#5E35B1; font-weight:600; line-height:1.4; }
+
+/* Confetti Container */
+.confetti-wrap { position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:30; display:none; overflow:hidden; }
+.cp { position:absolute; width:6px; height:6px; background:#F43397; border-radius:50%; animation:fall linear infinite; }
+@keyframes fall {
+  0% { transform: translateY(-50px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(730px) rotate(360deg); opacity: 0; }
+}
+
+/* SCREEN 4: Analytics Dashboard */
+.db-header { background:#1E1E2F; color:#FFFFFF; padding:14px; }
+.db-title { font-size:15px; font-weight:800; }
+.db-sub { font-size:10px; color:#A4A4C1; margin-top:2px; }
+.kpi-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:12px; }
+.kpi-card { background:#FFFFFF; border:1px solid var(--border); border-radius:10px; padding:12px; }
+.kpi-lbl { font-size:9.5px; color:var(--muted); }
+.kpi-val { font-size:20px; font-weight:800; color:var(--ink); font-family:'DM Mono',monospace; margin-top:4px; }
+.kpi-trend { font-size:9px; font-weight:700; margin-top:2px; }
+
+.chart-card { background:#FFFFFF; border:1px solid var(--border); border-radius:12px; margin:0 12px 10px; padding:12px; }
+.chart-title { font-size:10.5px; font-weight:700; color:var(--c-dark); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:12px; }
+.bar-chart { display:flex; flex-direction:column; gap:10px; }
+.bc-row { display:flex; align-items:center; gap:8px; }
+.bc-lbl { font-size:10px; width:80px; color:var(--c-dark); font-weight:600; }
+.bc-track { flex:1; height:12px; background:#EAEAEF; border-radius:99px; overflow:hidden; position:relative; }
+.bc-fill { height:100%; border-radius:99px; background:var(--c-hero); }
+.bc-val { font-size:10px; font-weight:800; font-family:'DM Mono',monospace; width:36px; text-align:right; }
+
+.insights-list { padding:0 12px; }
+.insight-item { background:#FFFDF5; border:1px solid #FFEAA7; border-radius:10px; padding:10px; display:flex; gap:8px; margin-bottom:8px; }
+.insight-icon { font-size:16px; }
+.insight-text { font-size:10px; color:#7F6D00; line-height:1.45; }
+
+</style>
+</head>
+<body>
+<div class="header-strip">Meesho — Vaani-Cart · Interactive Prototype</div>
+<div class="prototype-wrap">
+
+  <!-- SCREEN 1: Cart Voice Entry -->
+  <div class="phone-col">
+    <div class="phone-label">01 — Shopping Cart Entry</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="status"><span>12:40</span><span>●●● 🔋</span></div>
+      <div class="screen">
+        <div class="app-header">
+          <span class="back-btn">←</span>
+          <span class="title">My Cart (1 Item)</span>
+          <span style="font-size:12px; font-weight:700;">Edit</span>
+        </div>
+
+        <!-- Cart Item -->
+        <div class="card" style="margin-top:10px;">
+          <div class="cart-item">
+            <div class="cart-item-img">👗</div>
+            <div class="cart-item-info">
+              <div class="cart-item-title">Bhavya Poly Silk Anarkali Kurta Set (M)</div>
+              <div class="cart-item-qty">Qty: 1 | Size: M</div>
+              <div class="cart-item-price-row">
+                <span class="cart-item-price">₹482</span>
+                <span class="cart-item-price-old">₹620</span>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:11px;">
+            <span style="color:var(--muted);">Delivery:</span>
+            <span style="color:var(--c-bright); font-weight:700;">FREE</span>
+          </div>
+        </div>
+
+        <!-- Vaani AI Voice Checkout Banner -->
+        <div class="vaani-banner-card">
+          <div class="vaani-glow"></div>
+          <div class="vaani-lbl">✨ MEESHO VAANI AI</div>
+          <h3 class="vaani-title">बोलकर ऑर्डर करें (Voice Checkout)</h3>
+          <p class="vaani-desc">
+            Type करने का झंझट छोड़ें! माइक बटन दबाकर अपना पता (Address) बोलें और आर्डर पूरा करें।
+          </p>
+          <button class="vaani-mic-btn" onclick="startVoiceCheckout()">
+            <span style="font-size:16px;">🎤</span>
+            <span>Tap to Speak Address</span>
+            <div class="vaani-wave" id="wave-anim" style="display:none; margin-left:6px;">
+              <div class="vaani-bar"></div>
+              <div class="vaani-bar"></div>
+              <div class="vaani-bar"></div>
+              <div class="vaani-bar"></div>
+            </div>
+          </button>
+        </div>
+
+        <!-- Regular Checkout summary -->
+        <div class="card" style="margin-top:auto;">
+          <div style="display:flex; justify-content:space-between; font-size:13px; font-weight:800; margin-bottom:12px;">
+            <span>Total Amount:</span>
+            <span style="font-family:'DM Mono',monospace; color:var(--c-hero);">₹482</span>
+          </div>
+          <button class="btn-primary" onclick="nextScreen(2)">Proceed with Text Checkout →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 2: Speech Address Parsing -->
+  <div class="phone-col">
+    <div class="phone-label">02 — Speech-to-Address Parsing</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="status"><span>12:41</span><span>●●● 🔋</span></div>
+      <div class="screen">
+        <div class="app-header">
+          <span class="back-btn" onclick="prevScreen(1)">←</span>
+          <span class="title">Delivery Address</span>
+          <span style="font-size:11px; font-weight:700; color:var(--c-purple);">Vaani Active</span>
+        </div>
+
+        <div class="address-progress-box">
+          <div class="ap-title">Listening to Address...</div>
+          <div class="ap-status-text">
+            <span style="font-size:16px;">🗣️</span>
+            <span id="speech-status">Speaking: "गली नंबर 2..."</span>
+          </div>
+        </div>
+
+        <!-- Active Mic Widget -->
+        <div class="mic-active-overlay">
+          <div class="listening-indicator">🎙️</div>
+          <div class="speech-bubble-text" id="speech-live">
+            "राम मंदिर के पीछे, गली नंबर 2, गांधी नगर, पटना..."
+          </div>
+        </div>
+
+        <!-- Dynamically Filled Address Form -->
+        <div class="card">
+          <div style="font-size:11px; font-weight:700; color:var(--c-dark); margin-bottom:12px;">Structured Address Details (AI Parsed)</div>
+          
+          <div class="form-group">
+            <label>City / Town (शहर)</label>
+            <input type="text" class="form-input filled" value="Patna" id="form-city" readonly>
+          </div>
+
+          <div class="form-group">
+            <label>Locality / Area (इलाका)</label>
+            <input type="text" class="form-input filled" value="Gandhi Nagar" id="form-locality" readonly>
+          </div>
+
+          <div class="form-group">
+            <label>Landmark (पहचान चिन्ह)</label>
+            <input type="text" class="form-input filled" value="Behind Ram Mandir" id="form-landmark" readonly>
+          </div>
+
+          <div class="form-group">
+            <label>Street / House No (गली / मकान नंबर)</label>
+            <input type="text" class="form-input filled" value="Street No 2" id="form-street" readonly>
+          </div>
+
+          <div class="form-group">
+            <label>Pincode (पिनकोड)</label>
+            <input type="text" class="form-input filled" value="800001" id="form-pincode" style="font-family:'DM Mono',monospace;" readonly>
+          </div>
+        </div>
+
+        <div style="padding:0 12px 10px;">
+          <button class="btn-primary" style="background:var(--c-purple); box-shadow:0 4px 12px rgba(125,88,186,0.3);" onclick="nextScreen(3)">Confirm Address →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 3: Voice Order Confirmation -->
+  <div class="phone-col">
+    <div class="phone-label">03 — Voice Order Confirmation</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="status"><span>12:42</span><span>●●● 🔋</span></div>
+      
+      <!-- Confetti Container -->
+      <div id="conf" class="confetti-wrap"></div>
+
+      <div class="screen">
+        <div class="app-header">
+          <span class="back-btn" onclick="prevScreen(2)">←</span>
+          <span class="title">Review Order</span>
+          <span style="font-size:18px;">🗣️</span>
+        </div>
+
+        <!-- Speaker assistant card -->
+        <div class="speaking-box">
+          <div class="speaking-avatar">🎙️</div>
+          <div class="speaking-text" id="assistant-audio-text">
+            🔊 "आपका आर्डर गांधी नगर पटना के लिए है। कुल ₹482 कैश ऑन डिलीवरी। आर्डर करने के लिए 'हां आर्डर करो' बोलें या बटन दबाएं।"
+          </div>
+        </div>
+
+        <!-- Success Animation box -->
+        <div class="voice-success-circle">✓</div>
+        <div class="vs-title">Ready to Confirm</div>
+        <div class="vs-sub">Say <strong>"हाँ आर्डर कर दो"</strong> or tap below to finalize.</div>
+
+        <!-- Summary -->
+        <div class="card" style="margin-top:10px;">
+          <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:4px;">
+            <span>Item:</span>
+            <span style="font-weight:700;">Anarkali Kurta Set (M)</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:4px;">
+            <span>Address:</span>
+            <span style="font-weight:700; text-align:right; max-width:180px; font-size:9.5px;"> गांधी नगर, पटना - 800001</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:4px;">
+            <span>Payment Mode:</span>
+            <span style="font-weight:700; color:var(--orange);">Cash on Delivery</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:13px; font-weight:800; border-top:1px solid var(--border); padding-top:8px; margin-top:8px;">
+            <span>Total Payable:</span>
+            <span style="color:var(--c-hero); font-family:'DM Mono',monospace;">₹482</span>
+          </div>
+        </div>
+
+        <div style="padding:10px 12px; margin-top:auto;">
+          <button class="btn-primary" style="background:var(--c-bright); box-shadow:0 4px 12px rgba(3,133,67,0.3);" id="confirm-voice-btn" onclick="confirmVoiceOrder()">Confirm Order ✓</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 4: Checkout Drop-off Analytics -->
+  <div class="phone-col">
+    <div class="phone-label">04 — Checkout Analytics</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="status"><span>12:45</span><span>●●● 🔋</span></div>
+      <div class="screen" style="background:#F0F2F5;">
+        <div class="db-header">
+          <h3 class="db-title">Vaani-Cart Metrics</h3>
+          <p class="db-sub">Operational Performance &amp; Funnel Analytics</p>
+        </div>
+
+        <!-- KPI Grid -->
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <span class="kpi-lbl">Voice Checkout Share</span>
+            <span class="kpi-val">34.6%</span>
+            <span class="kpi-trend" style="color:var(--c-bright);">↑ 8.2% vs last week</span>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-lbl">Checkout Conv. Rate</span>
+            <span class="kpi-val">82.4%</span>
+            <span class="kpi-trend" style="color:var(--c-bright);">+14.2% vs text flow</span>
+          </div>
+        </div>
+
+        <!-- Funnel Chart -->
+        <div class="chart-card">
+          <div class="chart-title">Checkout Completion Rate by Method</div>
+          <div class="bar-chart">
+            <!-- Row 1 -->
+            <div class="bc-row">
+              <span class="bc-lbl">Vaani Voice</span>
+              <div class="bc-track"><div class="bc-fill" style="width:82.4%; background:var(--c-purple);"></div></div>
+              <span class="bc-val">82.4%</span>
+            </div>
+            <!-- Row 2 -->
+            <div class="bc-row">
+              <span class="bc-lbl">Text (English)</span>
+              <div class="bc-track"><div class="bc-fill" style="width:68.2%;"></div></div>
+              <span class="bc-val">68.2%</span>
+            </div>
+            <!-- Row 3 -->
+            <div class="bc-row">
+              <span class="bc-lbl">Text (Hindi)</span>
+              <div class="bc-track"><div class="bc-fill" style="width:58.5%;"></div></div>
+              <span class="bc-val">58.5%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Language distribution -->
+        <div class="chart-card">
+          <div class="chart-title">Voice Lang Distribution</div>
+          <div class="bar-chart">
+            <div class="bc-row">
+              <span class="bc-lbl">Hindi</span>
+              <div class="bc-track"><div class="bc-fill" style="width:68%; background:#FF8C00;"></div></div>
+              <span class="bc-val">68%</span>
+            </div>
+            <div class="bc-row">
+              <span class="bc-lbl">Bengali</span>
+              <div class="bc-track"><div class="bc-fill" style="width:14%; background:#FF8C00;"></div></div>
+              <span class="bc-val">14%</span>
+            </div>
+            <div class="bc-row">
+              <span class="bc-lbl">Telugu</span>
+              <div class="bc-track"><div class="bc-fill" style="width:10%; background:#FF8C00;"></div></div>
+              <span class="bc-val">10%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI Insights -->
+        <div class="insights-list">
+          <div class="insight-item">
+            <span class="insight-icon">💡</span>
+            <div class="insight-text">
+              <strong>Funnel Lift:</strong> Replacing manual Pincode entry with voice landmark mapping resolved <strong>40% of invalid address errors</strong> in Bihar &amp; UP.
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// Navigation simulation
+function nextScreen(screenNum) {
+  const scrollOffset = (screenNum - 1) * 407;
+  window.scrollTo({ left: scrollOffset, behavior: 'smooth' });
+}
+
+function prevScreen(screenNum) {
+  const scrollOffset = (screenNum - 1) * 407;
+  window.scrollTo({ left: scrollOffset, behavior: 'smooth' });
+}
+
+// Voice checkout mock
+function startVoiceCheckout() {
+  const wave = document.getElementById('wave-anim');
+  wave.style.display = 'flex';
+  
+  setTimeout(() => {
+    wave.style.display = 'none';
+    nextScreen(2);
+    runFormFillSimulation();
+  }, 2000);
+}
+
+function runFormFillSimulation() {
+  const inputs = [
+    { id: 'form-city', val: 'Patna' },
+    { id: 'form-locality', val: 'Gandhi Nagar' },
+    { id: 'form-landmark', val: 'Behind Ram Mandir' },
+    { id: 'form-street', val: 'Street No 2' },
+    { id: 'form-pincode', val: '800001' }
+  ];
+  
+  // Reset fields to empty
+  inputs.forEach(item => {
+    const el = document.getElementById(item.id);
+    el.value = '';
+    el.classList.remove('filled');
+  });
+
+  let index = 0;
+  function fillNext() {
+    if (index < inputs.length) {
+      const item = inputs[index];
+      const el = document.getElementById(item.id);
+      
+      const speechStates = [
+        'Speaking: "पटना शहर..."',
+        'Speaking: "गांधी नगर गांधी नगर..."',
+        'Speaking: "राम मंदिर के पीछे..."',
+        'Speaking: "गली नंबर 2..."',
+        'Speaking: "पिनकोड है 800001..."'
+      ];
+      
+      const liveTranscripts = [
+        '"राम मंदिर के पीछे, गांधी नगर, पटना..."',
+        '"राम मंदिर के पीछे, गांधी नगर गाँधीनगर, पटना..."',
+        '"राम मंदिर के पीछे, गांधी नगर, पटना, राम मंदिर के पास..."',
+        '"गली नंबर 2, राम मंदिर के पीछे, गांधी नगर, पटना..."',
+        '"गली नंबर 2, राम मंदिर के पीछे, गांधी नगर, पटना, पिन 800001..."'
+      ];
+
+      document.getElementById('speech-status').innerText = speechStates[index];
+      document.getElementById('speech-live').innerText = liveTranscripts[index];
+      
+      setTimeout(() => {
+        el.value = item.val;
+        el.classList.add('filled');
+        index++;
+        fillNext();
+      }, 900);
+    } else {
+      document.getElementById('speech-status').innerText = 'Address successfully recorded!';
+      document.getElementById('speech-live').innerText = '"गली नंबर 2, राम मंदिर के पीछे, गांधी नगर, पटना, पिन 800001"';
+    }
+  }
+
+  setTimeout(fillNext, 500);
+}
+
+function confirmVoiceOrder() {
+  runConfetti();
+}
+
+// Confetti Standard
+function runConfetti() {
+  const c = document.getElementById('conf');
+  c.innerHTML = '';
+  c.style.display = 'block';
+  const cols = ['#F43397','#038543','#7D58BA','#FF8C00','#FFB800','#2196F3'];
+  for(let i=0;i<48;i++){
+    const p = document.createElement('div');
+    p.className='cp';
+    const size = 5+Math.random()*8;
+    p.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*30-20}px;width:${size}px;height:${size}px;background:${cols[Math.floor(Math.random()*cols.length)]};border-radius:${Math.random()>.5?'50%':'2px'};animation: fall ${1.5+Math.random()*1.5}s linear forwards;animation-delay:${Math.random()*0.5}s;`;
+    c.appendChild(p);
+  }
+  
+  const btn = document.getElementById('confirm-voice-btn');
+  const oldText = btn.innerText;
+  btn.innerText = 'Order Confirmed! ✓';
+  btn.style.background = 'var(--c-bright)';
+  btn.style.boxShadow = '0 4px 12px rgba(3,133,67,0.3)';
+  setTimeout(() => {
+    btn.innerText = oldText;
+    btn.style.background = 'var(--c-bright)';
+    btn.style.boxShadow = '';
+    c.style.display = 'none';
+  }, 4000);
+}
+</script>
+</body>
+</html>

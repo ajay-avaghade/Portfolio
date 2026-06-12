@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Meesho — ReturnSense · Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --c-dark: #353543;       /* Meesho Dark Slate */
+  --c-hero: #F43397;       /* Meesho Primary Pink */
+  --c-bright: #038543;     /* Meesho Success Green */
+  --c-accent: #E7E0FC;     /* Meesho Light Lavender */
+  --orange: #FF7043;       /* Meesho Alert Orange */
+  --ink: #121212;
+  --muted: #6E6E82;
+  --border: #EAEAEF;
+  --gray: #F8F8F9;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family:'Sora',sans-serif;
+  background:#0F0B15;
+  color:#F8F8F9;
+  min-height:100vh;
+  display:flex; flex-direction:column; align-items:center;
+  padding:40px 24px 60px;
+}
+.header-strip { color:var(--c-hero); font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; margin-bottom:36px; text-shadow:0 0 10px rgba(244,51,151,0.2); }
+.prototype-wrap { display:flex; gap:32px; align-items:flex-start; flex-wrap:wrap; justify-content:center; }
+.phone-col { display:flex; flex-direction:column; align-items:center; gap:14px; }
+.phone-label { font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:#B39DDB; opacity:.9; }
+.phone {
+  width:375px; height:812px; background:#FFFFFF; color:var(--ink);
+  border-radius:46px;
+  box-shadow:0 40px 100px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.08);
+  overflow:hidden; position:relative; display:flex; flex-direction:column;
+  border: 4px solid #1E1A26;
+}
+.notch { width:118px; height:28px; background:#1E1A26; border-radius:0 0 16px 16px; position:absolute; top:0; left:50%; transform:translateX(-50%); z-index:10; display:flex; align-items:center; justify-content:center; gap:6px; }
+.nc { width:10px; height:10px; background:#0B0B0C; border-radius:50%; }
+.ndot { width:5px; height:5px; background:#1C1C1D; border-radius:50%; }
+.status { display:flex; justify-content:space-between; align-items:center; padding:38px 22px 6px; font-size:10px; font-weight:700; color:#555; font-family:'DM Mono',monospace; background:#FFFFFF; border-bottom:1px solid var(--border); }
+.screen { flex:1; overflow-y:auto; scrollbar-width:none; padding-bottom:30px; background:var(--gray); }
+.screen::-webkit-scrollbar { display:none; }
+
+/* Global components */
+.app-header { background:#FFFFFF; padding:12px 16px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--border); position:sticky; top:0; z-index:5; }
+.app-header .title { font-size:16px; font-weight:800; color:var(--c-hero); }
+.app-header .sub-title { font-size:10px; color:var(--muted); font-weight:600; }
+.back-btn { font-size:18px; color:var(--c-dark); cursor:pointer; }
+.card { background:#FFFFFF; border-radius:12px; padding:14px; margin:10px 12px; border:1px solid var(--border); }
+.btn-primary { background:var(--c-hero); color:#FFFFFF; border:none; border-radius:8px; padding:12px; font-size:12px; font-weight:700; text-align:center; display:block; width:100%; cursor:pointer; box-shadow:0 4px 12px rgba(244,51,151,0.25); text-decoration:none; transition:0.2s; }
+.btn-primary:hover { opacity:0.9; }
+.btn-outline { background:#FFFFFF; color:var(--c-hero); border:1.5px solid var(--c-hero); border-radius:8px; padding:10px; font-size:12px; font-weight:700; text-align:center; display:block; width:100%; cursor:pointer; text-decoration:none; transition:0.2s; }
+
+/* SCREEN 1: PDP Size Confidence */
+.pdp-img { width:100%; height:260px; background:#FFE6F0; position:relative; display:flex; align-items:center; justify-content:center; }
+.pdp-img img-placeholder { font-size:48px; }
+.pdp-img-nav { position:absolute; bottom:12px; right:12px; background:rgba(0,0,0,0.6); color:#fff; font-size:10px; padding:3px 8px; border-radius:10px; font-family:'DM Mono',monospace; }
+.price-block { display:flex; align-items:baseline; gap:8px; margin-top:4px; }
+.price-now { font-size:20px; font-weight:800; color:var(--ink); }
+.price-old { font-size:12px; text-decoration:line-through; color:var(--muted); }
+.price-discount { font-size:12px; font-weight:700; color:var(--c-bright); }
+.special-price-tag { background:#F1FDF6; border:1.5px dashed var(--c-bright); border-radius:6px; padding:8px 10px; margin-top:8px; display:flex; justify-content:space-between; align-items:center; }
+.special-price-text { font-size:10px; font-weight:700; color:var(--c-bright); }
+.special-price-val { font-size:12px; font-weight:800; color:var(--c-bright); font-family:'DM Mono',monospace; }
+
+.return-risk-badge { display:flex; align-items:center; gap:8px; background:#FFF5F5; border:1px solid #FFCDCD; border-radius:8px; padding:10px; margin:10px 12px; }
+.risk-icon { font-size:18px; color:var(--orange); }
+.risk-details { flex:1; }
+.risk-title { font-size:11px; font-weight:700; color:#B71C1C; }
+.risk-desc { font-size:9.5px; color:#555; margin-top:2px; line-height:1.4; }
+
+.confidence-widget { margin:10px 12px; background:#FFFFFF; border-radius:12px; border:1px solid var(--border); overflow:hidden; }
+.cw-header { background:var(--c-accent); padding:10px 12px; display:flex; justify-content:space-between; align-items:center; }
+.cw-title { font-size:11px; font-weight:700; color:#5E35B1; display:flex; align-items:center; gap:6px; }
+.cw-verdict { font-size:10px; font-weight:800; color:#5E35B1; background:#FFFFFF; padding:2px 6px; border-radius:4px; }
+.cw-body { padding:12px; }
+.cw-desc { font-size:10px; color:var(--c-dark); line-height:1.4; margin-bottom:12px; }
+.cw-desc strong { color:var(--c-hero); }
+
+/* Progress bars standard */
+.track { height:8px; background:#EAEAEF; border-radius:99px; overflow:visible; position:relative; }
+.fill { height:100%; border-radius:99px; background:var(--c-bright); position:relative; transition:.6s ease; }
+.fill-badge { position:absolute; right:-2px; top:-9px; background:var(--c-bright); color:#fff; font-size:8px; font-weight:700; padding:2px 4px; border-radius:4px; }
+
+.size-selector { display:flex; gap:10px; margin-top:10px; }
+.size-chip { flex:1; text-align:center; border:1px solid var(--border); border-radius:8px; padding:10px 0; font-size:12px; font-weight:700; color:var(--c-dark); cursor:pointer; transition:0.2s; }
+.size-chip.selected { border-color:var(--c-hero); background:#FFF0F6; color:var(--c-hero); }
+.size-fit-info { font-size:9.5px; color:var(--muted); text-align:center; margin-top:6px; }
+
+/* SCREEN 2: Vernacular Size Guide */
+.guide-tab-row { display:flex; background:#FFFFFF; border-bottom:1px solid var(--border); }
+.guide-tab { flex:1; text-align:center; padding:12px 0; font-size:11px; font-weight:700; color:var(--muted); border-bottom:2px solid transparent; cursor:pointer; }
+.guide-tab.active { color:var(--c-hero); border-bottom-color:var(--c-hero); }
+.guide-header { padding:14px; background:#FFFFFF; border-bottom:1px solid var(--border); }
+.guide-title { font-size:13px; font-weight:800; color:var(--ink); }
+.guide-sub { font-size:10px; color:var(--muted); margin-top:2px; }
+
+.photo-map-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:10px 12px; }
+.photo-card { background:#FFFFFF; border:1px solid var(--border); border-radius:10px; overflow:hidden; display:flex; flex-direction:column; }
+.photo-img { height:130px; background:#EFEFEF; position:relative; display:flex; align-items:center; justify-content:center; font-size:32px; }
+.photo-badge { position:absolute; bottom:6px; left:6px; background:rgba(0,0,0,0.6); color:#fff; font-size:9px; padding:2px 5px; border-radius:4px; }
+.photo-details { padding:8px; }
+.pd-row { display:flex; justify-content:space-between; font-size:9.5px; margin-bottom:4px; }
+.pd-label { color:var(--muted); }
+.pd-val { font-weight:700; color:var(--ink); }
+.pd-fit-status { font-size:9px; font-weight:800; padding:2px 5px; border-radius:4px; text-align:center; margin-top:4px; }
+.pd-fit-status.perfect { background:#F1FDF6; color:var(--c-bright); }
+.pd-fit-status.tight { background:#FFF8F0; color:var(--orange); }
+
+.help-text-vernacular { background:#F5F3FF; border:1px solid var(--c-accent); border-radius:8px; padding:10px; margin:10px 12px; font-size:10px; color:#5E35B1; line-height:1.45; }
+
+/* SCREEN 3: Risk Checkout Intercept & Confetti */
+.checkout-header { background:#FFFFFF; padding:12px 16px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:12px; }
+.checkout-title { font-size:14px; font-weight:800; color:var(--ink); }
+.checkout-steps { font-size:9.5px; color:var(--muted); margin-left:auto; }
+
+.pay-options { padding:12px; }
+.pay-option { background:#FFFFFF; border:1.5px solid var(--border); border-radius:10px; padding:12px; margin-bottom:10px; display:flex; align-items:flex-start; gap:10px; cursor:pointer; position:relative; transition:0.2s; }
+.pay-option.selected { border-color:var(--c-hero); background:#FFF0F6; }
+.pay-radio { width:16px; height:16px; border-radius:50%; border:2px solid var(--border); display:flex; align-items:center; justify-content:center; margin-top:2px; flex-shrink:0; }
+.pay-option.selected .pay-radio { border-color:var(--c-hero); }
+.pay-option.selected .pay-radio::after { content:''; width:8px; height:8px; background:var(--c-hero); border-radius:50%; }
+.pay-opt-details { flex:1; }
+.pay-opt-title { font-size:12px; font-weight:700; color:var(--ink); display:flex; align-items:center; gap:6px; }
+.pay-opt-desc { font-size:10px; color:var(--muted); margin-top:2px; line-height:1.4; }
+.pay-opt-badge { background:var(--c-bright); color:#FFFFFF; font-size:8.5px; font-weight:700; padding:2px 6px; border-radius:4px; margin-left:auto; }
+
+.intercept-overlay { position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(18,18,18,0.7); z-index:20; display:flex; flex-direction:column; justify-content:flex-end; display:none; }
+.intercept-sheet { background:#FFFFFF; border-radius:24px 24px 0 0; padding:20px; box-shadow:0 -10px 30px rgba(0,0,0,0.15); animation:slideUp 0.3s ease; }
+@keyframes slideUp { from { transform:translateY(100%); } to { transform:translateY(0); } }
+.sheet-warn-header { display:flex; align-items:center; gap:8px; margin-bottom:12px; }
+.sheet-warn-icon { font-size:24px; color:var(--orange); }
+.sheet-warn-title { font-size:14px; font-weight:800; color:#B71C1C; }
+.sheet-warn-desc { font-size:11px; color:var(--c-dark); line-height:1.5; margin-bottom:16px; }
+.sheet-offer-box { background:#F1FDF6; border:1px dashed var(--c-bright); border-radius:10px; padding:12px; display:flex; align-items:center; justify-content:between; margin-bottom:16px; }
+.sheet-offer-text { font-size:10.5px; color:var(--c-bright); font-weight:600; line-height:1.4; }
+.sheet-actions { display:flex; flex-direction:column; gap:10px; }
+
+/* Confetti Container */
+.confetti-wrap { position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:30; display:none; overflow:hidden; }
+.cp { position:absolute; width:6px; height:6px; background:#F43397; border-radius:50%; animation:fall linear infinite; }
+@keyframes fall {
+  0% { transform: translateY(-50px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(730px) rotate(360deg); opacity: 0; }
+}
+
+/* SCREEN 4: Supplier Return Panel */
+.sub-header { background:var(--c-dark); color:#FFFFFF; padding:14px; display:flex; justify-content:space-between; align-items:center; }
+.sub-brand { font-size:12px; font-weight:700; }
+.sub-period { font-size:9.5px; color:rgba(255,255,255,0.7); }
+.kpi-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:12px; }
+.kpi-box { background:#FFFFFF; border:1px solid var(--border); border-radius:10px; padding:10px; display:flex; flex-direction:column; justify-content:space-between; }
+.kpi-box-lbl { font-size:9.5px; color:var(--muted); }
+.kpi-box-val { font-size:18px; font-weight:800; color:var(--ink); font-family:'DM Mono',monospace; margin-top:4px; }
+.kpi-box-sub { font-size:8.5px; margin-top:2px; font-weight:600; }
+
+.supplier-alert { margin:0 12px 10px; background:#FFF8F8; border:1px solid #FFD5D5; border-radius:10px; padding:10px; display:flex; align-items:center; gap:8px; }
+.supplier-alert-text { font-size:9.5px; color:#D32F2F; line-height:1.4; }
+
+.supplier-action-card { background:#FFFFFF; border:1px solid var(--border); border-radius:12px; margin:0 12px 10px; overflow:hidden; }
+.sac-header { background:#F8F8F9; border-bottom:1px solid var(--border); padding:10px 12px; display:flex; justify-content:space-between; align-items:center; }
+.sac-sku { font-size:10px; font-weight:700; color:var(--c-dark); }
+.sac-tag { font-size:8px; font-weight:800; padding:2px 6px; border-radius:4px; }
+.sac-tag.action { background:#FFF0F0; color:#D32F2F; }
+.sac-body { padding:12px; }
+.sac-metric-row { display:flex; justify-content:space-between; margin-bottom:10px; }
+.sac-metric { flex:1; }
+.sac-metric-lbl { font-size:9px; color:var(--muted); }
+.sac-metric-val { font-size:12px; font-weight:700; color:var(--ink); margin-top:2px; }
+.sac-recommendation { background:#F5F3FF; border-radius:8px; padding:8px; font-size:9.5px; color:#5E35B1; line-height:1.45; }
+.sac-recommendation strong { color:var(--c-hero); }
+
+</style>
+</head>
+<body>
+<div class="header-strip">Meesho — ReturnSense · Interactive Prototype</div>
+<div class="prototype-wrap">
+
+  <!-- SCREEN 1: PDP Size Confidence -->
+  <div class="phone-col">
+    <div class="phone-label">01 — PDP Size Surfacing</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="status"><span>12:30</span><span>●●● 🔋</span></div>
+      <div class="screen">
+        <div class="app-header">
+          <span class="back-btn">←</span>
+          <span class="title">Product Details</span>
+          <span style="font-size:18px;">🛒</span>
+        </div>
+        
+        <!-- PDP Product Image -->
+        <div class="pdp-img">
+          <span style="font-size: 60px;">👗</span>
+          <div class="pdp-img-nav">1/4</div>
+        </div>
+        
+        <!-- Title & Price Block -->
+        <div class="card" style="margin-top:10px;">
+          <h3 style="font-size:14px; font-weight:700; color:var(--c-dark);">Bhavya Poly Silk Anarkali Kurta Set</h3>
+          <p style="font-size:10px; color:var(--muted); margin-top:2px;">Sold by: Shivay Creations</p>
+          <div class="price-block">
+            <span class="price-now">₹482</span>
+            <span class="price-old">₹620</span>
+            <span class="price-discount">22% OFF</span>
+          </div>
+          <!-- Special Online Price -->
+          <div class="special-price-tag">
+            <span class="special-price-text">💳 Online payment special price:</span>
+            <span class="special-price-val">₹467</span>
+          </div>
+        </div>
+
+        <!-- Return Risk Warning Badge -->
+        <div class="return-risk-badge">
+          <span class="risk-icon">⚠️</span>
+          <div class="risk-details">
+            <div class="risk-title">Sizing Alert: Often Returns (चुनने में सावधानी)</div>
+            <div class="risk-desc">18% of buyers returned this item due to tight chest fitting. Please check size guide carefully.</div>
+          </div>
+        </div>
+
+        <!-- Size Confidence Widget -->
+        <div class="confidence-widget">
+          <div class="cw-header">
+            <span class="cw-title">✦ Size Intelligence AI</span>
+            <span class="cw-verdict">Suggested Size: M</span>
+          </div>
+          <div class="cw-body">
+            <p class="cw-desc">Based on your past orders and <strong>84% customer satisfaction feedback</strong>, Size <strong>Medium (M)</strong> fits you best.</p>
+            <div class="track">
+              <div class="fill" style="width:84%">
+                <span class="fill-badge">84% Match</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Size Selector -->
+        <div class="card">
+          <div style="font-size:11px; font-weight:700; color:var(--c-dark); margin-bottom:8px;">Select Size</div>
+          <div class="size-selector">
+            <div class="size-chip" onclick="selectSize(this, 'S')">S</div>
+            <div class="size-chip selected" onclick="selectSize(this, 'M')">M</div>
+            <div class="size-chip" onclick="selectSize(this, 'L')">L</div>
+            <div class="size-chip" onclick="selectSize(this, 'XL')">XL</div>
+          </div>
+          <div class="size-fit-info">Chest: 38 in | Waist: 34 in | Length: 44 in</div>
+          <div style="margin-top:14px;">
+            <button class="btn-primary" onclick="nextScreen(2)">Verify Size via Visual Guide →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 2: Vernacular Size Guide -->
+  <div class="phone-col">
+    <div class="phone-label">02 — Vernacular Visual Guide</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="status"><span>12:31</span><span>●●● 🔋</span></div>
+      <div class="screen" style="background:#FFFFFF;">
+        <div class="app-header">
+          <span class="back-btn" onclick="prevScreen(1)">←</span>
+          <span class="title">Size &amp; Fit Assistant</span>
+          <span style="font-size:11px; font-weight:700; color:var(--c-hero);">हिन्दी ▼</span>
+        </div>
+
+        <!-- Guide Tab Row -->
+        <div class="guide-tab-row">
+          <div class="guide-tab active">Buyer Photos (फोटो गाइड)</div>
+          <div class="guide-tab">Standard Measurements</div>
+        </div>
+
+        <div class="guide-header">
+          <div class="guide-title">How Medium (M) fits other buyers</div>
+          <div class="guide-sub">See actual pictures from buyers with similar build to decide</div>
+        </div>
+
+        <div class="help-text-vernacular">
+          💡 <strong>ग्राहक का अनुभव:</strong> अधिकांश खरीदार जिनका कद <strong>5'3"</strong> और वजन <strong>55-58kg</strong> है, उन्होंने Medium (M) को परफेक्ट फिट बताया है।
+        </div>
+
+        <!-- Photo Map Grid -->
+        <div class="photo-map-grid">
+          <!-- Card 1 -->
+          <div class="photo-card">
+            <div class="photo-img">
+              👱‍♀️
+              <div class="photo-badge">Height: 5'3"</div>
+            </div>
+            <div class="photo-details">
+              <div class="pd-row">
+                <span class="pd-label">Weight:</span>
+                <span class="pd-val">56 kg</span>
+              </div>
+              <div class="pd-row">
+                <span class="pd-label">Selected:</span>
+                <span class="pd-val">M</span>
+              </div>
+              <div class="pd-fit-status perfect">Perfect Fit (सही माप)</div>
+            </div>
+          </div>
+          
+          <!-- Card 2 -->
+          <div class="photo-card">
+            <div class="photo-img">
+              👩
+              <div class="photo-badge">Height: 5'5"</div>
+            </div>
+            <div class="photo-details">
+              <div class="pd-row">
+                <span class="pd-label">Weight:</span>
+                <span class="pd-val">59 kg</span>
+              </div>
+              <div class="pd-row">
+                <span class="pd-label">Selected:</span>
+                <span class="pd-val">M</span>
+              </div>
+              <div class="pd-fit-status tight">Chest: Slightly Tight</div>
+            </div>
+          </div>
+
+          <!-- Card 3 -->
+          <div class="photo-card">
+            <div class="photo-img">
+              👩‍🦰
+              <div class="photo-badge">Height: 5'2"</div>
+            </div>
+            <div class="photo-details">
+              <div class="pd-row">
+                <span class="pd-label">Weight:</span>
+                <span class="pd-val">54 kg</span>
+              </div>
+              <div class="pd-row">
+                <span class="pd-label">Selected:</span>
+                <span class="pd-val">M</span>
+              </div>
+              <div class="pd-fit-status perfect">Perfect Fit (सही माप)</div>
+            </div>
+          </div>
+
+          <!-- Card 4 -->
+          <div class="photo-card">
+            <div class="photo-img">
+              👩‍🦳
+              <div class="photo-badge">Height: 5'4"</div>
+            </div>
+            <div class="photo-details">
+              <div class="pd-row">
+                <span class="pd-label">Weight:</span>
+                <span class="pd-val">63 kg</span>
+              </div>
+              <div class="pd-row">
+                <span class="pd-label">Selected:</span>
+                <span class="pd-val">L</span>
+              </div>
+              <div class="pd-fit-status perfect">Perfect Fit (L लिया)</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="padding:10px 12px 20px;">
+          <button class="btn-primary" onclick="nextScreen(3)">Select Medium &amp; Proceed to Cart →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 3: Risk Checkout Intercept -->
+  <div class="phone-col">
+    <div class="phone-label">03 — Risk Checkout Intercept</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="status"><span>12:33</span><span>●●● 🔋</span></div>
+      
+      <!-- Confetti Container -->
+      <div id="conf" class="confetti-wrap"></div>
+
+      <div class="screen">
+        <div class="checkout-header">
+          <span class="back-btn" onclick="prevScreen(2)">←</span>
+          <span class="checkout-title">Select Payment Mode</span>
+          <span class="checkout-steps">Step 3 of 3</span>
+        </div>
+
+        <div style="padding:14px; font-size:11px; font-weight:700; color:var(--c-dark);">Select how you want to pay:</div>
+
+        <div class="pay-options">
+          <!-- Option 1: UPI -->
+          <div class="pay-option selected" id="opt-upi" onclick="selectPayOption('upi')">
+            <div class="pay-radio"></div>
+            <div class="pay-opt-details">
+              <div class="pay-opt-title">UPI (Google Pay, PhonePe, Paytm)</div>
+              <div class="pay-opt-desc">Pay now securely. Zero delivery cancellation.</div>
+            </div>
+            <span class="pay-opt-badge">Save ₹15</span>
+          </div>
+
+          <!-- Option 2: Cash on Delivery -->
+          <div class="pay-option" id="opt-cod" onclick="selectPayOption('cod')">
+            <div class="pay-radio"></div>
+            <div class="pay-opt-details">
+              <div class="pay-opt-title">Cash on Delivery (COD)</div>
+              <div class="pay-opt-desc">Pay cash when delivery agent arrives.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Order Summary Card -->
+        <div class="card">
+          <div style="font-size:11px; font-weight:700; color:var(--c-dark); border-bottom:1px solid var(--border); padding-bottom:8px; margin-bottom:8px;">Order Details</div>
+          <div style="display:flex; justify-content:space-between; font-size:10px; margin-bottom:6px;">
+            <span>Product Price:</span>
+            <span style="font-family:'DM Mono',monospace;">₹482</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:10px; margin-bottom:6px; color:var(--c-bright);" id="pay-discount-row">
+            <span>Online Payment Discount:</span>
+            <span style="font-family:'DM Mono',monospace;">-₹15</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:10px; margin-bottom:6px;">
+            <span>Delivery Charges:</span>
+            <span style="color:var(--c-bright); font-weight:700;">FREE</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:800; border-top:1px solid var(--border); padding-top:8px; margin-top:8px;">
+            <span>Total Pay:</span>
+            <span style="font-family:'DM Mono',monospace; color:var(--c-hero);" id="checkout-total">₹467</span>
+          </div>
+        </div>
+
+        <div style="padding:10px 12px;">
+          <button class="btn-primary" id="place-order-btn" onclick="triggerCheckoutAction()">Place Order Now →</button>
+        </div>
+
+        <!-- Intercept Bottom Sheet -->
+        <div class="intercept-overlay" id="intercept-overlay">
+          <div class="intercept-sheet">
+            <div class="sheet-warn-header">
+              <span class="sheet-warn-icon">⚠️</span>
+              <span class="sheet-warn-title">Important Verification (सत्यापन आवश्यक)</span>
+            </div>
+            <p class="sheet-warn-desc">
+              Your selected pin code has a <strong>24% delivery return rate</strong> for Cash on Delivery. To confirm this order, please verify your intent.
+            </p>
+            
+            <div class="sheet-offer-box">
+              <span class="sheet-offer-text">
+                🎁 <strong>Offer:</strong> switch to Online Payment &amp; get **₹15 instant discount** + guaranteed delivery!
+              </span>
+            </div>
+
+            <div class="sheet-actions">
+              <button class="btn-primary" onclick="resolveIntercept('prepaid')">Switch to Online &amp; Save ₹15 →</button>
+              <button class="btn-outline" style="border-color:var(--c-dark); color:var(--c-dark);" onclick="resolveIntercept('voice')">Confirm via WhatsApp Voice Call 📞</button>
+              <span style="font-size:9px; color:var(--muted); text-align:center; display:block; margin-top:4px;" onclick="resolveIntercept('cancel')">Cancel order and change product</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 4: Supplier Return Panel -->
+  <div class="phone-col">
+    <div class="phone-label">04 — Supplier Analytics</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="status"><span>12:35</span><span>●●● 🔋</span></div>
+      <div class="screen">
+        <div class="app-header">
+          <span class="back-btn" onclick="prevScreen(3)">←</span>
+          <span class="title">Meesho Supplier Hub</span>
+          <span style="font-size:18px;">🔔</span>
+        </div>
+
+        <div class="sub-header">
+          <span class="sub-brand">Shivay Creations</span>
+          <span class="sub-period">Last 30 Days</span>
+        </div>
+
+        <!-- KPIs row -->
+        <div class="kpi-row">
+          <div class="kpi-box">
+            <span class="kpi-box-lbl">Total Shipped</span>
+            <span class="kpi-box-val">12,450</span>
+            <span class="kpi-box-sub" style="color:var(--c-bright);">↑ 14% MoM</span>
+          </div>
+          <div class="kpi-box" style="border-color:#FFD5D5;">
+            <span class="kpi-box-lbl">Return + RTO Rate</span>
+            <span class="kpi-box-val" style="color:#D32F2F;">21.4%</span>
+            <span class="kpi-box-sub" style="color:#D32F2F;">Critical (Limit 15%)</span>
+          </div>
+        </div>
+
+        <!-- Supplier alert banner -->
+        <div class="supplier-alert">
+          <span style="font-size:16px;">⚠️</span>
+          <span class="supplier-alert-text">
+            <strong>Action Required:</strong> 3 SKUs have high size-related return rates. Rectify catalog details to prevent search penalty.
+          </span>
+        </div>
+
+        <div style="font-size:10px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; padding:4px 12px 8px;">SKUs requiring action</div>
+
+        <!-- SKU Action Cards -->
+        <!-- Card 1 -->
+        <div class="supplier-action-card">
+          <div class="sac-header">
+            <span class="sac-sku">SKU: ANARKALI-SILK-M</span>
+            <span class="sac-tag action">Size Deviation</span>
+          </div>
+          <div class="sac-body">
+            <div class="sac-metric-row">
+              <div class="sac-metric">
+                <span class="sac-metric-lbl">Return Rate</span>
+                <span class="sac-metric-val" style="color:#D32F2F;">26.8%</span>
+              </div>
+              <div class="sac-metric">
+                <span class="sac-metric-lbl">Primary Reason</span>
+                <span class="sac-metric-val">Chest runs small</span>
+              </div>
+              <div class="sac-metric">
+                <span class="sac-metric-lbl">Loss Incurred</span>
+                <span class="sac-metric-val">₹42,300</span>
+              </div>
+            </div>
+            <div class="sac-recommendation">
+              💡 <strong>AI Recommendation:</strong> Adjust catalog size chart chest parameter from <strong>38" to 39.5"</strong>, or recommend buyers to size up.
+            </div>
+            <div style="margin-top:12px; display:flex; gap:8px;">
+              <button class="btn-primary" style="padding:8px; font-size:10px; flex:1;" onclick="applyCatalogFix(this)">Apply Size Chart Fix</button>
+              <button class="btn-outline" style="padding:6px; font-size:10px; border-color:var(--border); color:var(--c-dark);" onclick="alert('Sent to QA team for measurement validation.')">Request QA Recheck</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="supplier-action-card">
+          <div class="sac-header">
+            <span class="sac-sku">SKU: GEORGETTE-SAREE-RED</span>
+            <span class="sac-tag action" style="background:#FFF8E1; color:#F57F17;">Visual Mismatch</span>
+          </div>
+          <div class="sac-body">
+            <div class="sac-metric-row">
+              <div class="sac-metric">
+                <span class="sac-metric-lbl">Return Rate</span>
+                <span class="sac-metric-val" style="color:#F57F17;">18.5%</span>
+              </div>
+              <div class="sac-metric">
+                <span class="sac-metric-lbl">Primary Reason</span>
+                <span class="sac-metric-val">Color mismatch</span>
+              </div>
+              <div class="sac-metric">
+                <span class="sac-metric-lbl">Loss Incurred</span>
+                <span class="sac-metric-val">₹18,400</span>
+              </div>
+            </div>
+            <div class="sac-recommendation">
+              💡 <strong>AI Recommendation:</strong> Saree color in product photo is saturated. Replace image with a natural daylight photo (free Meesho Studio booking).
+            </div>
+            <div style="margin-top:12px; display:flex; gap:8px;">
+              <button class="btn-primary" style="padding:8px; font-size:10px; flex:1; background:var(--c-dark); box-shadow:none;" onclick="alert('Opening Meesho Studio booking portal...')">Book Studio Shoot</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// Navigation simulation
+function nextScreen(screenNum) {
+  const scrollOffset = (screenNum - 1) * 407; // approximate column spacing
+  window.scrollTo({ left: scrollOffset, behavior: 'smooth' });
+}
+
+function prevScreen(screenNum) {
+  const scrollOffset = (screenNum - 1) * 407;
+  window.scrollTo({ left: scrollOffset, behavior: 'smooth' });
+}
+
+// PDP Actions
+function selectSize(element, size) {
+  document.querySelectorAll('.size-chip').forEach(el => el.classList.remove('selected'));
+  element.classList.add('selected');
+  const details = {
+    'S': 'Chest: 36 in | Waist: 32 in | Length: 43.5 in',
+    'M': 'Chest: 38 in | Waist: 34 in | Length: 44 in',
+    'L': 'Chest: 40 in | Waist: 36 in | Length: 44.5 in',
+    'XL': 'Chest: 42 in | Waist: 38 in | Length: 45 in'
+  };
+  document.querySelector('.size-fit-info').innerText = details[size];
+}
+
+// Payment Selection & Intercept
+let selectedPayment = 'upi';
+
+function selectPayOption(mode) {
+  document.querySelectorAll('.pay-option').forEach(el => el.classList.remove('selected'));
+  if (mode === 'upi') {
+    document.getElementById('opt-upi').classList.add('selected');
+    document.getElementById('pay-discount-row').style.display = 'flex';
+    document.getElementById('checkout-total').innerText = '₹467';
+    selectedPayment = 'upi';
+  } else {
+    document.getElementById('opt-cod').classList.add('selected');
+    document.getElementById('pay-discount-row').style.display = 'none';
+    document.getElementById('checkout-total').innerText = '₹482';
+    selectedPayment = 'cod';
+  }
+}
+
+function triggerCheckoutAction() {
+  if (selectedPayment === 'cod') {
+    // Intercept high-risk COD order
+    document.getElementById('intercept-overlay').style.display = 'flex';
+  } else {
+    // Normal success check
+    runConfetti();
+  }
+}
+
+function resolveIntercept(choice) {
+  document.getElementById('intercept-overlay').style.display = 'none';
+  if (choice === 'prepaid') {
+    selectPayOption('upi');
+    runConfetti();
+  } else if (choice === 'voice') {
+    alert('📞 Calling your registered number via WhatsApp voice bot (Vaani)... Please speak: "ऑर्डर कन्फर्म है"');
+    setTimeout(() => {
+      runConfetti();
+    }, 1500);
+  } else {
+    alert('Order cancelled.');
+  }
+}
+
+// Confetti Standard
+function runConfetti() {
+  const c = document.getElementById('conf');
+  c.innerHTML = '';
+  c.style.display = 'block';
+  const cols = ['#F43397','#038543','#FF8C00','#7D58BA','#FFB800','#2196F3'];
+  for(let i=0;i<48;i++){
+    const p = document.createElement('div');
+    p.className='cp';
+    const size = 5+Math.random()*8;
+    p.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*30-20}px;width:${size}px;height:${size}px;background:${cols[Math.floor(Math.random()*cols.length)]};border-radius:${Math.random()>.5?'50%':'2px'};animation: fall ${1.5+Math.random()*1.5}s linear forwards;animation-delay:${Math.random()*0.5}s;`;
+    c.appendChild(p);
+  }
+  
+  const btn = document.getElementById('place-order-btn');
+  const oldText = btn.innerText;
+  btn.innerText = 'Order Placed! ✓';
+  btn.style.background = 'var(--c-bright)';
+  btn.style.boxShadow = '0 4px 12px rgba(3,133,67,0.3)';
+  setTimeout(() => {
+    btn.innerText = oldText;
+    btn.style.background = 'var(--c-hero)';
+    btn.style.boxShadow = '';
+    c.style.display = 'none';
+  }, 4000);
+}
+
+// Supplier fixes
+function applyCatalogFix(button) {
+  const originalText = button.innerText;
+  button.innerText = 'Applying Fix...';
+  button.style.opacity = '0.7';
+  setTimeout(() => {
+    button.innerText = 'Catalog Updated! ✓';
+    button.style.background = 'var(--c-bright)';
+    button.style.color = '#FFFFFF';
+    button.style.opacity = '1';
+    
+    // update parent card slightly to show success
+    const card = button.closest('.supplier-action-card');
+    setTimeout(() => {
+      card.style.opacity = '0.5';
+      card.style.transition = 'opacity 0.5s';
+      card.querySelector('.sac-tag').innerText = 'Resolved';
+      card.querySelector('.sac-tag').style.background = '#F1FDF6';
+      card.querySelector('.sac-tag').style.color = 'var(--c-bright)';
+    }, 1000);
+  }, 1000);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Meesho — TrustBuy · Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --c-dark: #353543;       /* Meesho Dark Slate */
+  --c-hero: #F43397;       /* Meesho Primary Pink */
+  --c-bright: #038543;     /* Meesho Success Green */
+  --c-accent: #E7E0FC;     /* Meesho Light Lavender */
+  --orange: #FF7043;       /* Meesho Alert Orange */
+  --c-gold: #FFB800;       /* Gold Rating Star */
+  --ink: #121212;
+  --muted: #6E6E82;
+  --border: #EAEAEF;
+  --gray: #F8F8F9;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family:'Sora',sans-serif;
+  background:#09090F;
+  color:#F8F8F9;
+  min-height:100vh;
+  display:flex; flex-direction:column; align-items:center;
+  padding:40px 24px 60px;
+}
+.header-strip { color:var(--c-hero); font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; margin-bottom:36px; text-shadow:0 0 10px rgba(244,51,151,0.2); }
+.prototype-wrap { display:flex; gap:32px; align-items:flex-start; flex-wrap:wrap; justify-content:center; }
+.phone-col { display:flex; flex-direction:column; align-items:center; gap:14px; }
+.phone-label { font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:#B39DDB; opacity:.9; }
+.phone {
+  width:375px; height:812px; background:#FFFFFF; color:var(--ink);
+  border-radius:46px;
+  box-shadow:0 40px 100px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.08);
+  overflow:hidden; position:relative; display:flex; flex-direction:column;
+  border: 4px solid #1A1A24;
+}
+.notch { width:118px; height:28px; background:#1A1A24; border-radius:0 0 16px 16px; position:absolute; top:0; left:50%; transform:translateX(-50%); z-index:10; display:flex; align-items:center; justify-content:center; gap:6px; }
+.nc { width:10px; height:10px; background:#08080A; border-radius:50%; }
+.ndot { width:5px; height:5px; background:#141418; border-radius:50%; }
+.status { display:flex; justify-content:space-between; align-items:center; padding:38px 22px 6px; font-size:10px; font-weight:700; color:#555; font-family:'DM Mono',monospace; background:#FFFFFF; border-bottom:1px solid var(--border); }
+.screen { flex:1; overflow-y:auto; scrollbar-width:none; padding-bottom:30px; background:var(--gray); position:relative; }
+.screen::-webkit-scrollbar { display:none; }
+
+/* Global components */
+.app-header { background:#FFFFFF; padding:12px 16px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--border); position:sticky; top:0; z-index:5; }
+.app-header .title { font-size:16px; font-weight:800; color:var(--c-hero); }
+.back-btn { font-size:18px; color:var(--c-dark); cursor:pointer; }
+.card { background:#FFFFFF; border-radius:12px; padding:14px; margin:10px 12px; border:1px solid var(--border); }
+.btn-primary { background:var(--c-hero); color:#FFFFFF; border:none; border-radius:8px; padding:12px; font-size:12px; font-weight:700; text-align:center; display:block; width:100%; cursor:pointer; box-shadow:0 4px 12px rgba(244,51,151,0.25); text-decoration:none; transition:0.2s; }
+.btn-primary:hover { opacity:0.9; }
+
+/* SCREEN 1: Consumer PDP with TrustBuy Badge */
+.pdp-img { width:100%; height:240px; background:#FFEAEF; display:flex; align-items:center; justify-content:center; font-size:80px; position:relative; }
+.pdp-img-nav { position:absolute; bottom:12px; right:12px; background:rgba(0,0,0,0.6); color:#fff; font-size:10px; padding:3px 8px; border-radius:10px; font-family:'DM Mono',monospace; }
+.price-block { display:flex; align-items:baseline; gap:8px; margin-top:4px; }
+.price-now { font-size:22px; font-weight:800; color:var(--ink); }
+.price-old { font-size:12px; text-decoration:line-through; color:var(--muted); }
+.price-discount { font-size:12px; font-weight:700; color:var(--c-bright); }
+
+.trust-badge-row { display:flex; align-items:center; gap:8px; background:#F1FDF6; border:1.5px solid var(--c-bright); border-radius:10px; padding:10px 12px; margin:10px 12px; }
+.tb-icon { font-size:20px; }
+.tb-details { flex:1; }
+.tb-title { font-size:11.5px; font-weight:800; color:var(--c-bright); display:flex; align-items:center; gap:4px; }
+.tb-desc { font-size:9.5px; color:#1E4D2B; margin-top:2px; line-height:1.4; }
+
+.ratings-block { display:flex; gap:10px; margin-top:10px; }
+.rating-pill { flex:1; background:#F8F8F9; border-radius:8px; padding:10px; border:1px solid var(--border); display:flex; flex-direction:column; align-items:center; }
+.rp-val { font-size:14px; font-weight:800; color:var(--ink); display:flex; align-items:center; gap:3px; }
+.rp-lbl { font-size:8.5px; color:var(--muted); margin-top:2px; font-weight:600; text-align:center; }
+
+/* SCREEN 2: Supplier Quality Dashboard */
+.sub-header { background:var(--c-dark); color:#FFFFFF; padding:14px; display:flex; justify-content:space-between; align-items:center; }
+.sub-brand { font-size:12px; font-weight:700; }
+.sub-period { font-size:9.5px; color:rgba(255,255,255,0.7); }
+
+.scorecard-card { background:#FFFFFF; border-radius:12px; border:1px solid var(--border); margin:10px 12px; overflow:hidden; }
+.sc-header { background:#F5F3FF; padding:10px 12px; display:flex; justify-content:space-between; align-items:center; }
+.sc-title { font-size:11px; font-weight:700; color:#5E35B1; }
+.sc-rating-badge { background:#7D58BA; color:#FFFFFF; font-size:10px; font-weight:800; padding:2px 6px; border-radius:4px; }
+.sc-body { padding:14px; }
+
+/* Progress bars standard */
+.track { height:8px; background:#EAEAEF; border-radius:99px; overflow:visible; position:relative; margin-top:8px; }
+.fill { height:100%; border-radius:99px; background:var(--c-bright); position:relative; transition:.6s ease; }
+.fill-badge { position:absolute; right:-2px; top:-9px; background:var(--c-bright); color:#fff; font-size:8px; font-weight:700; padding:2px 4px; border-radius:4px; }
+
+.impact-row { display:flex; align-items:center; justify-content:space-between; margin-top:14px; padding-top:10px; border-top:1px solid var(--border); }
+.impact-lbl { font-size:10px; color:var(--muted); font-weight:600; }
+.impact-val { font-size:12px; font-weight:800; color:var(--c-bright); }
+
+/* SCREEN 3: Supplier Action Center */
+.sku-detail-card { background:#FFFFFF; border-radius:12px; margin:10px 12px; border:1px solid var(--border); overflow:hidden; }
+.sdc-header { padding:10px 12px; background:#FFF5F8; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+.sdc-sku { font-size:10.5px; font-weight:800; color:var(--ink); }
+.sdc-badge { background:#FFF0F6; color:var(--c-hero); font-size:8.5px; font-weight:800; padding:2.5px 6px; border-radius:4px; }
+.sdc-body { padding:12px; }
+
+.feedback-row { display:flex; justify-content:space-between; margin-bottom:8px; font-size:10px; }
+.feedback-lbl { color:var(--muted); }
+.feedback-val { font-weight:700; color:var(--ink); }
+
+.feedback-bar-wrap { margin-bottom:12px; }
+.fb-label-row { display:flex; justify-content:space-between; font-size:9.5px; margin-bottom:4px; }
+.fb-lbl { color:var(--c-dark); }
+.fb-percent { font-weight:800; color:var(--orange); }
+.fb-track { height:6px; background:#EAEAEF; border-radius:99px; overflow:hidden; }
+.fb-fill { height:100%; background:var(--orange); border-radius:99px; }
+
+.action-tip { background:#FFFDF0; border:1.5px solid #FFEAA7; border-radius:8px; padding:10px; font-size:9.5px; color:#8C6D00; line-height:1.45; }
+.action-tip strong { color:var(--ink); }
+
+/* SCREEN 4: Meesho Category Manager Console */
+.console-header { background:#1D1929; color:#FFFFFF; padding:16px; display:flex; justify-content:space-between; align-items:center; }
+.console-title { font-size:15px; font-weight:800; }
+.console-user { font-size:9.5px; color:#B39DDB; }
+
+.filter-strip { display:flex; gap:8px; padding:10px 12px; background:#FFFFFF; border-bottom:1px solid var(--border); overflow-x:auto; scrollbar-width:none; }
+.filter-btn { border:1px solid var(--border); border-radius:20px; padding:6px 12px; font-size:9.5px; color:var(--muted); font-weight:700; white-space:nowrap; background:#FFFFFF; cursor:pointer; }
+.filter-btn.active { background:#FFF0F6; color:var(--c-hero); border-color:var(--c-hero); }
+
+.table-card { background:#FFFFFF; border-radius:12px; margin:10px 12px; border:1px solid var(--border); overflow:hidden; }
+.table-header { padding:10px 12px; border-bottom:1px solid var(--border); font-size:10px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; background:#F8F8F9; }
+.table-row { display:flex; justify-content:space-between; align-items:center; padding:12px; border-bottom:1px solid var(--border); }
+.table-row:last-child { border-bottom:none; }
+.tr-info { }
+.tr-name { font-size:11px; font-weight:700; color:var(--ink); }
+.tr-sub { font-size:9px; color:var(--muted); margin-top:2px; }
+.tr-metrics { text-align:right; }
+.tr-rate { font-size:12px; font-weight:800; color:var(--ink); font-family:'DM Mono',monospace; }
+.tr-trend { font-size:8.5px; font-weight:700; margin-top:1px; }
+
+</style>
+</head>
+<body>
+<div class="header-strip">Meesho — TrustBuy · Interactive Prototype</div>
+<div class="prototype-wrap">
+
+  <!-- SCREEN 1: Consumer PDP with TrustBuy Badge -->
+  <div class="phone-col">
+    <div class="phone-label">01 — Consumer PDP Trust surfacing</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="status"><span>12:50</span><span>●●● 🔋</span></div>
+      <div class="screen">
+        <div class="app-header">
+          <span class="back-btn">←</span>
+          <span class="title">Product Details</span>
+          <span style="font-size:18px;">🛒</span>
+        </div>
+
+        <!-- Product Image -->
+        <div class="pdp-img">
+          👕
+          <div class="pdp-img-nav">1/3</div>
+        </div>
+
+        <!-- Details block -->
+        <div class="card" style="margin-top:10px;">
+          <h3 style="font-size:14px; font-weight:700; color:var(--c-dark);">Pack of 3 Regular Fit Men's Cotton T-Shirts</h3>
+          <p style="font-size:10px; color:var(--muted); margin-top:2px;">Sold by: Kuber Apparels</p>
+          <div class="price-block">
+            <span class="price-now">₹348</span>
+            <span class="price-old">₹499</span>
+            <span class="price-discount">30% OFF</span>
+          </div>
+        </div>
+
+        <!-- TrustBuy Quality Certification Badge -->
+        <div class="trust-badge-row">
+          <span class="tb-icon">🛡️</span>
+          <div class="tb-details">
+            <div class="tb-title">TrustBuy Verified Seller (भरोसेमंद सेलर)</div>
+            <div class="tb-desc">96% of buyers verified correct size &amp; premium fabric quality. Safe from returns.</div>
+          </div>
+        </div>
+
+        <!-- Product Ratings and metrics -->
+        <div class="card">
+          <div style="font-size:11px; font-weight:700; color:var(--c-dark); margin-bottom:8px;">Quality Scorecard</div>
+          <div class="ratings-block">
+            <div class="rating-pill">
+              <span class="rp-val">4.5★</span>
+              <span class="rp-lbl">Rating</span>
+            </div>
+            <div class="rating-pill">
+              <span class="rp-val" style="color:var(--c-bright);">98%</span>
+              <span class="rp-lbl">Perfect Size Fit</span>
+            </div>
+            <div class="rating-pill">
+              <span class="rp-val" style="color:var(--c-bright);">94%</span>
+              <span class="rp-lbl">True Fabric Color</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer Buy Button -->
+        <div style="padding:10px 12px;">
+          <button class="btn-primary" onclick="nextScreen(2)">View Seller Dashboard (Supplier) →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 2: Supplier Quality Dashboard -->
+  <div class="phone-col">
+    <div class="phone-label">02 — Supplier Quality Dashboard</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="status"><span>12:51</span><span>●●● 🔋</span></div>
+      <div class="screen">
+        <div class="app-header">
+          <span class="back-btn" onclick="prevScreen(1)">←</span>
+          <span class="title">Supplier Hub</span>
+          <span style="font-size:18px;">📊</span>
+        </div>
+
+        <div class="sub-header">
+          <span class="sub-brand">Kuber Apparels</span>
+          <span class="sub-period">Quality Dashboard</span>
+        </div>
+
+        <!-- Scorecard Card -->
+        <div class="scorecard-card">
+          <div class="sc-header">
+            <span class="sc-title">TrustBuy Rating</span>
+            <span class="sc-rating-badge">Level 4 · Verified</span>
+          </div>
+          <div class="sc-body">
+            <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:700;">
+              <span>Quality Score</span>
+              <span style="color:var(--c-bright);">92.5 / 100</span>
+            </div>
+            <div class="track">
+              <div class="fill" style="width:92.5%">
+                <span class="fill-badge">Top 8%</span>
+              </div>
+            </div>
+            <div class="impact-row">
+              <span class="impact-lbl">PRISM AI Search Boost:</span>
+              <span class="impact-val">+15% organic visibility</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Catalog Quality metrics card -->
+        <div class="card">
+          <div style="font-size:11px; font-weight:700; color:var(--c-dark); border-bottom:1px solid var(--border); padding-bottom:8px; margin-bottom:8px;">Metric Snapshot</div>
+          <div style="display:flex; justify-content:space-between; font-size:10px; margin-bottom:6px;">
+            <span>Return Rate:</span>
+            <span style="font-weight:700; color:var(--c-bright);">11.2% (Good)</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:10px; margin-bottom:6px;">
+            <span>RTO Rate:</span>
+            <span style="font-weight:700; color:var(--c-bright);">14.5% (Target met)</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:10px; margin-bottom:6px;">
+            <span>Wrong Item Shipped Rate:</span>
+            <span style="font-weight:700; color:var(--c-bright);">0.2% (Excellent)</span>
+          </div>
+        </div>
+
+        <!-- Action nudge -->
+        <div style="padding:10px 12px 20px;">
+          <button class="btn-primary" onclick="nextScreen(3)">Open Catalog Action Center →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 3: Supplier Action Center -->
+  <div class="phone-col">
+    <div class="phone-label">03 — Supplier Action Center</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="status"><span>12:52</span><span>●●● 🔋</span></div>
+      <div class="screen">
+        <div class="app-header">
+          <span class="back-btn" onclick="prevScreen(2)">←</span>
+          <span class="title">Action Center</span>
+          <span style="font-size:11px; font-weight:700; color:var(--c-hero);">2 Alerts</span>
+        </div>
+
+        <div style="padding:14px; font-size:11px; font-weight:700; color:var(--c-dark);">Catalog Improvements Required</div>
+
+        <!-- SKU alert card 1 -->
+        <div class="sku-detail-card">
+          <div class="sdc-header">
+            <span class="sdc-sku">SKU: COTTON-TSHIRT-BLK-L</span>
+            <span class="sdc-badge">Shrinkage Risk</span>
+          </div>
+          <div class="sdc-body">
+            <div class="feedback-row">
+              <span class="feedback-lbl">Return Rate:</span>
+              <span class="feedback-val" style="color:var(--orange);">18.2%</span>
+            </div>
+            <!-- Feedback reason breakdown bar -->
+            <div class="feedback-bar-wrap">
+              <div class="fb-label-row">
+                <span class="fb-lbl">Complaint: "Shrinks after first wash"</span>
+                <span class="fb-percent">72%</span>
+              </div>
+              <div class="fb-track">
+                <div class="fb-fill" style="width:72%;"></div>
+              </div>
+            </div>
+            <div class="action-tip">
+              💡 <strong>Recommended Action:</strong> Update the description to specify: <strong>"100% Cotton. Pre-shrunk. Buy one size larger if you prefer loose fit."</strong>
+            </div>
+            <div style="margin-top:12px;">
+              <button class="btn-primary" style="padding:10px; font-size:11px;" onclick="applyCatalogFix(this, 'Description Updated!')">Update Product Description</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- SKU alert card 2 -->
+        <div class="sku-detail-card" style="opacity:0.8;">
+          <div class="sdc-header" style="background:#FFFBF0;">
+            <span class="sdc-sku">SKU: JEANS-STRETCH-BLU-32</span>
+            <span class="sdc-badge" style="background:#FFF9C4; color:#F57F17;">Stitching Issue</span>
+          </div>
+          <div class="sdc-body">
+            <div class="feedback-row">
+              <span class="feedback-lbl">Return Rate:</span>
+              <span class="feedback-val" style="color:#F57F17;">15.4%</span>
+            </div>
+            <div class="feedback-bar-wrap">
+              <div class="fb-label-row">
+                <span class="fb-lbl">Complaint: "Stitching quality in pocket"</span>
+                <span class="fb-percent" style="color:#F57F17;">45%</span>
+              </div>
+              <div class="fb-track">
+                <div class="fb-fill" style="width:45%; background:#F57F17;"></div>
+              </div>
+            </div>
+            <div class="action-tip" style="background:#FFFDE7; border-color:#FFF59D; color:#F57F17;">
+              💡 <strong>Recommended Action:</strong> Inspect manufacturing batch stitching. Submit a quality audit certificate to Meesho to avoid visibility de-boosting.
+            </div>
+            <div style="margin-top:12px;">
+              <button class="btn-primary" style="padding:10px; font-size:11px; background:var(--c-dark); box-shadow:none;" onclick="alert('Opening document upload portal...')">Upload QA Certificate</button>
+            </div>
+          </div>
+        </div>
+
+        <div style="padding:10px 12px 20px;">
+          <button class="btn-outline" onclick="nextScreen(4)">Go to Meesho Admin Console →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 4: Meesho Category Manager Console -->
+  <div class="phone-col">
+    <div class="phone-label">04 — Category Console</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+      <div class="status"><span>12:55</span><span>●●● 🔋</span></div>
+      <div class="screen" style="background:#F4F4F6;">
+        <div class="console-header">
+          <h3 class="console-title">Meesho Admin</h3>
+          <span class="console-user">Category: Apparel</span>
+        </div>
+
+        <!-- Filter Strip -->
+        <div class="filter-strip">
+          <button class="filter-btn active">High Return Sellers</button>
+          <button class="filter-btn">Pending Verification</button>
+          <button class="filter-btn">PRISM Penalties</button>
+        </div>
+
+        <!-- List card -->
+        <div class="table-card">
+          <div class="table-header">High Return Rate Sellers (Apparel)</div>
+          
+          <!-- Row 1 -->
+          <div class="table-row">
+            <div class="tr-info">
+              <div class="tr-name">Shivay Creations</div>
+              <div class="tr-sub">SCDMs/Anarkali Kurtas · SKU: 45</div>
+            </div>
+            <div class="tr-metrics">
+              <div class="tr-rate" style="color:#D32F2F;">21.4%</div>
+              <div class="tr-trend" style="color:#D32F2F;">↑ 4.2% spike</div>
+            </div>
+            <button style="font-size:9px; padding:4px 8px; border:1px solid #D32F2F; border-radius:4px; color:#D32F2F; background:#FFF5F5;" onclick="alert('Nudge notification sent to Shivay Creations.')">Nudge</button>
+          </div>
+
+          <!-- Row 2 -->
+          <div class="table-row">
+            <div class="tr-info">
+              <div class="tr-name">Kuber Apparels</div>
+              <div class="tr-sub">Men's T-Shirts · SKU: 124</div>
+            </div>
+            <div class="tr-metrics">
+              <div class="tr-rate" style="color:var(--c-bright);">11.2%</div>
+              <div class="tr-trend" style="color:var(--c-bright);">↓ 2.1% drop</div>
+            </div>
+            <span style="font-size:9.5px; font-weight:700; color:var(--c-bright);">Verified ✓</span>
+          </div>
+
+          <!-- Row 3 -->
+          <div class="table-row">
+            <div class="tr-info">
+              <div class="tr-name">Shree Balaji Textiles</div>
+              <div class="tr-sub">Women's Kurtis · SKU: 88</div>
+            </div>
+            <div class="tr-metrics">
+              <div class="tr-rate" style="color:var(--orange);">16.8%</div>
+              <div class="tr-trend" style="color:var(--orange);">Flat MoM</div>
+            </div>
+            <button style="font-size:9px; padding:4px 8px; border:1px solid var(--orange); border-radius:4px; color:var(--orange); background:#FFF8F0;" onclick="alert('Auditing catalog details for Balaji Textiles...')">Audit</button>
+          </div>
+
+          <!-- Row 4 -->
+          <div class="table-row">
+            <div class="tr-info">
+              <div class="tr-name">Radhe Fashion House</div>
+              <div class="tr-sub">Boys Ethnic Wear · SKU: 32</div>
+            </div>
+            <div class="tr-metrics">
+              <div class="tr-rate" style="color:#D32F2F;">23.5%</div>
+              <div class="tr-trend" style="color:#D32F2F;">↑ 6.8% spike</div>
+            </div>
+            <button style="font-size:9px; padding:4px 8px; border:1px solid #D32F2F; border-radius:4px; color:#D32F2F; background:#FFF5F5;" onclick="alert('Nudge notification sent to Radhe Fashion House.')">Nudge</button>
+          </div>
+        </div>
+
+        <!-- Operational Insight Card -->
+        <div class="card">
+          <div style="font-size:10px; font-weight:700; color:var(--c-dark); border-bottom:1px solid var(--border); padding-bottom:6px; margin-bottom:6px;">Category Performance</div>
+          <div style="font-size:9.5px; line-height:1.45; color:var(--muted);">
+            Overall return rate for Apparel Category is **14.2%** this week. TrustBuy integrations have successfully suppressed **1,240 high-return listings** from recommendation feeds.
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// Navigation simulation
+function nextScreen(screenNum) {
+  const scrollOffset = (screenNum - 1) * 407;
+  window.scrollTo({ left: scrollOffset, behavior: 'smooth' });
+}
+
+function prevScreen(screenNum) {
+  const scrollOffset = (screenNum - 1) * 407;
+  window.scrollTo({ left: scrollOffset, behavior: 'smooth' });
+}
+
+function applyCatalogFix(button, successText = 'Description Updated! ✓') {
+  const originalText = button.innerText;
+  button.innerText = 'Updating Catalog...';
+  button.style.opacity = '0.7';
+  setTimeout(() => {
+    button.innerText = successText;
+    button.style.background = 'var(--c-bright)';
+    button.style.color = '#FFFFFF';
+    button.style.opacity = '1';
+    
+    const card = button.closest('.sku-detail-card');
+    setTimeout(() => {
+      card.style.opacity = '0.5';
+      card.style.transition = 'opacity 0.5s';
+      card.querySelector('.sdc-badge').innerText = 'Resolved';
+      card.querySelector('.sdc-badge').style.background = '#F1FDF6';
+      card.querySelector('.sdc-badge').style.color = 'var(--c-bright)';
+    }, 1000);
+  }, 1000);
+}
+</script>
+</body>
+</html>
