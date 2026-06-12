@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Transguard — CashPulse · Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --dark: #0A1A2E;
+  --hero: #0F2540;
+  --card: #132030;
+  --teal: #00BCD4;
+  --gold: #F5A623;
+  --red: #EF4444;
+  --green: #10B981;
+  --amber: #F59E0B;
+  --muted: #8B9BB4;
+  --border: rgba(255,255,255,0.08);
+  --white: #F8FAFF;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#060E1A; font-family:'Sora',sans-serif; color:var(--white); min-height:100vh; padding:28px 32px; }
+
+.proto-header { text-align:center; margin-bottom:24px; }
+.proto-header .brand { font-size:11px; font-weight:700; letter-spacing:0.15em; text-transform:uppercase; color:var(--teal); margin-bottom:6px; }
+.proto-header h1 { font-size:21px; font-weight:800; color:var(--white); }
+.proto-header p { font-size:12px; color:var(--muted); margin-top:4px; }
+
+.screen-label { font-size:10px; font-weight:700; letter-spacing:0.12em; color:var(--teal); text-transform:uppercase; margin-bottom:10px; text-align:center; font-family:'DM Mono',monospace; }
+
+.proto-wrapper { display:flex; gap:28px; justify-content:center; align-items:flex-start; max-width:1060px; margin:0 auto; }
+
+.screen-nav { display:flex; gap:0; border-radius:10px 10px 0 0; overflow:hidden; background:#0F2540; border:1px solid var(--border); border-bottom:none; }
+.nav-tab { padding:9px 18px; font-size:10px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted); cursor:pointer; transition:all 0.2s; border-right:1px solid var(--border); white-space:nowrap; }
+.nav-tab:last-child { border-right:none; }
+.nav-tab:hover { color:var(--white); background:rgba(255,255,255,0.04); }
+.nav-tab.active { color:var(--teal); background:rgba(0,188,212,0.1); }
+
+.browser { width:660px; flex-shrink:0; }
+.browser-chrome { background:#1A2535; border-radius:10px 10px 0 0; padding:9px 14px; display:flex; align-items:center; gap:10px; border:1px solid var(--border); border-bottom:none; }
+.browser-dots { display:flex; gap:5px; }
+.browser-dot { width:9px; height:9px; border-radius:50%; }
+.bd-r { background:#FF5F57; }
+.bd-y { background:#FEBC2E; }
+.bd-g { background:#28C840; }
+.browser-url { flex:1; background:rgba(255,255,255,0.06); border-radius:5px; padding:4px 10px; font-size:10px; color:var(--muted); font-family:'DM Mono',monospace; }
+.browser-body { background:#F0F4F8; border:1px solid var(--border); border-top:none; border-radius:0 0 12px 12px; overflow:hidden; height:530px; position:relative; }
+
+.screen { display:none; width:100%; height:100%; overflow-y:auto; }
+.screen.active { display:block; }
+
+.anno-panel { width:272px; flex-shrink:0; }
+.anno-title { font-size:10px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted); margin-bottom:10px; font-family:'DM Mono',monospace; }
+.anno-card { background:rgba(255,255,255,0.04); border:1px solid var(--border); border-radius:10px; padding:13px; margin-bottom:10px; }
+.anno-n { font-size:8px; font-weight:700; letter-spacing:0.15em; text-transform:uppercase; color:var(--teal); margin-bottom:3px; font-family:'DM Mono',monospace; }
+.anno-t { font-size:12px; font-weight:700; color:var(--white); margin-bottom:5px; }
+.anno-b { font-size:11px; color:var(--muted); line-height:1.5; }
+.anno-metric { margin-top:9px; background:rgba(0,188,212,0.08); border:1px solid rgba(0,188,212,0.2); border-radius:7px; padding:7px 11px; }
+.anno-metric .mv { font-size:17px; font-weight:800; color:var(--teal); font-family:'DM Mono',monospace; }
+.anno-metric .ml { font-size:9px; color:var(--muted); letter-spacing:0.05em; margin-top:1px; }
+
+/* ===== SCREEN SHARED ELEMENTS ===== */
+.app-topbar { background:var(--dark); padding:10px 18px; display:flex; align-items:center; justify-content:space-between; }
+.tg-logo { display:flex; align-items:center; gap:8px; }
+.tg-mark { width:26px; height:26px; background:var(--teal); border-radius:5px; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; color:var(--dark); }
+.tg-name { font-size:13px; font-weight:800; color:var(--white); }
+.tg-sub { font-size:8px; color:var(--teal); font-weight:600; letter-spacing:0.08em; }
+.app-nav { display:flex; gap:18px; }
+.app-nav a { font-size:10px; font-weight:600; color:var(--muted); text-decoration:none; cursor:pointer; }
+.app-nav a.nal { color:var(--teal); }
+.app-avatar { width:26px; height:26px; border-radius:50%; background:var(--teal); display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; color:var(--dark); }
+
+.kpi-strip { background:#1A2535; padding:11px 18px; display:grid; grid-template-columns:repeat(4,1fr); border-bottom:2px solid rgba(0,188,212,0.25); }
+.kpi { padding:5px 10px; text-align:center; border-right:1px solid rgba(255,255,255,0.06); }
+.kpi:last-child { border-right:none; }
+.kpi-val { font-size:17px; font-weight:800; color:var(--teal); font-family:'DM Mono',monospace; }
+.kpi-val.g { color:#10B981; }
+.kpi-val.am { color:var(--gold); }
+.kpi-val.r { color:#EF4444; }
+.kpi-lbl { font-size:8px; color:var(--muted); font-weight:600; letter-spacing:0.06em; margin-top:2px; text-transform:uppercase; }
+
+.sec-title { font-size:9px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:#475569; margin-bottom:7px; margin-top:4px; font-family:'DM Mono',monospace; }
+.badge { display:inline-block; padding:2px 7px; border-radius:99px; font-size:8px; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; }
+.bg-g { background:#D1FAE5; color:#065F46; }
+.bg-am { background:#FEF3C7; color:#92400E; }
+.bg-r { background:#FEE2E2; color:#991B1B; }
+.fill-mini { display:flex; align-items:center; gap:5px; }
+.fill-trk { width:54px; height:4px; background:#E2E8F0; border-radius:99px; overflow:hidden; }
+.fill-bar { height:100%; border-radius:99px; background:#00BCD4; }
+.fill-bar.w { background:#F59E0B; }
+.fill-bar.d { background:#EF4444; }
+
+/* ===== S1: NETWORK DASHBOARD ===== */
+.s1-body { flex:1; display:grid; grid-template-columns:1fr 200px; overflow:hidden; }
+.s1-main { padding:12px; overflow-y:auto; }
+.s1-sidebar { background:#fff; border-left:1px solid #E2E8F0; padding:12px; overflow-y:auto; }
+.ctable { width:100%; border-collapse:collapse; font-size:10px; }
+.ctable th { text-align:left; padding:5px 7px; background:#E8EEF4; color:#475569; font-size:8px; font-weight:700; letter-spacing:0.07em; text-transform:uppercase; border-bottom:1px solid #CBD5E1; }
+.ctable td { padding:6px 7px; border-bottom:1px solid #F1F5F9; color:#1E293B; vertical-align:middle; }
+.ctable tr:hover td { background:#F8FAFC; }
+.alert-box { background:#fff; border:1px solid #E2E8F0; border-left:3px solid #EF4444; border-radius:5px; padding:7px 9px; margin-bottom:7px; }
+.alert-box.w { border-left-color:#F59E0B; }
+.alert-box.i { border-left-color:#00BCD4; }
+.alert-ttl { font-size:9px; font-weight:700; color:#1E293B; }
+.alert-sub { font-size:8px; color:#64748B; margin-top:2px; }
+.alert-tm { font-size:7px; color:#94A3B8; margin-top:2px; font-family:'DM Mono',monospace; }
+
+/* ===== S2: STORE DEEP-DIVE ===== */
+.s2-body { padding:12px; background:#F0F4F8; }
+.store-hdr { background:var(--dark); border-radius:9px; padding:12px 16px; display:flex; align-items:center; justify-content:space-between; margin-bottom:11px; }
+.store-name { font-size:14px; font-weight:800; color:var(--white); }
+.store-sub { font-size:9px; color:var(--muted); margin-top:2px; }
+.score-ring { width:48px; height:48px; border-radius:50%; background:conic-gradient(#00BCD4 0% 87%,rgba(255,255,255,0.1) 87%); display:flex; align-items:center; justify-content:center; }
+.score-inner { width:37px; height:37px; border-radius:50%; background:var(--dark); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; color:var(--teal); font-family:'DM Mono',monospace; }
+.machines { display:grid; grid-template-columns:repeat(3,1fr); gap:7px; margin-bottom:11px; }
+.mach-card { background:#fff; border-radius:7px; padding:11px; border:1px solid #E2E8F0; }
+.mach-id { font-size:8px; font-weight:700; color:#64748B; letter-spacing:0.08em; text-transform:uppercase; font-family:'DM Mono',monospace; margin-bottom:3px; }
+.mach-status { font-size:9px; font-weight:700; margin-bottom:7px; }
+.mach-status.ok { color:#10B981; }
+.mach-status.wn { color:#F59E0B; }
+.mach-level { font-size:20px; font-weight:800; font-family:'DM Mono',monospace; color:#1E293B; margin-bottom:4px; }
+.mach-track { height:5px; background:#E2E8F0; border-radius:99px; overflow:hidden; margin-bottom:5px; }
+.mach-fill { height:100%; border-radius:99px; }
+.mach-meta { font-size:8px; color:#94A3B8; line-height:1.5; }
+.txn-table { background:#fff; border-radius:7px; overflow:hidden; border:1px solid #E2E8F0; font-size:10px; }
+.txn-hdr { display:grid; grid-template-columns:1fr 1.2fr 1fr 1fr; background:#F8FAFC; padding:6px 11px; font-size:8px; font-weight:700; color:#64748B; letter-spacing:0.07em; text-transform:uppercase; border-bottom:1px solid #E2E8F0; }
+.txn-row { display:grid; grid-template-columns:1fr 1.2fr 1fr 1fr; padding:6px 11px; border-bottom:1px solid #F1F5F9; align-items:center; }
+.txn-row:last-child { border-bottom:none; }
+.txn-id { font-family:'DM Mono',monospace; font-size:9px; color:#0A1A2E; }
+.txn-amt { font-weight:700; color:#0A1A2E; }
+.etag { display:inline-block; padding:2px 6px; border-radius:99px; font-size:7px; font-weight:700; text-transform:uppercase; }
+.et-m { background:#D1FAE5; color:#065F46; }
+.et-p { background:#FEF3C7; color:#92400E; }
+
+/* ===== S3: ERP RECON ===== */
+.s3-body { padding:12px; background:#F0F4F8; }
+.recon-sum { display:grid; grid-template-columns:repeat(4,1fr); gap:7px; margin-bottom:11px; }
+.recon-card { background:#fff; border-radius:7px; padding:9px 12px; border:1px solid #E2E8F0; text-align:center; }
+.rc-val { font-size:18px; font-weight:800; font-family:'DM Mono',monospace; }
+.rc-lbl { font-size:8px; color:#64748B; text-transform:uppercase; letter-spacing:0.06em; margin-top:2px; }
+.filter-bar { background:#fff; border:1px solid #E2E8F0; border-radius:7px; padding:7px 12px; display:flex; gap:10px; align-items:center; margin-bottom:9px; }
+.flt { background:#F1F5F9; border:1px solid #CBD5E1; border-radius:5px; padding:3px 9px; font-size:9px; color:#475569; font-family:'Sora',sans-serif; }
+.fsrch { flex:1; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:5px; padding:3px 9px; font-size:9px; color:#475569; font-family:'Sora',sans-serif; }
+.fbtn { background:#0A1A2E; color:#fff; border:none; border-radius:5px; padding:4px 11px; font-size:9px; font-weight:700; cursor:pointer; font-family:'Sora',sans-serif; }
+.rtable { width:100%; border-collapse:collapse; background:#fff; border-radius:7px; overflow:hidden; border:1px solid #E2E8F0; font-size:10px; }
+.rtable th { padding:6px 9px; background:#F8FAFC; color:#64748B; font-size:8px; font-weight:700; letter-spacing:0.07em; text-transform:uppercase; text-align:left; border-bottom:1px solid #E2E8F0; }
+.rtable td { padding:6px 9px; border-bottom:1px solid #F1F5F9; color:#1E293B; vertical-align:middle; }
+.rtable tr.exc { background:#FFF5F5; }
+.rtable tr.exc td { color:#7F1D1D; }
+.mb { display:inline-flex; align-items:center; gap:3px; padding:2px 7px; border-radius:99px; font-size:8px; font-weight:700; text-transform:uppercase; }
+.mb-m { background:#D1FAE5; color:#065F46; }
+.mb-e { background:#FEE2E2; color:#991B1B; }
+.mb-p { background:#FEF3C7; color:#92400E; }
+.exc-detail { margin-top:9px; background:#FFF5F5; border:1px solid #FECACA; border-radius:7px; padding:9px 12px; }
+
+/* ===== S4: OPS CENTER ===== */
+.s4-app { background:var(--dark); height:100%; overflow-y:auto; }
+.s4-topbar { background:#0A1225; padding:10px 18px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid rgba(0,188,212,0.15); }
+.int-tag { background:rgba(0,188,212,0.12); border:1px solid rgba(0,188,212,0.25); border-radius:99px; padding:2px 9px; font-size:8px; font-weight:700; color:var(--teal); text-transform:uppercase; letter-spacing:0.1em; }
+.s4-body { padding:12px; }
+.s4-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px; }
+.s4-panel { background:rgba(255,255,255,0.04); border:1px solid var(--border); border-radius:9px; padding:11px 13px; }
+.s4-ptitle { font-size:8px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.1em; margin-bottom:9px; font-family:'DM Mono',monospace; }
+.cl-row { display:flex; align-items:center; justify-content:space-between; padding:5px 0; border-bottom:1px solid var(--border); }
+.cl-row:last-child { border-bottom:none; }
+.cl-name { font-size:10px; color:var(--white); font-weight:600; }
+.cl-score { font-size:10px; font-weight:700; font-family:'DM Mono',monospace; }
+.sg { color:#10B981; }
+.sa { color:#F59E0B; }
+.sr { color:#EF4444; }
+.sched-item { display:flex; gap:9px; padding:5px 0; border-bottom:1px solid var(--border); align-items:center; }
+.sched-item:last-child { border-bottom:none; }
+.sched-time { font-size:9px; font-family:'DM Mono',monospace; color:var(--teal); width:40px; flex-shrink:0; }
+.sched-body { flex:1; }
+.sched-name { font-size:10px; color:var(--white); font-weight:600; }
+.sched-loc { font-size:8px; color:var(--muted); }
+.ss { font-size:8px; font-weight:700; padding:2px 7px; border-radius:99px; }
+.ss-d { background:rgba(16,185,129,0.15); color:#10B981; }
+.ss-e { background:rgba(245,166,35,0.15); color:var(--gold); }
+.ss-p { background:rgba(139,155,180,0.15); color:var(--muted); }
+.sla-row { margin-bottom:7px; }
+.sla-lbl { display:flex; justify-content:space-between; margin-bottom:3px; }
+.sla-name { font-size:9px; color:var(--muted); }
+.sla-val { font-size:9px; font-weight:700; font-family:'DM Mono',monospace; }
+.sla-track { height:5px; background:rgba(255,255,255,0.1); border-radius:99px; overflow:hidden; }
+.sla-fill { height:100%; border-radius:99px; }
+.sf-t { background:var(--teal); }
+.sf-g { background:#10B981; }
+.sf-a { background:var(--gold); }
+.al-item { display:flex; gap:7px; padding:6px 0; border-bottom:1px solid var(--border); align-items:flex-start; }
+.al-item:last-child { border-bottom:none; }
+.al-dot { width:6px; height:6px; border-radius:50%; margin-top:3px; flex-shrink:0; }
+.al-r { background:#EF4444; }
+.al-a { background:#F59E0B; }
+.al-t { background:var(--teal); }
+.al-txt { font-size:9px; color:rgba(255,255,255,0.7); line-height:1.4; }
+.al-time { font-size:7px; color:var(--muted); font-family:'DM Mono',monospace; }
+</style>
+</head>
+<body>
+
+<div class="proto-header">
+  <div class="brand">Transguard Group · Case Study A</div>
+  <h1>CashPulse — Retailer Cash Intelligence Platform</h1>
+  <p>B2B SaaS dashboard giving retailers real-time SCDM visibility, ERP auto-reconciliation &amp; cash cycle intelligence.</p>
+</div>
+
+<div style="text-align:center;margin-bottom:10px;">
+  <div class="screen-label" id="screen-label">01 — NETWORK DASHBOARD</div>
+</div>
+
+<div class="proto-wrapper">
+  <div class="browser">
+    <div class="screen-nav">
+      <div class="nav-tab active" id="d1" onclick="go(1)">01 · Network</div>
+      <div class="nav-tab" id="d2" onclick="go(2)">02 · Store View</div>
+      <div class="nav-tab" id="d3" onclick="go(3)">03 · ERP Reconcile</div>
+      <div class="nav-tab" id="d4" onclick="go(4)">04 · Ops Center</div>
+    </div>
+    <div class="browser-chrome">
+      <div class="browser-dots"><div class="browser-dot bd-r"></div><div class="browser-dot bd-y"></div><div class="browser-dot bd-g"></div></div>
+      <div class="browser-url">🔒 cashpulse.transguardgroup.com / dashboard</div>
+    </div>
+    <div class="browser-body">
+
+      <!-- S1: NETWORK DASHBOARD -->
+      <div class="screen active" id="s1">
+        <div class="app-topbar">
+          <div class="tg-logo">
+            <div class="tg-mark">TG</div>
+            <div><div class="tg-name">CashPulse</div><div class="tg-sub">BY TRANSGUARD</div></div>
+          </div>
+          <div class="app-nav">
+            <a class="nal">Network</a><a>Clients</a><a>Reports</a><a>Settings</a>
+          </div>
+          <div class="app-avatar">CA</div>
+        </div>
+        <div class="kpi-strip">
+          <div class="kpi"><div class="kpi-val">847</div><div class="kpi-lbl">Active SCDMs</div></div>
+          <div class="kpi"><div class="kpi-val am">AED 12.4M</div><div class="kpi-lbl">Processed Today</div></div>
+          <div class="kpi"><div class="kpi-val g">73%</div><div class="kpi-lbl">Avg Fill Level</div></div>
+          <div class="kpi"><div class="kpi-val r">3</div><div class="kpi-lbl">Critical Alerts</div></div>
+        </div>
+        <div class="s1-body" style="display:grid;grid-template-columns:1fr 200px;overflow:hidden;flex:1;">
+          <div class="s1-main" style="padding:12px;overflow-y:auto;">
+            <div class="sec-title">Client Health — All Accounts</div>
+            <table class="ctable">
+              <thead><tr><th>Client</th><th>Health</th><th>SCDMs</th><th>Fill Level</th><th>Today Cash</th><th>ERP Sync</th></tr></thead>
+              <tbody>
+                <tr><td><strong>Carrefour UAE</strong></td><td><span class="badge bg-g">Healthy</span></td><td>34</td><td><div class="fill-mini"><div class="fill-trk"><div class="fill-bar" style="width:87%"></div></div>87%</div></td><td>AED 2.8M</td><td style="color:#10B981;font-size:9px;">✓ Live</td></tr>
+                <tr><td><strong>ENOC Group</strong></td><td><span class="badge bg-am">Attention</span></td><td>118</td><td><div class="fill-mini"><div class="fill-trk"><div class="fill-bar w" style="width:61%"></div></div>61%</div></td><td>AED 5.1M</td><td style="color:#10B981;font-size:9px;">✓ Live</td></tr>
+                <tr><td><strong>Spinneys</strong></td><td><span class="badge bg-g">Healthy</span></td><td>22</td><td><div class="fill-mini"><div class="fill-trk"><div class="fill-bar" style="width:79%"></div></div>79%</div></td><td>AED 1.2M</td><td style="color:#10B981;font-size:9px;">✓ Live</td></tr>
+                <tr><td><strong>Emirates NBD</strong></td><td><span class="badge bg-r">At Risk</span></td><td>210</td><td><div class="fill-mini"><div class="fill-trk"><div class="fill-bar d" style="width:31%"></div></div>31%</div></td><td>AED 3.3M</td><td style="color:#F59E0B;font-size:9px;">⚠ Delayed</td></tr>
+                <tr><td><strong>LuLu Hypermarket</strong></td><td><span class="badge bg-g">Healthy</span></td><td>56</td><td><div class="fill-mini"><div class="fill-trk"><div class="fill-bar" style="width:82%"></div></div>82%</div></td><td>AED 2.1M</td><td style="color:#10B981;font-size:9px;">✓ Live</td></tr>
+                <tr><td><strong>Waitrose UAE</strong></td><td><span class="badge bg-am">Attention</span></td><td>18</td><td><div class="fill-mini"><div class="fill-trk"><div class="fill-bar w" style="width:55%"></div></div>55%</div></td><td>AED 0.9M</td><td style="color:#10B981;font-size:9px;">✓ Live</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="s1-sidebar" style="background:#fff;border-left:1px solid #E2E8F0;padding:12px;overflow-y:auto;">
+            <div class="sec-title" style="color:#475569;">Live Alerts</div>
+            <div class="alert-box"><div class="alert-ttl">⚠ Emirates NBD SCDM #210-B</div><div class="alert-sub">Fill critical (31%). Collection overdue 4h.</div><div class="alert-tm">10:42 AM · HIGH</div></div>
+            <div class="alert-box w"><div class="alert-ttl">ENOC — ERP Lag</div><div class="alert-sub">SAP sync delayed 2.4 hrs. 6 deposits pending.</div><div class="alert-tm">09:17 AM · MED</div></div>
+            <div class="alert-box i"><div class="alert-ttl">Carrefour — New SCDM Live</div><div class="alert-sub">Al Quoz commissioned. First deposit recorded.</div><div class="alert-tm">08:05 AM · INFO</div></div>
+            <div style="margin-top:10px;"><div class="sec-title" style="color:#475569;">Quick Stats</div>
+            <div style="font-size:10px;color:#64748B;line-height:1.9;">✅ 142 Deposits reconciled<br>⏳ 3 ERP exceptions<br>🚗 38 Collections today<br>📊 99.1% SLA compliance</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- S2: STORE DEEP DIVE -->
+      <div class="screen" id="s2">
+        <div class="app-topbar">
+          <div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;">Network › <span style="color:var(--teal);">Carrefour UAE</span> › Al Barsha</div>
+          <div style="display:flex;gap:8px;align-items:center;"><div style="font-size:8px;color:#10B981;font-weight:700;">● LIVE</div><div class="int-tag" style="font-size:8px;">ERP: SAP S/4HANA</div></div>
+        </div>
+        <div class="s2-body">
+          <div class="store-hdr">
+            <div><div class="store-name">Carrefour — Al Barsha Branch</div><div class="store-sub">34 SCDMs · Last collection: 07:30 AM · AED 284,500 today</div></div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="text-align:right;"><div style="font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;">Health Score</div><div style="font-size:10px;color:#10B981;font-weight:700;margin-top:1px;">EXCELLENT</div></div>
+              <div class="score-ring"><div class="score-inner">87</div></div>
+            </div>
+          </div>
+          <div class="sec-title" style="color:#475569;">SCDM Units — Floor A</div>
+          <div class="machines">
+            <div class="mach-card"><div class="mach-id">SCDM-CF-001</div><div class="mach-status ok">● Operational</div><div class="mach-level">92%</div><div class="mach-track"><div class="mach-fill" style="width:92%;background:#10B981;"></div></div><div class="mach-meta">Last: AED 18,400 · 09:12 AM<br>Next: 02:00 PM</div></div>
+            <div class="mach-card"><div class="mach-id">SCDM-CF-002</div><div class="mach-status wn">⚠ High Fill</div><div class="mach-level">78%</div><div class="mach-track"><div class="mach-fill" style="width:78%;background:#F59E0B;"></div></div><div class="mach-meta">Last: AED 22,100 · 10:05 AM<br>Next: 01:00 PM</div></div>
+            <div class="mach-card"><div class="mach-id">SCDM-CF-003</div><div class="mach-status ok">● Operational</div><div class="mach-level">61%</div><div class="mach-track"><div class="mach-fill" style="width:61%;background:#00BCD4;"></div></div><div class="mach-meta">Last: AED 9,800 · 10:42 AM<br>Next: 04:00 PM</div></div>
+          </div>
+          <div class="sec-title" style="color:#475569;">Recent Deposits — ERP Sync Status</div>
+          <div class="txn-table">
+            <div class="txn-hdr"><div>Deposit ID</div><div>Amount (AED)</div><div>Time</div><div>ERP Match</div></div>
+            <div class="txn-row"><div class="txn-id">DEP-2847</div><div class="txn-amt">22,100</div><div style="font-size:9px;color:#64748B;">10:05 AM</div><div><span class="etag et-m">✓ Matched</span></div></div>
+            <div class="txn-row"><div class="txn-id">DEP-2843</div><div class="txn-amt">18,400</div><div style="font-size:9px;color:#64748B;">09:12 AM</div><div><span class="etag et-m">✓ Matched</span></div></div>
+            <div class="txn-row"><div class="txn-id">DEP-2839</div><div class="txn-amt">31,750</div><div style="font-size:9px;color:#64748B;">08:44 AM</div><div><span class="etag et-m">✓ Matched</span></div></div>
+            <div class="txn-row"><div class="txn-id">DEP-2831</div><div class="txn-amt">9,800</div><div style="font-size:9px;color:#64748B;">07:55 AM</div><div><span class="etag et-p">⏳ Pending</span></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- S3: ERP RECONCILIATION -->
+      <div class="screen" id="s3">
+        <div class="app-topbar">
+          <div style="display:flex;align-items:center;gap:9px;"><div style="font-size:12px;font-weight:800;color:var(--white);">ERP Reconciliation Engine</div><div style="background:rgba(16,185,129,0.2);color:#10B981;border:1px solid rgba(16,185,129,0.3);border-radius:99px;padding:2px 9px;font-size:8px;font-weight:700;">● Auto-Sync Active</div></div>
+          <div style="font-size:9px;color:var(--muted);font-family:'DM Mono',monospace;">Last sync: 2 min ago</div>
+        </div>
+        <div class="s3-body">
+          <div class="recon-sum">
+            <div class="recon-card"><div class="rc-val" style="color:#10B981;">142</div><div class="rc-lbl">Matched</div></div>
+            <div class="recon-card"><div class="rc-val" style="color:#EF4444;">3</div><div class="rc-lbl">Exceptions</div></div>
+            <div class="recon-card"><div class="rc-val" style="color:#F59E0B;">8</div><div class="rc-lbl">Pending</div></div>
+            <div class="recon-card"><div class="rc-val" style="color:#00BCD4;">AED 14.2M</div><div class="rc-lbl">Total Volume</div></div>
+          </div>
+          <div class="filter-bar">
+            <select class="flt"><option>All Clients</option></select>
+            <select class="flt"><option>All Status</option></select>
+            <select class="flt"><option>Today</option></select>
+            <input class="fsrch" placeholder="Search deposit ID or amount…">
+            <button class="fbtn">Export CSV</button>
+          </div>
+          <table class="rtable">
+            <thead><tr><th>Deposit ID</th><th>Client</th><th>Machine</th><th>Amount (AED)</th><th>Time</th><th>ERP Entry</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td style="font-family:'DM Mono',monospace;font-size:9px;">DEP-2847</td><td>Carrefour UAE</td><td style="font-family:'DM Mono',monospace;font-size:9px;">CF-002</td><td style="font-weight:700;">22,100</td><td style="font-family:'DM Mono',monospace;font-size:9px;">10:05 AM</td><td style="font-family:'DM Mono',monospace;font-size:9px;">SAP-8821</td><td><span class="mb mb-m">✓ Matched</span></td></tr>
+              <tr class="exc"><td style="font-family:'DM Mono',monospace;font-size:9px;">DEP-2845</td><td>Emirates NBD</td><td style="font-family:'DM Mono',monospace;font-size:9px;">ENBD-041</td><td style="font-weight:700;">187,500</td><td style="font-family:'DM Mono',monospace;font-size:9px;">09:34 AM</td><td style="font-family:'DM Mono',monospace;font-size:9px;">—</td><td><span class="mb mb-e">⚠ Exception</span></td></tr>
+              <tr><td style="font-family:'DM Mono',monospace;font-size:9px;">DEP-2843</td><td>Carrefour UAE</td><td style="font-family:'DM Mono',monospace;font-size:9px;">CF-001</td><td style="font-weight:700;">18,400</td><td style="font-family:'DM Mono',monospace;font-size:9px;">09:12 AM</td><td style="font-family:'DM Mono',monospace;font-size:9px;">SAP-8817</td><td><span class="mb mb-m">✓ Matched</span></td></tr>
+              <tr><td style="font-family:'DM Mono',monospace;font-size:9px;">DEP-2841</td><td>ENOC Group</td><td style="font-family:'DM Mono',monospace;font-size:9px;">EN-118</td><td style="font-weight:700;">54,200</td><td style="font-family:'DM Mono',monospace;font-size:9px;">09:00 AM</td><td style="font-family:'DM Mono',monospace;font-size:9px;">—</td><td><span class="mb mb-p">⏳ Pending</span></td></tr>
+              <tr class="exc"><td style="font-family:'DM Mono',monospace;font-size:9px;">DEP-2836</td><td>Spinneys</td><td style="font-family:'DM Mono',monospace;font-size:9px;">SP-007</td><td style="font-weight:700;">12,800</td><td style="font-family:'DM Mono',monospace;font-size:9px;">08:20 AM</td><td style="font-family:'DM Mono',monospace;font-size:9px;">—</td><td><span class="mb mb-e">⚠ Exception</span></td></tr>
+            </tbody>
+          </table>
+          <div class="exc-detail">
+            <div style="font-size:9px;font-weight:700;color:#991B1B;margin-bottom:3px;">⚠ Exception Detail — DEP-2845 (Emirates NBD)</div>
+            <div style="font-size:9px;color:#7F1D1D;line-height:1.5;">AED 187,500 deposit recorded at 09:34 AM — no matching SAP journal entry found. Possible cause: ERP batch delayed. Auto-alert sent to client finance. Expected resolution: 2 hours.</div>
+            <div style="margin-top:7px;display:flex;gap:7px;"><div style="background:#0A1A2E;color:#fff;padding:3px 10px;border-radius:5px;font-size:9px;font-weight:700;cursor:pointer;">Escalate to AM</div><div style="background:#fff;border:1px solid #FECACA;color:#991B1B;padding:3px 10px;border-radius:5px;font-size:9px;font-weight:700;cursor:pointer;">Override &amp; Match</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- S4: OPS COMMAND CENTER -->
+      <div class="screen s4-app" id="s4">
+        <div class="s4-topbar">
+          <div style="display:flex;align-items:center;gap:9px;"><div style="font-size:12px;font-weight:800;color:var(--white);">Command Center</div><div class="int-tag">Transguard Internal</div></div>
+          <div style="font-size:9px;color:var(--muted);font-family:'DM Mono',monospace;">Thu 12 Jun 2026 · 11:04 AM GST</div>
+        </div>
+        <div class="s4-body">
+          <div class="s4-row">
+            <div class="s4-panel">
+              <div class="s4-ptitle">Client Health Scores</div>
+              <div class="cl-row"><div class="cl-name">Carrefour UAE</div><div class="cl-score sg">87 / 100</div></div>
+              <div class="cl-row"><div class="cl-name">ENOC Group</div><div class="cl-score sa">62 / 100</div></div>
+              <div class="cl-row"><div class="cl-name">Emirates NBD</div><div class="cl-score sr">41 / 100</div></div>
+              <div class="cl-row"><div class="cl-name">LuLu Hypermarket</div><div class="cl-score sg">79 / 100</div></div>
+              <div class="cl-row"><div class="cl-name">Spinneys</div><div class="cl-score sg">81 / 100</div></div>
+            </div>
+            <div class="s4-panel">
+              <div class="s4-ptitle">Collection Schedule — Today</div>
+              <div class="sched-item"><div class="sched-time">07:30</div><div class="sched-body"><div class="sched-name">Carrefour Al Barsha</div><div class="sched-loc">TG-442 · Ahmed K.</div></div><div class="ss ss-d">Done</div></div>
+              <div class="sched-item"><div class="sched-time">10:00</div><div class="sched-body"><div class="sched-name">ENOC Jebel Ali</div><div class="sched-loc">TG-318 · Ravi M.</div></div><div class="ss ss-e">En Route</div></div>
+              <div class="sched-item"><div class="sched-time">13:00</div><div class="sched-body"><div class="sched-name">Carrefour Al Quoz</div><div class="sched-loc">TG-507 · Unassigned</div></div><div class="ss ss-p">Pending</div></div>
+              <div class="sched-item"><div class="sched-time">16:00</div><div class="sched-body"><div class="sched-name">Emirates NBD DAFZA</div><div class="sched-loc">TG-211 · Priya S.</div></div><div class="ss ss-p">Pending</div></div>
+            </div>
+          </div>
+          <div class="s4-row">
+            <div class="s4-panel">
+              <div class="s4-ptitle">SLA Performance — This Month</div>
+              <div class="sla-row"><div class="sla-lbl"><span class="sla-name">Collection Timeliness</span><span class="sla-val sg">98.2%</span></div><div class="sla-track"><div class="sla-fill sf-t" style="width:98.2%"></div></div></div>
+              <div class="sla-row"><div class="sla-lbl"><span class="sla-name">SCDM Uptime</span><span class="sla-val sg">99.1%</span></div><div class="sla-track"><div class="sla-fill sf-g" style="width:99.1%"></div></div></div>
+              <div class="sla-row"><div class="sla-lbl"><span class="sla-name">ERP Reconciliation Rate</span><span class="sla-val sa">94.7%</span></div><div class="sla-track"><div class="sla-fill sf-a" style="width:94.7%"></div></div></div>
+              <div class="sla-row"><div class="sla-lbl"><span class="sla-name">Exception Resolution</span><span class="sla-val sg">96.8%</span></div><div class="sla-track"><div class="sla-fill sf-t" style="width:96.8%"></div></div></div>
+            </div>
+            <div class="s4-panel">
+              <div class="s4-ptitle">Active Alerts</div>
+              <div class="al-item"><div class="al-dot al-r"></div><div><div class="al-txt">Emirates NBD DAFZA — SCDM #210-B critical fill (31%). Collection SLA breach in 2h.</div><div class="al-time">10:42 AM · HIGH</div></div></div>
+              <div class="al-item"><div class="al-dot al-a"></div><div><div class="al-txt">ENOC Jebel Ali — SAP sync lag 2.4 hrs. 6 deposits unreconciled vs SLA of 4 hrs.</div><div class="al-time">09:17 AM · MEDIUM</div></div></div>
+              <div class="al-item"><div class="al-dot al-t"></div><div><div class="al-txt">Carrefour Al Quoz commissioned. First deposit of AED 8,400 recorded successfully.</div><div class="al-time">08:05 AM · INFO</div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ANNOTATION PANEL -->
+  <div class="anno-panel">
+    <div class="anno-title">PM Rationale</div>
+    <div id="anno-cards"></div>
+  </div>
+</div>
+
+<script>
+const LABELS={1:'01 — NETWORK DASHBOARD',2:'02 — STORE DEEP-DIVE',3:'03 — ERP RECONCILIATION',4:'04 — OPS COMMAND CENTER'};
+const ANNO={
+  1:[
+    {n:'INSIGHT 01',t:'The Data Gold Mine',b:'Transguard processes AED 12M+ daily across 847 SCDMs but clients see zero of this in real-time. CashPulse surfaces what already exists as a billable data product.',metric:{v:'AED 12.4M',l:'Daily cash volume — invisible to clients today'}},
+    {n:'INSIGHT 02',t:'Health Score = Retention Lever',b:'RED/AMBER/GREEN banding creates a shared language between Transguard AMs and client finance teams — proactive alerts replace reactive escalation calls.',metric:{v:'40%',l:'Reduction in manual reconciliation time (projected)'}},
+    {n:'PM RATIONALE',t:'PhonePe Parallel',b:'Same move as PhonePe merchant dashboards: take an opaque ops process and surface it as a self-serve intelligence layer. Offer ops TAT went from 2 days to 30 mins.',metric:null}
+  ],
+  2:[
+    {n:'INSIGHT 01',t:'Store-Level Granularity',b:'Per-branch, per-machine fill levels in real-time — not a 24hr batch export. Carrefour finance sees Al Barsha cash position before their CFO asks for the report.',metric:{v:'92%',l:'ERP auto-match rate on day-1 POC (vs 0% today)'}},
+    {n:'INSIGHT 02',t:'Predictive Collection Timing',b:'Fill velocity + historical data predicts when each SCDM hits 90% capacity — auto-schedules collection windows and reduces urgent call-outs by AM teams.',metric:{v:'28%',l:'Improvement in client retention on SCDM contracts (projected)'}},
+    {n:'PM RATIONALE',t:'The Anchor Client POC',b:'Carrefour UAE: 34 SCDMs, SAP S/4HANA ERP, proven digital ops track record. Prove the POC here with 90-day data — then roll out to all 6 enterprise accounts.',metric:null}
+  ],
+  3:[
+    {n:'INSIGHT 01',t:'Eliminating the 24-Hour Blind Spot',b:'Today SAP reconciliation runs in nightly batch jobs — exceptions surface next morning. CashPulse auto-matches within 5 minutes. Same-session resolution replaces next-day firefighting.',metric:{v:'<5 min',l:'Reconciliation time vs 24 hrs in manual batch today'}},
+    {n:'INSIGHT 02',t:'Exception = Treasury Risk',b:'An unreconciled AED 187K deposit creates a real liquidity miscalculation in client treasury. Making it visible and resolvable before EOD is the entire product value proposition.',metric:{v:'AED 14.2M',l:'Total daily volume auto-reconciled via CashPulse'}},
+    {n:'PM RATIONALE',t:'The Upsell Vector',b:'The reconciliation API is billable as a SaaS tier. Banks and large retailers will pay an annual fee for certified real-time ERP sync. This is exactly the new-to-company revenue line the JD requires.',metric:null}
+  ],
+  4:[
+    {n:'INSIGHT 01',t:'Transguard Internal Edge',b:'Screen 4 is the Transguard ops view — not client-facing. The PM owns both sides: product value to the client AND operational intelligence for Transguard fleet management.',metric:{v:'99.1%',l:'SCDM uptime tracked per client in real-time'}},
+    {n:'INSIGHT 02',t:'SLA as a Sales Differentiator',b:'Publishing monthly SLA performance scores creates a defensible data moat. G4S and Brinks cannot match this level of operational transparency to enterprise clients.',metric:{v:'AED 3.2M',l:'Projected new ARR from CashPulse dashboard licensing'}},
+    {n:'PM RATIONALE',t:'POC-to-Product Path',b:'Phase 1: POC with Carrefour + ENOC (150 SCDMs, 90 days). Phase 2: full productization for all 6 anchor clients. Phase 3: license as a standalone SaaS to adjacent market.',metric:null}
+  ]
+};
+function renderAnno(n){
+  const c=document.getElementById('anno-cards');
+  c.innerHTML='';
+  ANNO[n].forEach(card=>{
+    const el=document.createElement('div');
+    el.className='anno-card';
+    el.innerHTML=`<div class="anno-n">${card.n}</div><div class="anno-t">${card.t}</div><div class="anno-b">${card.b}</div>${card.metric?`<div class="anno-metric"><div class="mv">${card.metric.v}</div><div class="ml">${card.metric.l}</div></div>`:''}`;
+    c.appendChild(el);
+  });
+}
+function go(n){
+  [1,2,3,4].forEach(i=>{document.getElementById('s'+i).classList.remove('active');document.getElementById('d'+i).classList.remove('active');});
+  document.getElementById('s'+n).classList.add('active');
+  document.getElementById('d'+n).classList.add('active');
+  document.getElementById('screen-label').textContent=LABELS[n];
+  renderAnno(n);
+}
+renderAnno(1);
+</script>
+</body>
+</html>

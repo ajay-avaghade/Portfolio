@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Transguard — ClientPulse · Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --dark: #0A1A2E;
+  --hero: #0F2540;
+  --amber: #F59E0B;
+  --teal: #00BCD4;
+  --gold: #F5A623;
+  --red: #EF4444;
+  --green: #10B981;
+  --muted: #8B9BB4;
+  --border: rgba(255,255,255,0.08);
+  --white: #F8FAFF;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#060E1A; font-family:'Sora',sans-serif; color:var(--white); min-height:100vh; padding:28px 32px; }
+
+.proto-header { text-align:center; margin-bottom:24px; }
+.proto-header .brand { font-size:11px; font-weight:700; letter-spacing:0.15em; text-transform:uppercase; color:var(--amber); margin-bottom:6px; }
+.proto-header h1 { font-size:21px; font-weight:800; color:var(--white); }
+.proto-header p { font-size:12px; color:var(--muted); margin-top:4px; }
+.screen-label { font-size:10px; font-weight:700; letter-spacing:0.12em; color:var(--amber); text-transform:uppercase; margin-bottom:10px; text-align:center; font-family:'DM Mono',monospace; }
+
+.proto-wrapper { display:flex; gap:28px; justify-content:center; align-items:flex-start; max-width:1060px; margin:0 auto; }
+
+.screen-nav { display:flex; gap:0; border-radius:10px 10px 0 0; overflow:hidden; background:#0F2540; border:1px solid var(--border); border-bottom:none; }
+.nav-tab { padding:9px 16px; font-size:10px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted); cursor:pointer; transition:all 0.2s; border-right:1px solid var(--border); white-space:nowrap; }
+.nav-tab:last-child { border-right:none; }
+.nav-tab:hover { color:var(--white); background:rgba(255,255,255,0.04); }
+.nav-tab.active { color:var(--amber); background:rgba(245,158,11,0.1); }
+
+.browser { width:660px; flex-shrink:0; }
+.browser-chrome { background:#1A2535; border-radius:10px 10px 0 0; padding:9px 14px; display:flex; align-items:center; gap:10px; border:1px solid var(--border); border-bottom:none; }
+.browser-dots { display:flex; gap:5px; }
+.browser-dot { width:9px; height:9px; border-radius:50%; }
+.browser-body { background:#F0F4F8; border:1px solid var(--border); border-top:none; border-radius:0 0 12px 12px; overflow:hidden; height:530px; position:relative; }
+.screen { display:none; width:100%; height:100%; overflow-y:auto; }
+.screen.active { display:block; }
+
+.anno-panel { width:272px; flex-shrink:0; }
+.anno-title { font-size:10px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted); margin-bottom:10px; font-family:'DM Mono',monospace; }
+.anno-card { background:rgba(255,255,255,0.04); border:1px solid var(--border); border-radius:10px; padding:13px; margin-bottom:10px; }
+.anno-n { font-size:8px; font-weight:700; letter-spacing:0.15em; text-transform:uppercase; color:var(--amber); margin-bottom:3px; font-family:'DM Mono',monospace; }
+.anno-t { font-size:12px; font-weight:700; color:var(--white); margin-bottom:5px; }
+.anno-b { font-size:11px; color:var(--muted); line-height:1.5; }
+.anno-metric { margin-top:9px; background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.2); border-radius:7px; padding:7px 11px; }
+.anno-metric .mv { font-size:17px; font-weight:800; color:var(--amber); font-family:'DM Mono',monospace; }
+.anno-metric .ml { font-size:9px; color:var(--muted); letter-spacing:0.05em; margin-top:1px; }
+
+/* SHARED */
+.app-topbar { background:var(--dark); padding:10px 18px; display:flex; align-items:center; justify-content:space-between; }
+.tg-mark { width:26px; height:26px; background:var(--amber); border-radius:5px; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; color:var(--dark); }
+.tg-logo { display:flex; align-items:center; gap:8px; }
+.tg-name { font-size:13px; font-weight:800; color:var(--white); }
+.tg-sub { font-size:8px; color:var(--amber); font-weight:600; letter-spacing:0.08em; }
+.app-nav { display:flex; gap:18px; }
+.app-nav a { font-size:10px; font-weight:600; color:var(--muted); text-decoration:none; cursor:pointer; }
+.nal { color:var(--amber) !important; }
+.app-avatar { width:26px; height:26px; border-radius:50%; background:var(--amber); display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; color:var(--dark); }
+.sec-title { font-size:9px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:#475569; margin-bottom:7px; margin-top:4px; font-family:'DM Mono',monospace; }
+.badge { display:inline-block; padding:2px 7px; border-radius:99px; font-size:8px; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; }
+.bg-g { background:#D1FAE5; color:#065F46; }
+.bg-am { background:#FEF3C7; color:#92400E; }
+.bg-r { background:#FEE2E2; color:#991B1B; }
+.int-tag { background:rgba(245,158,11,0.12); border:1px solid rgba(245,158,11,0.25); border-radius:99px; padding:2px 9px; font-size:8px; font-weight:700; color:var(--amber); text-transform:uppercase; letter-spacing:0.1em; }
+
+/* ===== S1: ACCOUNT PORTFOLIO ===== */
+.s1-kpi { background:#1A2535; padding:11px 18px; display:grid; grid-template-columns:repeat(4,1fr); border-bottom:2px solid rgba(245,158,11,0.25); }
+.kpi { padding:5px 10px; text-align:center; border-right:1px solid rgba(255,255,255,0.06); }
+.kpi:last-child { border-right:none; }
+.kpi-val { font-size:17px; font-weight:800; font-family:'DM Mono',monospace; }
+.kpi-val.g { color:#10B981; }
+.kpi-val.am { color:var(--amber); }
+.kpi-val.r { color:#EF4444; }
+.kpi-val.t { color:var(--teal); }
+.kpi-lbl { font-size:8px; color:var(--muted); font-weight:600; letter-spacing:0.06em; margin-top:2px; text-transform:uppercase; }
+.acct-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; padding:12px; }
+.acct-card { background:#fff; border-radius:8px; padding:11px 12px; border:1px solid #E2E8F0; border-top:3px solid transparent; cursor:pointer; transition:box-shadow 0.2s; }
+.acct-card:hover { box-shadow:0 4px 12px rgba(0,0,0,0.08); }
+.acct-card.ac-g { border-top-color:#10B981; }
+.acct-card.ac-am { border-top-color:#F59E0B; }
+.acct-card.ac-r { border-top-color:#EF4444; }
+.acct-name { font-size:11px; font-weight:700; color:#0F172A; margin-bottom:2px; }
+.acct-type { font-size:8px; color:#64748B; margin-bottom:7px; }
+.acct-score { font-size:22px; font-weight:800; font-family:'DM Mono',monospace; }
+.acct-score.sg { color:#10B981; }
+.acct-score.sa { color:#F59E0B; }
+.acct-score.sr { color:#EF4444; }
+.acct-meta { font-size:8px; color:#94A3B8; margin-top:4px; }
+.acct-renewal { font-size:8px; font-weight:700; margin-top:5px; }
+
+/* ===== S2: CLIENT HEALTH DETAIL ===== */
+.s2-body { padding:12px; background:#F0F4F8; }
+.cl-hdr { background:var(--dark); border-radius:9px; padding:13px 16px; display:flex; align-items:center; justify-content:space-between; margin-bottom:11px; }
+.cl-name { font-size:14px; font-weight:800; color:var(--white); }
+.cl-sub { font-size:9px; color:var(--muted); margin-top:2px; }
+.score-big { font-size:32px; font-weight:800; font-family:'DM Mono',monospace; }
+.sb-r { color:#EF4444; }
+.score-band { font-size:9px; font-weight:700; color:#EF4444; background:rgba(239,68,68,0.15); padding:2px 8px; border-radius:99px; margin-left:6px; }
+.dim-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:11px; }
+.dim-card { background:#fff; border-radius:8px; padding:11px 13px; border:1px solid #E2E8F0; }
+.dim-title { font-size:9px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.07em; margin-bottom:8px; }
+.dim-item { margin-bottom:6px; }
+.dim-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:3px; }
+.dim-metric { font-size:9px; color:#64748B; }
+.dim-val { font-size:9px; font-weight:700; }
+.dv-g { color:#10B981; }
+.dv-r { color:#EF4444; }
+.dv-a { color:#F59E0B; }
+.dim-track { height:4px; background:#E2E8F0; border-radius:99px; overflow:hidden; }
+.dim-fill { height:100%; border-radius:99px; }
+.trend-card { background:#fff; border-radius:8px; padding:11px 13px; border:1px solid #E2E8F0; }
+.trend-bars { display:flex; align-items:flex-end; gap:8px; height:60px; padding:4px 0; }
+.tbar { flex:1; border-radius:3px 3px 0 0; min-height:4px; }
+.tbar-lbl { font-size:7px; color:#94A3B8; text-align:center; margin-top:3px; font-family:'DM Mono',monospace; }
+.touchpoints { background:#fff; border-radius:8px; border:1px solid #E2E8F0; overflow:hidden; }
+.tp-hdr { display:grid; grid-template-columns:1fr 1fr 1fr; background:#F8FAFC; padding:6px 12px; font-size:8px; font-weight:700; color:#64748B; letter-spacing:0.07em; text-transform:uppercase; border-bottom:1px solid #E2E8F0; }
+.tp-row { display:grid; grid-template-columns:1fr 1fr 1fr; padding:6px 12px; border-bottom:1px solid #F1F5F9; align-items:center; font-size:9px; color:#1E293B; }
+.tp-row:last-child { border-bottom:none; }
+
+/* ===== S3: INTERVENTION PLAYBOOK ===== */
+.s3-body { padding:12px; background:#F0F4F8; }
+.risk-banner { background:#FFF5F5; border:1px solid #FECACA; border-radius:9px; padding:12px 16px; display:flex; align-items:center; justify-content:space-between; margin-bottom:11px; }
+.risk-tag { background:#FEE2E2; color:#991B1B; font-size:8px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; padding:3px 9px; border-radius:99px; }
+.risk-title { font-size:13px; font-weight:800; color:#7F1D1D; margin-top:4px; }
+.risk-sub { font-size:9px; color:#991B1B; margin-top:2px; }
+.risk-score { font-size:28px; font-weight:800; font-family:'DM Mono',monospace; color:#EF4444; }
+.pb-title { font-size:10px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:8px; font-family:'DM Mono',monospace; }
+.pb-step { background:#fff; border:1px solid #E2E8F0; border-radius:7px; padding:10px 13px; margin-bottom:7px; display:flex; gap:10px; align-items:flex-start; }
+.pb-step.done { background:#F0FDF4; border-color:#A7F3D0; }
+.pb-step.active { background:#FFFBEB; border-color:#FDE68A; border-left:3px solid #F59E0B; }
+.pb-num { width:22px; height:22px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:800; }
+.pb-num.dn { background:#D1FAE5; color:#065F46; }
+.pb-num.ac { background:#FEF3C7; color:#92400E; }
+.pb-num.pd { background:#E2E8F0; color:#64748B; }
+.pb-content { flex:1; }
+.pb-step-title { font-size:10px; font-weight:700; color:#1E293B; }
+.pb-step-desc { font-size:9px; color:#64748B; margin-top:2px; line-height:1.4; }
+.pb-due { font-size:8px; font-weight:700; }
+.pb-due.today { color:#F59E0B; }
+.pb-due.done-lbl { color:#10B981; }
+.pb-due.future { color:#94A3B8; }
+.msg-template { background:#F8FAFC; border:1px solid #E2E8F0; border-radius:7px; padding:10px 13px; margin-top:8px; }
+.msg-title { font-size:9px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.07em; margin-bottom:6px; font-family:'DM Mono',monospace; }
+.msg-body { font-size:9px; color:#334155; line-height:1.5; font-style:italic; }
+.msg-actions { display:flex; gap:7px; margin-top:8px; }
+.btn-pri { background:#0A1A2E; color:#fff; padding:4px 12px; border-radius:5px; font-size:9px; font-weight:700; cursor:pointer; border:none; font-family:'Sora',sans-serif; }
+.btn-sec { background:#fff; border:1px solid #CBD5E1; color:#475569; padding:4px 12px; border-radius:5px; font-size:9px; font-weight:700; cursor:pointer; font-family:'Sora',sans-serif; }
+
+/* ===== S4: RENEWAL RISK HORIZON ===== */
+.s4-app { background:var(--dark); height:100%; overflow-y:auto; }
+.s4-topbar { background:#0A1225; padding:10px 18px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid rgba(245,158,11,0.15); }
+.s4-body { padding:12px; }
+.horizon-sum { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:12px; }
+.hs-card { background:rgba(255,255,255,0.04); border:1px solid var(--border); border-radius:8px; padding:9px 12px; text-align:center; }
+.hs-val { font-size:18px; font-weight:800; font-family:'DM Mono',monospace; }
+.hs-lbl { font-size:8px; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; margin-top:2px; }
+.renewal-list { display:flex; flex-direction:column; gap:8px; }
+.renewal-row { background:rgba(255,255,255,0.04); border:1px solid var(--border); border-radius:9px; padding:11px 14px; display:flex; align-items:center; gap:14px; }
+.renewal-row.high { border-left:3px solid #EF4444; }
+.renewal-row.med { border-left:3px solid #F59E0B; }
+.renewal-row.low { border-left:3px solid #10B981; }
+.renewal-days { width:48px; text-align:center; flex-shrink:0; }
+.renewal-d-num { font-size:20px; font-weight:800; font-family:'DM Mono',monospace; color:var(--amber); }
+.renewal-d-lbl { font-size:7px; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; }
+.renewal-body { flex:1; }
+.renewal-name { font-size:11px; font-weight:700; color:var(--white); }
+.renewal-meta { font-size:9px; color:var(--muted); margin-top:2px; }
+.renewal-risk { text-align:right; }
+.risk-label { font-size:9px; font-weight:700; }
+.rl-h { color:#EF4444; }
+.rl-m { color:#F59E0B; }
+.rl-l { color:#10B981; }
+.renewal-acv { font-size:10px; color:var(--muted); margin-top:2px; font-family:'DM Mono',monospace; }
+.horizon-action { font-size:9px; font-weight:700; padding:3px 10px; border-radius:99px; background:rgba(245,158,11,0.15); color:var(--amber); border:1px solid rgba(245,158,11,0.25); cursor:pointer; white-space:nowrap; }
+</style>
+</head>
+<body>
+
+<div class="proto-header">
+  <div class="brand">Transguard Group · Case Study C</div>
+  <h1>ClientPulse — Account Health &amp; Retention Intelligence</h1>
+  <p>Internal AM platform replacing reactive client management with data-triggered proactivity and 60-day renewal foresight.</p>
+</div>
+
+<div style="text-align:center;margin-bottom:10px;">
+  <div class="screen-label" id="screen-label">01 — ACCOUNT PORTFOLIO</div>
+</div>
+
+<div class="proto-wrapper">
+  <div class="browser">
+    <div class="screen-nav">
+      <div class="nav-tab active" id="d1" onclick="go(1)">01 · Portfolio</div>
+      <div class="nav-tab" id="d2" onclick="go(2)">02 · Health Detail</div>
+      <div class="nav-tab" id="d3" onclick="go(3)">03 · Playbook</div>
+      <div class="nav-tab" id="d4" onclick="go(4)">04 · Renewal Horizon</div>
+    </div>
+    <div class="browser-chrome">
+      <div class="browser-dots"><div class="browser-dot" style="background:#FF5F57"></div><div class="browser-dot" style="background:#FEBC2E"></div><div class="browser-dot" style="background:#28C840"></div></div>
+      <div style="flex:1;background:rgba(255,255,255,0.06);border-radius:5px;padding:4px 10px;font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;">🔒 clientpulse.transguardgroup.com / portfolio</div>
+    </div>
+    <div class="browser-body">
+
+      <!-- S1: ACCOUNT PORTFOLIO -->
+      <div class="screen active" id="s1">
+        <div class="app-topbar">
+          <div class="tg-logo">
+            <div class="tg-mark">TG</div>
+            <div><div class="tg-name">ClientPulse</div><div class="tg-sub">BY TRANSGUARD</div></div>
+          </div>
+          <div class="app-nav">
+            <a class="nal">Portfolio</a><a>Playbooks</a><a>Renewals</a><a>Reports</a>
+          </div>
+          <div class="app-avatar">AM</div>
+        </div>
+        <div class="s1-kpi">
+          <div class="kpi"><div class="kpi-val t">24</div><div class="kpi-lbl">Total Accounts</div></div>
+          <div class="kpi"><div class="kpi-val r">3</div><div class="kpi-lbl">At Risk</div></div>
+          <div class="kpi"><div class="kpi-val am">7</div><div class="kpi-lbl">Need Attention</div></div>
+          <div class="kpi"><div class="kpi-val g">14</div><div class="kpi-lbl">Healthy</div></div>
+        </div>
+        <div class="acct-grid">
+          <div class="acct-card ac-r">
+            <div class="acct-name">Emirates NBD</div>
+            <div class="acct-type">Banking · 210 SCDMs + CIT</div>
+            <div class="acct-score sr">38</div>
+            <div><span class="badge bg-r">At Risk</span></div>
+            <div class="acct-meta">Renewal in 28 days · ACV AED 4.2M</div>
+          </div>
+          <div class="acct-card ac-am">
+            <div class="acct-name">ENOC Group</div>
+            <div class="acct-type">Petrol Retail · 118 SCDMs</div>
+            <div class="acct-score sa">61</div>
+            <div><span class="badge bg-am">Attention</span></div>
+            <div class="acct-meta">Renewal in 55 days · ACV AED 2.8M</div>
+          </div>
+          <div class="acct-card ac-g">
+            <div class="acct-name">Carrefour UAE</div>
+            <div class="acct-type">Hypermarket · 34 SCDMs + CIT</div>
+            <div class="acct-score sg">87</div>
+            <div><span class="badge bg-g">Healthy</span></div>
+            <div class="acct-meta">Renewal in 142 days · ACV AED 1.9M</div>
+          </div>
+          <div class="acct-card ac-g">
+            <div class="acct-name">LuLu Hypermarket</div>
+            <div class="acct-type">Hypermarket · 56 SCDMs + CIT</div>
+            <div class="acct-score sg">79</div>
+            <div><span class="badge bg-g">Healthy</span></div>
+            <div class="acct-meta">Renewal in 178 days · ACV AED 2.3M</div>
+          </div>
+          <div class="acct-card ac-r">
+            <div class="acct-name">Waitrose UAE</div>
+            <div class="acct-type">Supermarket · 18 SCDMs</div>
+            <div class="acct-score sr">44</div>
+            <div><span class="badge bg-r">At Risk</span></div>
+            <div class="acct-meta">Renewal in 19 days · ACV AED 0.8M</div>
+          </div>
+          <div class="acct-card ac-g">
+            <div class="acct-name">Spinneys</div>
+            <div class="acct-type">Supermarket · 22 SCDMs</div>
+            <div class="acct-score sg">81</div>
+            <div><span class="badge bg-g">Healthy</span></div>
+            <div class="acct-meta">Renewal in 210 days · ACV AED 1.1M</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- S2: CLIENT HEALTH DETAIL -->
+      <div class="screen" id="s2">
+        <div class="app-topbar">
+          <div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;">Portfolio › <span style="color:var(--amber);">Emirates NBD</span></div>
+          <div class="int-tag">Account Manager View</div>
+        </div>
+        <div class="s2-body">
+          <div class="cl-hdr">
+            <div>
+              <div class="cl-name">Emirates NBD</div>
+              <div class="cl-sub">Banking · 210 SCDMs · Cash Data Centre · ACV AED 4.2M/yr</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="display:flex;align-items:center;gap:6px;justify-content:flex-end;">
+                <div class="score-big sb-r">38</div>
+                <span class="score-band">AT RISK</span>
+              </div>
+              <div style="font-size:8px;color:var(--muted);margin-top:2px;">↓ 17 pts from last quarter</div>
+              <div style="font-size:8px;font-weight:700;color:#EF4444;margin-top:3px;">⚠ Renewal in 28 days</div>
+            </div>
+          </div>
+
+          <div class="dim-grid">
+            <div class="dim-card">
+              <div class="dim-title">Operational KPIs</div>
+              <div class="dim-item">
+                <div class="dim-row"><span class="dim-metric">SCDM Uptime</span><span class="dim-val dv-a">91.2%</span></div>
+                <div class="dim-track"><div class="dim-fill" style="width:91.2%;background:#F59E0B;"></div></div>
+              </div>
+              <div class="dim-item">
+                <div class="dim-row"><span class="dim-metric">Collection SLA</span><span class="dim-val dv-r">78.4%</span></div>
+                <div class="dim-track"><div class="dim-fill" style="width:78.4%;background:#EF4444;"></div></div>
+              </div>
+              <div class="dim-item">
+                <div class="dim-row"><span class="dim-metric">ERP Reconciliation</span><span class="dim-val dv-r">81.1%</span></div>
+                <div class="dim-track"><div class="dim-fill" style="width:81.1%;background:#EF4444;"></div></div>
+              </div>
+            </div>
+            <div class="dim-card">
+              <div class="dim-title">Relationship Signals</div>
+              <div class="dim-item">
+                <div class="dim-row"><span class="dim-metric">Support Tickets (30d)</span><span class="dim-val dv-r">14 open</span></div>
+                <div class="dim-track"><div class="dim-fill" style="width:70%;background:#EF4444;"></div></div>
+              </div>
+              <div class="dim-item">
+                <div class="dim-row"><span class="dim-metric">Last QBR Attendance</span><span class="dim-val dv-a">Partial</span></div>
+                <div class="dim-track"><div class="dim-fill" style="width:50%;background:#F59E0B;"></div></div>
+              </div>
+              <div class="dim-item">
+                <div class="dim-row"><span class="dim-metric">AM Last Contact</span><span class="dim-val dv-r">21 days ago</span></div>
+                <div class="dim-track"><div class="dim-fill" style="width:30%;background:#EF4444;"></div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="trend-card" style="margin-bottom:9px;">
+            <div class="sec-title">6-Month Health Trend</div>
+            <div style="display:flex;align-items:flex-end;gap:10px;">
+              <div style="flex:1;">
+                <div class="trend-bars">
+                  <div style="flex:1;display:flex;flex-direction:column;align-items:center;">
+                    <div class="tbar" style="height:52px;background:#10B981;width:100%;"></div>
+                    <div class="tbar-lbl">Jan</div>
+                  </div>
+                  <div style="flex:1;display:flex;flex-direction:column;align-items:center;">
+                    <div class="tbar" style="height:49px;background:#10B981;width:100%;"></div>
+                    <div class="tbar-lbl">Feb</div>
+                  </div>
+                  <div style="flex:1;display:flex;flex-direction:column;align-items:center;">
+                    <div class="tbar" style="height:40px;background:#F59E0B;width:100%;"></div>
+                    <div class="tbar-lbl">Mar</div>
+                  </div>
+                  <div style="flex:1;display:flex;flex-direction:column;align-items:center;">
+                    <div class="tbar" style="height:32px;background:#F59E0B;width:100%;"></div>
+                    <div class="tbar-lbl">Apr</div>
+                  </div>
+                  <div style="flex:1;display:flex;flex-direction:column;align-items:center;">
+                    <div class="tbar" style="height:24px;background:#EF4444;width:100%;"></div>
+                    <div class="tbar-lbl">May</div>
+                  </div>
+                  <div style="flex:1;display:flex;flex-direction:column;align-items:center;">
+                    <div class="tbar" style="height:19px;background:#EF4444;width:100%;"></div>
+                    <div class="tbar-lbl">Jun</div>
+                  </div>
+                </div>
+              </div>
+              <div style="width:100px;font-size:9px;color:#64748B;line-height:1.5;">Scores: 83→79→67→55→44→38. Root cause: collection SLA degraded from 96% → 78% after fleet resizing in March.</div>
+            </div>
+          </div>
+
+          <div class="touchpoints">
+            <div class="tp-hdr"><div>Touchpoint</div><div>Date</div><div>Outcome</div></div>
+            <div class="tp-row"><div>QBR Meeting</div><div style="font-family:'DM Mono',monospace;font-size:8px;">12 May 2026</div><div><span class="badge bg-am">Partial Attend</span></div></div>
+            <div class="tp-row"><div>Support Ticket #4421</div><div style="font-family:'DM Mono',monospace;font-size:8px;">28 Apr 2026</div><div><span class="badge bg-r">Escalated</span></div></div>
+            <div class="tp-row"><div>AM Check-in Call</div><div style="font-family:'DM Mono',monospace;font-size:8px;">21 May 2026</div><div><span class="badge bg-g">Completed</span></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- S3: INTERVENTION PLAYBOOK -->
+      <div class="screen" id="s3">
+        <div class="app-topbar">
+          <div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;">Portfolio › Emirates NBD › <span style="color:var(--amber);">Intervention Playbook</span></div>
+          <div style="font-size:8px;font-weight:700;color:#EF4444;background:rgba(239,68,68,0.1);padding:2px 9px;border-radius:99px;border:1px solid rgba(239,68,68,0.25);">⚠ Renewal Risk: HIGH</div>
+        </div>
+        <div class="s3-body">
+          <div class="risk-banner">
+            <div>
+              <div class="risk-tag">Automated Playbook Triggered</div>
+              <div class="risk-title">Emirates NBD — Score Drop Alert</div>
+              <div class="risk-sub">Score fell 17 points in 90 days. Renewal in 28 days. ACV at risk: AED 4.2M</div>
+            </div>
+            <div class="risk-score">38</div>
+          </div>
+
+          <div class="pb-title">5-Step Recovery Playbook</div>
+
+          <div class="pb-step done">
+            <div class="pb-num dn">✓</div>
+            <div class="pb-content">
+              <div class="pb-step-title">Root Cause Diagnosis</div>
+              <div class="pb-step-desc">ClientPulse identified: Collection SLA degraded from 96% → 78% post-March fleet resize. 14 open support tickets unresolved.</div>
+              <div class="pb-due done-lbl">✓ Completed — 10 Jun 2026</div>
+            </div>
+          </div>
+
+          <div class="pb-step active">
+            <div class="pb-num ac">2</div>
+            <div class="pb-content">
+              <div class="pb-step-title">Executive Outreach — Ops Director</div>
+              <div class="pb-step-desc">Send personalised message to client Ops Director acknowledging the SLA drop and proposing a 30-min resolution call this week.</div>
+              <div class="pb-due today">📅 Due Today · Assigned to: Priya Sharma (AM)</div>
+            </div>
+          </div>
+
+          <div class="pb-step">
+            <div class="pb-num pd">3</div>
+            <div class="pb-content">
+              <div class="pb-step-title">Emergency SLA Review Meeting</div>
+              <div class="pb-step-desc">15 Jun — present root cause analysis, remediation plan, and committed SLA recovery timeline. Resolve all 14 open tickets before meeting.</div>
+              <div class="pb-due future">📅 Due: 15 Jun 2026</div>
+            </div>
+          </div>
+
+          <div class="pb-step">
+            <div class="pb-num pd">4</div>
+            <div class="pb-content">
+              <div class="pb-step-title">Remediation Offer — Service Credit</div>
+              <div class="pb-step-desc">Offer AED 85,000 service credit (2% of ACV) tied to SLA improvement commitment. Contingent on renewal sign-off by 22 Jun.</div>
+              <div class="pb-due future">📅 Due: 22 Jun 2026</div>
+            </div>
+          </div>
+
+          <div class="pb-step">
+            <div class="pb-num pd">5</div>
+            <div class="pb-content">
+              <div class="pb-step-title">Renewal Contract &amp; Sign-Off</div>
+              <div class="pb-step-desc">Issue 2-year renewal contract with upgraded SLA commitment (99.2% uptime). Lock in before 30 Jun renewal date.</div>
+              <div class="pb-due future">📅 Due: 30 Jun 2026</div>
+            </div>
+          </div>
+
+          <div class="msg-template">
+            <div class="msg-title">Auto-Generated Outreach — Step 2</div>
+            <div class="msg-body">"Hi [Name], I wanted to personally reach out regarding your recent experience with our Cash Services team. We have identified the root cause of the SLA inconsistencies you have encountered and have a clear remediation plan ready. Could we schedule a 30-minute call this week?"</div>
+            <div class="msg-actions">
+              <button class="btn-pri">Send Now</button>
+              <button class="btn-sec">Edit Draft</button>
+              <button class="btn-sec">Schedule for 9 AM</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- S4: RENEWAL RISK HORIZON -->
+      <div class="screen s4-app" id="s4">
+        <div class="s4-topbar">
+          <div style="display:flex;align-items:center;gap:9px;">
+            <div style="font-size:12px;font-weight:800;color:var(--white);">60-Day Renewal Horizon</div>
+            <div class="int-tag">AM Pipeline View</div>
+          </div>
+          <div style="font-size:9px;color:var(--muted);font-family:'DM Mono',monospace;">ACV at risk: AED 7.8M</div>
+        </div>
+        <div class="s4-body">
+          <div class="horizon-sum">
+            <div class="hs-card"><div class="hs-val" style="color:#EF4444;">3</div><div class="hs-lbl">High Risk</div></div>
+            <div class="hs-card"><div class="hs-val" style="color:#F59E0B;">4</div><div class="hs-lbl">Medium Risk</div></div>
+            <div class="hs-card"><div class="hs-val" style="color:#10B981;">5</div><div class="hs-lbl">Low Risk</div></div>
+            <div class="hs-card"><div class="hs-val" style="color:var(--amber);">AED 7.8M</div><div class="hs-lbl">ACV at Risk</div></div>
+          </div>
+
+          <div style="font-size:8px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;font-family:'DM Mono',monospace;">Upcoming Renewals — Next 60 Days</div>
+          <div class="renewal-list">
+            <div class="renewal-row high">
+              <div class="renewal-days"><div class="renewal-d-num">19</div><div class="renewal-d-lbl">DAYS</div></div>
+              <div class="renewal-body">
+                <div class="renewal-name">Waitrose UAE</div>
+                <div class="renewal-meta">18 SCDMs · Health Score: 44 · AM: Sarah O.</div>
+              </div>
+              <div class="renewal-risk">
+                <div class="risk-label rl-h">HIGH RISK</div>
+                <div class="renewal-acv">AED 0.8M ACV</div>
+              </div>
+              <div class="horizon-action">View Playbook</div>
+            </div>
+            <div class="renewal-row high">
+              <div class="renewal-days"><div class="renewal-d-num">28</div><div class="renewal-d-lbl">DAYS</div></div>
+              <div class="renewal-body">
+                <div class="renewal-name">Emirates NBD</div>
+                <div class="renewal-meta">210 SCDMs + CDC · Health Score: 38 · AM: Priya S.</div>
+              </div>
+              <div class="renewal-risk">
+                <div class="risk-label rl-h">HIGH RISK</div>
+                <div class="renewal-acv">AED 4.2M ACV</div>
+              </div>
+              <div class="horizon-action">View Playbook</div>
+            </div>
+            <div class="renewal-row med">
+              <div class="renewal-days"><div class="renewal-d-num">41</div><div class="renewal-d-lbl">DAYS</div></div>
+              <div class="renewal-body">
+                <div class="renewal-name">Carrefour Dubai Mall</div>
+                <div class="renewal-meta">12 SCDMs · Health Score: 71 · AM: Ahmed K.</div>
+              </div>
+              <div class="renewal-risk">
+                <div class="risk-label rl-m">MEDIUM</div>
+                <div class="renewal-acv">AED 0.6M ACV</div>
+              </div>
+              <div class="horizon-action">Schedule QBR</div>
+            </div>
+            <div class="renewal-row med">
+              <div class="renewal-days"><div class="renewal-d-num">55</div><div class="renewal-d-lbl">DAYS</div></div>
+              <div class="renewal-body">
+                <div class="renewal-name">ENOC Group</div>
+                <div class="renewal-meta">118 SCDMs · Health Score: 61 · AM: Ravi M.</div>
+              </div>
+              <div class="renewal-risk">
+                <div class="risk-label rl-m">MEDIUM</div>
+                <div class="renewal-acv">AED 2.8M ACV</div>
+              </div>
+              <div class="horizon-action">Upsell Review</div>
+            </div>
+            <div class="renewal-row low">
+              <div class="renewal-days"><div class="renewal-d-num">60</div><div class="renewal-d-lbl">DAYS</div></div>
+              <div class="renewal-body">
+                <div class="renewal-name">Spinneys</div>
+                <div class="renewal-meta">22 SCDMs · Health Score: 81 · AM: Ahmed K.</div>
+              </div>
+              <div class="renewal-risk">
+                <div class="risk-label rl-l">LOW RISK</div>
+                <div class="renewal-acv">AED 1.1M ACV</div>
+              </div>
+              <div class="horizon-action">Auto-Renew</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ANNOTATION PANEL -->
+  <div class="anno-panel">
+    <div class="anno-title">PM Rationale</div>
+    <div id="anno-cards"></div>
+  </div>
+</div>
+
+<script>
+const LABELS={1:'01 — ACCOUNT PORTFOLIO',2:'02 — CLIENT HEALTH DETAIL',3:'03 — INTERVENTION PLAYBOOK',4:'04 — RENEWAL RISK HORIZON'};
+const ANNO={
+  1:[
+    {n:'INSIGHT 01',t:'Reactive = Revenue Leak',b:'Transguard AMs manage 24+ enterprise accounts reactively. A contract worth AED 4.2M at Emirates NBD can churn because no one saw the health score drop 17 points over 3 months.',metric:{v:'AED 7.8M',l:'ACV at renewal risk in the next 60 days — currently invisible'}},
+    {n:'INSIGHT 02',t:'Health Score = Early Warning System',b:'RED/AMBER/GREEN banding synthesizes operational KPIs + relationship signals into a single score. AMs see problems 60 days before renewal — not 5 days before.',metric:{v:'22%',l:'Improvement in client retention rate (projected from pilot)'}},
+    {n:'PM RATIONALE',t:'PhonePe Milestone Parallel',b:'Same architecture as PhonePe milestone engine: data-triggered nudges shape behaviour (merchant retention +23%, escalations -85%). ClientPulse applies this to B2B account health management.',metric:null}
+  ],
+  2:[
+    {n:'INSIGHT 01',t:'Dimensional Scoring Beats Gut Feel',b:'Score is computed across 6 dimensions: SCDM uptime, collection SLA, ERP recon rate, support ticket velocity, QBR attendance, AM contact frequency. Each is weighted and trended.',metric:{v:'Score: 38',l:'Emirates NBD — down 17pts in 90 days. Root cause: SLA degraded post-fleet resize'}},
+    {n:'INSIGHT 02',t:'The Trend Line Matters More Than the Score',b:'A score of 38 improving is better than a score of 70 declining. The 6-month trend chart shows Emirates NBD in freefall — this is the signal AMs need to act, not the absolute number.',metric:{v:'28 days',l:'Until renewal. AED 4.2M ACV at stake if no intervention fires today'}},
+    {n:'PM RATIONALE',t:'Zero New Data Required',b:'Everything on this screen exists in Transguard operational systems today. ClientPulse is a data aggregation and presentation layer — no new data collection required. Low build cost, immediate ROI.',metric:null}
+  ],
+  3:[
+    {n:'INSIGHT 01',t:'Playbooks = Consistency at Scale',b:'When an account drops RED, every AM knows exactly the 5-step intervention: diagnose → outreach → meeting → offer → contract. No improvisation, no missed steps, no AED 4.2M renewals lost.',metric:{v:'35%',l:'Fewer surprise churn events at renewal (projected with playbook coverage)'}},
+    {n:'INSIGHT 02',t:'Auto-Generated Outreach',b:'The message template is pre-written, personalised from the score data, and ready to send in one click. This reduces the AM action barrier from 30-minute email drafting to a 10-second review.',metric:{v:'AED 85K',l:'Service credit offered (2% of ACV) — cost of retention vs cost of replacement'}},
+    {n:'PM RATIONALE',t:'The Escalation Path = Upsell Path',b:'Clients that go through the playbook and renew become the highest-quality upsell targets. The resolution conversation naturally opens the door to adding CashPulse dashboard as an add-on.',metric:null}
+  ],
+  4:[
+    {n:'INSIGHT 01',t:'60 Days = The Intervention Window',b:'Transguard sales cycle for a new equivalent enterprise client is 90-120 days. The 60-day horizon gives AMs exactly enough time to save a renewal before replacement is needed.',metric:{v:'AED 7.8M',l:'Total ACV in 60-day renewal window across all accounts'}},
+    {n:'INSIGHT 02',t:'Pipeline View = GM-Level Visibility',b:'The Associate Director can now see the entire portfolio risk in one screen — which accounts need attention, which AMs are engaged, and the total ACV at stake. One view replaces 24 AM status calls.',metric:{v:'18%',l:'Increase in upsell conversion from proactive account touches (projected)'}},
+    {n:'PM RATIONALE',t:'POC Scope: 20 Accounts, 90 Days',b:'ClientPulse POC: start with 20 accounts, all managed by 4 AMs. Measure: renewal rate delta, escalation reduction, and upsell conversion vs control group. Build the business case for full rollout in one quarter.',metric:null}
+  ]
+};
+function renderAnno(n){
+  const c=document.getElementById('anno-cards');
+  c.innerHTML='';
+  ANNO[n].forEach(card=>{
+    const el=document.createElement('div');
+    el.className='anno-card';
+    el.innerHTML=`<div class="anno-n">${card.n}</div><div class="anno-t">${card.t}</div><div class="anno-b">${card.b}</div>${card.metric?`<div class="anno-metric"><div class="mv">${card.metric.v}</div><div class="ml">${card.metric.l}</div></div>`:''}`;
+    c.appendChild(el);
+  });
+}
+function go(n){
+  [1,2,3,4].forEach(i=>{document.getElementById('s'+i).classList.remove('active');document.getElementById('d'+i).classList.remove('active');});
+  document.getElementById('s'+n).classList.add('active');
+  document.getElementById('d'+n).classList.add('active');
+  document.getElementById('screen-label').textContent=LABELS[n];
+  renderAnno(n);
+}
+renderAnno(1);
+</script>
+</body>
+</html>
