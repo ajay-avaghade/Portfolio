@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STYLI — Syndic8 Engine · Interactive Prototype</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --c-dark: #0F172A;
+            --c-hero: #1E293B;
+            --c-bright: #3B82F6;
+            --c-accent: #60A5FA;
+            --orange: #F59E0B;
+            --ink: #0f172a;
+            --muted: #64748b;
+            --border: #e2e8f0;
+            --gray: #f1f5f9;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Sora', sans-serif; background: var(--gray); color: var(--ink); padding: 40px; }
+        .header { text-align: center; margin-bottom: 40px; }
+        .header h1 { font-size: 24px; color: var(--ink); font-weight: 800; letter-spacing: -0.5px; }
+        .header p { color: var(--muted); font-size: 14px; margin-top: 8px; }
+
+        .proto-wrap { display: flex; gap: 32px; justify-content: center; flex-wrap: wrap; }
+        .phone-col { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+        .phone-label { font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+
+        .phone {
+            width: 375px; height: 812px; background: #fff; border-radius: 46px;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.15); position: relative; overflow: hidden; border: 8px solid #cbd5e1;
+            display: flex; flex-direction: column;
+        }
+
+        .notch {
+            position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+            width: 118px; height: 28px; background: #cbd5e1; border-radius: 0 0 16px 16px; z-index: 100;
+        }
+        .nc { position: absolute; right: 24px; top: 6px; width: 12px; height: 12px; border-radius: 50%; background: #0f172a; border: 2px solid #334155; }
+        .ndot { position: absolute; left: 24px; top: 10px; width: 6px; height: 6px; border-radius: 50%; background: #0f172a; }
+
+        .status-bar {
+            height: 44px; display: flex; justify-content: space-between; padding: 0 24px; align-items: center;
+            font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500; background: var(--c-dark); color: #fff; z-index: 10;
+        }
+
+        .screen { flex: 1; overflow-y: auto; scrollbar-width: none; background: #f8fafc; }
+        .screen::-webkit-scrollbar { display: none; }
+
+        /* Dark Screen Base */
+        .sc-dark { background: var(--c-dark); color: #fff; }
+        .sc-dark .status-bar { background: var(--c-dark); color: #fff; }
+
+        .top-nav { padding: 20px 24px 10px; display: flex; justify-content: space-between; align-items: center; }
+        .page-title { font-size: 22px; font-weight: 800; }
+        .subtitle { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+        /* Components */
+        .card { background: #fff; border-radius: 16px; padding: 20px; margin: 16px 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .card-dark { background: var(--c-hero); border-radius: 16px; padding: 20px; margin: 16px 20px; box-shadow: 0 8px 24px rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05); }
+        
+        .c-flex { display: flex; justify-content: space-between; align-items: center; }
+        .c-gap { display: flex; gap: 12px; align-items: center; }
+        
+        .pill { padding: 6px 12px; background: rgba(59,130,246,0.1); color: var(--c-bright); border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .pill-warn { background: rgba(245,158,11,0.1); color: var(--orange); }
+        .pill-green { background: rgba(16,185,129,0.1); color: #10b981; }
+
+        .btn { width: calc(100% - 40px); margin: 20px; padding: 16px; border-radius: 12px; border: none; font-family: 'Sora'; font-weight: 700; font-size: 15px; cursor: pointer; transition: 0.2s; }
+        .btn-primary { background: var(--c-bright); color: #fff; box-shadow: 0 4px 12px rgba(59,130,246,0.3); }
+
+        .list-item { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid var(--border); }
+        .list-item:last-child { border: none; padding-bottom: 0; }
+        .list-dark { border-color: rgba(255,255,255,0.1); }
+        
+        .avatar { width: 40px; height: 40px; border-radius: 10px; background: var(--gray); display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--c-bright); }
+        
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
+        .stat-box { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); padding: 16px; border-radius: 12px; text-align: center; }
+        .stat-val { font-size: 20px; font-weight: 800; color: #fff; font-family: 'DM Mono'; }
+        .stat-lbl { font-size: 11px; color: #94a3b8; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        .track { height: 8px; background: rgba(255,255,255,0.1); border-radius: 99px; position: relative; margin-top: 12px; }
+        .fill { height: 100%; border-radius: 99px; background: var(--c-bright); position: relative; transition: 0.6s ease; }
+        .fill-badge { position: absolute; right: -2px; top: -14px; background: var(--c-bright); color: #fff; font-size: 9px; font-weight: 700; padding: 2px 5px; border-radius: 6px; }
+
+        /* Sync Map */
+        .map-row { display: flex; justify-content: space-between; margin-top: 12px; font-size: 13px; color: #cbd5e1; align-items: center; }
+        .map-arrow { color: var(--c-accent); font-size: 10px; }
+        
+        #conf { position: absolute; top:0; left:0; width:100%; height:100%; pointer-events: none; overflow: hidden; z-index: 999; }
+        .cp { position: absolute; animation: fall linear forwards; }
+        @keyframes fall { to { transform: translateY(800px) rotate(720deg); opacity: 0; } }
+
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>STYLI — Syndic8 Engine</h1>
+        <p>Cross-Channel SKU Syndication & Automated Mapping</p>
+    </div>
+
+    <div class="proto-wrap">
+        
+        <!-- Screen 1: Discovery -->
+        <div class="phone-col">
+            <div class="phone-label">01 — STYLI SELLER CENTRAL</div>
+            <div class="phone">
+                <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+                <div class="status-bar"><span>9:41</span><span><i data-lucide="wifi" style="width:14px"></i></span></div>
+                <div class="screen">
+                    <div class="top-nav" style="background:#fff; padding-bottom:20px; box-shadow:0 1px 4px rgba(0,0,0,0.05);">
+                        <div>
+                            <div class="page-title">Catalog Hub</div>
+                            <div class="subtitle">Manage listings & syndication</div>
+                        </div>
+                        <div class="avatar"><i data-lucide="user"></i></div>
+                    </div>
+
+                    <div class="card" style="background:var(--c-dark); color:#fff; border:none;">
+                        <div class="c-flex">
+                            <h3 style="font-size:16px;">Syndic8 Engine</h3>
+                            <span class="pill" style="background:rgba(59,130,246,0.2);">Active</span>
+                        </div>
+                        <p style="font-size:13px; color:#cbd5e1; margin-top:8px; line-height:1.5;">Map your STYLI catalog to Noon, Amazon & Namshi automatically using AI tagging.</p>
+                        <div style="margin-top:16px; display:flex; gap:8px;">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg" height="16" style="filter:brightness(10)"/>
+                            <span style="color:#94a3b8; font-size:12px;">| Noon | Namshi</span>
+                        </div>
+                    </div>
+
+                    <div style="padding: 0 20px; margin-top: 24px;">
+                        <h4 style="font-size:14px; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:12px;">Needs Attention</h4>
+                        
+                        <div class="card" style="margin: 0 0 12px 0;">
+                            <div class="c-flex" style="margin-bottom:12px;">
+                                <div class="c-gap">
+                                    <div style="width:48px; height:48px; background:#f1f5f9; border-radius:8px; display:flex; align-items:center; justify-content:center;">👗</div>
+                                    <div>
+                                        <div style="font-weight:700; font-size:14px;">Summer Midi Collection</div>
+                                        <div style="font-size:12px; color:var(--muted);">45 SKUs</div>
+                                    </div>
+                                </div>
+                                <span class="pill pill-warn">Unmapped</span>
+                            </div>
+                            <button class="btn btn-primary" style="margin:0; width:100%; padding:10px; font-size:13px;">Auto-Map to Channels</button>
+                        </div>
+                        
+                        <div class="card" style="margin: 0 0 12px 0;">
+                            <div class="c-flex">
+                                <div class="c-gap">
+                                    <div style="width:48px; height:48px; background:#f1f5f9; border-radius:8px; display:flex; align-items:center; justify-content:center;">👟</div>
+                                    <div>
+                                        <div style="font-weight:700; font-size:14px;">Running Sneakers</div>
+                                        <div style="font-size:12px; color:var(--muted);">12 SKUs</div>
+                                    </div>
+                                </div>
+                                <span class="pill pill-green">Live</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 2: Mapping -->
+        <div class="phone-col">
+            <div class="phone-label">02 — AI ATTRIBUTE MAPPING</div>
+            <div class="phone">
+                <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+                <div class="status-bar"><span>9:41</span><span><i data-lucide="wifi" style="width:14px"></i></span></div>
+                <div class="screen sc-dark">
+                    <div class="top-nav">
+                        <div>
+                            <div class="page-title">Auto-Mapping</div>
+                            <div class="subtitle" style="color:#94a3b8;">Summer Midi Collection</div>
+                        </div>
+                        <i data-lucide="x" style="color:#fff;"></i>
+                    </div>
+
+                    <div class="card-dark">
+                        <div class="c-flex" style="margin-bottom:16px;">
+                            <span style="font-size:14px; font-weight:700;">Amazon.ae Taxonomy</span>
+                            <span class="pill" style="background:rgba(16,185,129,0.2);">AI Matched</span>
+                        </div>
+                        <div class="map-row">
+                            <span>STYLI 'Color'</span> <i data-lucide="arrow-right" class="map-arrow"></i> <span>'ColorMap'</span>
+                        </div>
+                        <div class="map-row">
+                            <span>STYLI 'Material'</span> <i data-lucide="arrow-right" class="map-arrow"></i> <span>'FabricType'</span>
+                        </div>
+                        <div class="map-row">
+                            <span>STYLI 'Size'</span> <i data-lucide="arrow-right" class="map-arrow"></i> <span>'ApparelSize'</span>
+                        </div>
+                    </div>
+
+                    <div class="card-dark">
+                        <div class="c-flex" style="margin-bottom:16px;">
+                            <span style="font-size:14px; font-weight:700;">Noon Taxonomy</span>
+                            <span class="pill" style="background:rgba(16,185,129,0.2);">AI Matched</span>
+                        </div>
+                        <div class="map-row">
+                            <span>STYLI 'Title'</span> <i data-lucide="arrow-right" class="map-arrow"></i> <span>'ProductTitle_EN'</span>
+                        </div>
+                        <div class="map-row">
+                            <span>STYLI 'Brand'</span> <i data-lucide="arrow-right" class="map-arrow"></i> <span>'Brand_Code'</span>
+                        </div>
+                        <div class="map-row" style="color:var(--orange);">
+                            <span>Missing: 'HSN_Code'</span> <i data-lucide="plus-circle" class="map-arrow" style="color:var(--orange);"></i> <span>Add Fallback</span>
+                        </div>
+                    </div>
+
+                    <div style="position:absolute; bottom:0; width:100%; background:var(--c-hero); padding:20px; border-top:1px solid rgba(255,255,255,0.05);">
+                        <button class="btn btn-primary" style="margin:0;">Confirm & Push 45 SKUs</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 3: Success -->
+        <div class="phone-col">
+            <div class="phone-label">03 — SYNDICATION SUCCESS</div>
+            <div class="phone">
+                <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+                <div class="status-bar"><span>9:42</span><span><i data-lucide="wifi" style="width:14px"></i></span></div>
+                <div id="conf"></div>
+                <div class="screen" style="display:flex; flex-direction:column; justify-content:center; align-items:center; background:#fff; padding:32px; text-align:center;">
+                    
+                    <div style="width:80px; height:80px; background:rgba(16,185,129,0.1); color:#10b981; border-radius:50%; display:flex; align-items:center; justify-content:center; margin-bottom:24px;">
+                        <i data-lucide="check-circle" style="width:40px; height:40px;"></i>
+                    </div>
+                    
+                    <h2 style="font-size:24px; font-weight:800; margin-bottom:12px;">Syndication Complete</h2>
+                    <p style="color:var(--muted); font-size:14px; line-height:1.5;">45 SKUs successfully pushed across 3 marketplaces.</p>
+
+                    <div class="card" style="width:100%; margin:32px 0; background:#f8fafc; border:1px solid var(--border); box-shadow:none; text-align:left;">
+                        <div class="list-item">
+                            <span style="font-weight:600; font-size:14px;">Amazon.ae</span>
+                            <span class="pill pill-green">Live in 5m</span>
+                        </div>
+                        <div class="list-item">
+                            <span style="font-weight:600; font-size:14px;">Noon</span>
+                            <span class="pill pill-green">Live in 15m</span>
+                        </div>
+                        <div class="list-item" style="border:none; padding-bottom:0;">
+                            <span style="font-weight:600; font-size:14px;">Namshi</span>
+                            <span class="pill pill-warn">QC Pending</span>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary" style="margin:0;">View Channel Dashboard</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 4: Channel Insights -->
+        <div class="phone-col">
+            <div class="phone-label">04 — SELLER INSIGHTS</div>
+            <div class="phone">
+                <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+                <div class="status-bar"><span>9:45</span><span><i data-lucide="wifi" style="width:14px"></i></span></div>
+                <div class="screen sc-dark">
+                    <div class="top-nav">
+                        <div>
+                            <div class="page-title">Channel Health</div>
+                            <div class="subtitle" style="color:#94a3b8;">Cross-platform listing performance</div>
+                        </div>
+                        <i data-lucide="activity" style="color:#fff;"></i>
+                    </div>
+
+                    <div class="card-dark" style="margin-top:8px;">
+                        <h3 style="font-size:13px; color:#94a3b8; text-transform:uppercase;">Syndication Health</h3>
+                        <div class="stat-grid">
+                            <div class="stat-box">
+                                <div class="stat-val">99.2%</div>
+                                <div class="stat-lbl">API Uptime</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-val">0.8%</div>
+                                <div class="stat-lbl" style="color:var(--orange);">Rejection Rate</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-dark">
+                        <div class="c-flex" style="margin-bottom:16px;">
+                            <h3 style="font-size:14px; font-weight:700;">Marketplace GMV</h3>
+                            <i data-lucide="trending-up" style="color:var(--c-bright); width:16px;"></i>
+                        </div>
+                        
+                        <div style="margin-bottom:16px;">
+                            <div class="c-flex" style="font-size:12px; color:#cbd5e1; font-family:'DM Mono';">
+                                <span>Amazon</span><span>$14.2k</span>
+                            </div>
+                            <div class="track"><div class="fill" style="width:65%"></div></div>
+                        </div>
+                        
+                        <div style="margin-bottom:16px;">
+                            <div class="c-flex" style="font-size:12px; color:#cbd5e1; font-family:'DM Mono';">
+                                <span>Noon</span><span>$8.4k</span>
+                            </div>
+                            <div class="track"><div class="fill" style="width:40%; background:var(--orange);"></div></div>
+                        </div>
+
+                        <div>
+                            <div class="c-flex" style="font-size:12px; color:#cbd5e1; font-family:'DM Mono';">
+                                <span>Namshi</span><span>$3.1k</span>
+                            </div>
+                            <div class="track"><div class="fill" style="width:15%; background:#10b981;"></div></div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        lucide.createIcons();
+        // Confetti logic
+        const c = document.getElementById('conf');
+        const cols = ['#4ADE80','#F97316','#60A5FA','#FBBF24','#F472B6','#A78BFA','#34D399'];
+        for(let i=0;i<32;i++){
+            const p = document.createElement('div');
+            p.className='cp';
+            const size = 4+Math.random()*7;
+            p.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*120-10}%;width:${size}px;height:${size}px;background:${cols[Math.floor(Math.random()*cols.length)]};border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${1.4+Math.random()*1.8}s;animation-delay:${Math.random()*2.4}s;`;
+            c.appendChild(p);
+        }
+    </script>
+</body>
+</html>
