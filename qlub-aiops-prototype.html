@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Qlub — AI-Ops Hub · Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --c-dark: #0C0C0C;
+  --c-hero: #141414;
+  --c-bright: #7D00D4;
+  --c-accent: #A533FF;
+  --orange: #F97316;
+  --ink: #0f172a;
+  --muted: #64748b;
+  --border: #e2e8f0;
+  --gray: #f1f5f9;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Sora', sans-serif; background: #000; color: #fff; padding: 40px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+.header { text-align: center; margin-bottom: 40px; }
+.header h1 { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
+.header span { color: var(--c-bright); }
+.proto-wrap { display: flex; gap: 32px; justify-content: center; flex-wrap: wrap; }
+.phone-col { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.phone-label { font-size: 12px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+.phone { width: 375px; height: 812px; background: #fff; border-radius: 46px; position: relative; box-shadow: 0 40px 100px rgba(0,0,0,0.28); overflow: hidden; color: var(--ink); display: flex; flex-direction: column; border: 8px solid #222; }
+.notch { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 118px; height: 28px; background: #222; border-radius: 0 0 16px 16px; z-index: 10; display: flex; justify-content: center; align-items: center; gap: 8px; }
+.nc { width: 12px; height: 12px; border-radius: 50%; background: #111; box-shadow: inset 0 0 4px rgba(255,255,255,0.1); }
+.ndot { width: 6px; height: 6px; border-radius: 50%; background: #111; }
+.status-bar { height: 44px; display: flex; justify-content: space-between; align-items: center; padding: 0 24px; font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500; z-index: 5; position: relative; }
+.status-bar.dark-bg { color: #fff; }
+.status-bar.light-bg { color: var(--ink); }
+.screen { flex: 1; overflow-y: auto; scrollbar-width: none; position: relative; padding-bottom: 30px; }
+.screen::-webkit-scrollbar { display: none; }
+
+/* Global UI */
+.btn { display: block; width: 100%; padding: 16px; border-radius: 16px; font-family: 'Sora', sans-serif; font-weight: 700; font-size: 15px; text-align: center; cursor: pointer; border: none; text-decoration: none; }
+.btn-primary { background: var(--c-bright); color: #fff; box-shadow: 0 8px 20px rgba(125,0,212,0.3); }
+.btn-outline { background: transparent; color: var(--c-bright); border: 2px solid var(--c-bright); }
+
+/* Screens Specific UI */
+.s-head { padding: 50px 24px 20px; background: var(--c-dark); color: #fff; }
+.s-title { font-size: 24px; font-weight: 800; }
+.s-body { padding: 24px; background: var(--gray); min-height: 100%; }
+
+/* Screen 1 */
+.ai-alert { background: linear-gradient(135deg, #141414, #0C0C0C); color: #fff; border-radius: 16px; padding: 20px; margin-bottom: 24px; position: relative; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.1); border: 1px solid rgba(125,0,212,0.3); }
+.ai-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(125,0,212,0.2); color: var(--c-accent); font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 99px; margin-bottom: 12px; }
+.ai-text { font-size: 14px; font-weight: 600; line-height: 1.4; margin-bottom: 12px; }
+.table-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.t-card { background: #fff; border-radius: 16px; padding: 16px; border: 1px solid var(--border); }
+.t-card.urgent { border-color: var(--orange); box-shadow: 0 4px 12px rgba(249,115,22,0.15); }
+.t-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.t-no { font-weight: 800; font-size: 16px; }
+.t-time { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--muted); }
+.t-status { font-size: 12px; font-weight: 700; padding: 4px 8px; border-radius: 6px; display: inline-block; }
+.status-orange { background: rgba(249,115,22,0.1); color: var(--orange); }
+.status-green { background: rgba(34,197,94,0.1); color: #22c55e; }
+
+/* Screen 2 */
+.detail-card { background: #fff; border-radius: 20px; padding: 24px; margin-bottom: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+.d-row { display: flex; justify-content: space-between; margin-bottom: 16px; font-size: 14px; }
+.d-lbl { color: var(--muted); }
+.d-val { font-weight: 600; font-family: 'DM Mono', monospace; }
+
+/* Screen 3 */
+.s3-body { height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 24px; background: var(--c-dark); color: #fff; text-align: center; position: relative; }
+.circle-check { width: 80px; height: 80px; background: var(--c-bright); border-radius: 50%; display: flex; justify-content: center; align-items: center; margin-bottom: 24px; box-shadow: 0 0 30px rgba(125,0,212,0.4); }
+#conf { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: hidden; }
+.cp { position: absolute; animation: fall linear forwards; }
+@keyframes fall { to { transform: translateY(800px) rotate(360deg); opacity: 0; } }
+
+/* Screen 4 */
+.toggle-row { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid var(--border); }
+.toggle { width: 44px; height: 24px; background: var(--c-bright); border-radius: 99px; position: relative; }
+.toggle::after { content: ''; position: absolute; width: 20px; height: 20px; background: #fff; border-radius: 50%; top: 2px; right: 2px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+</style>
+</head>
+<body>
+  <div class="header">
+    <h1>Qlub — <span>AI-Ops Hub</span></h1>
+    <p style="color:#888; margin-top:8px;">Real-time table turnover prediction & accounting reconciliation</p>
+  </div>
+
+  <div class="proto-wrap">
+    <!-- Screen 1 -->
+    <div class="phone-col">
+      <div class="phone-label">01 — AI DASHBOARD</div>
+      <div class="phone">
+        <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+        <div class="status-bar dark-bg"><span>9:41</span><span>5G</span></div>
+        <div class="screen" style="background:var(--gray);">
+          <div class="s-head">
+            <div style="font-size:13px; color:var(--c-accent); font-weight:700; margin-bottom:4px;">RESTAURANT OPS</div>
+            <div class="s-title">Live Floor</div>
+          </div>
+          <div class="s-body">
+            
+            <div class="ai-alert">
+              <div class="ai-badge">✦ AI INSIGHT</div>
+              <div class="ai-text">High waitlist detected. Table 8 and Table 12 are done eating. Nudge waiter to clear them.</div>
+              <button class="btn" style="background:#fff; color:var(--ink); padding:10px; font-size:13px;">Send Nudge</button>
+            </div>
+            
+            <h3 style="font-size:16px; font-weight:700; margin-bottom:16px;">Active Tables</h3>
+            
+            <div class="table-grid">
+              <div class="t-card urgent">
+                <div class="t-head"><span class="t-no">T-08</span><span class="t-time">68m</span></div>
+                <div class="t-status status-orange">Ready to Pay</div>
+              </div>
+              <div class="t-card">
+                <div class="t-head"><span class="t-no">T-12</span><span class="t-time">45m</span></div>
+                <div class="t-status status-green">Dining</div>
+              </div>
+              <div class="t-card">
+                <div class="t-head"><span class="t-no">T-03</span><span class="t-time">12m</span></div>
+                <div class="t-status" style="background:#f1f5f9; color:#64748b;">Ordering</div>
+              </div>
+              <div class="t-card">
+                <div class="t-head"><span class="t-no">T-15</span><span class="t-time">85m</span></div>
+                <div class="t-status status-orange">Idle / Paid</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 2 -->
+    <div class="phone-col">
+      <div class="phone-label">02 — TABLE DETAIL</div>
+      <div class="phone">
+        <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+        <div class="status-bar dark-bg"><span>9:41</span><span>5G</span></div>
+        <div class="screen" style="background:var(--gray);">
+          <div class="s-head" style="padding-bottom:50px;">
+            <div style="font-size:13px; color:rgba(255,255,255,0.7); font-weight:600; margin-bottom:4px;">Back</div>
+            <div class="s-title">Table 08</div>
+          </div>
+          <div class="s-body" style="margin-top:-30px; padding-top:0;">
+            
+            <div class="detail-card">
+              <div style="font-size:18px; font-weight:800; margin-bottom:20px; color:var(--orange);">Payment Predicted</div>
+              <div class="d-row"><span class="d-lbl">Seated at</span><span class="d-val">19:30</span></div>
+              <div class="d-row"><span class="d-lbl">Last ordered</span><span class="d-val">20:15 (Dessert)</span></div>
+              <div class="d-row"><span class="d-lbl">Current Bill</span><span class="d-val">AED 340.00</span></div>
+              
+              <div style="border-top:1px dashed var(--border); margin:20px 0;"></div>
+              
+              <div style="background:rgba(125,0,212,0.05); border:1px solid rgba(125,0,212,0.2); padding:16px; border-radius:12px; margin-bottom:16px;">
+                <div style="font-size:12px; font-weight:700; color:var(--c-bright); margin-bottom:4px;">AI PREDICTION</div>
+                <div style="font-size:13px; color:var(--ink);">Guests have finished dessert. 85% probability they are waiting for the bill.</div>
+              </div>
+              
+              <button class="btn btn-primary">Drop QR Bill to Table</button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 3 -->
+    <div class="phone-col">
+      <div class="phone-label">03 — AUTO-RECONCILIATION</div>
+      <div class="phone">
+        <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+        <div class="status-bar dark-bg"><span>9:41</span><span>5G</span></div>
+        <div class="screen s3-body">
+          <div id="conf"></div>
+          <div class="circle-check">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          </div>
+          <div style="font-size:24px; font-weight:800; margin-bottom:8px;">End of Day Reconciled</div>
+          <div style="font-size:15px; color:rgba(255,255,255,0.7); margin-bottom:32px;">Zero discrepancies found.</div>
+          
+          <div style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:16px; padding:20px; width:100%; text-align:left;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
+              <span style="color:rgba(255,255,255,0.7);">Total Qlub Sales</span>
+              <span style="font-family:'DM Mono', monospace; font-weight:600;">AED 12,450</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
+              <span style="color:rgba(255,255,255,0.7);">POS Matched</span>
+              <span style="font-family:'DM Mono', monospace; font-weight:600; color:#4ADE80;">AED 12,450</span>
+            </div>
+            <div style="border-top:1px solid rgba(255,255,255,0.1); margin:16px 0;"></div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-weight:700;">Status</span>
+              <span style="background:#4ADE80; color:#000; font-size:11px; font-weight:800; padding:4px 8px; border-radius:6px;">SYNCED TO ERP</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 4 -->
+    <div class="phone-col">
+      <div class="phone-label">04 — AUTOMATION SETTINGS</div>
+      <div class="phone">
+        <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+        <div class="status-bar dark-bg"><span>9:41</span><span>5G</span></div>
+        <div class="screen" style="background:#fff;">
+          <div class="s-head" style="padding-bottom:30px;">
+            <div class="s-title">Settings & AI Rules</div>
+          </div>
+          <div class="s-body" style="background:#fff;">
+            
+            <h3 style="font-size:14px; font-weight:700; color:var(--muted); margin-bottom:16px; text-transform:uppercase;">Table Automation</h3>
+            
+            <div class="toggle-row">
+              <div>
+                <div style="font-weight:600; font-size:15px; margin-bottom:4px;">Predictive Waiter Nudge</div>
+                <div style="font-size:12px; color:var(--muted);">Alert staff when table is likely finished</div>
+              </div>
+              <div class="toggle"></div>
+            </div>
+            
+            <div class="toggle-row">
+              <div>
+                <div style="font-weight:600; font-size:15px; margin-bottom:4px;">Auto-drop QR Bill</div>
+                <div style="font-size:12px; color:var(--muted);">Send bill to QR after 15m of no orders</div>
+              </div>
+              <div class="toggle" style="background:#e2e8f0;"><div style="width:20px; height:20px; background:#fff; border-radius:50%; position:absolute; top:2px; left:2px; box-shadow:0 2px 4px rgba(0,0,0,0.1);"></div></div>
+            </div>
+            
+            <h3 style="font-size:14px; font-weight:700; color:var(--muted); margin:32px 0 16px; text-transform:uppercase;">Accounting</h3>
+            
+            <div class="toggle-row">
+              <div>
+                <div style="font-weight:600; font-size:15px; margin-bottom:4px;">Nightly Auto-Reconcile</div>
+                <div style="font-size:12px; color:var(--muted);">Match Qlub payments to POS data at 3 AM</div>
+              </div>
+              <div class="toggle"></div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const c = document.getElementById('conf');
+    const cols = ['#7D00D4','#A533FF','#F97316','#4ADE80','#FBBF24','#F472B6','#34D399'];
+    for(let i=0;i<32;i++){
+      const p = document.createElement('div');
+      p.className='cp';
+      const size = 4+Math.random()*7;
+      p.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*120-10}%;width:${size}px;height:${size}px;background:${cols[Math.floor(Math.random()*cols.length)]};border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${1.4+Math.random()*1.8}s;animation-delay:${Math.random()*2.4}s;`;
+      c.appendChild(p);
+    }
+  </script>
+</body>
+</html>

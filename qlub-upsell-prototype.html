@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Qlub — Upsell Engine · Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --c-dark: #0C0C0C;
+  --c-hero: #141414;
+  --c-bright: #7D00D4;
+  --c-accent: #A533FF;
+  --orange: #F97316;
+  --ink: #0f172a;
+  --muted: #64748b;
+  --border: #e2e8f0;
+  --gray: #f1f5f9;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Sora', sans-serif; background: #000; color: #fff; padding: 40px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+.header { text-align: center; margin-bottom: 40px; }
+.header h1 { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
+.header span { color: var(--c-bright); }
+.proto-wrap { display: flex; gap: 32px; justify-content: center; flex-wrap: wrap; }
+.phone-col { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.phone-label { font-size: 12px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+.phone { width: 375px; height: 812px; background: #fff; border-radius: 46px; position: relative; box-shadow: 0 40px 100px rgba(0,0,0,0.28); overflow: hidden; color: var(--ink); display: flex; flex-direction: column; border: 8px solid #222; }
+.notch { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 118px; height: 28px; background: #222; border-radius: 0 0 16px 16px; z-index: 10; display: flex; justify-content: center; align-items: center; gap: 8px; }
+.nc { width: 12px; height: 12px; border-radius: 50%; background: #111; box-shadow: inset 0 0 4px rgba(255,255,255,0.1); }
+.ndot { width: 6px; height: 6px; border-radius: 50%; background: #111; }
+.status-bar { height: 44px; display: flex; justify-content: space-between; align-items: center; padding: 0 24px; font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500; z-index: 5; position: relative; }
+.status-bar.dark-bg { color: #fff; }
+.status-bar.light-bg { color: var(--ink); }
+.screen { flex: 1; overflow-y: auto; scrollbar-width: none; position: relative; padding-bottom: 30px; }
+.screen::-webkit-scrollbar { display: none; }
+
+/* Global UI */
+.btn { display: block; width: 100%; padding: 16px; border-radius: 16px; font-family: 'Sora', sans-serif; font-weight: 700; font-size: 15px; text-align: center; cursor: pointer; border: none; text-decoration: none; }
+.btn-primary { background: var(--c-bright); color: #fff; box-shadow: 0 8px 20px rgba(125,0,212,0.3); }
+.btn-outline { background: transparent; color: var(--c-bright); border: 2px solid var(--c-bright); }
+
+/* Screens Specific UI */
+.s1-head { padding: 50px 24px 20px; background: #fff; }
+.s1-title { font-size: 28px; font-weight: 800; }
+.s1-body { padding: 0 24px 24px; }
+.total-large { font-family: 'DM Mono', monospace; font-size: 40px; font-weight: 800; color: var(--c-bright); margin-bottom: 24px; }
+
+.upsell-card { background: linear-gradient(135deg, #141414, #0C0C0C); color: #fff; border-radius: 20px; padding: 24px; margin-bottom: 24px; position: relative; overflow: hidden; box-shadow: 0 12px 30px rgba(0,0,0,0.15); }
+.upsell-card::before { content: ''; position: absolute; top: -50px; right: -50px; width: 100px; height: 100px; background: var(--c-bright); filter: blur(50px); opacity: 0.5; border-radius: 50%; }
+.upsell-tag { display: inline-block; background: rgba(255,255,255,0.2); font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 99px; margin-bottom: 12px; }
+.upsell-title { font-size: 20px; font-weight: 800; margin-bottom: 8px; line-height: 1.2; }
+.upsell-btn { background: #fff; color: var(--c-dark); padding: 12px; border-radius: 12px; text-align: center; font-weight: 700; font-size: 14px; margin-top: 16px; cursor: pointer; }
+
+/* Screen 2 */
+.s2-img { width: 100%; height: 240px; background: url('https://images.unsplash.com/photo-1551024601-bec78aea704b?auto=format&fit=crop&q=80&w=400') center/cover; }
+.s2-body { padding: 24px; border-radius: 24px 24px 0 0; background: #fff; margin-top: -24px; position: relative; }
+.price-row { display: flex; align-items: baseline; gap: 8px; margin-bottom: 20px; }
+.new-price { font-family: 'DM Mono', monospace; font-size: 28px; font-weight: 800; color: var(--c-bright); }
+.old-price { font-family: 'DM Mono', monospace; font-size: 16px; text-decoration: line-through; color: var(--muted); }
+
+/* Screen 3 */
+.s3-body { height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 24px; background: var(--c-dark); color: #fff; text-align: center; position: relative; }
+.circle-check { width: 80px; height: 80px; background: var(--c-bright); border-radius: 50%; display: flex; justify-content: center; align-items: center; margin-bottom: 24px; box-shadow: 0 0 30px rgba(125,0,212,0.4); }
+#conf { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: hidden; }
+.cp { position: absolute; animation: fall linear forwards; }
+@keyframes fall { to { transform: translateY(800px) rotate(360deg); opacity: 0; } }
+
+/* Screen 4: Ops */
+.s4-head { background: var(--c-dark); padding: 50px 24px 20px; color: #fff; }
+.s4-body { padding: 24px; background: var(--gray); min-height: 100%; }
+.metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+.metric-card { background: #fff; padding: 16px; border-radius: 16px; border: 1px solid var(--border); }
+.m-lbl { font-size: 12px; color: var(--muted); font-weight: 600; margin-bottom: 4px; }
+.m-val { font-size: 24px; font-weight: 800; font-family: 'DM Mono', monospace; color: var(--ink); }
+.m-up { font-size: 11px; color: #22c55e; font-weight: 700; margin-top: 4px; display: block; }
+</style>
+</head>
+<body>
+  <div class="header">
+    <h1>Qlub — <span>Upsell Engine</span></h1>
+    <p style="color:#888; margin-top:8px;">Contextual post-payment upsells via ML propensity scoring</p>
+  </div>
+
+  <div class="proto-wrap">
+    <!-- Screen 1 -->
+    <div class="phone-col">
+      <div class="phone-label">01 — CHECKOUT UPSELL</div>
+      <div class="phone">
+        <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+        <div class="status-bar light-bg"><span>9:41</span><span>5G</span></div>
+        <div class="screen" style="background:#fff;">
+          <div class="s1-head">
+            <div style="font-size:14px; color:var(--muted); font-weight:600;">Total Bill</div>
+            <div class="total-large">AED 185.00</div>
+          </div>
+          <div class="s1-body">
+            
+            <div class="upsell-card">
+              <div class="upsell-tag">Still hungry?</div>
+              <div class="upsell-title">Add a Tiramisu for just AED 25 (Save 30%)</div>
+              <p style="font-size:13px; color:rgba(255,255,255,0.7);">Since you ordered the Truffle Pasta, this is the perfect finish.</p>
+              <div class="upsell-btn">View Offer & Add to Bill</div>
+            </div>
+            
+            <div style="border-top:1px solid var(--border); margin:24px 0;"></div>
+            
+            <button class="btn btn-outline" style="margin-bottom:12px; color:var(--ink); border-color:var(--border);">No thanks, just pay AED 185.00</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 2 -->
+    <div class="phone-col">
+      <div class="phone-label">02 — OFFER DETAIL</div>
+      <div class="phone">
+        <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+        <div class="status-bar light-bg" style="color:#fff; text-shadow:0 1px 4px rgba(0,0,0,0.5);"><span>9:41</span><span>5G</span></div>
+        <div class="screen" style="background:#fff;">
+          <div class="s2-img"></div>
+          <div class="s2-body">
+            <h2 style="font-size:24px; font-weight:800; margin-bottom:8px;">Classic Italian Tiramisu</h2>
+            <p style="color:var(--muted); font-size:14px; line-height:1.5; margin-bottom:16px;">Layers of espresso-soaked ladyfingers and mascarpone cream, dusted with cocoa powder.</p>
+            
+            <div class="price-row">
+              <span class="new-price">AED 25.00</span>
+              <span class="old-price">AED 38.00</span>
+              <span style="background:rgba(249,115,22,0.1); color:var(--orange); font-size:11px; font-weight:700; padding:4px 8px; border-radius:6px; margin-left:auto;">30% OFF</span>
+            </div>
+            
+            <div style="background:var(--gray); padding:16px; border-radius:12px; margin-bottom:24px;">
+              <div style="display:flex; justify-content:space-between; font-weight:600; font-size:14px; margin-bottom:8px;">
+                <span>Previous Bill</span>
+                <span style="font-family:'DM Mono', monospace;">AED 185.00</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; font-weight:600; font-size:14px; color:var(--c-bright);">
+                <span>New Item</span>
+                <span style="font-family:'DM Mono', monospace;">+ AED 25.00</span>
+              </div>
+              <div style="border-top:1px dashed var(--border); margin:12px 0;"></div>
+              <div style="display:flex; justify-content:space-between; font-weight:800; font-size:18px;">
+                <span>New Total</span>
+                <span style="font-family:'DM Mono', monospace;">AED 210.00</span>
+              </div>
+            </div>
+            
+            <button class="btn btn-primary">Pay AED 210.00 with Apple Pay</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 3 -->
+    <div class="phone-col">
+      <div class="phone-label">03 — SUCCESS</div>
+      <div class="phone">
+        <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+        <div class="status-bar dark-bg"><span>9:41</span><span>5G</span></div>
+        <div class="screen s3-body">
+          <div id="conf"></div>
+          <div class="circle-check">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          </div>
+          <div style="font-size:24px; font-weight:800; margin-bottom:8px;">Payment Successful</div>
+          <div style="font-size:18px; font-family:'DM Mono', monospace; color:var(--c-bright); margin-bottom:24px;">AED 210.00</div>
+          
+          <div style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:16px; padding:20px; width:100%;">
+            <div style="font-size:16px; font-weight:700; margin-bottom:8px;">Your Tiramisu is on the way!</div>
+            <div style="font-size:13px; color:rgba(255,255,255,0.7);">The waiter has been notified and will bring your dessert shortly.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 4 -->
+    <div class="phone-col">
+      <div class="phone-label">04 — OPS DASHBOARD</div>
+      <div class="phone">
+        <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+        <div class="status-bar dark-bg"><span>9:41</span><span>5G</span></div>
+        <div class="screen" style="background:var(--gray);">
+          <div class="s4-head">
+            <div style="font-size:14px; color:var(--c-bright); font-weight:700; margin-bottom:4px;">QLUB OPS HUB</div>
+            <div style="font-size:22px; font-weight:800;">Upsell Performance</div>
+          </div>
+          <div class="s4-body">
+            
+            <div class="metric-grid">
+              <div class="metric-card">
+                <div class="m-lbl">Extra Rev Today</div>
+                <div class="m-val">AED 845</div>
+                <div class="m-up">↑ 12% vs yesterday</div>
+              </div>
+              <div class="metric-card">
+                <div class="m-lbl">Conversion</div>
+                <div class="m-val">18.5%</div>
+                <div class="m-up">↑ 2.1%</div>
+              </div>
+            </div>
+            
+            <div style="background:#fff; border-radius:16px; padding:20px; border:1px solid var(--border);">
+              <div style="font-weight:700; margin-bottom:16px;">Top Converting ML Offers</div>
+              
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; border-bottom:1px solid var(--gray); padding-bottom:12px;">
+                <div>
+                  <div style="font-weight:600; font-size:14px;">Tiramisu Dessert</div>
+                  <div style="font-size:12px; color:var(--muted);">Shown to Pasta orders</div>
+                </div>
+                <div style="text-align:right;">
+                  <div style="font-family:'DM Mono', monospace; font-weight:600;">22.4%</div>
+                  <div style="font-size:11px; color:var(--c-bright);">Conv. Rate</div>
+                </div>
+              </div>
+
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                  <div style="font-weight:600; font-size:14px;">Espresso Shot</div>
+                  <div style="font-size:12px; color:var(--muted);">Shown to Lunch tables</div>
+                </div>
+                <div style="text-align:right;">
+                  <div style="font-family:'DM Mono', monospace; font-weight:600;">15.1%</div>
+                  <div style="font-size:11px; color:var(--c-bright);">Conv. Rate</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const c = document.getElementById('conf');
+    const cols = ['#7D00D4','#A533FF','#F97316','#4ADE80','#FBBF24','#F472B6','#34D399'];
+    for(let i=0;i<32;i++){
+      const p = document.createElement('div');
+      p.className='cp';
+      const size = 4+Math.random()*7;
+      p.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*120-10}%;width:${size}px;height:${size}px;background:${cols[Math.floor(Math.random()*cols.length)]};border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${1.4+Math.random()*1.8}s;animation-delay:${Math.random()*2.4}s;`;
+      c.appendChild(p);
+    }
+  </script>
+</body>
+</html>

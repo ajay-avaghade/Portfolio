@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Qlub — SmartSplit · Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --c-dark: #0C0C0C;
+  --c-hero: #141414;
+  --c-bright: #7D00D4;
+  --c-accent: #A533FF;
+  --orange: #F97316;
+  --ink: #0f172a;
+  --muted: #64748b;
+  --border: #e2e8f0;
+  --gray: #f1f5f9;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Sora', sans-serif; background: #000; color: #fff; padding: 40px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+.header { text-align: center; margin-bottom: 40px; }
+.header h1 { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
+.header span { color: var(--c-bright); }
+.proto-wrap { display: flex; gap: 32px; justify-content: center; flex-wrap: wrap; }
+.phone-col { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.phone-label { font-size: 12px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+.phone { width: 375px; height: 812px; background: #fff; border-radius: 46px; position: relative; box-shadow: 0 40px 100px rgba(0,0,0,0.28); overflow: hidden; color: var(--ink); display: flex; flex-direction: column; border: 8px solid #222; }
+.notch { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 118px; height: 28px; background: #222; border-radius: 0 0 16px 16px; z-index: 10; display: flex; justify-content: center; align-items: center; gap: 8px; }
+.nc { width: 12px; height: 12px; border-radius: 50%; background: #111; box-shadow: inset 0 0 4px rgba(255,255,255,0.1); }
+.ndot { width: 6px; height: 6px; border-radius: 50%; background: #111; }
+.status-bar { height: 44px; display: flex; justify-content: space-between; align-items: center; padding: 0 24px; font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500; z-index: 5; position: relative; }
+.status-bar.dark-bg { color: #fff; }
+.status-bar.light-bg { color: var(--ink); }
+.screen { flex: 1; overflow-y: auto; scrollbar-width: none; position: relative; padding-bottom: 30px; }
+.screen::-webkit-scrollbar { display: none; }
+
+/* Global UI */
+.btn { display: block; width: 100%; padding: 16px; border-radius: 16px; font-family: 'Sora', sans-serif; font-weight: 700; font-size: 15px; text-align: center; cursor: pointer; border: none; text-decoration: none; }
+.btn-primary { background: var(--c-bright); color: #fff; box-shadow: 0 8px 20px rgba(125,0,212,0.3); }
+.btn-outline { background: transparent; color: var(--c-bright); border: 2px solid var(--c-bright); }
+.card { background: #fff; border-radius: 20px; padding: 20px; box-shadow: 0 4px 24px rgba(0,0,0,0.06); border: 1px solid var(--border); margin-bottom: 16px; }
+.card.dark { background: var(--c-hero); color: #fff; border: 1px solid rgba(255,255,255,0.1); }
+
+/* Screen 1: Home/Receipt */
+.s1-head { background: var(--c-dark); padding: 50px 24px 30px; color: #fff; }
+.s1-title { font-size: 24px; font-weight: 800; margin-bottom: 8px; }
+.s1-subtitle { font-size: 14px; color: rgba(255,255,255,0.7); }
+.s1-body { padding: 24px; }
+.receipt-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px dashed var(--border); }
+.receipt-item:last-child { border-bottom: none; }
+.item-name { font-weight: 600; font-size: 14px; }
+.item-qty { color: var(--muted); font-size: 12px; margin-top: 4px; }
+.item-price { font-family: 'DM Mono', monospace; font-weight: 500; }
+.total-box { background: var(--gray); padding: 16px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin: 20px 0; }
+.total-label { font-size: 14px; color: var(--muted); font-weight: 600; }
+.total-amt { font-size: 24px; font-weight: 800; color: var(--c-bright); font-family: 'DM Mono', monospace; }
+
+/* Screen 2: Split Mode */
+.s2-head { padding: 50px 24px 20px; background: #fff; }
+.s2-title { font-size: 22px; font-weight: 800; }
+.s2-body { padding: 0 24px 24px; }
+.split-tabs { display: flex; background: var(--gray); border-radius: 12px; padding: 4px; margin-bottom: 24px; }
+.split-tab { flex: 1; text-align: center; padding: 10px; font-size: 13px; font-weight: 600; border-radius: 8px; color: var(--muted); }
+.split-tab.active { background: #fff; color: var(--ink); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+.split-item { display: flex; align-items: center; gap: 16px; padding: 16px; border: 1px solid var(--border); border-radius: 16px; margin-bottom: 12px; transition: 0.2s; }
+.split-item.selected { border-color: var(--c-bright); background: rgba(125,0,212,0.04); }
+.check-circle { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--border); display: flex; justify-content: center; align-items: center; }
+.split-item.selected .check-circle { border-color: var(--c-bright); background: var(--c-bright); }
+.check-circle::after { content: '✓'; color: #fff; font-size: 12px; opacity: 0; }
+.split-item.selected .check-circle::after { opacity: 1; }
+.my-total { position: sticky; bottom: 24px; background: #fff; padding: 20px; border-radius: 20px; box-shadow: 0 -10px 40px rgba(0,0,0,0.1); margin-top: auto; }
+.my-total-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+
+/* Screen 3: Success */
+.s3-body { height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 24px; background: var(--c-dark); color: #fff; text-align: center; position: relative; }
+.circle-check { width: 80px; height: 80px; background: var(--c-bright); border-radius: 50%; display: flex; justify-content: center; align-items: center; margin-bottom: 24px; box-shadow: 0 0 30px rgba(125,0,212,0.4); }
+.s3-amt { font-size: 36px; font-weight: 800; font-family: 'DM Mono', monospace; margin-bottom: 8px; }
+.s3-desc { color: rgba(255,255,255,0.7); font-size: 15px; margin-bottom: 40px; }
+.table-status { width: 100%; background: var(--c-hero); padding: 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); }
+.track { height: 8px; background: rgba(255,255,255,0.1); border-radius: 99px; overflow: visible; position: relative; margin: 12px 0 24px; }
+.fill { height: 100%; border-radius: 99px; background: var(--c-bright); position: relative; transition: 0.6s ease; width: 65%; }
+.fill-badge { position: absolute; right: -12px; top: -24px; background: var(--c-bright); color: #fff; font-size: 10px; font-weight: 700; padding: 3px 6px; border-radius: 6px; }
+.avatars { display: flex; justify-content: center; }
+.avatar { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--c-hero); margin-left: -8px; background: #333; display: flex; justify-content: center; align-items: center; font-size: 10px; font-weight: bold; }
+#conf { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: hidden; }
+.cp { position: absolute; animation: fall linear forwards; }
+@keyframes fall { to { transform: translateY(800px) rotate(360deg); opacity: 0; } }
+
+/* Screen 4: Ops */
+.s4-head { background: var(--c-dark); padding: 50px 24px 20px; color: #fff; }
+.s4-body { padding: 24px; background: var(--gray); min-height: 100%; }
+.ops-table { background: #fff; border-radius: 16px; padding: 20px; margin-bottom: 16px; }
+.ops-table-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.table-no { font-size: 18px; font-weight: 800; }
+.status-badge { padding: 4px 10px; border-radius: 99px; font-size: 11px; font-weight: 700; }
+.badge-orange { background: rgba(249,115,22,0.1); color: var(--orange); }
+.badge-green { background: rgba(34,197,94,0.1); color: #22c55e; }
+.ops-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px; color: var(--muted); }
+.ops-val { color: var(--ink); font-weight: 600; font-family: 'DM Mono', monospace; }
+</style>
+</head>
+<body>
+  <div class="header">
+    <h1>Qlub — <span>SmartSplit</span></h1>
+    <p style="color:#888; margin-top:8px;">Zero-friction bill splitting for groups</p>
+  </div>
+
+  <div class="proto-wrap">
+    <!-- Screen 1 -->
+    <div class="phone-col">
+      <div class="phone-label">01 — DIGITAL RECEIPT</div>
+      <div class="phone">
+        <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+        <div class="status-bar dark-bg"><span>9:41</span><span>5G</span></div>
+        <div class="screen" style="background:#fff;">
+          <div class="s1-head">
+            <div class="s1-title">Table 12</div>
+            <div class="s1-subtitle">The Cheesecake Factory</div>
+          </div>
+          <div class="s1-body">
+            <h3 style="font-size:16px; font-weight:700; margin-bottom:16px;">Your Order</h3>
+            <div class="receipt-item">
+              <div><div class="item-name">Truffle Fries</div><div class="item-qty">1x</div></div>
+              <div class="item-price">AED 45.00</div>
+            </div>
+            <div class="receipt-item">
+              <div><div class="item-name">Spicy Tuna Roll</div><div class="item-qty">2x</div></div>
+              <div class="item-price">AED 110.00</div>
+            </div>
+            <div class="receipt-item">
+              <div><div class="item-name">Classic Mojito</div><div class="item-qty">3x</div></div>
+              <div class="item-price">AED 105.00</div>
+            </div>
+            <div class="receipt-item">
+              <div><div class="item-name">Ribeye Steak</div><div class="item-qty">1x</div></div>
+              <div class="item-price">AED 185.00</div>
+            </div>
+            
+            <div class="total-box">
+              <div class="total-label">Table Total<br><span style="font-size:11px; font-weight:400;">Incl. VAT & Fees</span></div>
+              <div class="total-amt">AED 445.00</div>
+            </div>
+            
+            <button class="btn btn-primary" style="margin-bottom:12px;">Pay Full Amount</button>
+            <button class="btn btn-outline">Split the Bill</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 2 -->
+    <div class="phone-col">
+      <div class="phone-label">02 — SPLIT MODE</div>
+      <div class="phone">
+        <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+        <div class="status-bar light-bg"><span>9:41</span><span>5G</span></div>
+        <div class="screen" style="background:#fff;">
+          <div class="s2-head">
+            <div class="s2-title">How are you splitting?</div>
+          </div>
+          <div class="s2-body">
+            <div class="split-tabs">
+              <div class="split-tab active">Pay for my items</div>
+              <div class="split-tab">Split evenly</div>
+            </div>
+            
+            <p style="font-size:13px; color:var(--muted); margin-bottom:16px;">Select what you had:</p>
+            
+            <div class="split-item selected">
+              <div class="check-circle"></div>
+              <div style="flex:1;">
+                <div class="item-name">Truffle Fries</div>
+                <div class="item-price" style="font-size:13px; color:var(--muted); margin-top:4px;">AED 45.00</div>
+              </div>
+            </div>
+            <div class="split-item">
+              <div class="check-circle"></div>
+              <div style="flex:1;">
+                <div class="item-name">Spicy Tuna Roll</div>
+                <div class="item-price" style="font-size:13px; color:var(--muted); margin-top:4px;">AED 55.00 <span style="font-size:10px;">(1 of 2)</span></div>
+              </div>
+            </div>
+            <div class="split-item selected">
+              <div class="check-circle"></div>
+              <div style="flex:1;">
+                <div class="item-name">Classic Mojito</div>
+                <div class="item-price" style="font-size:13px; color:var(--muted); margin-top:4px;">AED 35.00 <span style="font-size:10px;">(1 of 3)</span></div>
+              </div>
+            </div>
+            <div class="split-item">
+              <div class="check-circle"></div>
+              <div style="flex:1;">
+                <div class="item-name">Ribeye Steak</div>
+                <div class="item-price" style="font-size:13px; color:var(--muted); margin-top:4px;">AED 185.00</div>
+              </div>
+            </div>
+          </div>
+          <div class="my-total">
+            <div class="my-total-row">
+              <span style="font-weight:600; font-size:15px;">Your Total</span>
+              <span style="font-weight:800; font-size:22px; font-family:'DM Mono', monospace; color:var(--c-bright);">AED 80.00</span>
+            </div>
+            <button class="btn btn-primary">Pay AED 80.00</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 3 -->
+    <div class="phone-col">
+      <div class="phone-label">03 — SUCCESS & STATUS</div>
+      <div class="phone">
+        <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+        <div class="status-bar dark-bg"><span>9:41</span><span>5G</span></div>
+        <div class="screen s3-body">
+          <div id="conf"></div>
+          <div class="circle-check">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          </div>
+          <div class="s3-amt">AED 80.00</div>
+          <div class="s3-desc">Paid successfully via Apple Pay</div>
+          
+          <div class="table-status">
+            <div style="font-size:13px; color:rgba(255,255,255,0.8); margin-bottom:8px;">Table 12 Status</div>
+            <div style="display:flex; justify-content:space-between; font-family:'DM Mono', monospace; font-size:14px; font-weight:600;">
+              <span style="color:var(--c-bright);">AED 290 Paid</span>
+              <span>AED 155 Left</span>
+            </div>
+            <div class="track">
+              <div class="fill"><span class="fill-badge">65%</span></div>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div class="avatars">
+                <div class="avatar" style="background:#4ADE80; z-index:4;">JD</div>
+                <div class="avatar" style="background:#F472B6; z-index:3;">MK</div>
+                <div class="avatar" style="background:#60A5FA; z-index:2;">You</div>
+              </div>
+              <div style="font-size:12px; color:rgba(255,255,255,0.6);">3 people paid</div>
+            </div>
+          </div>
+          <button class="btn btn-outline" style="margin-top:30px; border-color:rgba(255,255,255,0.2); color:#fff;">View Receipt</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 4 -->
+    <div class="phone-col">
+      <div class="phone-label">04 — OPS DASHBOARD</div>
+      <div class="phone">
+        <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+        <div class="status-bar dark-bg"><span>9:41</span><span>5G</span></div>
+        <div class="screen" style="background:var(--gray);">
+          <div class="s4-head">
+            <div style="font-size:14px; color:var(--c-bright); font-weight:700; margin-bottom:4px;">QLUB PARTNER</div>
+            <div class="s2-title">Live Floor Status</div>
+          </div>
+          <div class="s4-body">
+            
+            <div class="ops-table">
+              <div class="ops-table-head">
+                <div class="table-no">Table 12</div>
+                <div class="status-badge badge-orange">Partial Pay</div>
+              </div>
+              <div class="ops-row"><span>Total Bill:</span><span class="ops-val">AED 445.00</span></div>
+              <div class="ops-row"><span>Paid (3 pax):</span><span class="ops-val" style="color:#22c55e;">AED 290.00</span></div>
+              <div class="ops-row"><span>Pending:</span><span class="ops-val">AED 155.00</span></div>
+              <div class="track" style="background:var(--border); margin:16px 0;">
+                <div class="fill" style="width:65%;"></div>
+              </div>
+            </div>
+
+            <div class="ops-table">
+              <div class="ops-table-head">
+                <div class="table-no">Table 08</div>
+                <div class="status-badge badge-green">Fully Paid</div>
+              </div>
+              <div class="ops-row"><span>Total Bill:</span><span class="ops-val">AED 210.00</span></div>
+              <div class="ops-row"><span>Time to pay:</span><span class="ops-val">48 sec</span></div>
+              <div style="margin-top:16px; padding-top:12px; border-top:1px solid var(--border); font-size:12px; color:var(--c-bright); font-weight:600; text-align:center;">
+                ✓ Ready to clear
+              </div>
+            </div>
+            
+            <div class="ops-table" style="opacity:0.6;">
+              <div class="ops-table-head">
+                <div class="table-no">Table 04</div>
+                <div class="status-badge" style="background:#eee; color:#666;">Dining</div>
+              </div>
+              <div class="ops-row"><span>Time seated:</span><span class="ops-val">42 min</span></div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const c = document.getElementById('conf');
+    const cols = ['#7D00D4','#A533FF','#F97316','#4ADE80','#FBBF24','#F472B6','#34D399'];
+    for(let i=0;i<32;i++){
+      const p = document.createElement('div');
+      p.className='cp';
+      const size = 4+Math.random()*7;
+      p.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*120-10}%;width:${size}px;height:${size}px;background:${cols[Math.floor(Math.random()*cols.length)]};border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${1.4+Math.random()*1.8}s;animation-delay:${Math.random()*2.4}s;`;
+      c.appendChild(p);
+    }
+  </script>
+</body>
+</html>
