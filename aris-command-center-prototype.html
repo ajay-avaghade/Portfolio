@@ -1,307 +1,256 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ARIS Command Center - Logistics Execution OS</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: #0B0F19; /* Deep dark blue */
-      color: #E2E8F0;
-    }
-    .glass-panel {
-      background: rgba(15, 23, 42, 0.7);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-    .risk-high { background-color: rgba(239, 68, 68, 0.15); border-left: 3px solid #EF4444; }
-    .risk-med { background-color: rgba(245, 158, 11, 0.15); border-left: 3px solid #F59E0B; }
-    .risk-low { background-color: rgba(16, 185, 129, 0.15); border-left: 3px solid #10B981; }
-    
-    /* Map placeholder styling */
-    .map-grid {
-      background-image: 
-        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-      background-size: 20px 20px;
-      position: relative;
-    }
-    .pulse-dot {
-      width: 12px; height: 12px;
-      background-color: #3B82F6;
-      border-radius: 50%;
-      position: absolute;
-      box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
-      animation: pulse 2s infinite;
-    }
-    @keyframes pulse {
-      0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
-      70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
-    }
-    .pulse-dot.danger { background-color: #EF4444; animation: pulse-danger 1.5s infinite; }
-    @keyframes pulse-danger {
-      0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.8); }
-      70% { box-shadow: 0 0 0 12px rgba(239, 68, 68, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>ARIS Command Center · Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --c-dark: #0B0F19;
+  --c-hero: #0F172A;
+  --c-bright: #3B82F6;
+  --c-accent: #10B981;
+  --c-warn: #EF4444;
+  --c-amber: #F59E0B;
+  --ink: #0f172a;
+  --muted: #64748b;
+  --border: rgba(255,255,255,0.08);
+  --gray: #1E293B;
+  --white: #FFFFFF;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family:'Sora',sans-serif;
+  background:#030816;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:40px 24px 60px;
+  color: #fff;
+}
+.header-strip {
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  border-radius: 10px;
+  padding: 10px 28px;
+  color: var(--c-bright);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  margin-bottom: 36px;
+}
+.prototype-wrap { display:flex; gap:32px; align-items:flex-start; flex-wrap:wrap; justify-content:center; }
+.phone-col { display:flex; flex-direction:column; align-items:center; gap:14px; }
+.phone-label { font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#4a5568; font-family:'DM Mono',monospace; }
+.phone { width:375px; height:812px; border-radius:46px; background:var(--c-hero); position:relative; overflow:hidden; box-shadow:0 40px 100px rgba(0,0,0,0.55), 0 0 0 2px rgba(255,255,255,0.07); flex-shrink:0; border: 4px solid #1a2536; }
+.notch { position:absolute; top:0; left:50%; transform:translateX(-50%); width:118px; height:28px; background:#0B0F19; border-radius:0 0 16px 16px; z-index:100; display:flex; align-items:center; justify-content:center; gap:6px; }
+.ncam { width:10px; height:10px; border-radius:50%; background:#040914; border:1px solid #1a2536; }
+.ndot-sensor { width:5px; height:5px; border-radius:50%; background:#1a2536; }
+.statusbar { display:flex; justify-content:space-between; align-items:center; padding:34px 20px 6px; font-size:10px; font-weight:700; font-family:'DM Mono',monospace; position:relative; z-index:90; color:#fff; }
+.sc { overflow-y:auto; max-height:724px; scrollbar-width:none; -ms-overflow-style:none; }
+.sc::-webkit-scrollbar { display:none; }
+
+.s-header { padding: 12px 16px; border-bottom: 1px solid var(--border); background: var(--c-dark); }
+.s-header-title { font-size: 16px; font-weight: 800; }
+.s-header-sub { font-size: 10px; color: var(--muted); }
+
+/* SCREEN 1: Map */
+.map-bg { height: 100%; background: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px); background-size: 20px 20px; position: relative; }
+.pulse-dot { width: 12px; height: 12px; background: var(--c-bright); border-radius: 50%; position: absolute; box-shadow: 0 0 0 0 rgba(59,130,246,0.7); animation: p1 2s infinite; }
+.pulse-dot.danger { background: var(--c-warn); box-shadow: 0 0 0 0 rgba(239,68,68,0.8); animation: p2 1.5s infinite; }
+@keyframes p1 { 70% { box-shadow: 0 0 0 10px rgba(59,130,246,0); } 100% { box-shadow: 0 0 0 0 rgba(59,130,246,0); } }
+@keyframes p2 { 70% { box-shadow: 0 0 0 12px rgba(239,68,68,0); } 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0); } }
+.map-card { position: absolute; background: rgba(15,23,42,0.95); border: 1px solid var(--border); padding: 8px 12px; border-radius: 8px; font-size: 10px; backdrop-filter: blur(8px); }
+.m-title { font-weight: 700; font-family: 'DM Mono', monospace; }
+.m-stat { color: var(--c-accent); font-weight: 600; margin-top: 2px; }
+.m-stat.warn { color: var(--c-warn); }
+
+.hud-panel { position: absolute; bottom: 0; left: 0; right: 0; background: var(--c-dark); border-top: 1px solid var(--border); padding: 16px; border-radius: 20px 20px 0 0; }
+.hud-title { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 12px; }
+.hud-alert { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); border-radius: 12px; padding: 12px; display: flex; justify-content: space-between; align-items: center; }
+.hud-alert-info {}
+.hud-alert-title { font-size: 13px; font-weight: 800; color: var(--c-warn); }
+.hud-alert-sub { font-size: 10px; color: #cbd5e1; margin-top: 2px; }
+.hud-btn { background: var(--c-warn); color: #fff; border: none; padding: 6px 12px; border-radius: 8px; font-size: 10px; font-weight: 700; cursor: pointer; }
+
+/* SCREEN 2: Insight */
+.ai-box { margin: 16px; background: linear-gradient(135deg, rgba(59,130,246,0.1), rgba(15,23,42,0.5)); border: 1px solid rgba(59,130,246,0.3); border-radius: 14px; padding: 16px; }
+.ai-header { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; }
+.ai-icon { font-size: 18px; }
+.ai-title { font-size: 14px; font-weight: 800; color: #fff; }
+.ai-desc { font-size: 11px; color: #cbd5e1; line-height: 1.5; margin-bottom: 16px; }
+.ai-recommendation { background: rgba(0,0,0,0.3); border-radius: 8px; padding: 12px; border-left: 3px solid var(--c-bright); }
+.ai-rec-label { font-size: 9px; color: var(--c-bright); text-transform: uppercase; font-weight: 800; margin-bottom: 4px; }
+.ai-rec-text { font-size: 11px; font-weight: 600; }
+
+/* SCREEN 3: Execution */
+.exec-list { padding: 16px; }
+.exec-item { background: var(--gray); border-radius: 12px; padding: 14px; margin-bottom: 12px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+.exec-info {}
+.exec-name { font-size: 12px; font-weight: 700; margin-bottom: 2px; }
+.exec-sub { font-size: 10px; color: var(--muted); }
+.exec-action { background: var(--c-bright); color: #fff; border: none; padding: 8px 14px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; }
+.exec-action.done { background: rgba(16,185,129,0.1); color: var(--c-accent); border: 1px solid rgba(16,185,129,0.3); }
+
+/* SCREEN 4: Analytics */
+.kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 16px; }
+.kpi-card { background: var(--gray); border: 1px solid var(--border); border-radius: 12px; padding: 14px; }
+.kpi-lbl { font-size: 10px; color: var(--muted); font-weight: 600; margin-bottom: 4px; }
+.kpi-val { font-size: 18px; font-weight: 800; font-family: 'DM Mono', monospace; }
+.kpi-trend { font-size: 9px; margin-top: 4px; }
+.kpi-trend.up { color: var(--c-accent); }
+</style>
 </head>
-<body class="h-screen flex overflow-hidden">
+<body>
+<div class="header-strip">ARIS Command Center · AI Fleet & Logistics Prototype</div>
+<div class="prototype-wrap">
 
-  <!-- Sidebar -->
-  <div class="w-64 glass-panel border-r border-slate-800 flex flex-col justify-between z-20">
-    <div>
-      <div class="p-6 border-b border-slate-800 flex items-center gap-3">
-        <div class="w-8 h-8 rounded bg-blue-600 flex items-center justify-center font-bold text-white">A</div>
-        <div>
-          <h1 class="font-bold text-lg text-white">ARIS Infra</h1>
-          <p class="text-xs text-slate-400">Execution OS</p>
-        </div>
+  <!-- SCREEN 1 -->
+  <div class="phone-col">
+    <div class="phone-label">01 — LIVE MAP</div>
+    <div class="phone">
+      <div class="notch"><div class="ncam"></div><div class="ndot-sensor"></div></div>
+      <div class="statusbar"><span>9:41</span><span>▲ ◆ ■</span></div>
+      <div class="s-header">
+        <div class="s-header-title">Live Tracking</div>
+        <div class="s-header-sub">Mumbai Region · 842 Active</div>
       </div>
-      <nav class="p-4 space-y-2">
-        <a href="#" class="flex items-center gap-3 px-4 py-2.5 bg-blue-600/10 text-blue-400 rounded-lg font-medium border border-blue-500/20">
-          <i data-lucide="map" class="w-5 h-5"></i> Live Command Center
-        </a>
-        <a href="#" class="flex items-center gap-3 px-4 py-2.5 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 rounded-lg transition-colors">
-          <i data-lucide="truck" class="w-5 h-5"></i> Fleet Management
-        </a>
-        <a href="#" class="flex items-center gap-3 px-4 py-2.5 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 rounded-lg transition-colors">
-          <i data-lucide="clipboard-check" class="w-5 h-5"></i> AutoDoc &amp; Compliance
-        </a>
-        <a href="#" class="flex items-center gap-3 px-4 py-2.5 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 rounded-lg transition-colors">
-          <i data-lucide="credit-card" class="w-5 h-5"></i> Credit Decisioning
-        </a>
-        <a href="#" class="flex items-center gap-3 px-4 py-2.5 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 rounded-lg transition-colors">
-          <i data-lucide="bar-chart-2" class="w-5 h-5"></i> Analytics (Cara)
-        </a>
-      </nav>
-    </div>
-    <div class="p-6 border-t border-slate-800">
-      <div class="flex items-center gap-3">
-        <img src="https://ui-avatars.com/api/?name=Ajay+Avaghade&background=0D8ABC&color=fff" class="w-10 h-10 rounded-full border border-slate-700">
-        <div>
-          <p class="text-sm font-medium text-white">Ajay Avaghade</p>
-          <p class="text-xs text-slate-400">Product Manager</p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Main Content -->
-  <div class="flex-1 flex flex-col relative bg-[#06090F]">
-    
-    <!-- Topbar -->
-    <header class="h-16 glass-panel border-b border-slate-800 flex items-center justify-between px-6 z-20">
-      <div class="flex items-center gap-4">
-        <h2 class="text-lg font-semibold text-white">Live Logistics Map — Mumbai Region</h2>
-        <span class="px-2.5 py-1 bg-green-500/10 text-green-400 text-xs rounded-full border border-green-500/20 flex items-center gap-1.5">
-          <div class="w-1.5 h-1.5 rounded-full bg-green-500"></div> System Healthy
-        </span>
-      </div>
-      <div class="flex items-center gap-4">
-        <div class="relative">
-          <i data-lucide="search" class="w-4 h-4 absolute left-3 top-2.5 text-slate-500"></i>
-          <input type="text" placeholder="Search PO, Truck ID..." class="bg-slate-900 border border-slate-700 text-sm rounded-lg pl-9 pr-4 py-2 focus:outline-none focus:border-blue-500 w-64 text-slate-200">
-        </div>
-        <button class="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800"><i data-lucide="bell" class="w-5 h-5"></i></button>
-      </div>
-    </header>
-
-    <!-- Map & Dashboard Area -->
-    <div class="flex-1 flex relative">
-      
-      <!-- Fake Map Area -->
-      <div class="flex-1 map-grid relative overflow-hidden bg-[#0A101D]">
-        <!-- Map UI Overlay Elements -->
-        <div class="absolute inset-0 opacity-20 pointer-events-none" style="background: radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.1) 0%, transparent 70%);"></div>
-        
-        <!-- Trucks on Map -->
-        <div class="pulse-dot" style="top: 30%; left: 40%;">
-          <div class="absolute top-4 left-4 bg-slate-900/90 border border-slate-700 p-2 rounded text-xs shadow-xl w-32 backdrop-blur-md">
-            <p class="font-bold text-white">TRK-8821 <span class="text-slate-400 font-normal">| RMC</span></p>
-            <p class="text-green-400">On Track • 14 mins</p>
+      <div class="sc" style="position:relative; height:100%;">
+        <div class="map-bg">
+          <div class="pulse-dot" style="top: 20%; left: 30%;"></div>
+          <div class="map-card" style="top: 12%; left: 35%;">
+            <div class="m-title">TRK-8821 | RMC</div>
+            <div class="m-stat">On Track • 14m</div>
           </div>
-        </div>
-        
-        <div class="pulse-dot" style="top: 60%; left: 70%;">
-          <div class="absolute top-4 left-4 bg-slate-900/90 border border-slate-700 p-2 rounded text-xs shadow-xl w-32 backdrop-blur-md">
-            <p class="font-bold text-white">TRK-1094 <span class="text-slate-400 font-normal">| Steel</span></p>
-            <p class="text-green-400">On Track • 45 mins</p>
+
+          <div class="pulse-dot danger" style="top: 45%; left: 55%;"></div>
+          <div class="map-card" style="top: 36%; left: 60%; border-color: rgba(239,68,68,0.3); background: rgba(69,10,10,0.8);">
+            <div class="m-title">TRK-4402 | Agg.</div>
+            <div class="m-stat warn">Traffic Delay +45m</div>
           </div>
         </div>
 
-        <!-- Delayed Truck -->
-        <div class="pulse-dot danger" style="top: 45%; left: 55%;">
-          <div class="absolute top-4 left-4 bg-slate-900/90 border border-red-500/30 p-2 rounded text-xs shadow-xl w-40 backdrop-blur-md">
-            <p class="font-bold text-white">TRK-4402 <span class="text-slate-400 font-normal">| Aggregates</span></p>
-            <p class="text-red-400 font-medium"><i data-lucide="alert-triangle" class="w-3 h-3 inline mr-1"></i>Traffic Delay +45m</p>
+        <div class="hud-panel">
+          <div class="hud-title">Cara AI Alerts</div>
+          <div class="hud-alert">
+            <div class="hud-alert-info">
+              <div class="hud-alert-title">Severe Delay: TRK-4402</div>
+              <div class="hud-alert-sub">Site mixing scheduled in 30m</div>
+            </div>
+            <button class="hud-btn" onclick="alert('Proceeding to Cara Insights')">Review</button>
           </div>
-        </div>
-        
-        <!-- KPI Cards overlaying map -->
-        <div class="absolute top-6 left-6 right-6 flex gap-4">
-          <div class="glass-panel p-4 rounded-xl flex-1">
-            <p class="text-slate-400 text-xs font-medium mb-1">Active Deliveries</p>
-            <div class="flex items-end gap-3">
-              <h3 class="text-2xl font-bold text-white">842</h3>
-              <span class="text-xs text-green-400 mb-1">Across 124 sites</span>
-            </div>
-          </div>
-          <div class="glass-panel p-4 rounded-xl flex-1">
-            <p class="text-slate-400 text-xs font-medium mb-1">Predicted Delays (Cara AI)</p>
-            <div class="flex items-end gap-3">
-              <h3 class="text-2xl font-bold text-red-400">14</h3>
-              <span class="text-xs text-slate-400 mb-1">Requires intervention</span>
-            </div>
-          </div>
-          <div class="glass-panel p-4 rounded-xl flex-1">
-            <p class="text-slate-400 text-xs font-medium mb-1">Credit Unlocked Today</p>
-            <div class="flex items-end gap-3">
-              <h3 class="text-2xl font-bold text-blue-400">₹4.2Cr</h3>
-              <span class="text-xs text-green-400 mb-1">+12% vs avg</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Right Panel: Anomaly-to-Action -->
-      <div class="w-96 glass-panel border-l border-slate-800 flex flex-col z-20 shadow-2xl">
-        <div class="p-5 border-b border-slate-800">
-          <h3 class="font-bold text-white flex items-center gap-2">
-            <i data-lucide="activity" class="w-4 h-4 text-blue-400"></i> Cara AI Insights
-          </h3>
-          <p class="text-xs text-slate-400 mt-1">Anomaly-to-action resolution center</p>
-        </div>
-        
-        <div class="flex-1 overflow-y-auto p-4 space-y-4">
-          
-          <!-- High Risk Alert -->
-          <div class="risk-high p-4 rounded-lg transition-all duration-500" id="high-risk-alert">
-            <div class="flex items-start justify-between mb-2">
-              <h4 id="high-risk-title" class="font-semibold text-white text-sm">Severe Delay Predicted</h4>
-              <span id="high-risk-badge" class="text-[10px] uppercase font-bold tracking-wider text-red-400 bg-red-400/10 px-2 py-0.5 rounded">Urgent</span>
-            </div>
-            <p id="high-risk-desc" class="text-xs text-slate-300 mb-3">TRK-4402 (Aggregates to Lodha Site B) is stuck in a severe traffic anomaly. Expected delay: +45m. Site concrete mixing scheduled in 30m.</p>
-            
-            <div id="high-risk-action-box" class="bg-slate-900/50 p-3 rounded border border-slate-700/50 mb-3">
-              <p class="text-[10px] text-slate-400 uppercase tracking-wider mb-2">AI Suggested Action</p>
-              <p class="text-xs text-white">Re-route backup Truck TRK-8991 from nearby vendor (12 mins away). Auto-adjust credit ledger.</p>
-            </div>
-            
-            <div class="flex gap-2">
-              <button id="btn-reroute" onclick="doReroute()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium py-2 rounded transition-colors">
-                Execute Re-route
-              </button>
-              <button class="px-3 bg-slate-800 hover:bg-slate-700 text-white rounded border border-slate-600 transition-colors">
-                <i data-lucide="phone" class="w-4 h-4"></i>
-              </button>
-            </div>
-          </div>
-
-          <!-- Medium Risk Alert -->
-          <div class="risk-med p-4 rounded-lg">
-            <div class="flex items-start justify-between mb-2">
-              <h4 class="font-semibold text-white text-sm">Missing E-Way Bill</h4>
-              <span class="text-[10px] uppercase font-bold tracking-wider text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded">Compliance</span>
-            </div>
-            <p class="text-xs text-slate-300 mb-3">Vendor "Shree Cements" uploaded an unreadable quality test certificate for PO#99201. Credit release is blocked.</p>
-            <div class="flex gap-2">
-              <button id="btn-reupload" onclick="doReupload()" class="flex-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 border border-amber-500/30 text-xs font-medium py-2 rounded transition-colors">
-                Request Re-upload
-              </button>
-            </div>
-          </div>
-
-          <!-- Chart Area -->
-          <div class="mt-6">
-            <h4 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Fleet Utilization (Last 12h)</h4>
-            <div class="h-40 relative">
-              <canvas id="utilizationChart"></canvas>
-            </div>
-          </div>
-
         </div>
       </div>
     </div>
   </div>
 
-  <script>
-    lucide.createIcons();
-    
-    // Initialize Chart
-    const ctx = document.getElementById('utilizationChart').getContext('2d');
-    new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: ['6am', '8am', '10am', '12pm', '2pm', '4pm', 'Now'],
-        datasets: [{
-          label: 'Active Trucks',
-          data: [120, 350, 680, 810, 842, 790, 842],
-          borderColor: '#3B82F6',
-          backgroundColor: 'rgba(59, 130, 246, 0.1)',
-          borderWidth: 2,
-          fill: true,
-          tension: 0.4
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-          x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748B', font: { size: 10 } } },
-          y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748B', font: { size: 10 } } }
-        }
-      }
-    });
+  <!-- SCREEN 2 -->
+  <div class="phone-col">
+    <div class="phone-label">02 — CARA INSIGHT</div>
+    <div class="phone">
+      <div class="notch"><div class="ncam"></div><div class="ndot-sensor"></div></div>
+      <div class="statusbar"><span>9:41</span><span>▲ ◆ ■</span></div>
+      <div class="s-header">
+        <div class="s-header-title">Anomaly Resolution</div>
+        <div class="s-header-sub">AI Recommended Action</div>
+      </div>
+      <div class="sc">
+        <div class="ai-box">
+          <div class="ai-header">
+            <span class="ai-icon">🧠</span>
+            <span class="ai-title">Cara Analysis</span>
+          </div>
+          <div class="ai-desc">
+            TRK-4402 is stuck in an unpredicted highway closure. Expected arrival is now 11:45 AM. Lodha Site B will incur ₹45,000 in idle labor costs if aggregates do not arrive by 11:15 AM.
+          </div>
+          <div class="ai-recommendation">
+            <div class="ai-rec-label">Resolution Path</div>
+            <div class="ai-rec-text">Auto-route backup truck TRK-8991 from nearby vendor (Shree Aggregates). ETA: 12 mins.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    function doReroute() {
-      const btn = document.getElementById('btn-reroute');
-      btn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 animate-spin mx-auto"></i>';
-      lucide.createIcons();
-      setTimeout(() => {
-        btn.className = 'flex-1 bg-green-600 text-white text-xs font-medium py-2 rounded transition-colors';
-        btn.innerHTML = '<i data-lucide="check" class="w-4 h-4 inline mr-1"></i> Re-routed TRK-8991';
-        lucide.createIcons();
-        
-        const alertBox = document.getElementById('high-risk-alert');
-        alertBox.className = 'risk-low p-4 rounded-lg transition-all duration-500';
-        document.getElementById('high-risk-title').innerText = 'Anomaly Resolved';
-        document.getElementById('high-risk-badge').className = 'text-[10px] uppercase font-bold tracking-wider text-green-400 bg-green-400/10 px-2 py-0.5 rounded';
-        document.getElementById('high-risk-badge').innerText = 'Resolved';
-        document.getElementById('high-risk-desc').innerText = 'Backup Truck TRK-8991 dispatched. Site schedule maintained.';
-        document.getElementById('high-risk-action-box').style.display = 'none';
-        
-        // Find the red dot on map and make it green
-        const dangerDot = document.querySelector('.pulse-dot.danger');
-        if (dangerDot) {
-          dangerDot.className = 'pulse-dot transition-colors duration-500';
-          const popup = dangerDot.querySelector('.bg-slate-900\\/90');
-          if (popup) {
-            popup.classList.remove('border-red-500/30');
-            popup.classList.add('border-slate-700');
-            popup.innerHTML = '<p class="font-bold text-white">TRK-8991 <span class="text-slate-400 font-normal">| Aggregates</span></p><p class="text-green-400">On Track • 12 mins</p>';
-          }
-        }
-      }, 1500);
-    }
+  <!-- SCREEN 3 -->
+  <div class="phone-col">
+    <div class="phone-label">03 — EXECUTION</div>
+    <div class="phone">
+      <div class="notch"><div class="ncam"></div><div class="ndot-sensor"></div></div>
+      <div class="statusbar"><span>9:41</span><span>▲ ◆ ■</span></div>
+      <div class="s-header">
+        <div class="s-header-title">Dispatches</div>
+        <div class="s-header-sub">Pending Actions</div>
+      </div>
+      <div class="sc exec-list">
+        <div class="exec-item">
+          <div class="exec-info">
+            <div class="exec-name">TRK-8991 · Shree Agg.</div>
+            <div class="exec-sub">ETA 12 mins · ₹18,000</div>
+          </div>
+          <button class="exec-action" id="btn-dispatch" onclick="dispatch()">Dispatch</button>
+        </div>
+        <div class="exec-item" style="opacity: 0.5;">
+          <div class="exec-info">
+            <div class="exec-name">TRK-4402 · Original</div>
+            <div class="exec-sub">Re-routing to Site C</div>
+          </div>
+          <button class="exec-action done">Done</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    function doReupload() {
-      const btn = document.getElementById('btn-reupload');
-      btn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 animate-spin mx-auto"></i>';
-      lucide.createIcons();
-      setTimeout(() => {
-        btn.className = 'flex-1 bg-green-500/20 text-green-400 border border-green-500/30 text-xs font-medium py-2 rounded transition-colors';
-        btn.innerHTML = '<i data-lucide="check" class="w-4 h-4 inline mr-1"></i> Request Sent';
-        lucide.createIcons();
-      }, 1000);
-    }
-  </script>
+  <!-- SCREEN 4 -->
+  <div class="phone-col">
+    <div class="phone-label">04 — FLEET KPI</div>
+    <div class="phone">
+      <div class="notch"><div class="ncam"></div><div class="ndot-sensor"></div></div>
+      <div class="statusbar"><span>9:41</span><span>▲ ◆ ■</span></div>
+      <div class="s-header">
+        <div class="s-header-title">Analytics</div>
+        <div class="s-header-sub">Today's Performance</div>
+      </div>
+      <div class="sc">
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-lbl">On-Time Delivery</div>
+            <div class="kpi-val">99.2%</div>
+            <div class="kpi-trend up">↑ 1.4% vs last week</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-lbl">Idle Time Saved</div>
+            <div class="kpi-val">42 Hrs</div>
+            <div class="kpi-trend up">₹1.8L saved today</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-lbl">AI Interventions</div>
+            <div class="kpi-val">14</div>
+            <div class="kpi-trend">Fully automated</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-lbl">Active Fleet</div>
+            <div class="kpi-val">842</div>
+            <div class="kpi-trend up">12% utilization bump</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<script>
+function dispatch() {
+  const btn = document.getElementById('btn-dispatch');
+  btn.innerText = 'Routing...';
+  setTimeout(() => {
+    btn.className = 'exec-action done';
+    btn.innerText = 'En Route';
+  }, 1000);
+}
+</script>
 </body>
 </html>

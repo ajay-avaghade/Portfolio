@@ -1,332 +1,274 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ARIS AutoDoc & Credit - Execution OS</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: #F8FAFC;
-      color: #0F172A;
-    }
-    .step-active { border-color: #3B82F6; color: #3B82F6; }
-    .step-done { border-color: #10B981; color: #10B981; }
-    .step-pending { border-color: #CBD5E1; color: #94A3B8; }
-    
-    .ocr-highlight {
-      background-color: rgba(59, 130, 246, 0.2);
-      border: 1px solid #3B82F6;
-      border-radius: 2px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .ocr-highlight:hover {
-      background-color: rgba(59, 130, 246, 0.4);
-    }
-    .document-preview {
-      background-image: 
-        linear-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
-      background-size: 20px 20px;
-      background-color: white;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>ARIS AutoDoc · Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --c-dark: #0B0F19;
+  --c-hero: #0F172A;
+  --c-bright: #3B82F6;
+  --c-accent: #10B981;
+  --c-warn: #EF4444;
+  --c-amber: #F59E0B;
+  --ink: #0f172a;
+  --muted: #64748b;
+  --border: rgba(255,255,255,0.08);
+  --gray: #1E293B;
+  --white: #FFFFFF;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family:'Sora',sans-serif;
+  background:#030816;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:40px 24px 60px;
+  color: #fff;
+}
+.header-strip {
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  border-radius: 10px;
+  padding: 10px 28px;
+  color: var(--c-accent);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  margin-bottom: 36px;
+}
+.prototype-wrap { display:flex; gap:32px; align-items:flex-start; flex-wrap:wrap; justify-content:center; }
+.phone-col { display:flex; flex-direction:column; align-items:center; gap:14px; }
+.phone-label { font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#4a5568; font-family:'DM Mono',monospace; }
+.phone { width:375px; height:812px; border-radius:46px; background:var(--c-hero); position:relative; overflow:hidden; box-shadow:0 40px 100px rgba(0,0,0,0.55), 0 0 0 2px rgba(255,255,255,0.07); flex-shrink:0; border: 4px solid #1a2536; }
+.notch { position:absolute; top:0; left:50%; transform:translateX(-50%); width:118px; height:28px; background:#0B0F19; border-radius:0 0 16px 16px; z-index:100; display:flex; align-items:center; justify-content:center; gap:6px; }
+.ncam { width:10px; height:10px; border-radius:50%; background:#040914; border:1px solid #1a2536; }
+.ndot-sensor { width:5px; height:5px; border-radius:50%; background:#1a2536; }
+.statusbar { display:flex; justify-content:space-between; align-items:center; padding:34px 20px 6px; font-size:10px; font-weight:700; font-family:'DM Mono',monospace; position:relative; z-index:90; color:#fff; }
+.sc { overflow-y:auto; max-height:724px; scrollbar-width:none; -ms-overflow-style:none; }
+.sc::-webkit-scrollbar { display:none; }
+
+.s-header { padding: 12px 16px; border-bottom: 1px solid var(--border); background: var(--c-dark); }
+.s-header-title { font-size: 16px; font-weight: 800; }
+.s-header-sub { font-size: 10px; color: var(--muted); }
+
+/* LIST */
+.list { padding: 16px; }
+.doc-card { background: var(--gray); border-radius: 12px; padding: 14px; margin-bottom: 12px; border: 1px solid var(--border); }
+.dc-top { display: flex; justify-content: space-between; margin-bottom: 8px; }
+.dc-title { font-size: 12px; font-weight: 700; color: #fff; }
+.dc-badge { font-size: 9px; padding: 2px 6px; border-radius: 4px; font-weight: 800; text-transform: uppercase; }
+.bg-amber { background: rgba(245,158,11,0.1); color: var(--c-amber); }
+.bg-green { background: rgba(16,185,129,0.1); color: var(--c-accent); }
+.dc-vendor { font-size: 10px; color: #cbd5e1; }
+.dc-val { font-size: 11px; font-weight: 600; color: var(--c-bright); margin-top: 6px; }
+
+/* OCR */
+.ocr-canvas { margin: 16px; background: #fff; height: 300px; border-radius: 8px; position: relative; overflow: hidden; padding: 20px; color: #333; }
+.ocr-mock-header { font-size: 14px; font-weight: bold; border-bottom: 2px solid #ccc; padding-bottom: 8px; margin-bottom: 16px; }
+.ocr-mock-row { display: flex; justify-content: space-between; font-size: 10px; margin-bottom: 8px; border-bottom: 1px dashed #eee; padding-bottom: 4px; }
+.hl { background: rgba(59,130,246,0.2); border: 1px solid var(--c-bright); border-radius: 4px; padding: 2px 4px; cursor: pointer; transition: 0.2s; }
+.hl.success { background: rgba(16,185,129,0.2); border-color: var(--c-accent); }
+
+.ocr-sidebar { padding: 0 16px; }
+.ocr-field { background: var(--gray); border-radius: 8px; padding: 10px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border); }
+.ocr-f-lbl { font-size: 9px; color: var(--muted); text-transform: uppercase; font-weight: 700; }
+.ocr-f-val { font-size: 11px; font-weight: 600; font-family: 'DM Mono', monospace; }
+
+/* ACTION */
+.action-box { padding: 16px; }
+.alert-match { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); border-radius: 12px; padding: 16px; text-align: center; margin-bottom: 16px; }
+.am-icon { font-size: 24px; margin-bottom: 8px; }
+.am-title { font-size: 14px; font-weight: 800; color: var(--c-accent); }
+.btn-approve { width: 100%; background: var(--c-bright); color: #fff; padding: 14px; border: none; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; transition: 0.2s; }
+.btn-approve.done { background: var(--c-accent); }
+
+/* LEDGER */
+.ledger-view { padding: 16px; }
+.t-row { display: flex; gap: 12px; margin-bottom: 24px; position: relative; }
+.t-line { position: absolute; left: 9px; top: 20px; bottom: -24px; width: 2px; background: rgba(255,255,255,0.1); }
+.t-dot { width: 20px; height: 20px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.2); background: var(--c-hero); z-index: 2; position: relative; display: flex; align-items: center; justify-content: center; font-size: 10px; }
+.t-dot.active { border-color: var(--c-bright); background: var(--c-bright); box-shadow: 0 0 10px rgba(59,130,246,0.5); }
+.t-dot.done { border-color: var(--c-accent); background: var(--c-accent); }
+.t-content { flex: 1; }
+.t-title { font-size: 13px; font-weight: 700; }
+.t-sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
+.t-amt { font-size: 12px; font-weight: 600; color: #fff; margin-top: 4px; font-family: 'DM Mono', monospace; }
+
+</style>
 </head>
-<body class="h-screen flex overflow-hidden">
+<body>
+<div class="header-strip">ARIS AutoDoc · Compliance & Credit Prototype</div>
+<div class="prototype-wrap">
 
-  <!-- Sidebar -->
-  <div class="w-64 bg-white border-r border-slate-200 flex flex-col justify-between z-20">
-    <div>
-      <div class="p-6 border-b border-slate-200 flex items-center gap-3">
-        <div class="w-8 h-8 rounded bg-blue-600 flex items-center justify-center font-bold text-white">A</div>
-        <div>
-          <h1 class="font-bold text-lg text-slate-900">ARIS Infra</h1>
-          <p class="text-xs text-slate-500">Execution OS</p>
-        </div>
+  <!-- SCREEN 1 -->
+  <div class="phone-col">
+    <div class="phone-label">01 — PENDING QUEUE</div>
+    <div class="phone">
+      <div class="notch"><div class="ncam"></div><div class="ndot-sensor"></div></div>
+      <div class="statusbar"><span>9:41</span><span>▲ ◆ ■</span></div>
+      <div class="s-header">
+        <div class="s-header-title">Document Hub</div>
+        <div class="s-header-sub">12 Pending Verifications</div>
       </div>
-      <nav class="p-4 space-y-2">
-        <a href="#" class="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-colors">
-          <i data-lucide="map" class="w-5 h-5"></i> Live Command Center
-        </a>
-        <a href="#" class="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-colors">
-          <i data-lucide="truck" class="w-5 h-5"></i> Fleet Management
-        </a>
-        <a href="#" class="flex items-center gap-3 px-4 py-2.5 bg-blue-50 text-blue-700 rounded-lg font-medium border border-blue-100">
-          <i data-lucide="clipboard-check" class="w-5 h-5"></i> AutoDoc &amp; Compliance
-        </a>
-        <a href="#" class="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-colors">
-          <i data-lucide="credit-card" class="w-5 h-5"></i> Credit Decisioning
-        </a>
-        <a href="#" class="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-colors">
-          <i data-lucide="bar-chart-2" class="w-5 h-5"></i> Analytics (Cara)
-        </a>
-      </nav>
-    </div>
-    <div class="p-6 border-t border-slate-200">
-      <div class="flex items-center gap-3">
-        <img src="https://ui-avatars.com/api/?name=Ajay+Avaghade&background=0D8ABC&color=fff" class="w-10 h-10 rounded-full border border-slate-200">
-        <div>
-          <p class="text-sm font-medium text-slate-900">Ajay Avaghade</p>
-          <p class="text-xs text-slate-500">Product Manager</p>
+      <div class="sc list">
+        <div class="doc-card">
+          <div class="dc-top">
+            <div class="dc-title">E-Way Bill & LR</div>
+            <div class="dc-badge bg-amber">Pending</div>
+          </div>
+          <div class="dc-vendor">Shree Cements · PO#99201</div>
+          <div class="dc-val">Unlocks ₹12,00,000</div>
+        </div>
+        <div class="doc-card" style="opacity:0.6;">
+          <div class="dc-top">
+            <div class="dc-title">Quality Certificate</div>
+            <div class="dc-badge bg-green">Verified</div>
+          </div>
+          <div class="dc-vendor">UltraTech · PO#8812</div>
+          <div class="dc-val">Cleared</div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Main Content -->
-  <div class="flex-1 flex flex-col relative">
-    
-    <!-- Topbar -->
-    <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 z-20">
-      <div class="flex items-center gap-4">
-        <h2 class="text-lg font-semibold text-slate-800">AutoDoc Clearance: Transaction #TRX-8992</h2>
-        <span class="px-2.5 py-1 bg-amber-100 text-amber-700 text-xs rounded-full border border-amber-200 font-medium">
-          Pending Verification
-        </span>
+  <!-- SCREEN 2 -->
+  <div class="phone-col">
+    <div class="phone-label">02 — OCR INSPECTION</div>
+    <div class="phone">
+      <div class="notch"><div class="ncam"></div><div class="ndot-sensor"></div></div>
+      <div class="statusbar"><span>9:41</span><span>▲ ◆ ■</span></div>
+      <div class="s-header">
+        <div class="s-header-title">AI Extraction</div>
+        <div class="s-header-sub">PO#99201 · E-Way Bill</div>
       </div>
-      <div class="flex items-center gap-4">
-        <button class="px-4 py-2 border border-slate-300 text-slate-600 hover:bg-slate-50 rounded-lg text-sm font-medium transition-colors">Reject Document</button>
-        <button id="btn-approve" onclick="doApprove()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2 shadow-sm">
-          <i data-lucide="check-circle" class="w-4 h-4"></i> Approve &amp; Unlock Credit
-        </button>
-      </div>
-    </header>
-
-    <!-- Content Area -->
-    <div class="flex-1 flex overflow-hidden">
-      
-      <!-- Left: Document Preview (Fake Image with Highlights) -->
-      <div class="flex-1 bg-slate-100 p-6 flex flex-col overflow-hidden">
-        <div class="flex justify-between items-center mb-4">
-          <div class="flex gap-2">
-            <button class="px-3 py-1.5 bg-white border border-slate-200 text-slate-700 text-sm font-medium rounded shadow-sm">E-Way Bill</button>
-            <button class="px-3 py-1.5 bg-transparent border border-transparent text-slate-500 hover:text-slate-700 text-sm font-medium rounded">Quality Cert</button>
-            <button class="px-3 py-1.5 bg-transparent border border-transparent text-slate-500 hover:text-slate-700 text-sm font-medium rounded">Invoice</button>
+      <div class="sc">
+        <div class="ocr-canvas">
+          <div class="ocr-mock-header">TAX INVOICE / E-WAY BILL</div>
+          <div class="ocr-mock-row">
+            <span>GSTIN:</span> <span class="hl" onclick="highlight(this)">27AAACS1234F1Z5</span>
           </div>
-          <div class="flex gap-2 text-slate-400">
-            <button class="p-1 hover:bg-slate-200 rounded"><i data-lucide="zoom-in" class="w-5 h-5"></i></button>
-            <button class="p-1 hover:bg-slate-200 rounded"><i data-lucide="zoom-out" class="w-5 h-5"></i></button>
+          <div class="ocr-mock-row">
+            <span>Vehicle No:</span> <span class="hl" onclick="highlight(this)">MH-04-AB-1234</span>
+          </div>
+          <div class="ocr-mock-row">
+            <span>Quantity:</span> <span class="hl" onclick="highlight(this)">400 MT</span>
+          </div>
+          <div class="ocr-mock-row">
+            <span>Total Value:</span> <span class="hl" onclick="highlight(this)">₹12,00,000</span>
+          </div>
+          <div style="margin-top:20px; border-top:1px solid #ccc; padding-top:10px; font-size:8px; color:#999; text-align:center;">
+            [Scanned Document Watermark]
           </div>
         </div>
-
-        <div class="flex-1 border border-slate-300 rounded-lg shadow-sm document-preview relative overflow-hidden flex justify-center p-8">
-          <!-- Fake Document Paper -->
-          <div class="bg-white border border-slate-200 w-full max-w-2xl h-full shadow-lg relative p-8">
-            <div class="flex justify-between items-start border-b border-slate-200 pb-4 mb-6">
-              <div>
-                <h1 class="text-2xl font-bold text-slate-800">E-WAY BILL</h1>
-                <p class="text-sm text-slate-500 mt-1">Government of India</p>
-              </div>
-              <div class="text-right">
-                <div class="ocr-highlight absolute" style="top: 32px; right: 32px; width: 140px; height: 24px;"></div>
-                <p class="text-sm font-bold">EWB No: 121458920199</p>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-8 mb-8">
-              <div>
-                <p class="text-xs text-slate-500 font-medium uppercase mb-1">From (Supplier)</p>
-                <div class="ocr-highlight absolute" style="top: 130px; left: 32px; width: 200px; height: 40px;"></div>
-                <p class="text-sm font-semibold">UltraTech Cement Ltd.<br>Andheri East, Mumbai</p>
-              </div>
-              <div>
-                <p class="text-xs text-slate-500 font-medium uppercase mb-1">To (Buyer)</p>
-                <div class="ocr-highlight absolute" style="top: 130px; right: 280px; width: 180px; height: 40px;"></div>
-                <p class="text-sm font-semibold">Lodha Group Developers<br>Palava City Site</p>
-              </div>
-            </div>
-
-            <div class="border border-slate-200 rounded">
-              <table class="w-full text-sm">
-                <thead class="bg-slate-50 border-b border-slate-200">
-                  <tr>
-                    <th class="py-2 px-3 text-left font-semibold">Item</th>
-                    <th class="py-2 px-3 text-right font-semibold">HSN Code</th>
-                    <th class="py-2 px-3 text-right font-semibold">Qty</th>
-                    <th class="py-2 px-3 text-right font-semibold">Amount (₹)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td class="py-3 px-3 border-b border-slate-100">Portland Cement (Grade 53)</td>
-                    <td class="py-3 px-3 text-right border-b border-slate-100">252329</td>
-                    <td class="py-3 px-3 text-right border-b border-slate-100 relative">
-                      <div class="ocr-highlight absolute" style="top: 8px; right: 8px; width: 50px; height: 24px;"></div>
-                      400 MT
-                    </td>
-                    <td class="py-3 px-3 text-right border-b border-slate-100 font-semibold relative">
-                      <div class="ocr-highlight absolute" style="top: 8px; right: 8px; width: 80px; height: 24px;"></div>
-                      24,00,000
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            
-            <div class="mt-8 flex justify-between items-end">
-              <div>
-                <p class="text-xs text-slate-500 font-medium uppercase mb-1">Vehicle Details</p>
-                <div class="ocr-highlight absolute" style="top: 320px; left: 32px; width: 120px; height: 24px;"></div>
-                <p class="text-sm font-bold">MH-04-AB-1234</p>
-              </div>
-              <div class="w-32 h-32 border-2 border-slate-200 border-dashed rounded-lg flex items-center justify-center bg-slate-50 text-slate-400">
-                [QR Code]
-              </div>
-            </div>
-
+        
+        <div class="ocr-sidebar">
+          <div class="ocr-field">
+            <div class="ocr-f-lbl">Match Confidence</div>
+            <div class="ocr-f-val" style="color:var(--c-accent)">99.8%</div>
+          </div>
+          <div class="ocr-field">
+            <div class="ocr-f-lbl">PO Quantity</div>
+            <div class="ocr-f-val">400 MT <span style="color:var(--c-accent)">✓</span></div>
+          </div>
+          <div class="ocr-field">
+            <div class="ocr-f-lbl">PO Value</div>
+            <div class="ocr-f-val">₹12,00,000 <span style="color:var(--c-accent)">✓</span></div>
           </div>
         </div>
-      </div>
-
-      <!-- Right: Extraction & Credit Approval Panel -->
-      <div class="w-96 bg-white border-l border-slate-200 flex flex-col z-20 shadow-xl overflow-y-auto">
-        <div class="p-6">
-          <h3 class="font-bold text-slate-800 text-lg mb-1">AI Extraction Results</h3>
-          <p class="text-sm text-slate-500 mb-6">Cara AI parsed the document with 98.4% confidence.</p>
-
-          <div class="space-y-5">
-            <!-- Field 1 -->
-            <div>
-              <div class="flex justify-between items-center mb-1">
-                <label class="text-xs font-semibold text-slate-500 uppercase">E-Way Bill Number</label>
-                <i data-lucide="check-circle-2" class="w-4 h-4 text-green-500"></i>
-              </div>
-              <div class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded text-sm font-medium font-mono text-slate-800">
-                121458920199
-              </div>
-            </div>
-
-            <!-- Field 2 -->
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <div class="flex justify-between items-center mb-1">
-                  <label class="text-xs font-semibold text-slate-500 uppercase">Quantity</label>
-                  <i data-lucide="check-circle-2" class="w-4 h-4 text-green-500"></i>
-                </div>
-                <div class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded text-sm font-medium text-slate-800">
-                  400 MT
-                </div>
-              </div>
-              <div>
-                <div class="flex justify-between items-center mb-1">
-                  <label class="text-xs font-semibold text-slate-500 uppercase">Total Amount</label>
-                  <i data-lucide="check-circle-2" class="w-4 h-4 text-green-500"></i>
-                </div>
-                <div class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded text-sm font-medium text-slate-800">
-                  ₹24,00,000
-                </div>
-              </div>
-            </div>
-
-            <!-- Field 3 (Mismatch) -->
-            <div>
-              <div class="flex justify-between items-center mb-1">
-                <label class="text-xs font-semibold text-slate-500 uppercase">Vehicle No.</label>
-                <span class="text-[10px] text-amber-600 font-bold bg-amber-100 px-1.5 py-0.5 rounded">Mismatch</span>
-              </div>
-              <div class="w-full p-2.5 bg-amber-50 border border-amber-200 rounded text-sm font-medium text-slate-800 flex justify-between items-center">
-                <span>MH-04-AB-1234</span>
-                <i data-lucide="alert-circle" class="w-4 h-4 text-amber-500"></i>
-              </div>
-              <p class="text-xs text-slate-500 mt-1">PO expected: MH-04-AB-123<strong class="text-amber-600">5</strong></p>
-            </div>
-          </div>
-        </div>
-
-        <div class="mt-auto p-6 bg-slate-50 border-t border-slate-200">
-          <h3 class="font-bold text-slate-800 text-sm mb-4">Credit Tranche Impact</h3>
-          
-          <div class="flex items-center gap-4 mb-4 relative">
-            <div class="absolute left-3 top-4 bottom-4 w-0.5 bg-slate-200"></div>
-            
-            <div class="relative z-10 w-6 h-6 rounded-full border-2 bg-white flex items-center justify-center step-done">
-              <i data-lucide="check" class="w-3 h-3"></i>
-            </div>
-            <div>
-              <p class="text-sm font-semibold text-slate-700">Tranche 1: Advance</p>
-              <p class="text-xs text-slate-500">₹6,00,000 paid on 12 Jun</p>
-            </div>
-          </div>
-
-          <div class="flex items-center gap-4 mb-4 relative">
-            <div class="relative z-10 w-6 h-6 rounded-full border-2 bg-white flex items-center justify-center step-active">
-              <div class="w-2 h-2 rounded-full bg-blue-500"></div>
-            </div>
-            <div>
-              <p class="text-sm font-semibold text-blue-700">Tranche 2: Dispatch</p>
-              <p class="text-xs text-slate-600 font-medium">₹12,00,000 ready to unlock</p>
-            </div>
-          </div>
-
-          <div class="flex items-center gap-4 relative">
-            <div class="relative z-10 w-6 h-6 rounded-full border-2 bg-white flex items-center justify-center step-pending"></div>
-            <div>
-              <p class="text-sm font-semibold text-slate-400">Tranche 3: Delivery</p>
-              <p class="text-xs text-slate-400">₹6,00,000 pending delivery proof</p>
-            </div>
-          </div>
-        </div>
-
       </div>
     </div>
   </div>
 
-  <script>
-    lucide.createIcons();
-    
-    function doApprove() {
-      const btn = document.getElementById('btn-approve');
-      btn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Processing...';
-      btn.classList.add('opacity-75', 'cursor-not-allowed');
-      lucide.createIcons();
-      
-      setTimeout(() => {
-        btn.innerHTML = '<i data-lucide="check-circle" class="w-4 h-4"></i> ₹12,00,000 Unlocked';
-        btn.className = 'px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2 shadow-sm';
-        lucide.createIcons();
-        
-        // Update status badge
-        const badge = document.querySelector('.bg-amber-100');
-        if (badge) {
-          badge.className = 'px-2.5 py-1 bg-green-100 text-green-700 text-xs rounded-full border border-green-200 font-medium';
-          badge.innerText = 'Cleared & Paid';
-        }
-        
-        // Update tranche UI
-        const activeTranche = document.querySelector('.step-active');
-        if (activeTranche) {
-          activeTranche.className = 'relative z-10 w-6 h-6 rounded-full border-2 bg-white flex items-center justify-center step-done';
-          activeTranche.innerHTML = '<i data-lucide="check" class="w-3 h-3 text-green-500"></i>';
-          
-          const title = activeTranche.nextElementSibling.querySelector('p:first-child');
-          title.className = 'text-sm font-semibold text-slate-700';
-          
-          const subtitle = activeTranche.nextElementSibling.querySelector('p:last-child');
-          subtitle.className = 'text-xs text-green-600 font-medium';
-          subtitle.innerText = '₹12,00,000 unlocked to vendor';
-        }
-        
-        lucide.createIcons();
-      }, 1500);
-    }
-    
-    // Add click handlers for OCR highlights
-    document.querySelectorAll('.ocr-highlight').forEach(el => {
-      el.addEventListener('click', (e) => {
-        const originalBg = e.target.style.backgroundColor;
-        const originalBorder = e.target.style.borderColor;
-        e.target.style.backgroundColor = 'rgba(16, 185, 129, 0.4)';
-        e.target.style.borderColor = '#10B981';
-        setTimeout(() => {
-          e.target.style.backgroundColor = originalBg;
-          e.target.style.borderColor = originalBorder;
-        }, 1000);
-      });
-    });
-  </script>
+  <!-- SCREEN 3 -->
+  <div class="phone-col">
+    <div class="phone-label">03 — CLEARANCE</div>
+    <div class="phone">
+      <div class="notch"><div class="ncam"></div><div class="ndot-sensor"></div></div>
+      <div class="statusbar"><span>9:41</span><span>▲ ◆ ■</span></div>
+      <div class="s-header">
+        <div class="s-header-title">Approval Gateway</div>
+        <div class="s-header-sub">Action Required</div>
+      </div>
+      <div class="sc action-box">
+        <div class="alert-match">
+          <div class="am-icon">🛡️</div>
+          <div class="am-title">All Rules Passed</div>
+          <div style="font-size:11px; color:#cbd5e1; margin-top:6px;">OCR data perfectly matches PO#99201. No anomalies detected.</div>
+        </div>
+        <button class="btn-approve" id="btn-approve" onclick="approve()">Approve & Unlock Credit</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 4 -->
+  <div class="phone-col">
+    <div class="phone-label">04 — CREDIT LEDGER</div>
+    <div class="phone">
+      <div class="notch"><div class="ncam"></div><div class="ndot-sensor"></div></div>
+      <div class="statusbar"><span>9:41</span><span>▲ ◆ ■</span></div>
+      <div class="s-header">
+        <div class="s-header-title">Vendor Ledger</div>
+        <div class="s-header-sub">Tranche Timeline</div>
+      </div>
+      <div class="sc ledger-view">
+        <div class="t-row">
+          <div class="t-line"></div>
+          <div class="t-dot done">✓</div>
+          <div class="t-content">
+            <div class="t-title">Tranche 1: Advance</div>
+            <div class="t-amt">₹6,00,000</div>
+            <div class="t-sub">Paid on 12 Jun</div>
+          </div>
+        </div>
+
+        <div class="t-row">
+          <div class="t-line"></div>
+          <div class="t-dot active" id="t2-dot"></div>
+          <div class="t-content">
+            <div class="t-title" style="color:var(--c-bright);" id="t2-title">Tranche 2: Dispatch</div>
+            <div class="t-amt">₹12,00,000</div>
+            <div class="t-sub" id="t2-sub" style="color:#fff;">Pending document approval...</div>
+          </div>
+        </div>
+
+        <div class="t-row">
+          <div class="t-dot"></div>
+          <div class="t-content">
+            <div class="t-title" style="color:var(--muted);">Tranche 3: Delivery</div>
+            <div class="t-amt" style="color:var(--muted);">₹6,00,000</div>
+            <div class="t-sub">Pending delivery proof</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<script>
+function highlight(el) {
+  el.classList.add('success');
+  setTimeout(() => el.classList.remove('success'), 1000);
+}
+function approve() {
+  const btn = document.getElementById('btn-approve');
+  btn.innerText = 'Processing Blockchain Ledger...';
+  setTimeout(() => {
+    btn.className = 'btn-approve done';
+    btn.innerText = '✓ ₹12,00,000 Cleared to Vendor';
+
+    document.getElementById('t2-dot').className = 't-dot done';
+    document.getElementById('t2-dot').innerHTML = '✓';
+    document.getElementById('t2-title').style.color = 'var(--c-accent)';
+    document.getElementById('t2-sub').style.color = 'var(--c-accent)';
+    document.getElementById('t2-sub').innerText = 'Unlocked & Paid today';
+  }, 1500);
+}
+</script>
 </body>
 </html>
