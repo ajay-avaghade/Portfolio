@@ -468,7 +468,8 @@ Format: `[Situation context]; [action taken] — [metric result].`
 11. AWARDS & RECOGNITION — Always include all three:
     - ITC Interrobang — National Finalist, Top 15 teams
     - Asian Paints Canvas — 1st place
-    - Education Minister Award — State-level, Government of Maharashtra
+    - Education Minister Award — State-level academic excellence, District Topper (10th & 12th)
+    *(Do NOT append "Government of Maharashtra" — it causes the awards line to overflow onto page 2.)*
 
 **HTML Resume CSS baseline (proven working values — do not inflate these):**
 
@@ -489,33 +490,33 @@ Format: `[Situation context]; [action taken] — [metric result].`
     padding:14px 26px;
     max-width:800px;
     margin:0 auto;
-    line-height:1.35;
+    line-height:1.32;          /* PROVEN: 1.35 overflows — do not increase */
   }
   .name       { font-size:19pt; font-weight:700; text-align:center; letter-spacing:.04em; }
   .role-title { font-size:9pt; font-style:italic; text-align:center; color:#444; margin:1px 0 2px; }
-  .contact    { font-size:7.6pt; text-align:center; color:#444; margin-bottom:5px; }
+  .contact    { font-size:7.6pt; text-align:center; color:#444; margin-bottom:4px; }
   .contact a  { color:#1a56db; text-decoration:none; }
-  .relocation { font-size:7.6pt; font-style:italic; text-align:center; color:#555; margin-bottom:5px; }
+  .relocation { font-size:7.6pt; font-style:italic; text-align:center; color:#555; margin-bottom:3px; }
   hr { border:none; border-top:1.5px solid #1a56db; margin:3px 0 2px; }
-  h2 { font-size:7.8pt; font-weight:700; color:#1a56db; text-transform:uppercase; letter-spacing:.07em; margin:5px 0 1px; }
+  h2 { font-size:7.8pt; font-weight:700; color:#1a56db; text-transform:uppercase; letter-spacing:.07em; margin:4px 0 1px; }
   .job-row   { display:flex; justify-content:space-between; align-items:baseline; }
   .job-title { font-size:8.8pt; font-weight:700; }
   .job-date  { font-size:7.6pt; color:#555; white-space:nowrap; }
   .company   { font-size:7.6pt; color:#555; font-style:italic; margin-bottom:1px; }
-  ul { padding-left:12px; margin:1px 0 3px; }
+  ul { padding-left:12px; margin:1px 0 2px; }
   li {
     font-size:8.2pt;
-    line-height:1.38;
-    margin-bottom:2px;
-    text-align:justify;       /* fills middle lines edge-to-edge */
-    text-align-last:left;     /* last line stays natural — kills orphan-word stretching */
+    line-height:1.36;          /* PROVEN: 1.38 overflows — do not increase */
+    margin-bottom:1px;
+    text-align:justify;        /* fills middle lines edge-to-edge */
+    text-align-last:left;      /* last line stays natural — kills orphan-word stretching */
   }
   .summary {
-    font-size:8.2pt; line-height:1.42;
+    font-size:8.2pt; line-height:1.38;
     text-align:justify; text-align-last:left;
   }
   .skills-row {
-    font-size:8.1pt; line-height:1.42; margin-bottom:1px;
+    font-size:8.1pt; line-height:1.38; margin-bottom:1px;
     text-align:justify; text-align-last:left;
   }
   .skills-row strong { font-weight:600; color:#0f0f0f; }
@@ -525,12 +526,12 @@ Format: `[Situation context]; [action taken] — [metric result].`
   .edu-sub  { font-size:7.6pt; color:#555; font-style:italic; margin-bottom:2px; }
   a { color:#1a56db; font-weight:500; text-decoration:none; }
   .awards-line {
-    font-size:8.1pt; line-height:1.42;
+    font-size:8.1pt; line-height:1.38;
     text-align:justify; text-align-last:left;
   }
   @media print {
     body { padding:0; }
-    @page { margin:.22in .28in; size:letter; }  /* proven tight but safe — do not increase */
+    @page { margin:.18in .26in; size:letter; }  /* PROVEN tight — do not increase */
   }
 </style>
 </head>
@@ -550,7 +551,7 @@ Rules to prevent this:
    - ✅ `...cut **marketing burn by 32%** while sustaining GMV across all channels.`
 2. **Last line of every bullet must have ≥ 6 words.** Count mentally before finalising.
 3. **If a bullet ends with a short fragment, add context** — "across the active user base", "versus the prior manual process", "at the transaction level" are valid closes.
-4. **Awards line**: always pad with extra specificity so "Maharashtra" (or any short word) doesn't end up alone. E.g. add "out of 3,000+ entries" or "Government of Maharashtra" (not just "Maharashtra").
+4. **Awards line**: end the Education Minister Award at "District Topper (10th & 12th)" — do NOT append "Government of Maharashtra" as it causes page overflow. The ITC entry can be padded with "out of 5,000+ entries" if line-fill is needed.
 
 ---
 
@@ -669,6 +670,10 @@ These rules govern how this skill runs every time:
 5. **Never fabricate metrics.** If Ajay hasn't given you a number, use a range ("15–20% improvement") or note it as projected ("estimated 25% uplift based on PhonePe baseline").
 
 6. **Self-update this file.** After each application run, add a row to the Evolution Log below and update the Existing Case Studies table.
+
+7. **Provide Links Promptly.** After every deliverable (prototype, deck, resume, etc.), provide Ajay with the direct local file links (using `file:///`) so he can click and open them. Specifically, after integrating the case study into the portfolio, immediately give him the deep-link to that section (e.g., `https://ajay-avaghade.github.io/Portfolio/#real-world/[company-slug]`).
+
+8. **Always Push to Portfolio.** Whenever you build a case study (prototype + deck), you MUST automatically proceed to Phase 4 (Portfolio Integration) and push it to the portfolio site via git, unless Ajay explicitly specifies not to add it.
 
 ---
 
