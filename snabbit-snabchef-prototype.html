@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SnabChef — Snabbit Cooking</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#1a1a2e;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;font-family:'Inter',sans-serif;padding:24px 16px 48px;}
+
+.hero{text-align:center;margin-bottom:32px;}
+.logo{display:inline-flex;align-items:center;gap:10px;margin-bottom:12px;}
+.logo-mark{width:44px;height:44px;background:linear-gradient(135deg,#FF5C00,#FF8C00);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;}
+.logo-text{font-size:22px;font-weight:800;color:#fff;}
+.logo-sub{font-size:13px;color:#FF8C00;font-weight:600;}
+.hero h1{font-size:26px;font-weight:800;color:#fff;margin-bottom:6px;}
+.hero p{font-size:13px;color:#94a3b8;max-width:480px;line-height:1.5;}
+.tag{display:inline-block;background:rgba(255,92,0,0.12);color:#FF8C00;border:1px solid rgba(255,92,0,0.3);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:600;margin-bottom:10px;}
+
+.flow{display:flex;gap:20px;flex-wrap:wrap;justify-content:center;max-width:1200px;}
+.phone-wrap{display:flex;flex-direction:column;align-items:center;gap:10px;}
+.screen-label{font-size:11px;font-weight:700;color:#FF8C00;text-transform:uppercase;letter-spacing:.08em;}
+.screen-num{width:24px;height:24px;background:#FF5C00;border-radius:50%;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-bottom:2px;}
+
+.phone{width:280px;height:580px;background:#fff;border-radius:36px;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,0.5);position:relative;border:6px solid #1e293b;}
+.notch{width:80px;height:22px;background:#0f0f1a;border-radius:0 0 14px 14px;position:absolute;top:0;left:50%;transform:translateX(-50%);z-index:10;}
+
+/* SCREEN 1 */
+.s1-header{background:linear-gradient(135deg,#FF5C00,#FF8C00);padding:44px 20px 20px;color:#fff;}
+.s1-header h2{font-size:17px;font-weight:800;margin-bottom:4px;}
+.s1-header p{font-size:11px;opacity:.85;line-height:1.4;}
+.progress-bar{background:rgba(255,255,255,0.3);height:4px;border-radius:2px;margin-top:14px;}
+.progress-fill{height:100%;width:25%;background:#fff;border-radius:2px;}
+.s1-body{padding:16px;background:#f8fafc;height:100%;overflow-y:auto;}
+.field-group{margin-bottom:14px;}
+.field-label{font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;}
+.field-input{background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;padding:10px 12px;font-size:12px;color:#1e293b;width:100%;}
+.chip-row{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{background:#fff;border:1.5px solid #e2e8f0;border-radius:20px;padding:5px 11px;font-size:11px;color:#475569;cursor:pointer;transition:.15s;}
+.chip.sel{background:#FF5C00;border-color:#FF5C00;color:#fff;}
+.allergy-chip{background:#fff;border:1.5px solid #fca5a5;border-radius:20px;padding:5px 11px;font-size:11px;color:#ef4444;}
+.allergy-chip.sel{background:#fef2f2;border-color:#ef4444;}
+.s1-btn{background:linear-gradient(135deg,#FF5C00,#FF8C00);color:#fff;border:none;border-radius:12px;padding:13px;width:100%;font-size:13px;font-weight:700;margin-top:10px;cursor:pointer;}
+.step-hint{text-align:center;font-size:10px;color:#94a3b8;margin-top:8px;}
+
+/* SCREEN 2 */
+.s2-header{background:#0f0f1a;padding:44px 16px 14px;display:flex;align-items:center;gap:10px;}
+.back-btn{width:30px;height:30px;background:#1e293b;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;color:#94a3b8;}
+.s2-header h2{font-size:15px;font-weight:700;color:#fff;}
+.match-header{background:linear-gradient(135deg,#FF5C00,#FF8C00);padding:12px 16px;display:flex;align-items:center;gap:10px;}
+.match-badge{background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);border-radius:8px;padding:4px 10px;font-size:10px;font-weight:700;color:#fff;}
+.match-score{margin-left:auto;font-size:18px;font-weight:800;color:#fff;}
+.match-score-lbl{font-size:9px;color:rgba(255,255,255,0.75);text-align:right;}
+.cook-card{margin:12px;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08);}
+.cook-top{padding:14px;display:flex;gap:12px;align-items:flex-start;}
+.cook-avatar{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#FF5C00,#FF8C00);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.cook-name{font-size:14px;font-weight:700;color:#1e293b;}
+.cook-exp{font-size:11px;color:#64748b;margin:2px 0;}
+.stars{color:#F59E0B;font-size:11px;}
+.badge-row{display:flex;gap:5px;flex-wrap:wrap;padding:0 14px 10px;}
+.cbadge{background:#f0fdf4;border:1px solid #86efac;color:#166534;border-radius:6px;padding:3px 8px;font-size:9px;font-weight:600;}
+.cbadge.hy{background:#fff7ed;border-color:#fed7aa;color:#c2410c;}
+.cbadge.cu{background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8;}
+.sample-menu{margin:0 14px 14px;background:#f8fafc;border-radius:10px;padding:10px;}
+.menu-lbl{font-size:9px;font-weight:700;color:#64748b;text-transform:uppercase;margin-bottom:6px;}
+.menu-item{font-size:11px;color:#374151;padding:2px 0;border-bottom:1px solid #f1f5f9;}
+.menu-item:last-child{border-bottom:none;}
+.action-row{display:flex;gap:8px;padding:0 14px 14px;}
+.btn-outline{flex:1;border:1.5px solid #FF5C00;color:#FF5C00;background:transparent;border-radius:10px;padding:9px;font-size:11px;font-weight:600;}
+.btn-solid{flex:2;background:linear-gradient(135deg,#FF5C00,#FF8C00);color:#fff;border:none;border-radius:10px;padding:9px;font-size:11px;font-weight:700;}
+.trust-bar{margin:0 12px 12px;background:#fff3e8;border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:8px;}
+.trust-icon{font-size:18px;}
+.trust-text{font-size:10px;color:#c2410c;line-height:1.4;}
+
+/* SCREEN 3 */
+.s3-header{background:#0f0f1a;padding:44px 16px 14px;}
+.s3-greeting{font-size:12px;color:#94a3b8;}
+.s3-title{font-size:17px;font-weight:800;color:#fff;margin-top:2px;}
+.s3-body{padding:12px;background:#f8fafc;flex:1;overflow-y:auto;}
+.cook-rel-card{background:#fff;border-radius:14px;padding:14px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,0.06);}
+.rel-header{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.rel-avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#FF5C00,#FF8C00);display:flex;align-items:center;justify-content:center;font-size:18px;}
+.rel-name{font-size:13px;font-weight:700;color:#1e293b;}
+.rel-since{font-size:10px;color:#64748b;}
+.locked-badge{margin-left:auto;background:#dcfce7;color:#166534;border:1px solid #86efac;border-radius:6px;padding:3px 8px;font-size:9px;font-weight:700;}
+.next-session{background:linear-gradient(135deg,#fff7ed,#fff3e8);border:1.5px solid #fed7aa;border-radius:12px;padding:12px;margin-bottom:10px;}
+.next-lbl{font-size:9px;font-weight:700;color:#c2410c;text-transform:uppercase;margin-bottom:4px;}
+.next-time{font-size:14px;font-weight:700;color:#1e293b;}
+.next-menu{font-size:11px;color:#64748b;margin-top:2px;}
+.msg-btn{background:#FF5C00;color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:11px;font-weight:600;margin-top:8px;}
+.session-hist{background:#fff;border-radius:14px;padding:14px;box-shadow:0 2px 8px rgba(0,0,0,0.06);}
+.hist-lbl{font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;margin-bottom:8px;}
+.hist-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid #f1f5f9;}
+.hist-row:last-child{border-bottom:none;}
+.hist-date{font-size:11px;color:#374151;}
+.hist-meal{font-size:10px;color:#64748b;}
+.hist-stars{font-size:11px;color:#F59E0B;}
+.progress-track{background:#fff;border-radius:14px;padding:14px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,0.06);}
+.trust-progress{display:flex;gap:6px;align-items:center;margin-top:8px;}
+.trust-step{flex:1;height:5px;background:#e2e8f0;border-radius:3px;}
+.trust-step.done{background:#FF5C00;}
+.trust-step.active{background:#FF8C00;}
+.trust-label{font-size:9px;color:#64748b;margin-top:4px;}
+
+/* SCREEN 4 */
+.s4-header{background:linear-gradient(135deg,#16a34a,#22c55e);padding:44px 16px 20px;color:#fff;}
+.s4-header h2{font-size:17px;font-weight:800;}
+.s4-header p{font-size:11px;opacity:.85;margin-top:3px;}
+.rating-card{margin:12px;background:#fff;border-radius:14px;padding:14px;box-shadow:0 2px 10px rgba(0,0,0,0.08);}
+.q-label{font-size:11px;font-weight:700;color:#1e293b;margin-bottom:8px;}
+.emoji-row{display:flex;justify-content:space-between;margin-bottom:14px;}
+.emoji-opt{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;}
+.emoji-opt span:first-child{font-size:22px;}
+.emoji-opt span:last-child{font-size:9px;color:#64748b;}
+.emoji-opt.sel span:first-child{filter:drop-shadow(0 0 4px #FF5C00);}
+.lock-section{margin:0 12px 12px;background:linear-gradient(135deg,#fff7ed,#fffbf5);border:2px solid #FF5C00;border-radius:14px;padding:14px;}
+.lock-icon{font-size:28px;text-align:center;margin-bottom:6px;}
+.lock-title{font-size:14px;font-weight:800;color:#1e293b;text-align:center;}
+.lock-sub{font-size:11px;color:#64748b;text-align:center;line-height:1.4;margin:4px 0 12px;}
+.lock-btn{background:linear-gradient(135deg,#FF5C00,#FF8C00);color:#fff;border:none;border-radius:12px;padding:12px;width:100%;font-size:13px;font-weight:700;}
+.skip-btn{background:transparent;border:none;color:#94a3b8;font-size:11px;width:100%;margin-top:6px;cursor:pointer;}
+.perks-row{display:flex;gap:6px;margin-top:6px;}
+.perk{flex:1;background:#fff3e8;border-radius:8px;padding:6px;text-align:center;font-size:9px;color:#c2410c;font-weight:600;}
+
+.arrow-connector{display:flex;align-items:center;color:#FF8C00;font-size:20px;padding-top:240px;}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="logo">
+    <div class="logo-mark">🍳</div>
+    <div>
+      <div class="logo-text">SnabChef</div>
+      <div class="logo-sub">by Snabbit</div>
+    </div>
+  </div>
+  <div class="tag">CASE STUDY · PM CANDIDATE · AJAY AVAGHADE</div>
+  <h1>Cooking Vertical: Trust → Recurring Relationship</h1>
+  <p>Cooking is a relationship product, not a logistics product. A random cook breaks trust. A known cook builds a home. Four screens show the full journey — from Home Food Passport to locked-in My Cook.</p>
+</div>
+
+<div class="flow">
+
+  <!-- SCREEN 1 -->
+  <div class="phone-wrap">
+    <div class="screen-num">1</div>
+    <div class="screen-label">Home Food Passport</div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="s1-header">
+        <h2>🏠 Your Food Passport</h2>
+        <p>Tell us how your household eats. We match your cook to your cuisine, not just your zip code.</p>
+        <div class="progress-bar"><div class="progress-fill"></div></div>
+      </div>
+      <div class="s1-body">
+        <div class="field-group">
+          <div class="field-label">Household Size</div>
+          <div class="chip-row">
+            <div class="chip sel">1–2</div>
+            <div class="chip">3–4</div>
+            <div class="chip">5–6</div>
+            <div class="chip">Joint family 7+</div>
+          </div>
+        </div>
+        <div class="field-group">
+          <div class="field-label">Cuisine Preference</div>
+          <div class="chip-row">
+            <div class="chip sel">South Indian</div>
+            <div class="chip">North Indian</div>
+            <div class="chip">Gujarati</div>
+            <div class="chip sel">Continental</div>
+            <div class="chip">Marathi</div>
+          </div>
+        </div>
+        <div class="field-group">
+          <div class="field-label">Dietary Restrictions</div>
+          <div class="chip-row">
+            <div class="allergy-chip sel">No onion/garlic</div>
+            <div class="allergy-chip">Jain</div>
+            <div class="allergy-chip">Diabetic diet</div>
+            <div class="allergy-chip sel">Nut allergy</div>
+          </div>
+        </div>
+        <div class="field-group">
+          <div class="field-label">Meal Timing</div>
+          <div class="chip-row">
+            <div class="chip sel">Breakfast 7–8 AM</div>
+            <div class="chip">Lunch 12–1 PM</div>
+            <div class="chip sel">Dinner 7–8 PM</div>
+          </div>
+        </div>
+        <div class="field-group">
+          <div class="field-label">Occasion Cooking?</div>
+          <div class="chip-row">
+            <div class="chip">Party for 10+</div>
+            <div class="chip sel">Festival specials</div>
+          </div>
+        </div>
+        <button class="s1-btn">Find My Matched Cook →</button>
+        <div class="step-hint">Step 1 of 4 · Your passport is never shared without consent</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="arrow-connector">›</div>
+
+  <!-- SCREEN 2 -->
+  <div class="phone-wrap">
+    <div class="screen-num">2</div>
+    <div class="screen-label">Cook Match Profile</div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="s2-header">
+        <div class="back-btn">‹</div>
+        <h2>Your Matched Cook</h2>
+      </div>
+      <div class="match-header">
+        <div class="match-badge">🎯 98% CUISINE MATCH</div>
+        <div style="margin-left:auto;text-align:right;">
+          <div class="match-score">4.9 ★</div>
+          <div class="match-score-lbl">847 sessions</div>
+        </div>
+      </div>
+      <div class="cook-card">
+        <div class="cook-top">
+          <div class="cook-avatar">👩‍🍳</div>
+          <div>
+            <div class="cook-name">Meera Krishnamurthy</div>
+            <div class="cook-exp">8 yrs experience · Koramangala</div>
+            <div class="stars">★★★★★ <span style="color:#64748b;font-size:10px;">4.9 (847)</span></div>
+          </div>
+        </div>
+        <div class="badge-row">
+          <span class="cbadge hy">✓ Food Safety Certified</span>
+          <span class="cbadge">✓ Police Verified</span>
+          <span class="cbadge cu">South Indian · Continental</span>
+          <span class="cbadge">No Onion-Garlic ✓</span>
+        </div>
+        <div class="sample-menu">
+          <div class="menu-lbl">Sample 3-day menu she'd cook for you</div>
+          <div class="menu-item">Mon: Idli-sambar, dal tadka, rasam rice</div>
+          <div class="menu-item">Tue: Poha, palak paneer, phulka + dal</div>
+          <div class="menu-item">Wed: Upma, rajma chawal, curd rice</div>
+        </div>
+        <div class="action-row">
+          <button class="btn-outline">See full profile</button>
+          <button class="btn-solid">Book Trial Session →</button>
+        </div>
+      </div>
+      <div class="trust-bar">
+        <div class="trust-icon">🔒</div>
+        <div class="trust-text"><strong>Session 1 is a Trial.</strong> You're home, she cooks. No commitment. Lock her in after 3 sessions if you love her food.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="arrow-connector">›</div>
+
+  <!-- SCREEN 3 -->
+  <div class="phone-wrap">
+    <div class="screen-num">3</div>
+    <div class="screen-label">My Cook Dashboard</div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="s3-header">
+        <div class="s3-greeting">Good morning, Priya 👋</div>
+        <div class="s3-title">My Cook</div>
+      </div>
+      <div class="s3-body">
+        <div class="progress-track">
+          <div style="font-size:11px;font-weight:700;color:#1e293b;">Trust Journey with Meera</div>
+          <div class="trust-progress">
+            <div class="trust-step done"></div>
+            <div class="trust-step done"></div>
+            <div class="trust-step active"></div>
+            <div class="trust-step"></div>
+            <div class="trust-step"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:3px;">
+            <span style="font-size:9px;color:#FF5C00;font-weight:600;">Session 3 of 5 · Lock-in unlocks after this</span>
+          </div>
+        </div>
+        <div class="cook-rel-card">
+          <div class="rel-header">
+            <div class="rel-avatar">👩‍🍳</div>
+            <div>
+              <div class="rel-name">Meera Krishnamurthy</div>
+              <div class="rel-since">With you since 12 Jun · 2 sessions</div>
+            </div>
+            <div class="locked-badge">🔒 Trial</div>
+          </div>
+          <button class="msg-btn">💬 Message Meera</button>
+        </div>
+        <div class="next-session">
+          <div class="next-lbl">⏰ Next Session</div>
+          <div class="next-time">Today, 7:30 AM · Breakfast + Dinner</div>
+          <div class="next-menu">Menu: Dosas + Coconut Chutney · Dal Makhani + Roti</div>
+          <button class="msg-btn" style="background:#fff;color:#FF5C00;border:1.5px solid #FF5C00;">Edit Menu Request</button>
+        </div>
+        <div class="session-hist">
+          <div class="hist-lbl">Session History</div>
+          <div class="hist-row">
+            <div><div class="hist-date">17 Jun, 7:30 AM</div><div class="hist-meal">Idli-Sambar · Dal Rice</div></div>
+            <div class="hist-stars">★★★★★</div>
+          </div>
+          <div class="hist-row">
+            <div><div class="hist-date">15 Jun, 7:30 AM</div><div class="hist-meal">Poha · Palak Paneer</div></div>
+            <div class="hist-stars">★★★★★</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="arrow-connector">›</div>
+
+  <!-- SCREEN 4 -->
+  <div class="phone-wrap">
+    <div class="screen-num">4</div>
+    <div class="screen-label">Lock In My Cook</div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="s4-header">
+        <h2>🎉 3 Sessions Done!</h2>
+        <p>Meera rated 5★ across taste, hygiene & timing. Ready to make her your regular cook?</p>
+      </div>
+      <div class="rating-card">
+        <div class="q-label">How was the taste?</div>
+        <div class="emoji-row">
+          <div class="emoji-opt"><span>😐</span><span>Okay</span></div>
+          <div class="emoji-opt"><span>😊</span><span>Good</span></div>
+          <div class="emoji-opt sel"><span>🤩</span><span>Loved it</span></div>
+        </div>
+        <div class="q-label">Was the kitchen clean after?</div>
+        <div class="emoji-row">
+          <div class="emoji-opt"><span>😐</span><span>Not really</span></div>
+          <div class="emoji-opt sel"><span>✅</span><span>Yes!</span></div>
+          <div class="emoji-opt"><span>⭐</span><span>Spotless</span></div>
+        </div>
+        <div class="q-label">Did she arrive on time?</div>
+        <div class="emoji-row">
+          <div class="emoji-opt"><span>🕐</span><span>Late</span></div>
+          <div class="emoji-opt sel"><span>✅</span><span>On time</span></div>
+          <div class="emoji-opt"><span>🚀</span><span>Early!</span></div>
+        </div>
+      </div>
+      <div class="lock-section">
+        <div class="lock-icon">🔐</div>
+        <div class="lock-title">Lock in Meera as My Cook</div>
+        <div class="lock-sub">Get priority booking, same cook every session, and a backup cook guarantee if she's ever unavailable.</div>
+        <div class="perks-row">
+          <div class="perk">📅 Priority Slots</div>
+          <div class="perk">🔄 Backup Cook</div>
+          <div class="perk">💬 Direct Chat</div>
+        </div>
+        <button class="lock-btn" style="margin-top:12px;">Lock In Meera — ₹4,999/mo →</button>
+        <button class="skip-btn">Continue on a session-by-session basis</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div style="margin-top:32px;text-align:center;color:#475569;font-size:12px;">
+  <strong style="color:#FF8C00;">SnabChef — Snabbit Cooking Vertical</strong> &nbsp;·&nbsp; Case study by Ajay Avaghade &nbsp;·&nbsp;
+  <a href="https://ajay-avaghade.github.io/Portfolio/" style="color:#FF8C00;">Portfolio</a>
+</div>
+
+</body>
+</html>

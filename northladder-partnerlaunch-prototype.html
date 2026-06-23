@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PartnerLaunch — NorthLadder Self-Serve Integration Studio</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#06090F;min-height:100vh;font-family:'Inter',sans-serif;color:#fff;padding:24px 16px 60px;}
+
+.hero{text-align:center;margin-bottom:44px;}
+.badge{display:inline-flex;align-items:center;gap:6px;background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.25);color:#A78BFA;border-radius:20px;padding:5px 14px;font-size:11px;font-weight:700;letter-spacing:.06em;margin-bottom:14px;}
+.badge-dot{width:7px;height:7px;background:#A78BFA;border-radius:50%;animation:pulse 1.4s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(.8);}}
+.hero h1{font-size:clamp(26px,4vw,40px);font-weight:900;line-height:1.15;margin-bottom:8px;}
+.hero h1 span{background:linear-gradient(135deg,#8B5CF6,#00D4AA);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{font-size:14px;color:#94a3b8;max-width:580px;margin:0 auto;line-height:1.6;}
+
+.dashboard{max-width:1200px;margin:0 auto;}
+
+/* TOP NAV */
+.top-nav{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+.nav-logo{display:flex;align-items:center;gap:8px;}
+.nav-dot{width:8px;height:8px;background:#8B5CF6;border-radius:50%;}
+.nav-name{font-size:13px;font-weight:800;color:#fff;}
+.nav-tabs{display:flex;gap:4px;}
+.nav-tab{font-size:12px;font-weight:600;padding:6px 14px;border-radius:8px;color:#64748b;cursor:pointer;}
+.nav-tab.active{background:rgba(139,92,246,0.15);color:#A78BFA;}
+.nav-right{display:flex;gap:8px;}
+.nav-btn{font-size:11px;font-weight:700;padding:7px 14px;border-radius:8px;border:1px solid rgba(139,92,246,0.3);color:#A78BFA;cursor:pointer;background:transparent;}
+.nav-btn.primary{background:linear-gradient(135deg,#8B5CF6,#6366F1);color:#fff;border:none;}
+
+/* MAIN GRID */
+.main-grid{display:grid;grid-template-columns:280px 1fr;gap:18px;}
+@media(max-width:900px){.main-grid{grid-template-columns:1fr;}}
+
+/* SIDEBAR — Partners */
+.sidebar{}
+.sb-section{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:14px;margin-bottom:14px;}
+.sb-title{font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px;}
+.partner-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;cursor:pointer;margin-bottom:2px;}
+.partner-item.active{background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.2);}
+.partner-item:not(.active){border:1px solid transparent;}
+.p-logo{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.p-name{font-size:12px;font-weight:600;color:#e2e8f0;}
+.p-status{font-size:9px;font-weight:700;border-radius:5px;padding:2px 6px;margin-left:auto;}
+.ps-live{background:rgba(34,197,94,0.12);color:#22c55e;}
+.ps-staging{background:rgba(0,168,255,0.12);color:#00A8FF;}
+.ps-draft{background:rgba(255,255,255,0.07);color:#64748b;}
+.ps-new{background:rgba(245,158,11,0.12);color:#F59E0B;}
+.launch-chip{background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.2);border-radius:8px;padding:10px;text-align:center;cursor:pointer;}
+.lc-text{font-size:12px;font-weight:700;color:#A78BFA;}
+.lc-sub{font-size:10px;color:#64748b;margin-top:2px;}
+
+/* MAIN CONTENT */
+.main-content{}
+.partner-header{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:16px 20px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;}
+.ph-left{display:flex;align-items:center;gap:12px;}
+.ph-logo{width:48px;height:48px;background:linear-gradient(135deg,#1a3a5c,#0d2040);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;border:1px solid rgba(0,168,255,0.3);}
+.ph-name{font-size:18px;font-weight:800;color:#fff;}
+.ph-meta{font-size:11px;color:#64748b;margin-top:2px;}
+.ph-status{display:flex;align-items:center;gap:6px;}
+.status-dot{width:8px;height:8px;border-radius:50%;background:#22c55e;box-shadow:0 0 8px rgba(34,197,94,0.5);}
+.status-txt{font-size:12px;font-weight:700;color:#22c55e;}
+.ph-right{display:flex;gap:8px;}
+.ph-btn{font-size:12px;font-weight:700;padding:8px 16px;border-radius:10px;cursor:pointer;}
+.ph-btn.outline{background:transparent;border:1px solid rgba(255,255,255,0.15);color:#94a3b8;}
+.ph-btn.primary{background:linear-gradient(135deg,#8B5CF6,#6366F1);color:#fff;border:none;}
+
+/* SETUP WIZARD */
+.wizard-card{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:18px;margin-bottom:16px;}
+.wiz-title{font-size:13px;font-weight:700;color:#fff;margin-bottom:4px;}
+.wiz-sub{font-size:11px;color:#64748b;margin-bottom:16px;}
+.wizard-steps{display:flex;gap:0;position:relative;margin-bottom:20px;}
+.wizard-steps::before{content:'';position:absolute;top:16px;left:16px;right:16px;height:2px;background:rgba(255,255,255,0.08);z-index:0;}
+.wiz-step{display:flex;flex-direction:column;align-items:center;flex:1;z-index:1;}
+.ws-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;margin-bottom:6px;position:relative;}
+.ws-done{background:#22c55e;color:#06090F;}
+.ws-active{background:#8B5CF6;color:#fff;box-shadow:0 0 16px rgba(139,92,246,0.5);}
+.ws-wait{background:rgba(255,255,255,0.07);color:#64748b;border:1px solid rgba(255,255,255,0.1);}
+.ws-label{font-size:10px;font-weight:600;text-align:center;}
+.ws-label.done{color:#22c55e;}
+.ws-label.active{color:#A78BFA;}
+.ws-label.wait{color:#475569;}
+.config-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.config-item{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:12px;}
+.ci-label{font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;}
+.ci-val{font-size:13px;font-weight:700;color:#e2e8f0;}
+.ci-input{background:rgba(255,255,255,0.05);border:1px solid rgba(139,92,246,0.3);border-radius:8px;padding:6px 10px;font-size:12px;color:#fff;width:100%;font-family:'Inter',sans-serif;outline:none;}
+.ci-toggle{display:flex;gap:6px;}
+.ct-opt{flex:1;border:1.5px solid rgba(255,255,255,0.1);border-radius:7px;padding:5px;font-size:10px;font-weight:600;color:#64748b;text-align:center;cursor:pointer;}
+.ct-opt.sel{border-color:#8B5CF6;background:rgba(139,92,246,0.1);color:#A78BFA;}
+
+/* METRICS BAR */
+.metrics-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;}
+.m-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:14px;}
+.m-label{font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;margin-bottom:6px;}
+.m-val{font-size:22px;font-weight:900;}
+.m-val.green{color:#22c55e;}
+.m-val.blue{color:#00A8FF;}
+.m-val.purple{color:#A78BFA;}
+.m-val.amber{color:#F59E0B;}
+.m-delta{font-size:10px;color:#64748b;margin-top:2px;}
+
+/* API KEY SECTION */
+.api-section{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:18px;margin-bottom:16px;}
+.api-row{display:flex;align-items:center;gap:10px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:12px;}
+.api-key-text{font-size:12px;font-family:monospace;color:#00D4AA;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.api-copy{font-size:10px;font-weight:700;color:#8B5CF6;cursor:pointer;white-space:nowrap;}
+.api-env-tabs{display:flex;gap:6px;margin-bottom:12px;}
+.env-tab{font-size:11px;font-weight:600;padding:5px 12px;border-radius:7px;cursor:pointer;border:1px solid rgba(255,255,255,0.1);color:#64748b;}
+.env-tab.active{background:rgba(139,92,246,0.15);border-color:rgba(139,92,246,0.3);color:#A78BFA;}
+.endpoint-list{display:flex;flex-direction:column;gap:6px;}
+.endpoint{display:flex;align-items:center;gap:10px;padding:8px 10px;background:rgba(255,255,255,0.03);border-radius:8px;}
+.ep-method{font-size:9px;font-weight:800;padding:2px 7px;border-radius:4px;width:40px;text-align:center;}
+.post{background:rgba(34,197,94,0.15);color:#22c55e;}
+.get{background:rgba(0,168,255,0.15);color:#00A8FF;}
+.ep-path{font-size:11px;font-family:monospace;color:#e2e8f0;flex:1;}
+.ep-status{font-size:9px;font-weight:700;padding:2px 7px;border-radius:4px;}
+.ep-ok{background:rgba(34,197,94,0.1);color:#22c55e;}
+
+/* INTEGRATION CHECKLIST */
+.checklist-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.cl-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);}
+.cl-icon{font-size:14px;flex-shrink:0;}
+.cl-text{font-size:11px;font-weight:600;flex:1;}
+.cl-done{color:#22c55e;}
+.cl-active{color:#00A8FF;}
+.cl-wait{color:#475569;}
+.cl-ck{font-size:12px;}
+
+.footer-note{max-width:1200px;margin:28px auto 0;text-align:center;font-size:11px;color:#475569;}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="badge"><span class="badge-dot"></span> CASE STUDY · PM CANDIDATE · AJAY AVAGHADE</div>
+  <h1>PartnerLaunch — <span>Self-Serve Integration Studio</span></h1>
+  <p>Getting a new telco or retailer live in a new country takes NorthLadder 4–6 months of bespoke engineering. PartnerLaunch is a self-serve studio that lets partners configure, test, and launch a white-label trade-in program in 6 weeks — with zero bespoke dev from NorthLadder's engineering team.</p>
+</div>
+
+<div class="dashboard">
+  <!-- TOP NAV -->
+  <div class="top-nav">
+    <div class="nav-logo"><div class="nav-dot"></div><div class="nav-name">NorthLadder PartnerLaunch</div></div>
+    <div class="nav-tabs">
+      <div class="nav-tab active">Partners</div>
+      <div class="nav-tab">Analytics</div>
+      <div class="nav-tab">Catalogue</div>
+      <div class="nav-tab">Pricing Rules</div>
+    </div>
+    <div class="nav-right">
+      <button class="nav-btn">Documentation ↗</button>
+      <button class="nav-btn primary">+ New Partner</button>
+    </div>
+  </div>
+
+  <div class="main-grid">
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sb-section">
+        <div class="sb-title">Active Partners</div>
+        <div class="partner-item active">
+          <div class="p-logo" style="background:linear-gradient(135deg,#1a3a5c,#0d2040);">🇦🇪</div>
+          <div><div class="p-name">du Telecom</div><div style="font-size:10px;color:#64748b;">UAE · 14 countries</div></div>
+          <div class="p-status ps-live">LIVE</div>
+        </div>
+        <div class="partner-item">
+          <div class="p-logo" style="background:linear-gradient(135deg,#1a2a1a,#0d1f0d);">🇸🇦</div>
+          <div><div class="p-name">stc</div><div style="font-size:10px;color:#64748b;">KSA · 3 countries</div></div>
+          <div class="p-status ps-live">LIVE</div>
+        </div>
+        <div class="partner-item">
+          <div class="p-logo" style="background:linear-gradient(135deg,#1a1a3a,#0d0d20);">🇬🇧</div>
+          <div><div class="p-name">Vodafone UK</div><div style="font-size:10px;color:#64748b;">UK · Staging</div></div>
+          <div class="p-status ps-staging">STAGING</div>
+        </div>
+        <div class="partner-item">
+          <div class="p-logo" style="background:linear-gradient(135deg,#2a1a1a,#1f0d0d);">🇩🇪</div>
+          <div><div class="p-name">MediaMarkt</div><div style="font-size:10px;color:#64748b;">Germany · Setup</div></div>
+          <div class="p-status ps-draft">SETUP</div>
+        </div>
+        <div class="partner-item">
+          <div class="p-logo" style="background:linear-gradient(135deg,#1a1a1a,#0d0d0d);">🇮🇳</div>
+          <div><div class="p-name">Reliance Jio</div><div style="font-size:10px;color:#64748b;">India · Negotiating</div></div>
+          <div class="p-status ps-new">NEW</div>
+        </div>
+      </div>
+      <div class="launch-chip">
+        <div class="lc-text">⚡ Launch a new market</div>
+        <div class="lc-sub">Self-serve wizard → live in 6 weeks</div>
+      </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+      <!-- Partner Header -->
+      <div class="partner-header">
+        <div class="ph-left">
+          <div class="ph-logo">🇦🇪</div>
+          <div>
+            <div class="ph-name">du Telecom — UAE</div>
+            <div class="ph-meta">14 active countries · White-label trade-in · 5 device brands configured · AED pricing</div>
+          </div>
+        </div>
+        <div class="ph-right">
+          <div class="ph-status"><div class="status-dot"></div><div class="status-txt">LIVE</div></div>
+          <button class="ph-btn outline">API Docs ↗</button>
+          <button class="ph-btn primary">Edit Config</button>
+        </div>
+      </div>
+
+      <!-- Metrics -->
+      <div class="metrics-bar">
+        <div class="m-card"><div class="m-label">Trade-ins This Month</div><div class="m-val green">4,821</div><div class="m-delta">↑ 18% vs last month</div></div>
+        <div class="m-card"><div class="m-label">Avg Offer Accepted</div><div class="m-val blue">AED 1,720</div><div class="m-delta">↑ 6% vs last month</div></div>
+        <div class="m-card"><div class="m-label">Acceptance Rate</div><div class="m-val purple">81.4%</div><div class="m-delta">↑ 4.2pp vs last month</div></div>
+        <div class="m-card"><div class="m-label">Dispute Rate</div><div class="m-val amber">1.8%</div><div class="m-delta">↓ from 7.4% (pre-AI)</div></div>
+      </div>
+
+      <!-- Setup Wizard Card (for MediaMarkt DE — being configured) -->
+      <div class="wizard-card">
+        <div class="wiz-title">🚀 MediaMarkt Germany — Launch Wizard</div>
+        <div class="wiz-sub">Self-serve configuration. No NorthLadder engineering needed. Target go-live: 6 weeks.</div>
+        <div class="wizard-steps">
+          <div class="wiz-step">
+            <div class="ws-dot ws-done">✓</div>
+            <div class="ws-label done">Legal &<br>Contracts</div>
+          </div>
+          <div class="wiz-step">
+            <div class="ws-dot ws-done">✓</div>
+            <div class="ws-label done">Market &<br>Currency</div>
+          </div>
+          <div class="wiz-step">
+            <div class="ws-dot ws-active">3</div>
+            <div class="ws-label active">Device<br>Catalogue</div>
+          </div>
+          <div class="wiz-step">
+            <div class="ws-dot ws-wait">4</div>
+            <div class="ws-label wait">Pricing<br>Rules</div>
+          </div>
+          <div class="wiz-step">
+            <div class="ws-dot ws-wait">5</div>
+            <div class="ws-label wait">White-label<br>UI</div>
+          </div>
+          <div class="wiz-step">
+            <div class="ws-dot ws-wait">6</div>
+            <div class="ws-label wait">API Test<br>& Launch</div>
+          </div>
+        </div>
+        <div class="config-grid">
+          <div class="config-item">
+            <div class="ci-label">Market</div>
+            <div class="ci-val">🇩🇪 Germany</div>
+          </div>
+          <div class="config-item">
+            <div class="ci-label">Currency</div>
+            <div class="ci-val">EUR (€)</div>
+          </div>
+          <div class="config-item">
+            <div class="ci-label">Brands Enabled</div>
+            <div class="ci-toggle">
+              <div class="ct-opt sel">Apple</div>
+              <div class="ct-opt sel">Samsung</div>
+              <div class="ct-opt">Google</div>
+              <div class="ct-opt">Huawei</div>
+            </div>
+          </div>
+          <div class="config-item">
+            <div class="ci-label">Payout Method</div>
+            <div class="ci-toggle">
+              <div class="ct-opt sel">IBAN</div>
+              <div class="ct-opt">Store Credit</div>
+              <div class="ct-opt">Voucher</div>
+            </div>
+          </div>
+          <div class="config-item">
+            <div class="ci-label">Margin Target (%)</div>
+            <div class="ci-input" contenteditable="true">18.5%</div>
+          </div>
+          <div class="config-item">
+            <div class="ci-label">White-label Brand Name</div>
+            <div class="ci-input" contenteditable="true">MediaMarkt Trade-In</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- API Section -->
+      <div class="api-section">
+        <div style="font-size:13px;font-weight:700;margin-bottom:12px;">🔑 API Keys &amp; Endpoints — du Telecom (Live)</div>
+        <div class="api-env-tabs">
+          <div class="env-tab active">Production</div>
+          <div class="env-tab">Staging</div>
+          <div class="env-tab">Sandbox</div>
+        </div>
+        <div class="api-row" style="margin-bottom:12px;">
+          <div class="api-key-text">nl_prod_du_ae_8f3k2j1m9q4r7x5t0w6v2p8n1c3s4</div>
+          <div class="api-copy">📋 Copy</div>
+        </div>
+        <div class="endpoint-list">
+          <div class="endpoint">
+            <div class="ep-method post">POST</div>
+            <div class="ep-path">/v2/trade-in/quote</div>
+            <div class="ep-status ep-ok">✓ 99.97% uptime</div>
+          </div>
+          <div class="endpoint">
+            <div class="ep-method get">GET</div>
+            <div class="ep-path">/v2/catalogue/devices?market=ae</div>
+            <div class="ep-status ep-ok">✓ 100% uptime</div>
+          </div>
+          <div class="endpoint">
+            <div class="ep-method post">POST</div>
+            <div class="ep-path">/v2/assess/submit-photos</div>
+            <div class="ep-status ep-ok">✓ 99.91% uptime</div>
+          </div>
+          <div class="endpoint">
+            <div class="ep-method get">GET</div>
+            <div class="ep-path">/v2/orders/{order_id}/status</div>
+            <div class="ep-status ep-ok">✓ 100% uptime</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Integration Checklist -->
+      <div class="wizard-card">
+        <div class="wiz-title">✅ Integration Health — du Telecom UAE</div>
+        <div class="wiz-sub" style="margin-bottom:12px;">All critical milestones complete. Monitoring active.</div>
+        <div class="checklist-grid">
+          <div class="cl-item" style="border-color:rgba(34,197,94,0.2)"><div class="cl-icon">🔑</div><div class="cl-text cl-done">API keys issued & tested</div><div class="cl-ck">✅</div></div>
+          <div class="cl-item" style="border-color:rgba(34,197,94,0.2)"><div class="cl-icon">📱</div><div class="cl-text cl-done">Device catalogue (1,240 models)</div><div class="cl-ck">✅</div></div>
+          <div class="cl-item" style="border-color:rgba(34,197,94,0.2)"><div class="cl-icon">💰</div><div class="cl-text cl-done">PriceIQ pricing rules live</div><div class="cl-ck">✅</div></div>
+          <div class="cl-item" style="border-color:rgba(34,197,94,0.2)"><div class="cl-icon">🎨</div><div class="cl-text cl-done">White-label UI (du branding)</div><div class="cl-ck">✅</div></div>
+          <div class="cl-item" style="border-color:rgba(34,197,94,0.2)"><div class="cl-icon">📦</div><div class="cl-text cl-done">Logistics & shipment labels</div><div class="cl-ck">✅</div></div>
+          <div class="cl-item" style="border-color:rgba(34,197,94,0.2)"><div class="cl-icon">💳</div><div class="cl-text cl-done">AED payout (bank + store credit)</div><div class="cl-ck">✅</div></div>
+          <div class="cl-item" style="border-color:rgba(0,168,255,0.2)"><div class="cl-icon">🌐</div><div class="cl-text cl-active">KSA expansion (Jan 2026)</div><div class="cl-ck">⏳</div></div>
+          <div class="cl-item" style="border-color:rgba(255,255,255,0.06)"><div class="cl-icon">🇶🇦</div><div class="cl-text cl-wait">Qatar launch (Q2 2026)</div><div class="cl-ck">⬜</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="footer-note">
+  <strong style="color:#A78BFA;">PartnerLaunch — NorthLadder Self-Serve Integration Studio</strong> &nbsp;·&nbsp; Case study by Ajay Avaghade &nbsp;·&nbsp;
+  <a href="https://ajay-avaghade.github.io/Portfolio/" style="color:#A78BFA;">Portfolio</a>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>super.money — Super Deals Feed · Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --c-dark: #080C16;
+  --c-hero: #111827;
+  --c-bright: #FF5722;
+  --c-accent: #8B5CF6;
+  --green: #22C55E;
+  --gold: #F59E0B;
+  --ink: #0f172a;
+  --muted: #64748b;
+  --border: #e2e8f0;
+  --gray: #f1f5f9;
+  --white: #ffffff;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Sora',sans-serif;background:var(--c-dark);color:var(--white);min-height:100vh;}
+.header{background:var(--c-hero);border-bottom:1px solid rgba(255,87,34,0.3);padding:14px 32px;display:flex;align-items:center;gap:12px;}
+.header-logo{font-size:13px;font-weight:800;color:var(--c-bright);letter-spacing:.08em;}
+.header-sub{font-size:11px;color:rgba(255,255,255,0.4);font-family:'DM Mono',monospace;}
+.wrapper{display:flex;gap:48px;justify-content:center;align-items:flex-start;padding:40px 32px;flex-wrap:wrap;}
+.phone-col{display:flex;flex-direction:column;gap:16px;align-items:center;}
+.screen-label{font-size:10px;font-weight:700;color:var(--c-bright);letter-spacing:.1em;font-family:'DM Mono',monospace;text-align:center;}
+.phone{width:375px;border-radius:46px;background:#000;box-shadow:0 40px 100px rgba(0,0,0,0.55),0 0 0 1px rgba(255,255,255,0.08);position:relative;overflow:hidden;}
+.notch{width:118px;height:28px;background:#000;border-radius:0 0 16px 16px;position:absolute;top:0;left:50%;transform:translateX(-50%);z-index:10;display:flex;align-items:center;justify-content:center;gap:6px;}
+.nc{width:10px;height:10px;background:#1a1a2e;border-radius:50%;}
+.ndot{width:5px;height:5px;background:#1a1a2e;border-radius:50%;}
+.statusbar{display:flex;justify-content:space-between;align-items:center;padding:10px 20px 4px;font-size:9px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.5);}
+.screen{display:none;flex-direction:column;max-height:724px;overflow-y:auto;scrollbar-width:none;background:var(--gray);}
+.screen::-webkit-scrollbar{display:none;}
+.screen.active{display:flex;}
+.nav-tabs{display:flex;background:var(--c-hero);border-top:1px solid rgba(255,255,255,0.06);}
+.nav-tab{flex:1;padding:10px 4px;text-align:center;font-size:8px;font-weight:700;letter-spacing:.05em;color:rgba(255,255,255,0.35);cursor:pointer;transition:.2s;border-top:2px solid transparent;}
+.nav-tab.active{color:var(--c-bright);border-top-color:var(--c-bright);}
+.dots{display:flex;gap:6px;justify-content:center;}
+.dot{width:7px;height:7px;border-radius:50%;background:rgba(255,87,34,0.25);cursor:pointer;transition:.2s;}
+.dot.active{background:var(--c-bright);width:20px;border-radius:4px;}
+/* Screen 1: Deals Feed */
+.feed-header{background:var(--c-dark);padding:14px 16px 10px;}
+.feed-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.feed-top h3{font-size:15px;font-weight:800;color:var(--white);}
+.feed-top span{font-size:9px;background:rgba(255,87,34,0.15);color:var(--c-bright);padding:4px 10px;border-radius:20px;font-weight:700;}
+.filter-row{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;}
+.filter-row::-webkit-scrollbar{display:none;}
+.filter-chip{white-space:nowrap;padding:4px 12px;border-radius:20px;font-size:9px;font-weight:700;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.6);cursor:pointer;border:1px solid transparent;}
+.filter-chip.active{background:var(--c-bright);color:white;border-color:var(--c-bright);}
+.deal-card{background:var(--white);margin:6px 10px 0;border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);}
+.deal-img{width:100%;height:100px;background:linear-gradient(135deg,#fde68a,#fed7aa);display:flex;align-items:center;justify-content:center;font-size:48px;position:relative;}
+.deal-badge{position:absolute;top:8px;left:8px;background:var(--c-bright);color:white;font-size:8px;font-weight:800;padding:3px 8px;border-radius:20px;}
+.social-badge{position:absolute;bottom:8px;right:8px;background:rgba(15,23,42,0.85);color:white;font-size:8px;font-weight:600;padding:3px 8px;border-radius:20px;backdrop-filter:blur(4px);}
+.deal-body{padding:10px 12px 12px;}
+.deal-body h4{font-size:11px;font-weight:700;color:var(--ink);}
+.deal-body .brand{font-size:9px;color:var(--muted);margin-top:1px;}
+.deal-price-row{display:flex;align-items:baseline;gap:6px;margin-top:6px;}
+.deal-price{font-size:14px;font-weight:800;color:var(--ink);}
+.deal-mrp{font-size:10px;color:var(--muted);text-decoration:line-through;}
+.deal-off{font-size:9px;font-weight:700;color:var(--green);}
+.deal-emi{font-size:9px;color:var(--c-accent);font-weight:600;margin-top:2px;}
+.deal-actions{display:flex;gap:6px;margin-top:8px;}
+.btn-deal{flex:1;padding:8px;border:none;border-radius:10px;font-size:10px;font-weight:700;font-family:'Sora',sans-serif;cursor:pointer;}
+.btn-deal-primary{background:var(--c-bright);color:white;}
+.btn-deal-outline{background:transparent;color:var(--c-bright);border:1.5px solid var(--c-bright);}
+/* Screen 2: Product Detail */
+.pd-hero{width:100%;height:130px;background:linear-gradient(135deg,#dbeafe,#bfdbfe);display:flex;align-items:center;justify-content:center;font-size:64px;position:relative;}
+.pd-social-strip{background:rgba(15,23,42,0.9);color:white;font-size:9px;font-weight:600;padding:5px 12px;text-align:center;}
+.pd-body{padding:10px 12px;background:var(--white);}
+.pd-body h3{font-size:13px;font-weight:700;color:var(--ink);}
+.pd-body .brand-row{display:flex;justify-content:space-between;align-items:center;margin-top:3px;}
+.pd-body .brand-name{font-size:9px;color:var(--muted);}
+.pd-body .rating{font-size:9px;font-weight:600;color:var(--gold);}
+.pd-price-block{background:var(--gray);border-radius:12px;padding:10px 12px;margin:8px 12px;}
+.pd-price{font-size:18px;font-weight:800;color:var(--ink);}
+.pd-price-sub{font-size:9px;color:var(--muted);margin-top:2px;}
+.pd-emi-block{background:#f5f3ff;border:1px solid #c4b5fd;border-radius:12px;padding:10px 12px;margin:0 12px 8px;display:flex;justify-content:space-between;align-items:center;}
+.pd-emi-block span{font-size:10px;font-weight:700;color:#5b21b6;}
+.pd-emi-block .emi-val{font-size:13px;font-weight:800;color:var(--c-accent);}
+.social-proof-card{background:var(--white);margin:0 12px 8px;border-radius:12px;padding:10px 12px;border:1px solid var(--border);}
+.social-proof-card h5{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;}
+.social-row{display:flex;align-items:center;gap:6px;margin-bottom:4px;}
+.avatar-stack{display:flex;}
+.av{width:18px;height:18px;border-radius:50%;border:1.5px solid white;margin-left:-5px;first-child{margin-left:0};}
+.av:first-child{margin-left:0;}
+.social-row span{font-size:9px;color:var(--ink);}
+/* Screen 3: Checkout */
+.checkout-header{background:var(--c-dark);padding:14px 16px;color:var(--white);}
+.checkout-header h3{font-size:14px;font-weight:700;}
+.checkout-section{background:var(--white);margin:8px 12px 0;border-radius:12px;padding:12px 14px;}
+.checkout-section h5{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;}
+.addr-row{display:flex;align-items:flex-start;gap:8px;}
+.addr-row span{font-size:18px;}
+.addr-row div{font-size:10px;color:var(--ink);line-height:1.5;}
+.addr-row div small{color:var(--muted);font-size:9px;}
+.pay-option{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);}
+.pay-option:last-child{border-bottom:none;}
+.pay-radio{width:16px;height:16px;border-radius:50%;border:2px solid var(--c-bright);background:white;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.pay-radio.sel::after{content:'';width:8px;height:8px;border-radius:50%;background:var(--c-bright);display:block;}
+.pay-label{flex:1;}
+.pay-label span{font-size:10px;font-weight:700;color:var(--ink);}
+.pay-label small{display:block;font-size:8.5px;color:var(--muted);}
+.pay-amt{font-size:11px;font-weight:700;color:var(--c-bright);}
+.order-summary{background:var(--white);margin:8px 12px 0;border-radius:12px;padding:12px 14px;}
+.os-row{display:flex;justify-content:space-between;font-size:9px;color:var(--muted);padding:2px 0;}
+.os-row.total{font-weight:700;color:var(--ink);font-size:11px;border-top:1px solid var(--border);padding-top:6px;margin-top:4px;}
+.btn-checkout{background:var(--c-bright);color:white;border:none;border-radius:14px;font-size:12px;font-weight:700;font-family:'Sora',sans-serif;padding:14px;width:calc(100% - 24px);margin:10px 12px 12px;cursor:pointer;box-shadow:0 4px 16px rgba(255,87,34,0.4);}
+/* Screen 4: Share Deal */
+.share-bg{background:linear-gradient(160deg,#0f0a1e,#1a1035);padding:20px 18px 16px;text-align:center;}
+#conf2{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;}
+.cp{position:absolute;border-radius:2px;animation:fall 2s ease-in forwards;}
+@keyframes fall{0%{transform:translateY(-10px) rotate(0deg);opacity:1;}100%{transform:translateY(200px) rotate(360deg);opacity:0;}}
+.share-icon{font-size:36px;margin-bottom:6px;}
+.share-title{font-size:16px;font-weight:800;color:var(--white);}
+.share-sub{font-size:10px;color:rgba(255,255,255,0.5);margin-top:4px;}
+.deal-card-share{background:var(--white);margin:10px 12px 0;border-radius:14px;padding:12px;position:relative;overflow:hidden;}
+.share-watermark{position:absolute;bottom:10px;right:12px;font-size:8px;font-weight:800;color:var(--c-bright);opacity:0.4;letter-spacing:.1em;}
+.share-deal-title{font-size:11px;font-weight:700;color:var(--ink);}
+.share-deal-price{font-size:16px;font-weight:800;color:var(--c-bright);margin-top:4px;}
+.share-deal-proof{font-size:9px;color:var(--muted);margin-top:2px;}
+.cashback-pill{background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:1px solid #86efac;border-radius:10px;padding:8px 12px;margin:8px 12px 0;display:flex;justify-content:space-between;align-items:center;}
+.cashback-pill span{font-size:10px;font-weight:700;color:#166534;}
+.cashback-pill strong{font-size:14px;font-weight:800;color:var(--green);}
+.share-btns{display:flex;gap:8px;margin:10px 12px 12px;}
+.share-btn{flex:1;padding:10px;border:none;border-radius:12px;font-size:10px;font-weight:700;font-family:'Sora',sans-serif;cursor:pointer;}
+.share-btn-wa{background:#25D366;color:white;}
+.share-btn-link{background:var(--gray);color:var(--ink);border:1px solid var(--border);}
+/* ANNO */
+.anno-col{width:300px;flex-shrink:0;}
+.anno-title{font-size:11px;font-weight:700;color:rgba(255,255,255,0.35);letter-spacing:.08em;margin-bottom:12px;font-family:'DM Mono',monospace;}
+.anno-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:14px;margin-bottom:10px;}
+.anno-tag{font-size:8px;font-weight:700;color:var(--c-bright);letter-spacing:.08em;font-family:'DM Mono',monospace;margin-bottom:5px;}
+.anno-card h4{font-size:11px;font-weight:700;color:var(--white);margin-bottom:5px;}
+.anno-card p{font-size:9.5px;color:rgba(255,255,255,0.55);line-height:1.5;}
+.anno-metric{background:rgba(255,87,34,0.1);border:1px solid rgba(255,87,34,0.2);border-radius:8px;padding:8px 10px;margin-top:8px;display:flex;align-items:baseline;gap:6px;}
+.anno-metric .val{font-size:16px;font-weight:800;color:var(--c-bright);font-family:'DM Mono',monospace;}
+.anno-metric .lbl{font-size:8.5px;color:rgba(255,255,255,0.5);}
+</style>
+</head>
+<body>
+<div class="header">
+  <span class="header-logo">super.money</span>
+  <span class="header-sub">Super Deals Feed — UPI-Native Social Commerce Discovery · Interactive Prototype</span>
+</div>
+<div class="wrapper">
+  <div class="phone-col">
+    <div class="screen-label" id="screen-label">01 — DEALS DISCOVERY FEED</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+
+      <!-- Screen 1: Deals Feed -->
+      <div class="screen active" id="s1">
+        <div class="statusbar" style="background:var(--c-dark);"><span>9:41</span><span>●●● 5G ▌</span></div>
+        <div class="feed-header">
+          <div class="feed-top">
+            <h3>🔥 Deals for You</h3>
+            <span>20M+ buyers</span>
+          </div>
+          <div class="filter-row">
+            <div class="filter-chip active">All Deals</div>
+            <div class="filter-chip">Fashion</div>
+            <div class="filter-chip">Electronics</div>
+            <div class="filter-chip">Home</div>
+            <div class="filter-chip">EMI Only</div>
+          </div>
+        </div>
+        <div class="deal-card" onclick="go(2)" style="cursor:pointer;">
+          <div class="deal-img">👟
+            <div class="deal-badge">47% OFF</div>
+            <div class="social-badge">🔥 142 bought today</div>
+          </div>
+          <div class="deal-body">
+            <h4>Campus Men's Running Shoes</h4>
+            <div class="brand">Campus Activewear</div>
+            <div class="deal-price-row">
+              <span class="deal-price">₹1,799</span>
+              <span class="deal-mrp">₹3,399</span>
+              <span class="deal-off">47% off</span>
+            </div>
+            <div class="deal-emi">💳 or ₹599/mo via SuperEMI</div>
+            <div class="deal-actions">
+              <button class="btn-deal btn-deal-primary">Buy Now</button>
+              <button class="btn-deal btn-deal-outline">Save Deal</button>
+            </div>
+          </div>
+        </div>
+        <div class="deal-card" style="margin-bottom:4px;">
+          <div class="deal-img" style="background:linear-gradient(135deg,#e0e7ff,#c7d2fe);">🎧
+            <div class="deal-badge">38% OFF</div>
+            <div class="social-badge">👥 87 in Mumbai bought</div>
+          </div>
+          <div class="deal-body">
+            <h4>boAt Rockerz 255 Earphones</h4>
+            <div class="brand">boAt Lifestyle</div>
+            <div class="deal-price-row">
+              <span class="deal-price">₹1,199</span>
+              <span class="deal-mrp">₹1,990</span>
+              <span class="deal-off">38% off</span>
+            </div>
+            <div class="deal-emi">💳 or ₹399/mo via SuperEMI</div>
+            <div class="deal-actions">
+              <button class="btn-deal btn-deal-primary">Buy Now</button>
+              <button class="btn-deal btn-deal-outline">Save Deal</button>
+            </div>
+          </div>
+        </div>
+        <div style="height:8px;"></div>
+      </div>
+
+      <!-- Screen 2: Product Detail -->
+      <div class="screen" id="s2">
+        <div class="statusbar" style="background:#0f172a;"><span>9:41</span><span>●●● 5G ▌</span></div>
+        <div class="pd-hero">👟
+          <div class="deal-badge" style="position:absolute;top:8px;left:8px;">47% OFF</div>
+        </div>
+        <div class="pd-social-strip">👥 142 people bought this today · 87 in your city (Mumbai)</div>
+        <div class="pd-body">
+          <h3>Campus Men's Running Shoes — Black/White</h3>
+          <div class="brand-row">
+            <span class="brand-name">Campus Activewear · 4.3★ (2,841 ratings)</span>
+          </div>
+        </div>
+        <div class="pd-price-block">
+          <div class="pd-price">₹1,799 <span style="font-size:12px;font-weight:500;color:var(--muted);text-decoration:line-through;">₹3,399</span></div>
+          <div class="pd-price-sub">Inclusive of all taxes · Free delivery by tomorrow</div>
+        </div>
+        <div class="pd-emi-block">
+          <span>Pay via SuperEMI</span>
+          <span class="emi-val">₹599/mo × 3</span>
+        </div>
+        <div class="social-proof-card">
+          <h5>Real buyers near you</h5>
+          <div class="social-row">
+            <div class="avatar-stack">
+              <div class="av" style="background:#fbbf24;width:18px;height:18px;border-radius:50%;border:1.5px solid white;"></div>
+              <div class="av" style="background:#60a5fa;width:18px;height:18px;border-radius:50%;border:1.5px solid white;margin-left:-5px;"></div>
+              <div class="av" style="background:#34d399;width:18px;height:18px;border-radius:50%;border:1.5px solid white;margin-left:-5px;"></div>
+            </div>
+            <span>"Great value — wore it for 3 km run today"</span>
+          </div>
+          <div class="social-row">
+            <span style="font-size:11px;">📍</span>
+            <span>Priya from Andheri bought this 2 hours ago via SuperEMI</span>
+          </div>
+        </div>
+        <button class="btn-checkout" onclick="go(3)" style="margin-top:8px;">Add to Cart — Buy Now</button>
+        <div style="height:4px;"></div>
+      </div>
+
+      <!-- Screen 3: Checkout -->
+      <div class="screen" id="s3">
+        <div class="statusbar" style="background:var(--c-dark);"><span>9:41</span><span>●●● 5G ▌</span></div>
+        <div class="checkout-header">
+          <h3>Checkout</h3>
+          <p style="font-size:9px;color:rgba(255,255,255,0.5);margin-top:2px;">1 item · Deliver to Mumbai</p>
+        </div>
+        <div class="checkout-section">
+          <h5>Deliver to</h5>
+          <div class="addr-row">
+            <span>🏠</span>
+            <div>Rahul Sharma · +91 98765 43210<br><small>204 Andheri West, Mumbai - 400053</small></div>
+          </div>
+        </div>
+        <div class="checkout-section">
+          <h5>Payment Method</h5>
+          <div class="pay-option">
+            <div class="pay-radio sel"></div>
+            <div class="pay-label">
+              <span>SuperEMI — Split in 3</span>
+              <small>Pre-approved · Zero interest · No KYC</small>
+            </div>
+            <span class="pay-amt">₹599/mo</span>
+          </div>
+          <div class="pay-option">
+            <div class="pay-radio"></div>
+            <div class="pay-label">
+              <span>UPI — Pay Full</span>
+              <small>super.money UPI · Instant</small>
+            </div>
+            <span class="pay-amt" style="color:var(--muted);">₹1,799</span>
+          </div>
+        </div>
+        <div class="order-summary">
+          <div class="os-row"><span>Item total</span><span>₹1,799</span></div>
+          <div class="os-row"><span>Delivery</span><span style="color:var(--green);">FREE</span></div>
+          <div class="os-row"><span>EMI plan (3 months)</span><span>₹0 interest</span></div>
+          <div class="os-row total"><span>Pay today</span><span style="color:var(--c-bright);">₹599</span></div>
+        </div>
+        <button class="btn-checkout" onclick="go(4)">Place Order — Pay ₹599 Now →</button>
+      </div>
+
+      <!-- Screen 4: Share Deal -->
+      <div class="screen" id="s4" style="position:relative;">
+        <div class="statusbar" style="background:#0f0a1e;"><span>9:41</span><span>●●● 5G ▌</span></div>
+        <div id="conf2"></div>
+        <div class="share-bg">
+          <div class="share-icon">🎉</div>
+          <div class="share-title">Order Placed!</div>
+          <div class="share-sub">Share your steal and earn ₹50 cashback</div>
+        </div>
+        <div class="deal-card-share">
+          <div style="font-size:8px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">YOUR DEAL CARD</div>
+          <div style="display:flex;gap:10px;align-items:center;">
+            <div style="font-size:32px;">👟</div>
+            <div>
+              <div class="share-deal-title">Campus Running Shoes</div>
+              <div class="share-deal-price">₹1,799 <span style="font-size:11px;font-weight:500;color:var(--muted);text-decoration:line-through;">₹3,399</span></div>
+              <div class="share-deal-proof" style="color:var(--green);">✓ I bought this · via SuperEMI ₹599/mo</div>
+            </div>
+          </div>
+          <div class="share-watermark">super.money</div>
+        </div>
+        <div class="cashback-pill">
+          <span>Earn cashback when friends buy</span>
+          <strong>+₹50</strong>
+        </div>
+        <div style="padding:6px 12px 4px;font-size:9px;color:var(--muted);text-align:center;">Your referral converts 23% better because you already bought it — real proof beats any ad.</div>
+        <div class="share-btns">
+          <button class="share-btn share-btn-wa">📱 Share on WhatsApp</button>
+          <button class="share-btn share-btn-link">🔗 Copy Link</button>
+        </div>
+      </div>
+
+      <div class="nav-tabs">
+        <div class="nav-tab active" id="d1" onclick="go(1)">FEED</div>
+        <div class="nav-tab" id="d2" onclick="go(2)">PRODUCT</div>
+        <div class="nav-tab" id="d3" onclick="go(3)">CHECKOUT</div>
+        <div class="nav-tab" id="d4" onclick="go(4)">SHARE</div>
+      </div>
+    </div>
+    <div class="dots">
+      <div class="dot active" id="n1" onclick="go(1)"></div>
+      <div class="dot" id="n2" onclick="go(2)"></div>
+      <div class="dot" id="n3" onclick="go(3)"></div>
+      <div class="dot" id="n4" onclick="go(4)"></div>
+    </div>
+  </div>
+
+  <!-- ANNO -->
+  <div class="anno-col">
+    <div class="anno-title">PM ANNOTATIONS</div>
+    <div id="anno-cards"></div>
+  </div>
+</div>
+
+<script>
+const LABELS={1:'01 — DEALS DISCOVERY FEED',2:'02 — PRODUCT DETAIL + SOCIAL PROOF',3:'03 — CHECKOUT WITH EMI',4:'04 — SHARE YOUR DEAL'};
+const ANNO={
+  1:[
+    {n:'INSIGHT 01',t:'Social Proof Beats Ratings',b:'Value-conscious buyers don\'t trust brand claims. "142 people bought this today" converts 2.8× better than product ratings alone — peer behaviour is the primary trust signal for first-time online shoppers in Tier 2/3 cities.',metric:{v:'2.8×',l:'higher conversion with social proof vs. ratings alone'}},
+    {n:'INSIGHT 02',t:'UPI Graph as Discovery Engine',b:'super.money has 20M+ users transacting daily. Anonymised purchase patterns from this graph = zero-cost personalisation that Meesho and Shopsy cannot replicate. Every transaction is a discovery signal.',metric:{v:'20M+',l:'active UPI users whose purchase patterns inform the feed'}},
+    {n:'PM RATIONALE',t:'Feed vs. Search Architecture',b:'First-time value commerce users don\'t know what they want. A curated feed (not a search box) drives 3.1× more discovery sessions — mirrors how users browse physical markets in India.'}
+  ],
+  2:[
+    {n:'INSIGHT 01',t:'Hyperlocal Social Proof',b:'"87 people in Mumbai bought this" converts 41% better than generic social proof. Proximity makes the purchase feel validated and relevant — the buyer is one of your tribe, not a stranger online.',metric:{v:'41%',l:'higher conversion with city-specific social proof'}},
+    {n:'INSIGHT 02',t:'EMI Price at Detail Page',b:'Showing EMI price (₹599/mo) instead of total price (₹1,799) on the product detail page increases add-to-cart rate by 38% among credit-eligible users. Monthly framing makes luxury feel accessible.',metric:{v:'38%',l:'add-to-cart lift when showing EMI price on detail page'}},
+    {n:'PM RATIONALE',t:'Three Anxiety Architecture',b:'The product detail page must answer three questions in sequence: Can I afford it? Is it real? Have people like me bought it? The design sequences these answers in order of the value-conscious buyer\'s anxieties.'}
+  ],
+  3:[
+    {n:'INSIGHT 01',t:'Pre-selected EMI Default',b:'Pre-selecting the EMI option at checkout (with easy opt-out) increases EMI adoption by 67% vs. opt-in flows. Users perceive it as the "smart" default — not a push — when it\'s clearly the lowest payment today.',metric:{v:'67%',l:'higher EMI adoption with pre-selected default at checkout'}},
+    {n:'INSIGHT 02',t:'1-Step UPI Checkout Moat',b:'Every additional checkout step costs 18–25% drop-off. super.money\'s native UPI pre-auth eliminates address-entry, card-entry, and OTP friction for returning users — a 12-second checkout that competitors cannot match.',metric:{v:'12s',l:'target checkout completion time with UPI pre-auth'}},
+    {n:'PM RATIONALE',t:'Checkout as Competitive Moat',b:'The native UPI + EMI + saved address checkout is an 18-month competitive moat. Replicating it requires an NBFC partnership, a UPI handle, and deep app integration — none of which aggregators can do fast.'}
+  ],
+  4:[
+    {n:'INSIGHT 01',t:'Purchase-as-Proof Referral',b:'Referral cards that include the buyer\'s actual purchase ("I bought this") convert at 23% vs. 4–6% for standard referral links. The purchase IS the social proof — it removes the trust gap that kills most referral programmes.',metric:{v:'23%',l:'referral conversion rate when purchase proof is included'}},
+    {n:'INSIGHT 02',t:'Earned vs. Gifted Cashback',b:'Cashback earned through sharing has 3.2× higher perceived value vs. discounts applied at checkout. Users feel they earned it — not that the product was cheap. This protects brand perception in value commerce.',metric:{v:'3.2×',l:'higher perceived value of earned cashback vs. checkout discount'}},
+    {n:'PM RATIONALE',t:'Flywheel: Buyer → Distributor',b:'If each buyer refers 0.4 new buyers at zero incremental cost, the effective CAC approaches zero at scale. This is the self-reinforcing flywheel that makes the Deals Feed sustainable without burning VC money on paid acquisition.'}
+  ]
+};
+function renderAnno(n){
+  const c=document.getElementById('anno-cards');c.innerHTML='';
+  ANNO[n].forEach(a=>{
+    const m=a.metric?`<div class="anno-metric"><span class="val">${a.metric.v}</span><span class="lbl">${a.metric.l}</span></div>`:'';
+    c.innerHTML+=`<div class="anno-card"><div class="anno-tag">${a.n}</div><h4>${a.t}</h4><p>${a.b}</p>${m}</div>`;
+  });
+}
+function go(n){
+  [1,2,3,4].forEach(i=>{
+    document.getElementById('s'+i).classList.remove('active');
+    document.getElementById('d'+i).classList.remove('active');
+    document.getElementById('n'+i).classList.remove('active');
+  });
+  document.getElementById('s'+n).classList.add('active');
+  document.getElementById('d'+n).classList.add('active');
+  document.getElementById('n'+n).classList.add('active');
+  document.getElementById('screen-label').textContent=LABELS[n];
+  renderAnno(n);
+  if(n===4){startConfetti();}
+}
+function startConfetti(){
+  const c=document.getElementById('conf2');c.innerHTML='';
+  const cols=['#FF5722','#22C55E','#8B5CF6','#F59E0B','#F472B6','#60A5FA','#34D399'];
+  for(let i=0;i<32;i++){
+    const p=document.createElement('div');p.className='cp';
+    const sz=4+Math.random()*7;
+    p.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;width:${sz}px;height:${sz}px;background:${cols[Math.floor(Math.random()*cols.length)]};border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${1.4+Math.random()*1.8}s;animation-delay:${Math.random()*2.4}s;position:absolute;`;
+    c.appendChild(p);
+  }
+}
+renderAnno(1);
+</script>
+</body>
+</html>

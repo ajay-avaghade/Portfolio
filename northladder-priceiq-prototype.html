@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PriceIQ — NorthLadder Dynamic Trade-in Pricing</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#06090F;min-height:100vh;font-family:'Inter',sans-serif;color:#fff;padding:24px 16px 60px;}
+
+.page-header{text-align:center;margin-bottom:48px;padding-top:16px;}
+.badge{display:inline-flex;align-items:center;gap:6px;background:rgba(0,212,170,0.1);border:1px solid rgba(0,212,170,0.25);color:#00D4AA;border-radius:20px;padding:5px 14px;font-size:11px;font-weight:700;letter-spacing:.06em;margin-bottom:14px;}
+.badge-dot{width:7px;height:7px;background:#00D4AA;border-radius:50%;animation:pulse 1.4s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(.8);}}
+.page-header h1{font-size:clamp(26px,4vw,40px);font-weight:900;line-height:1.15;margin-bottom:8px;}
+.page-header h1 span{background:linear-gradient(135deg,#00D4AA,#00A8FF);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.page-header p{font-size:14px;color:#94a3b8;max-width:580px;margin:0 auto;line-height:1.6;}
+
+/* MAIN DASHBOARD */
+.dashboard{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:320px 1fr;gap:20px;}
+@media(max-width:800px){.dashboard{grid-template-columns:1fr;}}
+
+/* LEFT — Device Input */
+.panel{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:24px;}
+.panel-title{font-size:12px;font-weight:700;color:#00D4AA;text-transform:uppercase;letter-spacing:.08em;margin-bottom:16px;}
+.device-form label{font-size:11px;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px;margin-top:12px;}
+.device-form select,.device-form input{width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:#fff;font-size:13px;padding:10px 12px;font-family:'Inter',sans-serif;outline:none;}
+.device-form select option{background:#1e293b;}
+.condition-row{display:flex;gap:8px;margin-top:6px;}
+.cond-btn{flex:1;border:1.5px solid rgba(255,255,255,0.1);border-radius:8px;padding:8px 4px;font-size:11px;font-weight:600;color:#64748b;background:transparent;cursor:pointer;text-align:center;transition:.15s;}
+.cond-btn.sel{border-color:#00D4AA;background:rgba(0,212,170,0.1);color:#00D4AA;}
+.region-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;}
+.reg-chip{border:1.5px solid rgba(255,255,255,0.1);border-radius:20px;padding:5px 10px;font-size:11px;color:#64748b;cursor:pointer;transition:.15s;}
+.reg-chip.sel{border-color:#00A8FF;background:rgba(0,168,255,0.1);color:#00A8FF;}
+.price-btn{width:100%;margin-top:20px;background:linear-gradient(135deg,#00D4AA,#00A8FF);color:#06090F;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;}
+
+/* RIGHT TOP — Price Waterfall */
+.right-col{display:flex;flex-direction:column;gap:20px;}
+.waterfall-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+.wf-card{border-radius:14px;padding:16px;text-align:center;position:relative;overflow:hidden;}
+.wf-card.retail{background:rgba(148,163,184,0.08);border:1px solid rgba(148,163,184,0.15);}
+.wf-card.market{background:rgba(0,168,255,0.08);border:1px solid rgba(0,168,255,0.2);}
+.wf-card.offer{background:linear-gradient(135deg,rgba(0,212,170,0.15),rgba(0,168,255,0.1));border:1px solid rgba(0,212,170,0.35);}
+.wf-card.floor{background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);}
+.wf-label{font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;}
+.wf-val{font-size:22px;font-weight:900;line-height:1;}
+.wf-val.retail{color:#94a3b8;}
+.wf-val.market{color:#00A8FF;}
+.wf-val.offer{background:linear-gradient(135deg,#00D4AA,#00A8FF);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.wf-val.floor{color:#F59E0B;}
+.wf-sub{font-size:10px;color:#64748b;margin-top:4px;}
+.wf-badge{position:absolute;top:8px;right:8px;background:#00D4AA;color:#06090F;border-radius:6px;font-size:8px;font-weight:800;padding:2px 6px;}
+
+/* CHART */
+.chart-panel{flex:1;}
+.chart-area{height:160px;position:relative;margin-top:12px;}
+.chart-svg{width:100%;height:100%;}
+.chart-legend{display:flex;gap:16px;margin-top:8px;}
+.leg{display:flex;align-items:center;gap:5px;font-size:11px;color:#64748b;}
+.leg-dot{width:8px;height:8px;border-radius:50%;}
+
+/* MARKET SIGNALS */
+.signals-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.signal-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:12px;}
+.sig-top{display:flex;align-items:center;gap:6px;margin-bottom:6px;}
+.sig-icon{font-size:16px;}
+.sig-name{font-size:10px;font-weight:700;color:#94a3b8;}
+.sig-val{font-size:18px;font-weight:800;color:#fff;}
+.sig-delta{font-size:10px;font-weight:600;margin-top:2px;}
+.sig-delta.up{color:#22c55e;}
+.sig-delta.dn{color:#ef4444;}
+
+/* MARGIN SLIDER */
+.slider-row{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:16px;}
+.slider-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.slider-label{font-size:12px;font-weight:700;color:#94a3b8;}
+.slider-val{font-size:14px;font-weight:800;color:#00D4AA;}
+.slider-track{width:100%;height:6px;background:rgba(255,255,255,0.1);border-radius:3px;position:relative;}
+.slider-fill{height:100%;width:62%;background:linear-gradient(90deg,#00D4AA,#00A8FF);border-radius:3px;}
+.slider-thumb{width:16px;height:16px;background:#00D4AA;border-radius:50%;position:absolute;top:-5px;left:60%;border:2px solid #06090F;box-shadow:0 0 0 3px rgba(0,212,170,0.3);}
+.margin-row{display:flex;justify-content:space-between;margin-top:8px;}
+.m-item{text-align:center;}
+.m-val{font-size:14px;font-weight:800;}
+.m-lbl{font-size:10px;color:#64748b;}
+
+/* COUNTRY TABLE */
+.country-table{width:100%;border-collapse:collapse;}
+.country-table th{font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.05em;padding:6px 10px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.07);}
+.country-table td{font-size:12px;color:#e2e8f0;padding:8px 10px;border-bottom:1px solid rgba(255,255,255,0.04);}
+.trend-up{color:#22c55e;font-weight:600;}
+.trend-dn{color:#ef4444;font-weight:600;}
+.trend-fl{color:#F59E0B;font-weight:600;}
+.country-flag{font-size:14px;margin-right:4px;}
+.rec-chip{font-size:9px;font-weight:700;border-radius:6px;padding:2px 6px;}
+.rc-green{background:rgba(34,197,94,0.12);color:#22c55e;}
+.rc-orange{background:rgba(245,158,11,0.12);color:#F59E0B;}
+.rc-red{background:rgba(239,68,68,0.1);color:#ef4444;}
+
+.row-top{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+@media(max-width:600px){.row-top{grid-template-columns:1fr;}.waterfall-grid{grid-template-columns:repeat(2,1fr);}.signals-grid{grid-template-columns:repeat(2,1fr);}}
+
+.footer-note{max-width:1100px;margin:24px auto 0;text-align:center;font-size:11px;color:#475569;}
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="badge"><span class="badge-dot"></span> CASE STUDY · PM CANDIDATE · AJAY AVAGHADE</div>
+  <h1>PriceIQ — <span>Dynamic Trade-in Pricing Engine</span></h1>
+  <p>NorthLadder's value to telcos and retailers is a competitive trade-in offer. Static pricing tables lose value daily. PriceIQ ingests live secondary market data across 20+ countries to set the optimal trade-in price — maximising consumer acceptance while protecting NorthLadder's margin.</p>
+</div>
+
+<div class="dashboard">
+  <!-- LEFT: Device Input -->
+  <div class="panel">
+    <div class="panel-title">📱 Device Configuration</div>
+    <div class="device-form">
+      <label>Brand</label>
+      <select><option>Apple</option><option>Samsung</option><option>Google</option></select>
+      <label>Model</label>
+      <select><option>iPhone 14 Pro Max</option><option>iPhone 14 Pro</option><option>iPhone 15</option></select>
+      <label>Storage</label>
+      <select><option>256 GB</option><option>128 GB</option><option>512 GB</option></select>
+      <label>Condition</label>
+      <div class="condition-row">
+        <div class="cond-btn">Poor</div>
+        <div class="cond-btn">Fair</div>
+        <div class="cond-btn sel">Good</div>
+        <div class="cond-btn">Mint</div>
+      </div>
+      <label>Target Market</label>
+      <div class="region-row">
+        <div class="reg-chip sel">UAE</div>
+        <div class="reg-chip">KSA</div>
+        <div class="reg-chip">UK</div>
+        <div class="reg-chip">IN</div>
+        <div class="reg-chip">DE</div>
+        <div class="reg-chip">US</div>
+      </div>
+      <label>Telco Partner</label>
+      <select><option>du Telecom</option><option>Etisalat (e&)</option><option>Vodafone</option><option>Reliance</option></select>
+      <button class="price-btn">⚡ Generate Optimal Price →</button>
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="right-col">
+    <!-- Price Waterfall -->
+    <div>
+      <div style="font-size:12px;font-weight:700;color:#00D4AA;text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;">💰 Price Waterfall — iPhone 14 Pro Max 256GB (Good) · UAE</div>
+      <div class="waterfall-grid">
+        <div class="wf-card retail">
+          <div class="wf-label">Retail Price</div>
+          <div class="wf-val retail">AED 4,499</div>
+          <div class="wf-sub">RRP today</div>
+        </div>
+        <div class="wf-card market">
+          <div class="wf-label">Live Market</div>
+          <div class="wf-val market">AED 2,380</div>
+          <div class="wf-sub">eBay sold · last 7d</div>
+        </div>
+        <div class="wf-card offer">
+          <div class="wf-badge">OPTIMAL</div>
+          <div class="wf-label">Recommended Offer</div>
+          <div class="wf-val offer">AED 1,950</div>
+          <div class="wf-sub">82% consumer acceptance</div>
+        </div>
+        <div class="wf-card floor">
+          <div class="wf-label">Auction Floor</div>
+          <div class="wf-val floor">AED 1,620</div>
+          <div class="wf-sub">Min margin protected</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chart + Signals row -->
+    <div class="row-top">
+      <div class="panel chart-panel">
+        <div class="panel-title">📈 30-Day Price Trend</div>
+        <div class="chart-area">
+          <svg class="chart-svg" viewBox="0 0 300 140" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#00D4AA" stop-opacity="0.3"/>
+                <stop offset="100%" stop-color="#00D4AA" stop-opacity="0"/>
+              </linearGradient>
+              <linearGradient id="g2" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#00A8FF" stop-opacity="0.2"/>
+                <stop offset="100%" stop-color="#00A8FF" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <!-- Market price area -->
+            <path d="M0,70 C20,68 40,65 60,63 S100,58 120,55 S160,50 180,48 S220,44 240,42 S270,38 300,36" fill="none" stroke="#00A8FF" stroke-width="2" opacity="0.7"/>
+            <!-- Recommended offer area -->
+            <path d="M0,90 C20,88 40,86 60,84 S100,80 120,78 S160,74 180,72 S220,69 240,67 S270,63 300,61" fill="url(#g1)" stroke="#00D4AA" stroke-width="2.5"/>
+            <!-- Auction floor -->
+            <path d="M0,110 C30,109 60,108 90,107 S150,106 180,105 S240,104 300,103" fill="none" stroke="#F59E0B" stroke-width="1.5" stroke-dasharray="5,3" opacity="0.7"/>
+            <!-- Data points -->
+            <circle cx="300" cy="61" r="4" fill="#00D4AA"/>
+            <circle cx="300" cy="36" r="3" fill="#00A8FF"/>
+            <circle cx="300" cy="103" r="3" fill="#F59E0B"/>
+          </svg>
+        </div>
+        <div class="chart-legend">
+          <div class="leg"><div class="leg-dot" style="background:#00D4AA;"></div>Recommended offer</div>
+          <div class="leg"><div class="leg-dot" style="background:#00A8FF;"></div>Market price</div>
+          <div class="leg"><div class="leg-dot" style="background:#F59E0B;"></div>Auction floor</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">⚡ Live Market Signals</div>
+        <div class="signals-grid">
+          <div class="signal-card">
+            <div class="sig-top"><span class="sig-icon">📦</span><span class="sig-name">eBay Sold</span></div>
+            <div class="sig-val">AED 2,380</div>
+            <div class="sig-delta dn">▼ 3.2% vs last week</div>
+          </div>
+          <div class="signal-card">
+            <div class="sig-top"><span class="sig-icon">🔄</span><span class="sig-name">Auction Clears</span></div>
+            <div class="sig-val">142</div>
+            <div class="sig-delta up">▲ 18% volume</div>
+          </div>
+          <div class="signal-card">
+            <div class="sig-top"><span class="sig-icon">📊</span><span class="sig-name">Demand Score</span></div>
+            <div class="sig-val">8.4/10</div>
+            <div class="sig-delta up">▲ High demand UAE</div>
+          </div>
+          <div class="signal-card">
+            <div class="sig-top"><span class="sig-icon">🌍</span><span class="sig-name">FX Spread</span></div>
+            <div class="sig-val">+2.1%</div>
+            <div class="sig-delta up">▲ AED/EUR favourable</div>
+          </div>
+          <div class="signal-card">
+            <div class="sig-top"><span class="sig-icon">📱</span><span class="sig-name">New Model Gap</span></div>
+            <div class="sig-val">6 mo</div>
+            <div class="sig-delta dn">▼ iPhone 16 depresses</div>
+          </div>
+          <div class="signal-card">
+            <div class="sig-top"><span class="sig-icon">🏪</span><span class="sig-name">Partner Accept</span></div>
+            <div class="sig-val">82%</div>
+            <div class="sig-delta up">▲ vs 71% last month</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Margin Slider -->
+    <div class="slider-row">
+      <div class="slider-header">
+        <span class="slider-label">Partner Margin Lever — Adjust offer vs margin balance</span>
+        <span class="slider-val">Offer: AED 1,950 · Margin: 19.4%</span>
+      </div>
+      <div class="slider-track"><div class="slider-fill"></div><div class="slider-thumb"></div></div>
+      <div class="margin-row">
+        <div class="m-item"><div class="m-val" style="color:#ef4444;">AED 1,620</div><div class="m-lbl">Max Margin</div></div>
+        <div class="m-item"><div class="m-val" style="color:#00D4AA;">AED 1,950 ←</div><div class="m-lbl">Optimal (recommended)</div></div>
+        <div class="m-item"><div class="m-val" style="color:#00A8FF;">AED 2,100</div><div class="m-lbl">Max Acceptance</div></div>
+      </div>
+    </div>
+
+    <!-- Country Comparison -->
+    <div class="panel">
+      <div class="panel-title">🌍 Multi-Market Price Intelligence — iPhone 14 Pro Max 256GB Good</div>
+      <table class="country-table">
+        <thead><tr><th>Market</th><th>Market Price</th><th>Recommended Offer</th><th>7d Trend</th><th>Demand</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr><td><span class="country-flag">🇦🇪</span>UAE</td><td>AED 2,380</td><td>AED 1,950</td><td class="trend-dn">▼ -3.2%</td><td>High</td><td><span class="rec-chip rc-green">Push Now</span></td></tr>
+          <tr><td><span class="country-flag">🇸🇦</span>KSA</td><td>SAR 2,210</td><td>SAR 1,780</td><td class="trend-fl">→ Stable</td><td>Medium</td><td><span class="rec-chip rc-orange">Hold</span></td></tr>
+          <tr><td><span class="country-flag">🇬🇧</span>UK</td><td>£450</td><td>£380</td><td class="trend-up">▲ +1.8%</td><td>High</td><td><span class="rec-chip rc-green">Push Now</span></td></tr>
+          <tr><td><span class="country-flag">🇮🇳</span>India</td><td>₹62,000</td><td>₹49,500</td><td class="trend-dn">▼ -5.1%</td><td>Low</td><td><span class="rec-chip rc-red">Reduce Offer</span></td></tr>
+          <tr><td><span class="country-flag">🇩🇪</span>Germany</td><td>€520</td><td>€435</td><td class="trend-up">▲ +2.4%</td><td>High</td><td><span class="rec-chip rc-green">Push Now</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="footer-note">
+  <strong style="color:#00D4AA;">PriceIQ — NorthLadder Dynamic Trade-in Pricing Engine</strong> &nbsp;·&nbsp; Case study by Ajay Avaghade &nbsp;·&nbsp;
+  <a href="https://ajay-avaghade.github.io/Portfolio/" style="color:#00D4AA;">Portfolio</a>
+</div>
+
+</body>
+</html>

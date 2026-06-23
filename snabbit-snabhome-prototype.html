@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SnabHome — Snabbit Subscription</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#0c1117;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;font-family:'Inter',sans-serif;padding:24px 16px 48px;}
+.hero{text-align:center;margin-bottom:32px;}
+.logo{display:inline-flex;align-items:center;gap:10px;margin-bottom:12px;}
+.logo-mark{width:44px;height:44px;background:linear-gradient(135deg,#FF5C00,#f97316);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;}
+.logo-text{font-size:22px;font-weight:800;color:#fff;}
+.logo-sub{font-size:13px;color:#fb923c;font-weight:600;}
+.hero h1{font-size:26px;font-weight:800;color:#fff;margin-bottom:6px;}
+.hero p{font-size:13px;color:#94a3b8;max-width:480px;line-height:1.5;}
+.tag{display:inline-block;background:rgba(255,92,0,0.12);color:#fb923c;border:1px solid rgba(255,92,0,0.3);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:600;margin-bottom:10px;}
+.flow{display:flex;gap:20px;flex-wrap:wrap;justify-content:center;max-width:1200px;}
+.phone-wrap{display:flex;flex-direction:column;align-items:center;gap:10px;}
+.screen-label{font-size:11px;font-weight:700;color:#fb923c;text-transform:uppercase;letter-spacing:.08em;}
+.screen-num{width:24px;height:24px;background:#FF5C00;border-radius:50%;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-bottom:2px;}
+.phone{width:280px;height:580px;background:#fff;border-radius:36px;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,0.6);position:relative;border:6px solid #1e293b;display:flex;flex-direction:column;}
+.notch{width:80px;height:22px;background:#0f0f1a;border-radius:0 0 14px 14px;position:absolute;top:0;left:50%;transform:translateX(-50%);z-index:10;}
+.arrow-connector{display:flex;align-items:center;color:#fb923c;font-size:20px;padding-top:240px;}
+.scrollable{overflow-y:auto;flex:1;}
+
+/* SCREEN 1 — Plan Selection */
+.s1h{background:linear-gradient(135deg,#FF5C00,#f97316);padding:44px 16px 16px;color:#fff;}
+.s1h h2{font-size:16px;font-weight:800;}
+.s1h p{font-size:10px;opacity:.85;margin-top:3px;line-height:1.4;}
+.plan-list{padding:10px;}
+.plan-card{border-radius:14px;border:2px solid #e2e8f0;padding:12px;margin-bottom:8px;cursor:pointer;background:#fafafa;}
+.plan-card.featured{border-color:#FF5C00;background:linear-gradient(135deg,#fff7f3,#fff3ee);}
+.plan-card.premium{border-color:#7c3aed;background:#faf5ff;}
+.plan-top{display:flex;align-items:center;gap:6px;margin-bottom:6px;}
+.plan-icon{font-size:18px;}
+.plan-name{font-size:13px;font-weight:700;color:#1e293b;}
+.plan-badge{margin-left:auto;font-size:9px;font-weight:700;padding:2px 8px;border-radius:10px;}
+.bp-orange{background:#fff7ed;color:#c2410c;}
+.bp-purple{background:#ede9fe;color:#5b21b6;}
+.plan-price{font-size:11px;color:#64748b;margin-bottom:8px;}
+.plan-price strong{font-size:14px;color:#1e293b;}
+.plan-features{display:flex;flex-direction:column;gap:3px;}
+.pf{font-size:10px;color:#64748b;}
+.pf.inc{color:#374151;}
+.sel-btn{margin:0 10px 12px;background:linear-gradient(135deg,#FF5C00,#f97316);color:#fff;border:none;border-radius:12px;padding:11px;width:calc(100%-20px);font-size:12px;font-weight:700;width:calc(100% - 20px);}
+
+/* SCREEN 2 — Schedule Builder */
+.s2h{background:#0f0f1a;padding:44px 14px 12px;color:#fff;}
+.s2h h2{font-size:15px;font-weight:700;}
+.s2h p{font-size:10px;color:#94a3b8;margin-top:2px;}
+.sched-body{padding:10px;}
+.sched-section{background:#fff;border-radius:12px;padding:12px;margin-bottom:8px;box-shadow:0 2px 8px rgba(0,0,0,0.06);}
+.ss-title{font-size:11px;font-weight:700;color:#1e293b;margin-bottom:8px;}
+.day-row{display:flex;gap:5px;margin-bottom:8px;}
+.day-chip{width:32px;height:32px;border-radius:50%;border:1.5px solid #e2e8f0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:#64748b;}
+.day-chip.sel{background:#FF5C00;border-color:#FF5C00;color:#fff;}
+.time-row{display:flex;gap:6px;flex-wrap:wrap;}
+.time-chip{background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;padding:6px 10px;font-size:10px;color:#475569;}
+.time-chip.sel{background:#FF5C00;border-color:#FF5C00;color:#fff;}
+.service-row{display:flex;gap:6px;flex-wrap:wrap;}
+.svc-chip{background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;padding:6px 10px;font-size:10px;color:#475569;}
+.svc-chip.sel{background:#fff7ed;border-color:#FF5C00;color:#c2410c;}
+.summary-box{background:linear-gradient(135deg,#fff7ed,#fff3ee);border:1.5px solid #fed7aa;border-radius:12px;padding:10px;margin-bottom:8px;}
+.sb-label{font-size:9px;font-weight:700;color:#c2410c;text-transform:uppercase;margin-bottom:4px;}
+.sb-val{font-size:12px;font-weight:700;color:#1e293b;}
+.sb-sub{font-size:10px;color:#64748b;}
+.confirm-sched{margin:0 10px;background:linear-gradient(135deg,#FF5C00,#f97316);color:#fff;border:none;border-radius:12px;padding:11px;width:calc(100% - 20px);font-size:12px;font-weight:700;}
+
+/* SCREEN 3 — My Home Dashboard */
+.s3h{background:linear-gradient(135deg,#0f0f1a,#1e293b);padding:44px 14px 12px;color:#fff;}
+.s3h-greeting{font-size:11px;color:#94a3b8;}
+.s3h-title{font-size:17px;font-weight:800;margin-top:2px;}
+.plan-status{display:inline-flex;align-items:center;gap:5px;background:#dcfce7;color:#166534;border-radius:20px;padding:3px 10px;font-size:10px;font-weight:700;margin-top:5px;}
+.home-body{padding:10px;background:#f8fafc;flex:1;overflow-y:auto;}
+.upcoming-card{background:#fff;border-radius:14px;padding:12px;margin-bottom:8px;box-shadow:0 2px 8px rgba(0,0,0,0.06);}
+.uc-label{font-size:9px;font-weight:700;color:#64748b;text-transform:uppercase;margin-bottom:8px;}
+.uc-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #f1f5f9;}
+.uc-row:last-child{border-bottom:none;}
+.uc-icon{font-size:18px;}
+.uc-info{flex:1;}
+.uc-svc{font-size:11px;font-weight:600;color:#1e293b;}
+.uc-time{font-size:10px;color:#64748b;}
+.uc-badge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:6px;}
+.ub-green{background:#dcfce7;color:#166534;}
+.ub-orange{background:#fff7ed;color:#c2410c;}
+.pro-card{background:#fff;border-radius:14px;padding:12px;margin-bottom:8px;box-shadow:0 2px 8px rgba(0,0,0,0.06);}
+.pc-top{display:flex;align-items:center;gap:10px;}
+.pc-avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#FF5C00,#f97316);display:flex;align-items:center;justify-content:center;font-size:18px;}
+.pc-name{font-size:12px;font-weight:700;color:#1e293b;}
+.pc-role{font-size:10px;color:#64748b;}
+.pc-locked{margin-left:auto;background:#dcfce7;color:#166534;border:1px solid #86efac;border-radius:6px;padding:2px 7px;font-size:9px;font-weight:700;}
+.history-card{background:#fff;border-radius:14px;padding:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06);}
+.hc-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #f1f5f9;}
+.hc-row:last-child{border-bottom:none;}
+.hc-svc{font-size:11px;color:#374151;}
+.hc-date{font-size:10px;color:#94a3b8;}
+.hc-star{color:#F59E0B;font-size:11px;}
+
+/* SCREEN 4 — Professional Profile */
+.s4h{background:linear-gradient(135deg,#FF5C00,#f97316);padding:44px 14px 16px;color:#fff;}
+.s4h h2{font-size:16px;font-weight:800;}
+.s4h p{font-size:10px;opacity:.85;margin-top:3px;}
+.pro-profile{padding:10px;}
+.pp-card{background:#fff;border-radius:14px;padding:14px;margin-bottom:8px;box-shadow:0 2px 8px rgba(0,0,0,0.06);}
+.ppa-top{display:flex;gap:12px;align-items:flex-start;margin-bottom:10px;}
+.ppa-avatar{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#FF5C00,#f97316);display:flex;align-items:center;justify-content:center;font-size:22px;}
+.ppa-name{font-size:14px;font-weight:700;color:#1e293b;}
+.ppa-exp{font-size:10px;color:#64748b;margin:2px 0;}
+.ppa-stars{color:#F59E0B;font-size:11px;}
+.ppa-badges{display:flex;gap:5px;flex-wrap:wrap;}
+.pb-chip{background:#f0fdf4;border:1px solid #86efac;color:#166534;border-radius:6px;padding:3px 8px;font-size:9px;font-weight:600;}
+.jobs-done{background:#fff7ed;border-radius:10px;padding:10px;margin-top:8px;}
+.jd-label{font-size:9px;font-weight:700;color:#c2410c;margin-bottom:5px;}
+.jd-row{display:flex;justify-content:space-between;}
+.jd-stat{text-align:center;}
+.jd-val{font-size:16px;font-weight:800;color:#FF5C00;}
+.jd-key{font-size:9px;color:#64748b;}
+.review-card{background:#fff;border-radius:14px;padding:12px;margin-bottom:8px;box-shadow:0 2px 8px rgba(0,0,0,0.06);}
+.rv-header{font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;margin-bottom:8px;}
+.rv-item{padding:7px 0;border-bottom:1px solid #f1f5f9;font-size:10px;color:#374151;line-height:1.4;}
+.rv-item:last-child{border-bottom:none;}
+.rv-star{color:#F59E0B;font-size:10px;margin-bottom:2px;}
+.resched-btn{margin:0 10px;border:1.5px solid #FF5C00;background:transparent;color:#FF5C00;border-radius:12px;padding:10px;width:calc(100% - 20px);font-size:12px;font-weight:600;}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="logo">
+    <div class="logo-mark">🏠</div>
+    <div>
+      <div class="logo-text">SnabHome</div>
+      <div class="logo-sub">by Snabbit</div>
+    </div>
+  </div>
+  <div class="tag">CASE STUDY · PM CANDIDATE · AJAY AVAGHADE</div>
+  <h1>Home Care Subscription — Retention Flywheel</h1>
+  <p>Episodic bookings don't build a business. A monthly Home Care Plan converts a transaction into a relationship — predictable revenue, recurring professionals, and a My Home dashboard that drives repeat engagement.</p>
+</div>
+
+<div class="flow">
+
+  <!-- SCREEN 1 -->
+  <div class="phone-wrap">
+    <div class="screen-num">1</div>
+    <div class="screen-label">Plan Selection</div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="s1h">
+        <h2>🏠 SnabHome Plans</h2>
+        <p>Subscribe once. Your home is covered. Same professionals, fixed slots, no re-booking every time.</p>
+      </div>
+      <div class="scrollable">
+        <div class="plan-list">
+          <div class="plan-card">
+            <div class="plan-top"><span class="plan-icon">✨</span><span class="plan-name">Basic</span></div>
+            <div class="plan-price"><strong>₹1,299</strong>/month</div>
+            <div class="plan-features">
+              <div class="pf inc">✓ 4 cleaning sessions/month</div>
+              <div class="pf inc">✓ Same professional assigned</div>
+              <div class="pf">✗ Deep clean</div>
+              <div class="pf">✗ Maintenance services</div>
+            </div>
+          </div>
+          <div class="plan-card featured">
+            <div class="plan-top"><span class="plan-icon">🔥</span><span class="plan-name">Pro</span><span class="plan-badge bp-orange">MOST POPULAR</span></div>
+            <div class="plan-price"><strong>₹2,499</strong>/month</div>
+            <div class="plan-features">
+              <div class="pf inc">✓ 8 cleaning sessions/month</div>
+              <div class="pf inc">✓ 1 deep clean/month</div>
+              <div class="pf inc">✓ Priority booking</div>
+              <div class="pf inc">✓ Same professional + backup</div>
+              <div class="pf">✗ Maintenance</div>
+            </div>
+          </div>
+          <div class="plan-card premium">
+            <div class="plan-top"><span class="plan-icon">👑</span><span class="plan-name">Premium</span><span class="plan-badge bp-purple">ALL INCLUDED</span></div>
+            <div class="plan-price"><strong>₹4,299</strong>/month</div>
+            <div class="plan-features">
+              <div class="pf inc">✓ Unlimited cleaning</div>
+              <div class="pf inc">✓ 2 deep cleans/month</div>
+              <div class="pf inc">✓ Plumbing + electrical check</div>
+              <div class="pf inc">✓ Dedicated home professional</div>
+            </div>
+          </div>
+          <button class="sel-btn">Start with Pro — ₹2,499/mo →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="arrow-connector">›</div>
+
+  <!-- SCREEN 2 -->
+  <div class="phone-wrap">
+    <div class="screen-num">2</div>
+    <div class="screen-label">Schedule Builder</div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="s2h">
+        <h2>Set Your Home Schedule</h2>
+        <p>Pick your recurring slots. We assign the same professional every time.</p>
+      </div>
+      <div class="scrollable">
+        <div class="sched-body">
+          <div class="sched-section">
+            <div class="ss-title">📅 Weekly Cleaning Days</div>
+            <div class="day-row">
+              <div class="day-chip">M</div>
+              <div class="day-chip sel">T</div>
+              <div class="day-chip">W</div>
+              <div class="day-chip sel">T</div>
+              <div class="day-chip">F</div>
+              <div class="day-chip sel">S</div>
+              <div class="day-chip">S</div>
+            </div>
+          </div>
+          <div class="sched-section">
+            <div class="ss-title">⏰ Preferred Time Slot</div>
+            <div class="time-row">
+              <div class="time-chip">7–8 AM</div>
+              <div class="time-chip sel">9–10 AM</div>
+              <div class="time-chip">11–12 PM</div>
+              <div class="time-chip">2–3 PM</div>
+            </div>
+          </div>
+          <div class="sched-section">
+            <div class="ss-title">🧹 Services Included</div>
+            <div class="service-row">
+              <div class="svc-chip sel">Regular clean</div>
+              <div class="svc-chip sel">Kitchen wipe</div>
+              <div class="svc-chip sel">Bathroom</div>
+              <div class="svc-chip">Laundry fold</div>
+              <div class="svc-chip">Dishes</div>
+            </div>
+          </div>
+          <div class="summary-box">
+            <div class="sb-label">Your Plan Summary</div>
+            <div class="sb-val">Tue, Thu, Sat · 9–10 AM</div>
+            <div class="sb-sub">8 sessions/month · 1 deep clean · ₹2,499</div>
+          </div>
+          <button class="confirm-sched">Confirm Schedule →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="arrow-connector">›</div>
+
+  <!-- SCREEN 3 -->
+  <div class="phone-wrap">
+    <div class="screen-num">3</div>
+    <div class="screen-label">My Home Dashboard</div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="s3h">
+        <div class="s3h-greeting">Good morning, Rohan 👋</div>
+        <div class="s3h-title">My Home</div>
+        <span class="plan-status">✅ Pro Plan Active</span>
+      </div>
+      <div class="home-body">
+        <div class="upcoming-card">
+          <div class="uc-label">📅 This Week</div>
+          <div class="uc-row">
+            <div class="uc-icon">🧹</div>
+            <div class="uc-info"><div class="uc-svc">Regular Clean</div><div class="uc-time">Today · 9:00 AM · Kavya</div></div>
+            <span class="uc-badge ub-green">Today</span>
+          </div>
+          <div class="uc-row">
+            <div class="uc-icon">🪣</div>
+            <div class="uc-info"><div class="uc-svc">Deep Clean</div><div class="uc-time">Thu · 9:00 AM · Kavya</div></div>
+            <span class="uc-badge ub-orange">Thu</span>
+          </div>
+          <div class="uc-row">
+            <div class="uc-icon">🧹</div>
+            <div class="uc-info"><div class="uc-svc">Regular Clean</div><div class="uc-time">Sat · 9:00 AM · Kavya</div></div>
+            <span class="uc-badge">Sat</span>
+          </div>
+        </div>
+        <div class="pro-card">
+          <div class="uc-label">👤 My Professional</div>
+          <div class="pc-top">
+            <div class="pc-avatar">👩</div>
+            <div><div class="pc-name">Kavya Nair</div><div class="pc-role">With you since Apr 2025 · 28 sessions</div></div>
+            <div class="pc-locked">🔒 Locked</div>
+          </div>
+        </div>
+        <div class="history-card">
+          <div class="uc-label">📋 Recent Sessions</div>
+          <div class="hc-row"><div><div class="hc-svc">Regular Clean</div><div class="hc-date">15 Jun</div></div><div class="hc-star">★★★★★</div></div>
+          <div class="hc-row"><div><div class="hc-svc">Deep Clean</div><div class="hc-date">12 Jun</div></div><div class="hc-star">★★★★★</div></div>
+          <div class="hc-row"><div><div class="hc-svc">Regular Clean</div><div class="hc-date">10 Jun</div></div><div class="hc-star">★★★★☆</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="arrow-connector">›</div>
+
+  <!-- SCREEN 4 -->
+  <div class="phone-wrap">
+    <div class="screen-num">4</div>
+    <div class="screen-label">My Professional Profile</div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="s4h">
+        <h2>Kavya Nair</h2>
+        <p>Your dedicated home professional · 28 sessions together</p>
+      </div>
+      <div class="scrollable">
+        <div class="pro-profile">
+          <div class="pp-card">
+            <div class="ppa-top">
+              <div class="ppa-avatar">👩</div>
+              <div>
+                <div class="ppa-name">Kavya Nair</div>
+                <div class="ppa-exp">4 yrs experience · Verified professional</div>
+                <div class="ppa-stars">★★★★★ <span style="color:#64748b;font-size:10px;">4.9 (312)</span></div>
+              </div>
+            </div>
+            <div class="ppa-badges">
+              <span class="pb-chip">✓ Police Verified</span>
+              <span class="pb-chip">✓ Hygiene Trained</span>
+              <span class="pb-chip">✓ Background Checked</span>
+            </div>
+            <div class="jobs-done">
+              <div class="jd-label">Your history together</div>
+              <div class="jd-row">
+                <div class="jd-stat"><div class="jd-val">28</div><div class="jd-key">Sessions</div></div>
+                <div class="jd-stat"><div class="jd-val">4.9★</div><div class="jd-key">Your avg rating</div></div>
+                <div class="jd-stat"><div class="jd-val">2 mo</div><div class="jd-key">Together since</div></div>
+              </div>
+            </div>
+          </div>
+          <div class="review-card">
+            <div class="rv-header">What others say about Kavya</div>
+            <div class="rv-item"><div class="rv-star">★★★★★</div>"Extremely thorough with the kitchen — never misses a spot. Highly recommend." — Ananya R.</div>
+            <div class="rv-item"><div class="rv-star">★★★★★</div>"Always on time and very professional. Feels safe to leave her home alone." — Deepak M.</div>
+          </div>
+          <button class="resched-btn">Reschedule a Session</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div style="margin-top:32px;text-align:center;color:#475569;font-size:12px;">
+  <strong style="color:#fb923c;">SnabHome — Snabbit Subscription Vertical</strong> &nbsp;·&nbsp; Case study by Ajay Avaghade &nbsp;·&nbsp;
+  <a href="https://ajay-avaghade.github.io/Portfolio/" style="color:#fb923c;">Portfolio</a>
+</div>
+</body>
+</html>

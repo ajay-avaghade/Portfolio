@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SnapAssess — AI Device Condition Assessment</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#06090F;min-height:100vh;font-family:'Inter',sans-serif;color:#fff;padding:24px 16px 60px;}
+
+.hero{text-align:center;margin-bottom:40px;}
+.badge{display:inline-flex;align-items:center;gap:6px;background:rgba(0,168,255,0.1);border:1px solid rgba(0,168,255,0.25);color:#00A8FF;border-radius:20px;padding:5px 14px;font-size:11px;font-weight:700;letter-spacing:.06em;margin-bottom:14px;}
+.badge-dot{width:7px;height:7px;background:#00A8FF;border-radius:50%;animation:pulse 1.4s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(.8);}}
+.hero h1{font-size:clamp(26px,4vw,40px);font-weight:900;line-height:1.15;margin-bottom:8px;}
+.hero h1 span{background:linear-gradient(135deg,#00A8FF,#8B5CF6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{font-size:14px;color:#94a3b8;max-width:560px;margin:0 auto;line-height:1.6;}
+
+.flow{display:flex;gap:18px;flex-wrap:wrap;justify-content:center;max-width:1200px;margin:0 auto;}
+.phone-wrap{display:flex;flex-direction:column;align-items:center;gap:10px;}
+.screen-label{font-size:11px;font-weight:700;color:#00A8FF;text-transform:uppercase;letter-spacing:.08em;}
+.screen-num{width:26px;height:26px;background:#00A8FF;border-radius:50%;color:#06090F;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-bottom:2px;}
+.phone{width:280px;height:590px;background:#0f172a;border-radius:38px;overflow:hidden;box-shadow:0 28px 72px rgba(0,0,0,0.7);position:relative;border:5px solid #1e293b;}
+.notch{width:82px;height:23px;background:#0a0e1a;border-radius:0 0 14px 14px;position:absolute;top:0;left:50%;transform:translateX(-50%);z-index:10;}
+.arrow{display:flex;align-items:center;color:#00A8FF;font-size:20px;padding-top:260px;opacity:.7;}
+
+/* SCREEN 1 — Trade-in Start */
+.s1-bg{background:linear-gradient(160deg,#06090F 0%,#0d1b2a 100%);height:100%;padding:40px 18px 18px;display:flex;flex-direction:column;}
+.nl-logo{display:flex;align-items:center;gap:8px;margin-bottom:28px;}
+.nl-dot{width:10px;height:10px;background:#00D4AA;border-radius:50%;}
+.nl-name{font-size:13px;font-weight:800;color:#fff;}
+.nl-tag{font-size:9px;color:#64748b;}
+.s1-hero{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.s1-icon{font-size:52px;margin-bottom:14px;}
+.s1-title{font-size:20px;font-weight:800;text-align:center;line-height:1.3;margin-bottom:8px;}
+.s1-sub{font-size:11px;color:#64748b;text-align:center;line-height:1.5;margin-bottom:20px;}
+.s1-device-chip{background:rgba(0,168,255,0.1);border:1px solid rgba(0,168,255,0.25);border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:8px;margin-bottom:14px;width:100%;}
+.dc-icon{font-size:20px;}
+.dc-info{flex:1;}
+.dc-name{font-size:12px;font-weight:700;color:#fff;}
+.dc-sub{font-size:10px;color:#64748b;}
+.dc-change{font-size:10px;color:#00A8FF;font-weight:600;}
+.s1-start-btn{background:linear-gradient(135deg,#00A8FF,#8B5CF6);color:#fff;border:none;border-radius:13px;padding:14px;width:100%;font-size:14px;font-weight:800;cursor:pointer;}
+.s1-steps{display:flex;justify-content:space-between;margin-top:14px;}
+.step-item{display:flex;flex-direction:column;align-items:center;gap:3px;}
+.step-ic{font-size:16px;}
+.step-lbl{font-size:9px;color:#64748b;}
+
+/* SCREEN 2 — Camera Capture */
+.s2-bg{background:#000;height:100%;}
+.s2-cam-area{height:320px;background:linear-gradient(135deg,#0d1b2a,#1e3a5f);position:relative;display:flex;align-items:center;justify-content:center;}
+.cam-guide{width:200px;height:260px;border:2px solid rgba(0,168,255,0.6);border-radius:12px;position:relative;display:flex;align-items:center;justify-content:center;}
+.cam-guide::before,.cam-guide::after{content:'';position:absolute;width:20px;height:20px;border-color:#00A8FF;border-style:solid;}
+.cam-guide::before{top:-1px;left:-1px;border-width:3px 0 0 3px;border-radius:3px 0 0 0;}
+.cam-guide::after{bottom:-1px;right:-1px;border-width:0 3px 3px 0;border-radius:0 0 3px 0;}
+.cam-phone-icon{font-size:70px;opacity:.4;}
+.scan-line{position:absolute;width:90%;height:2px;background:linear-gradient(90deg,transparent,#00A8FF,transparent);animation:scan 2s ease-in-out infinite;}
+@keyframes scan{0%,100%{top:20%;}50%{top:80%;}}
+.s2-body{padding:14px 16px;}
+.s2-title{font-size:14px;font-weight:700;color:#fff;margin-bottom:6px;}
+.s2-inst{font-size:11px;color:#64748b;line-height:1.5;margin-bottom:12px;}
+.photo-steps{display:flex;gap:8px;}
+.ps{flex:1;border-radius:10px;border:1.5px solid rgba(255,255,255,0.1);padding:8px;text-align:center;}
+.ps.done{border-color:#22c55e;background:rgba(34,197,94,0.08);}
+.ps.active{border-color:#00A8FF;background:rgba(0,168,255,0.08);}
+.ps-icon{font-size:18px;}
+.ps-lbl{font-size:9px;color:#64748b;margin-top:3px;}
+.ps-lbl.done{color:#22c55e;}
+.ps-lbl.active{color:#00A8FF;}
+.capture-btn{width:52px;height:52px;background:#00A8FF;border-radius:50%;border:3px solid #fff;display:flex;align-items:center;justify-content:center;font-size:20px;margin:12px auto 0;}
+
+/* SCREEN 3 — AI Processing */
+.s3-bg{background:linear-gradient(160deg,#06090F,#0d1b2a);height:100%;padding:40px 18px 18px;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.ai-orb{width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,rgba(0,168,255,0.3),rgba(139,92,246,0.1));border:2px solid rgba(0,168,255,0.4);display:flex;align-items:center;justify-content:center;font-size:36px;margin-bottom:20px;animation:orbit 3s ease-in-out infinite;box-shadow:0 0 40px rgba(0,168,255,0.2);}
+@keyframes orbit{0%,100%{box-shadow:0 0 40px rgba(0,168,255,0.2);}50%{box-shadow:0 0 60px rgba(0,168,255,0.4);}}
+.s3-title{font-size:18px;font-weight:800;text-align:center;margin-bottom:6px;}
+.s3-sub{font-size:11px;color:#64748b;text-align:center;margin-bottom:28px;}
+.check-list{width:100%;}
+.check-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);}
+.check-item:last-child{border-bottom:none;}
+.ci-icon{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+.ci-done{background:rgba(34,197,94,0.15);border:1px solid #22c55e;}
+.ci-active{background:rgba(0,168,255,0.15);border:1px solid #00A8FF;animation:blink .8s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.4;}}
+.ci-wait{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);}
+.ci-text{font-size:11px;font-weight:600;}
+.ci-text.done{color:#22c55e;}
+.ci-text.active{color:#00A8FF;}
+.ci-text.wait{color:#475569;}
+.ai-bar{width:100%;height:5px;background:rgba(255,255,255,0.08);border-radius:3px;margin-top:16px;}
+.ai-bar-fill{height:100%;width:72%;background:linear-gradient(90deg,#00A8FF,#8B5CF6);border-radius:3px;animation:load 2s ease infinite;}
+@keyframes load{0%{width:20%;}100%{width:90%;}}
+.ai-pct{font-size:10px;color:#00A8FF;margin-top:5px;text-align:right;}
+
+/* SCREEN 4 — Results */
+.s4-bg{background:#06090F;height:100%;overflow-y:auto;}
+.s4-header{background:linear-gradient(135deg,#00A8FF,#8B5CF6);padding:40px 16px 16px;color:#fff;}
+.s4-header h2{font-size:17px;font-weight:800;}
+.s4-header p{font-size:10px;opacity:.85;margin-top:3px;}
+.s4-body{padding:12px;}
+.grade-card{background:linear-gradient(135deg,rgba(0,168,255,0.1),rgba(139,92,246,0.1));border:2px solid rgba(0,168,255,0.3);border-radius:14px;padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:14px;}
+.grade-ring{width:64px;height:64px;border-radius:50%;background:rgba(0,168,255,0.15);border:3px solid #00A8FF;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;}
+.grade-val{font-size:22px;font-weight:900;color:#00A8FF;line-height:1;}
+.grade-lbl{font-size:9px;color:#64748b;line-height:1;}
+.grade-info{flex:1;}
+.grade-name{font-size:15px;font-weight:800;color:#fff;}
+.grade-desc{font-size:10px;color:#64748b;margin-top:2px;line-height:1.4;}
+.breakdown{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
+.bd-item{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:10px;}
+.bd-label{font-size:9px;font-weight:700;color:#64748b;margin-bottom:4px;}
+.bd-bar{height:5px;background:rgba(255,255,255,0.08);border-radius:3px;margin-bottom:3px;}
+.bd-fill{height:100%;border-radius:3px;}
+.bd-val{font-size:10px;font-weight:700;}
+.offer-card{background:linear-gradient(135deg,rgba(0,212,170,0.12),rgba(0,168,255,0.08));border:2px solid rgba(0,212,170,0.3);border-radius:14px;padding:14px;margin-bottom:10px;}
+.oc-label{font-size:10px;font-weight:700;color:#00D4AA;text-transform:uppercase;margin-bottom:6px;}
+.oc-amount{font-size:30px;font-weight:900;color:#fff;}
+.oc-sub{font-size:10px;color:#64748b;margin-top:3px;}
+.oc-perks{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;}
+.oc-perk{background:rgba(0,212,170,0.1);border:1px solid rgba(0,212,170,0.2);border-radius:6px;padding:3px 8px;font-size:9px;color:#00D4AA;font-weight:600;}
+.accept-btn{background:linear-gradient(135deg,#00D4AA,#00A8FF);color:#06090F;border:none;border-radius:12px;padding:12px;width:100%;font-size:13px;font-weight:800;}
+
+.footer-note{max-width:1200px;margin:28px auto 0;text-align:center;font-size:11px;color:#475569;}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="badge"><span class="badge-dot"></span> CASE STUDY · PM CANDIDATE · AJAY AVAGHADE</div>
+  <h1>SnapAssess — <span>AI Device Condition Assessment</span></h1>
+  <p>60% of trade-in disputes come from condition grading disagreements between consumer self-report and manual inspection. SnapAssess uses on-device AI to grade devices from 4 smartphone photos — reducing disputes, accelerating acceptance, and scaling to zero ops touch.</p>
+</div>
+
+<div class="flow">
+
+  <!-- SCREEN 1 -->
+  <div class="phone-wrap">
+    <div class="screen-num">1</div>
+    <div class="screen-label">Start Trade-In</div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="s1-bg">
+        <div class="nl-logo">
+          <div class="nl-dot"></div>
+          <div><div class="nl-name">NorthLadder</div><div class="nl-tag">Trade-in · Powered by du</div></div>
+        </div>
+        <div class="s1-hero">
+          <div class="s1-icon">📱</div>
+          <div class="s1-title">Get an instant offer for your device</div>
+          <div class="s1-sub">Snap 4 photos. Our AI grades your device in 30 seconds. No manual inspection needed.</div>
+          <div class="s1-device-chip">
+            <div class="dc-icon">📱</div>
+            <div class="dc-info"><div class="dc-name">iPhone 14 Pro Max · 256GB</div><div class="dc-sub">Space Black · Unlocked</div></div>
+            <div class="dc-change">Change</div>
+          </div>
+          <button class="s1-start-btn">📷 Start Photo Assessment →</button>
+          <div class="s1-steps">
+            <div class="step-item"><div class="step-ic">📷</div><div class="step-lbl">4 Photos</div></div>
+            <div class="step-item"><div class="step-ic">🤖</div><div class="step-lbl">AI Grades</div></div>
+            <div class="step-item"><div class="step-ic">💰</div><div class="step-lbl">Instant Offer</div></div>
+            <div class="step-item"><div class="step-ic">🚀</div><div class="step-lbl">Ship Free</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="arrow">›</div>
+
+  <!-- SCREEN 2 -->
+  <div class="phone-wrap">
+    <div class="screen-num">2</div>
+    <div class="screen-label">Camera Capture</div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="s2-bg">
+        <div class="s2-cam-area">
+          <div class="cam-guide">
+            <div class="cam-phone-icon">📱</div>
+            <div class="scan-line"></div>
+          </div>
+        </div>
+        <div class="s2-body">
+          <div class="s2-title">📸 Photo 2 of 4 — Back panel</div>
+          <div class="s2-inst">Place device face-down on a flat surface. Ensure good lighting. AI will detect scratches, cracks, and discolouration.</div>
+          <div class="photo-steps">
+            <div class="ps done">
+              <div class="ps-icon">🖥️</div>
+              <div class="ps-lbl done">✓ Screen</div>
+            </div>
+            <div class="ps active">
+              <div class="ps-icon">🔲</div>
+              <div class="ps-lbl active">Back panel</div>
+            </div>
+            <div class="ps">
+              <div class="ps-icon">⚡</div>
+              <div class="ps-lbl wait">Ports</div>
+            </div>
+            <div class="ps">
+              <div class="ps-icon">📹</div>
+              <div class="ps-lbl wait">Camera</div>
+            </div>
+          </div>
+          <div class="capture-btn">📷</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="arrow">›</div>
+
+  <!-- SCREEN 3 -->
+  <div class="phone-wrap">
+    <div class="screen-num">3</div>
+    <div class="screen-label">AI Processing</div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="s3-bg">
+        <div class="ai-orb">🤖</div>
+        <div class="s3-title">Analysing your device…</div>
+        <div class="s3-sub">Our AI is grading condition across 12 dimensions. Usually takes under 30 seconds.</div>
+        <div class="check-list">
+          <div class="check-item"><div class="ci-icon ci-done">✓</div><div class="ci-text done">Screen crack detection</div></div>
+          <div class="check-item"><div class="ci-icon ci-done">✓</div><div class="ci-text done">Back panel scratch analysis</div></div>
+          <div class="check-item"><div class="ci-icon ci-done">✓</div><div class="ci-text done">Bezel & frame inspection</div></div>
+          <div class="check-item"><div class="ci-icon ci-active">⏳</div><div class="ci-text active">Port & camera assessment</div></div>
+          <div class="check-item"><div class="ci-icon ci-wait">○</div><div class="ci-text wait">Battery health verification</div></div>
+          <div class="check-item"><div class="ci-icon ci-wait">○</div><div class="ci-text wait">Market price lookup</div></div>
+        </div>
+        <div class="ai-bar"><div class="ai-bar-fill"></div></div>
+        <div class="ai-pct">72% complete…</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="arrow">›</div>
+
+  <!-- SCREEN 4 -->
+  <div class="phone-wrap">
+    <div class="screen-num">4</div>
+    <div class="screen-label">Instant Offer</div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="s4-bg">
+        <div class="s4-header">
+          <h2>✅ Assessment Complete</h2>
+          <p>AI graded your iPhone 14 Pro Max across 12 condition dimensions</p>
+        </div>
+        <div class="s4-body">
+          <div class="grade-card">
+            <div class="grade-ring">
+              <div class="grade-val">B+</div>
+              <div class="grade-lbl">Grade</div>
+            </div>
+            <div class="grade-info">
+              <div class="grade-name">Good Condition</div>
+              <div class="grade-desc">Minor scratches on back panel. Screen and camera in excellent condition. All ports functional.</div>
+            </div>
+          </div>
+          <div class="breakdown">
+            <div class="bd-item">
+              <div class="bd-label">Screen</div>
+              <div class="bd-bar"><div class="bd-fill" style="width:95%;background:#22c55e;"></div></div>
+              <div class="bd-val" style="color:#22c55e;">9.5/10 — Excellent</div>
+            </div>
+            <div class="bd-item">
+              <div class="bd-label">Back Panel</div>
+              <div class="bd-bar"><div class="bd-fill" style="width:70%;background:#F59E0B;"></div></div>
+              <div class="bd-val" style="color:#F59E0B;">7.0/10 — Minor scratches</div>
+            </div>
+            <div class="bd-item">
+              <div class="bd-label">Camera</div>
+              <div class="bd-bar"><div class="bd-fill" style="width:98%;background:#22c55e;"></div></div>
+              <div class="bd-val" style="color:#22c55e;">9.8/10 — Excellent</div>
+            </div>
+            <div class="bd-item">
+              <div class="bd-label">Ports</div>
+              <div class="bd-bar"><div class="bd-fill" style="width:88%;background:#00A8FF;"></div></div>
+              <div class="bd-val" style="color:#00A8FF;">8.8/10 — Good</div>
+            </div>
+          </div>
+          <div class="offer-card">
+            <div class="oc-label">⚡ Your Instant Offer</div>
+            <div class="oc-amount">AED 1,950</div>
+            <div class="oc-sub">Valid for 7 days · du Telecom Trade-in Program</div>
+            <div class="oc-perks">
+              <span class="oc-perk">🚚 Free pickup</span>
+              <span class="oc-perk">⚡ Paid in 24hr</span>
+              <span class="oc-perk">🔒 Price locked 7d</span>
+            </div>
+          </div>
+          <button class="accept-btn">Accept Offer & Schedule Pickup →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer-note">
+  <strong style="color:#00A8FF;">SnapAssess — NorthLadder AI Condition Assessment</strong> &nbsp;·&nbsp; Case study by Ajay Avaghade &nbsp;·&nbsp;
+  <a href="https://ajay-avaghade.github.io/Portfolio/" style="color:#00A8FF;">Portfolio</a>
+</div>
+
+</body>
+</html>

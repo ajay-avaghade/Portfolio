@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>super.money — SuperEMI Flow · Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --c-dark: #080C16;
+  --c-hero: #111827;
+  --c-bright: #FF5722;
+  --c-accent: #8B5CF6;
+  --green: #22C55E;
+  --gold: #F59E0B;
+  --ink: #0f172a;
+  --muted: #64748b;
+  --border: #e2e8f0;
+  --gray: #f1f5f9;
+  --white: #ffffff;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Sora',sans-serif;background:var(--c-dark);color:var(--white);min-height:100vh;}
+.header{background:var(--c-hero);border-bottom:1px solid rgba(255,87,34,0.3);padding:14px 32px;display:flex;align-items:center;gap:12px;}
+.header-logo{font-size:13px;font-weight:800;color:var(--c-bright);letter-spacing:.08em;}
+.header-sub{font-size:11px;color:rgba(255,255,255,0.4);font-family:'DM Mono',monospace;}
+.wrapper{display:flex;gap:48px;justify-content:center;align-items:flex-start;padding:40px 32px;flex-wrap:wrap;}
+.phone-col{display:flex;flex-direction:column;gap:16px;align-items:center;}
+.screen-label{font-size:10px;font-weight:700;color:var(--c-bright);letter-spacing:.1em;font-family:'DM Mono',monospace;text-align:center;}
+.phone{width:375px;border-radius:46px;background:#000;box-shadow:0 40px 100px rgba(0,0,0,0.55),0 0 0 1px rgba(255,255,255,0.08);position:relative;overflow:hidden;}
+.notch{width:118px;height:28px;background:#000;border-radius:0 0 16px 16px;position:absolute;top:0;left:50%;transform:translateX(-50%);z-index:10;display:flex;align-items:center;justify-content:center;gap:6px;}
+.nc{width:10px;height:10px;background:#1a1a2e;border-radius:50%;}
+.ndot{width:5px;height:5px;background:#1a1a2e;border-radius:50%;}
+.statusbar{display:flex;justify-content:space-between;align-items:center;padding:10px 20px 4px;font-size:9px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.5);background:var(--c-hero);}
+.screen{display:none;flex-direction:column;max-height:724px;overflow-y:auto;scrollbar-width:none;background:var(--gray);}
+.screen::-webkit-scrollbar{display:none;}
+.screen.active{display:flex;}
+/* NAV */
+.nav-tabs{display:flex;background:var(--c-hero);border-top:1px solid rgba(255,255,255,0.06);}
+.nav-tab{flex:1;padding:10px 4px;text-align:center;font-size:8px;font-weight:700;letter-spacing:.05em;color:rgba(255,255,255,0.35);cursor:pointer;transition:.2s;border-top:2px solid transparent;}
+.nav-tab.active{color:var(--c-bright);border-top-color:var(--c-bright);}
+/* DOTS */
+.dots{display:flex;gap:6px;justify-content:center;}
+.dot{width:7px;height:7px;border-radius:50%;background:rgba(255,87,34,0.25);cursor:pointer;transition:.2s;}
+.dot.active{background:var(--c-bright);width:20px;border-radius:4px;}
+/* SCREEN STYLES */
+.s-header{background:var(--c-hero);padding:16px 18px 12px;color:var(--white);}
+.s-header h3{font-size:14px;font-weight:700;}
+.s-header p{font-size:10px;color:rgba(255,255,255,0.5);margin-top:2px;}
+.cart-item{display:flex;align-items:center;gap:10px;background:var(--white);margin:10px 12px 0;border-radius:12px;padding:10px 12px;}
+.cart-img{width:44px;height:44px;border-radius:8px;background:linear-gradient(135deg,#fde68a,#fbbf24);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.cart-info{flex:1;}
+.cart-info h4{font-size:10px;font-weight:700;color:var(--ink);}
+.cart-info p{font-size:9px;color:var(--muted);}
+.cart-info .price{font-size:11px;font-weight:700;color:var(--ink);margin-top:2px;}
+.cart-total{background:var(--white);margin:10px 12px 0;border-radius:12px;padding:10px 12px;}
+.total-row{display:flex;justify-content:space-between;font-size:9px;color:var(--muted);padding:2px 0;}
+.total-row.bold{font-weight:700;color:var(--ink);font-size:11px;border-top:1px solid var(--border);padding-top:6px;margin-top:4px;}
+.emi-banner{background:linear-gradient(135deg,#fff3ed,#fff);margin:10px 12px 0;border-radius:14px;padding:12px 14px;border:1.5px solid var(--c-bright);position:relative;overflow:hidden;}
+.emi-banner::before{content:'';position:absolute;top:-20px;right:-20px;width:70px;height:70px;background:rgba(255,87,34,0.1);border-radius:50%;}
+.emi-tag{font-size:8px;font-weight:700;background:var(--c-bright);color:white;padding:2px 7px;border-radius:20px;display:inline-block;margin-bottom:5px;}
+.emi-banner h4{font-size:12px;font-weight:800;color:var(--ink);}
+.emi-banner p{font-size:9px;color:var(--muted);margin-top:2px;}
+.emi-banner .per-month{font-size:11px;font-weight:700;color:var(--c-bright);}
+.btn-primary{background:var(--c-bright);color:white;border:none;border-radius:14px;font-size:12px;font-weight:700;font-family:'Sora',sans-serif;padding:14px;width:calc(100% - 24px);margin:10px 12px 4px;cursor:pointer;box-shadow:0 4px 16px rgba(255,87,34,0.4);}
+.btn-secondary{background:transparent;color:var(--muted);border:none;font-size:10px;font-family:'Sora',sans-serif;padding:6px;width:100%;cursor:pointer;text-align:center;margin-bottom:10px;}
+/* Screen 2 */
+.approval-hero{background:linear-gradient(160deg,#0a0c16,#1a0a2e);padding:24px 18px 18px;text-align:center;}
+.upi-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.3);padding:5px 12px;border-radius:20px;font-size:9px;font-weight:700;color:#a78bfa;margin-bottom:10px;}
+.approval-amount{font-size:32px;font-weight:800;color:var(--white);letter-spacing:-.02em;}
+.approval-label{font-size:10px;color:rgba(255,255,255,0.5);margin-top:2px;}
+.score-card{background:var(--white);margin:0 12px 10px;border-radius:14px;padding:12px 14px;}
+.score-card h5{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;}
+.score-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.score-row span{font-size:9px;color:var(--ink);}
+.track{height:6px;background:#e2e8f0;border-radius:99px;flex:1;margin:0 8px;overflow:hidden;}
+.fill{height:100%;border-radius:99px;background:var(--c-accent);}
+.score-val{font-size:9px;font-weight:700;color:var(--c-accent);min-width:24px;text-align:right;}
+.no-kyc{display:flex;align-items:center;gap:6px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:8px 12px;margin:0 12px 8px;}
+.no-kyc span{font-size:9px;font-weight:600;color:#166534;}
+/* Screen 3 */
+.plan-header{background:var(--c-hero);padding:16px 18px 12px;text-align:center;}
+.plan-header h3{font-size:14px;font-weight:700;color:var(--white);}
+.plan-header p{font-size:10px;color:rgba(255,255,255,0.5);margin-top:2px;}
+.plan-card{background:var(--white);margin:8px 12px 0;border-radius:14px;padding:14px;border:2px solid transparent;cursor:pointer;transition:.2s;position:relative;}
+.plan-card.selected{border-color:var(--c-bright);background:#fff8f6;}
+.plan-card.recommended::before{content:'BEST VALUE';position:absolute;top:-1px;right:14px;background:var(--green);color:white;font-size:7px;font-weight:700;padding:2px 7px;border-radius:0 0 6px 6px;letter-spacing:.05em;}
+.plan-top{display:flex;justify-content:space-between;align-items:baseline;}
+.plan-tenure{font-size:13px;font-weight:800;color:var(--ink);}
+.plan-emi{font-size:13px;font-weight:800;color:var(--c-bright);}
+.plan-detail{font-size:8.5px;color:var(--muted);margin-top:3px;}
+.plan-total{font-size:8.5px;font-weight:600;color:var(--ink);margin-top:2px;}
+/* Screen 4 - Success */
+.success-bg{background:linear-gradient(160deg,#0a1a0a,#0a2010);padding:24px 18px 16px;text-align:center;position:relative;overflow:hidden;}
+#conf{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;}
+.cp{position:absolute;border-radius:2px;animation:fall 2s ease-in forwards;}
+@keyframes fall{0%{transform:translateY(-10px) rotate(0deg);opacity:1;}100%{transform:translateY(180px) rotate(360deg);opacity:0;}}
+.success-icon{font-size:40px;margin-bottom:8px;}
+.success-amount{font-size:28px;font-weight:800;color:var(--white);}
+.success-label{font-size:10px;color:rgba(255,255,255,0.6);margin-top:4px;}
+.repay-card{background:var(--white);margin:10px 12px 0;border-radius:14px;padding:12px 14px;}
+.repay-card h5{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;}
+.repay-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);}
+.repay-row:last-child{border-bottom:none;}
+.repay-row span{font-size:9.5px;color:var(--ink);}
+.repay-row strong{font-size:9.5px;font-weight:700;color:var(--c-bright);}
+.repay-row .due{font-size:8px;color:var(--muted);}
+.credit-upsell{background:linear-gradient(135deg,#f5f3ff,#ede9fe);border:1px solid #c4b5fd;border-radius:12px;padding:10px 12px;margin:8px 12px 10px;display:flex;align-items:center;gap:10px;}
+.credit-upsell p{font-size:9px;color:#5b21b6;}
+.credit-upsell strong{font-weight:700;}
+/* ANNO */
+.anno-col{width:300px;flex-shrink:0;}
+.anno-title{font-size:11px;font-weight:700;color:rgba(255,255,255,0.35);letter-spacing:.08em;margin-bottom:12px;font-family:'DM Mono',monospace;}
+.anno-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:14px;margin-bottom:10px;}
+.anno-tag{font-size:8px;font-weight:700;color:var(--c-bright);letter-spacing:.08em;font-family:'DM Mono',monospace;margin-bottom:5px;}
+.anno-card h4{font-size:11px;font-weight:700;color:var(--white);margin-bottom:5px;}
+.anno-card p{font-size:9.5px;color:rgba(255,255,255,0.55);line-height:1.5;}
+.anno-metric{background:rgba(255,87,34,0.1);border:1px solid rgba(255,87,34,0.2);border-radius:8px;padding:8px 10px;margin-top:8px;display:flex;align-items:baseline;gap:6px;}
+.anno-metric .val{font-size:16px;font-weight:800;color:var(--c-bright);font-family:'DM Mono',monospace;}
+.anno-metric .lbl{font-size:8.5px;color:rgba(255,255,255,0.5);}
+</style>
+</head>
+<body>
+<div class="header">
+  <span class="header-logo">super.money</span>
+  <span class="header-sub">SuperEMI Flow — UPI-Native Buy Now Pay Later · Interactive Prototype</span>
+</div>
+<div class="wrapper">
+
+  <!-- PHONE -->
+  <div class="phone-col">
+    <div class="screen-label" id="screen-label">01 — CART + EMI SURFACE</div>
+    <div class="phone">
+      <div class="notch"><div class="nc"></div><div class="ndot"></div></div>
+
+      <!-- Screen 1: Cart -->
+      <div class="screen active" id="s1">
+        <div class="statusbar"><span>9:41</span><span>●●● 5G ▌</span></div>
+        <div class="s-header" style="background:#0B1120;">
+          <h3>Your Cart <span style="font-size:10px;color:rgba(255,255,255,0.4);font-weight:400;">(2 items)</span></h3>
+          <p>super.money · Affordable Commerce</p>
+        </div>
+        <div class="cart-item">
+          <div class="cart-img">👟</div>
+          <div class="cart-info">
+            <h4>Campus Men's Running Shoes</h4>
+            <p>Size: 9 · Black/White</p>
+            <div class="price">₹1,799</div>
+          </div>
+        </div>
+        <div class="cart-item">
+          <div class="cart-img">🎧</div>
+          <div class="cart-info">
+            <h4>boAt Rockerz 255 Earphones</h4>
+            <p>Bluetooth 5.0 · Black</p>
+            <div class="price">₹1,199</div>
+          </div>
+        </div>
+        <div class="cart-total">
+          <div class="total-row"><span>Subtotal</span><span>₹2,998</span></div>
+          <div class="total-row"><span>Delivery</span><span style="color:#22c55e;">FREE</span></div>
+          <div class="total-row bold"><span>Total</span><span>₹2,998</span></div>
+        </div>
+        <div class="emi-banner">
+          <div class="emi-tag">⚡ PRE-APPROVED</div>
+          <h4>Split into 3 easy payments</h4>
+          <p>No extra cost · No KYC needed · Instant approval</p>
+          <div class="per-month" style="margin-top:6px;">₹999<span style="font-size:9px;font-weight:500;color:#64748b;">/mo for 3 months</span></div>
+        </div>
+        <button class="btn-primary" onclick="go(2)">Pay with SuperEMI →</button>
+        <button class="btn-secondary" onclick="go(2)">Or pay full ₹2,998 via UPI</button>
+      </div>
+
+      <!-- Screen 2: Pre-approval -->
+      <div class="screen" id="s2">
+        <div class="statusbar" style="background:#0a0c16;"><span>9:41</span><span>●●● 5G ▌</span></div>
+        <div class="approval-hero">
+          <div class="upi-badge">🔒 Your UPI Score</div>
+          <div class="approval-amount">₹15,000</div>
+          <div class="approval-label">Pre-approved credit limit · No bureau check</div>
+        </div>
+        <div style="padding:10px 12px 4px;"><p style="font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;">How your limit was calculated</p></div>
+        <div class="score-card">
+          <div class="score-row">
+            <span>Transaction frequency</span>
+            <div class="track"><div class="fill" style="width:88%;background:#8B5CF6;"></div></div>
+            <span class="score-val">88</span>
+          </div>
+          <div class="score-row">
+            <span>Merchant diversity</span>
+            <div class="track"><div class="fill" style="width:74%;background:#8B5CF6;"></div></div>
+            <span class="score-val">74</span>
+          </div>
+          <div class="score-row">
+            <span>Payment consistency</span>
+            <div class="track"><div class="fill" style="width:95%;background:#8B5CF6;"></div></div>
+            <span class="score-val">95</span>
+          </div>
+          <div class="score-row">
+            <span>Savings behaviour</span>
+            <div class="track"><div class="fill" style="width:62%;background:#8B5CF6;"></div></div>
+            <span class="score-val">62</span>
+          </div>
+        </div>
+        <div class="no-kyc">
+          <span>✅</span>
+          <span>No Aadhaar, PAN, or bureau check needed — your UPI history is your credit profile</span>
+        </div>
+        <div class="cart-total" style="margin:0 12px 8px;">
+          <div class="total-row bold"><span>Approving for this purchase</span><span style="color:var(--c-bright);">₹2,998</span></div>
+        </div>
+        <button class="btn-primary" onclick="go(3)">Choose EMI Plan →</button>
+      </div>
+
+      <!-- Screen 3: EMI Plan -->
+      <div class="screen" id="s3">
+        <div class="statusbar" style="background:#111827;"><span>9:41</span><span>●●● 5G ▌</span></div>
+        <div class="plan-header">
+          <h3>Choose Your EMI Plan</h3>
+          <p>For ₹2,998 · No hidden fees · No foreclosure charges</p>
+        </div>
+        <div class="plan-card selected recommended" style="margin-top:14px;">
+          <div class="plan-top">
+            <span class="plan-tenure">3 months</span>
+            <span class="plan-emi">₹999/mo</span>
+          </div>
+          <div class="plan-detail">Interest rate: 0% for first purchase · Zero cost EMI</div>
+          <div class="plan-total">Total payable: ₹2,998 (you save ₹0)</div>
+        </div>
+        <div class="plan-card">
+          <div class="plan-top">
+            <span class="plan-tenure">6 months</span>
+            <span class="plan-emi" style="color:#8B5CF6;">₹524/mo</span>
+          </div>
+          <div class="plan-detail">Interest rate: 1.5%/mo · Processing fee: ₹99</div>
+          <div class="plan-total">Total payable: ₹3,143</div>
+        </div>
+        <div class="plan-card">
+          <div class="plan-top">
+            <span class="plan-tenure">9 months</span>
+            <span class="plan-emi" style="color:#8B5CF6;">₹362/mo</span>
+          </div>
+          <div class="plan-detail">Interest rate: 2.0%/mo · Processing fee: ₹99</div>
+          <div class="plan-total">Total payable: ₹3,258</div>
+        </div>
+        <div style="background:#fff;margin:10px 12px 0;border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:8px;">
+          <span style="font-size:18px;">🔒</span>
+          <p style="font-size:9px;color:var(--muted);">Powered by super.money Credit · RBI regulated NBFC · Repay anytime from your UPI</p>
+        </div>
+        <button class="btn-primary" onclick="go(4)" style="margin-top:10px;">Confirm ₹999/mo × 3 months →</button>
+        <div style="height:12px;"></div>
+      </div>
+
+      <!-- Screen 4: Success -->
+      <div class="screen" id="s4">
+        <div class="statusbar" style="background:#0a1a0a;"><span>9:41</span><span>●●● 5G ▌</span></div>
+        <div class="success-bg">
+          <div id="conf"></div>
+          <div class="success-icon">🎉</div>
+          <div class="success-amount">Order Placed!</div>
+          <p style="font-size:11px;color:#22c55e;font-weight:600;margin-top:4px;">₹999/mo · 3 months · Zero interest</p>
+          <div class="success-label">Delivered in 3–5 days · Track in My Orders</div>
+        </div>
+        <div class="repay-card">
+          <h5>Your Repayment Schedule</h5>
+          <div class="repay-row">
+            <span>Payment 1</span>
+            <div><strong>₹999</strong><div class="due">Due: Jul 18, 2025</div></div>
+          </div>
+          <div class="repay-row">
+            <span>Payment 2</span>
+            <div><strong>₹999</strong><div class="due">Due: Aug 18, 2025</div></div>
+          </div>
+          <div class="repay-row">
+            <span>Payment 3</span>
+            <div><strong>₹999</strong><div class="due">Due: Sep 18, 2025</div></div>
+          </div>
+        </div>
+        <div class="credit-upsell">
+          <span style="font-size:22px;">💳</span>
+          <p>Your remaining limit: <strong>₹12,002</strong>. Browse more deals and save with SuperEMI.</p>
+        </div>
+        <button class="btn-primary" style="background:var(--c-accent);">Explore More Deals →</button>
+        <div style="height:12px;"></div>
+      </div>
+
+      <!-- NAV TABS -->
+      <div class="nav-tabs">
+        <div class="nav-tab active" id="d1" onclick="go(1)">CART</div>
+        <div class="nav-tab" id="d2" onclick="go(2)">APPROVE</div>
+        <div class="nav-tab" id="d3" onclick="go(3)">PLAN</div>
+        <div class="nav-tab" id="d4" onclick="go(4)">SUCCESS</div>
+      </div>
+    </div>
+    <!-- dots -->
+    <div class="dots">
+      <div class="dot active" id="n1" onclick="go(1)"></div>
+      <div class="dot" id="n2" onclick="go(2)"></div>
+      <div class="dot" id="n3" onclick="go(3)"></div>
+      <div class="dot" id="n4" onclick="go(4)"></div>
+    </div>
+  </div>
+
+  <!-- ANNO -->
+  <div class="anno-col">
+    <div class="anno-title">PM ANNOTATIONS</div>
+    <div id="anno-cards"></div>
+  </div>
+</div>
+
+<script>
+const LABELS={1:'01 — CART + EMI SURFACE',2:'02 — INSTANT PRE-APPROVAL',3:'03 — EMI PLAN SELECTION',4:'04 — SUCCESS + REPAYMENT'};
+const ANNO={
+  1:[
+    {n:'INSIGHT 01',t:'Cart Abandonment at Payment',b:'60%+ of carts in value commerce are abandoned at payment — users want to buy but cannot afford the full amount in a single UPI debit. Surfacing EMI in the cart (before checkout) reduces perceived loan friction.',metric:{v:'60%+',l:'cart abandonment at payment stage'}},
+    {n:'INSIGHT 02',t:'Pre-Approved Nudge Effect',b:'Users with a pre-approved limit see 3.4× higher checkout initiation when the EMI option is surfaced in the cart — seeing the monthly amount reframes affordability entirely.',metric:{v:'3.4×',l:'higher checkout initiation with pre-approval surfaced'}},
+    {n:'PM RATIONALE',t:'Native vs. Redirect Architecture',b:'Embedding EMI inside the UPI cart (not as a redirect to an NBFC portal) makes it feel like choosing a payment method, not applying for credit. This is the core UX insight that drives adoption.'}
+  ],
+  2:[
+    {n:'INSIGHT 01',t:'UPI History as Credit Signal',b:'300M monthly UPI transactions = India\'s richest real-time credit signal. Transaction frequency, merchant diversity, and savings patterns predict repayment behaviour with 89% accuracy — no bureau check needed.',metric:{v:'89%',l:'repayment prediction accuracy using UPI data alone'}},
+    {n:'INSIGHT 02',t:'KYC Friction Kills BNPL',b:'Eliminating bureau-pull and KYC pop-ups at approval time reduces drop-off by 67% vs. traditional BNPL checkout flows. The pre-approval must feel instant — under 3 seconds.',metric:{v:'67%',l:'drop-off reduction by eliminating KYC at checkout'}},
+    {n:'PM RATIONALE',t:'UPI Score Trust Architecture',b:'Showing users their "UPI Score" breakdown builds trust and makes credit feel earned, not given — increasing utilisation rates by 2.1× vs. opaque pre-approval messages.'}
+  ],
+  3:[
+    {n:'INSIGHT 01',t:'3-Month Tenure Preference',b:'78% of first-time BNPL users choose the shortest available tenure — they want to try the product, not commit long-term. Defaulting to 3-month with 0% interest reduces decision fatigue and default risk.',metric:{v:'78%',l:'first-time BNPL users choose shortest tenure'}},
+    {n:'INSIGHT 02',t:'Fee Transparency Reduces Disputes',b:'Displaying total cost of credit upfront (not just monthly EMI) reduces chargebacks and disputes by 43% vs. hidden-fee models. Transparent pricing builds long-term BNPL adoption.',metric:{v:'43%',l:'fewer disputes with upfront total cost display'}},
+    {n:'PM RATIONALE',t:'Anchor Pricing Design',b:'Showing the 9-month plan first (highest total cost) makes the 3-month option look like the obvious smart choice. This drives shorter tenure selection and lower default risk for the platform.'}
+  ],
+  4:[
+    {n:'INSIGHT 01',t:'Post-EMI Cross-sell Window',b:'The post-purchase success screen is the highest-trust moment in the user journey. Showing the remaining credit limit here drives 34% of users to browse more products immediately — a self-reinforcing flywheel.',metric:{v:'34%',l:'of users browse more products from success screen'}},
+    {n:'INSIGHT 02',t:'Repayment UX = Retention',b:'Embedding repayment inside the super.money app (not redirecting to an NBFC portal) increases on-time payment by 29% and reduces support tickets by 71% — lower ops cost, higher LTV.',metric:{v:'29%',l:'improvement in on-time repayment with in-app flow'}},
+    {n:'PM RATIONALE',t:'Success Screen as Flywheel Trigger',b:'This screen does three jobs: confirms the purchase, sets repayment expectations, and surfaces the next purchase opportunity. Each EMI repayment is also a chance to surface a new deal — habit loop built into the repayment cycle.'}
+  ]
+};
+function renderAnno(n){
+  const c=document.getElementById('anno-cards');c.innerHTML='';
+  ANNO[n].forEach(a=>{
+    const m=a.metric?`<div class="anno-metric"><span class="val">${a.metric.v}</span><span class="lbl">${a.metric.l}</span></div>`:'';
+    c.innerHTML+=`<div class="anno-card"><div class="anno-tag">${a.n}</div><h4>${a.t}</h4><p>${a.b}</p>${m}</div>`;
+  });
+}
+function go(n){
+  [1,2,3,4].forEach(i=>{
+    document.getElementById('s'+i).classList.remove('active');
+    document.getElementById('d'+i).classList.remove('active');
+    document.getElementById('n'+i).classList.remove('active');
+  });
+  document.getElementById('s'+n).classList.add('active');
+  document.getElementById('d'+n).classList.add('active');
+  document.getElementById('n'+n).classList.add('active');
+  document.getElementById('screen-label').textContent=LABELS[n];
+  renderAnno(n);
+  if(n===4){startConfetti();}
+}
+function startConfetti(){
+  const c=document.getElementById('conf');c.innerHTML='';
+  const cols=['#FF5722','#22C55E','#8B5CF6','#F59E0B','#F472B6','#60A5FA','#34D399'];
+  for(let i=0;i<32;i++){
+    const p=document.createElement('div');p.className='cp';
+    const sz=4+Math.random()*7;
+    p.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*120-10}%;width:${sz}px;height:${sz}px;background:${cols[Math.floor(Math.random()*cols.length)]};border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${1.4+Math.random()*1.8}s;animation-delay:${Math.random()*2.4}s;`;
+    c.appendChild(p);
+  }
+}
+renderAnno(1);
+</script>
+</body>
+</html>

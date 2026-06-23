@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>super.money — Merchant FastTrack · Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --c-dark: #080C16;
+  --c-hero: #111827;
+  --c-bright: #FF5722;
+  --c-accent: #8B5CF6;
+  --green: #22C55E;
+  --gold: #F59E0B;
+  --ink: #0f172a;
+  --muted: #64748b;
+  --border: #e2e8f0;
+  --gray: #f1f5f9;
+  --white: #ffffff;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Sora',sans-serif;background:var(--c-dark);color:var(--white);min-height:100vh;}
+.header{background:var(--c-hero);border-bottom:1px solid rgba(255,87,34,0.3);padding:14px 32px;display:flex;align-items:center;gap:12px;}
+.header-logo{font-size:13px;font-weight:800;color:var(--c-bright);letter-spacing:.08em;}
+.header-sub{font-size:11px;color:rgba(255,255,255,0.4);font-family:'DM Mono',monospace;}
+.wrapper{display:flex;gap:48px;justify-content:center;align-items:flex-start;padding:40px 32px;flex-wrap:wrap;}
+.browser-col{display:flex;flex-direction:column;gap:16px;align-items:center;}
+.screen-label{font-size:10px;font-weight:700;color:var(--c-bright);letter-spacing:.1em;font-family:'DM Mono',monospace;text-align:center;}
+/* BROWSER FRAME */
+.browser{width:660px;border-radius:12px;background:#1e2433;box-shadow:0 30px 80px rgba(0,0,0,0.5),0 0 0 1px rgba(255,255,255,0.07);overflow:hidden;}
+.browser-chrome{background:#252d3d;padding:10px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,0.06);}
+.browser-dots{display:flex;gap:5px;}
+.browser-dot{width:11px;height:11px;border-radius:50%;}
+.browser-url{flex:1;background:#1a2030;border-radius:6px;padding:5px 12px;font-size:10px;color:rgba(255,255,255,0.4);font-family:'DM Mono',monospace;}
+.browser-screen{display:none;background:var(--gray);min-height:540px;}
+.browser-screen.active{display:block;}
+/* NAV */
+.nav-tabs{display:flex;background:var(--c-hero);border-top:1px solid rgba(255,255,255,0.06);}
+.nav-tab{flex:1;padding:10px 4px;text-align:center;font-size:8px;font-weight:700;letter-spacing:.05em;color:rgba(255,255,255,0.35);cursor:pointer;transition:.2s;border-top:2px solid transparent;}
+.nav-tab.active{color:var(--c-bright);border-top-color:var(--c-bright);}
+.dots{display:flex;gap:6px;justify-content:center;}
+.dot{width:7px;height:7px;border-radius:50%;background:rgba(255,87,34,0.25);cursor:pointer;transition:.2s;}
+.dot.active{background:var(--c-bright);width:20px;border-radius:4px;}
+
+/* ── SCREEN 1: ONBOARDING WIZARD ── */
+.onb-layout{display:grid;grid-template-columns:220px 1fr;min-height:540px;}
+.onb-sidebar{background:#0B1120;padding:24px 20px;display:flex;flex-direction:column;gap:4px;}
+.onb-sidebar h3{font-size:14px;font-weight:800;color:var(--white);margin-bottom:16px;}
+.step-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;}
+.step-item.done{background:rgba(34,197,94,0.1);}
+.step-item.active{background:rgba(255,87,34,0.12);}
+.step-num{width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:rgba(255,255,255,0.4);flex-shrink:0;}
+.step-item.done .step-num{background:var(--green);color:white;}
+.step-item.active .step-num{background:var(--c-bright);color:white;}
+.step-info span{font-size:10px;font-weight:700;color:rgba(255,255,255,0.5);}
+.step-item.active .step-info span{color:var(--white);}
+.step-item.done .step-info span{color:rgba(255,255,255,0.6);}
+.step-info small{display:block;font-size:8px;color:rgba(255,255,255,0.3);}
+.onb-main{padding:24px 28px;background:var(--gray);}
+.onb-main h2{font-size:16px;font-weight:800;color:var(--ink);margin-bottom:4px;}
+.onb-main p{font-size:10px;color:var(--muted);margin-bottom:18px;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.form-field{display:flex;flex-direction:column;gap:4px;}
+.form-field.full{grid-column:1/-1;}
+.form-field label{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;}
+.form-input{padding:9px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:10px;font-family:'Sora',sans-serif;color:var(--ink);background:var(--white);outline:none;}
+.form-input.filled{border-color:#c4b5fd;background:#faf5ff;}
+.gstin-row{display:flex;gap:8px;align-items:flex-end;}
+.verify-btn{padding:9px 14px;background:var(--c-accent);color:white;border:none;border-radius:10px;font-size:9px;font-weight:700;font-family:'Sora',sans-serif;cursor:pointer;white-space:nowrap;}
+.verified-badge{display:inline-flex;align-items:center;gap:4px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;padding:4px 8px;font-size:9px;font-weight:700;color:#166534;}
+.wa-box{background:#f0fdf4;border:1.5px solid #86efac;border-radius:12px;padding:14px 16px;margin-top:16px;display:flex;align-items:center;gap:12px;}
+.wa-icon{font-size:28px;}
+.wa-text h4{font-size:11px;font-weight:700;color:#166534;}
+.wa-text p{font-size:9px;color:#15803d;margin-top:2px;}
+.next-btn{margin-top:20px;background:var(--c-bright);color:white;border:none;border-radius:12px;padding:12px 24px;font-size:11px;font-weight:700;font-family:'Sora',sans-serif;cursor:pointer;box-shadow:0 4px 14px rgba(255,87,34,0.35);}
+
+/* ── SCREEN 2: AI CATALOGUE ── */
+.ai-layout{display:grid;grid-template-columns:1fr 260px;min-height:540px;}
+.ai-main{padding:20px 24px;background:var(--gray);}
+.ai-main h2{font-size:15px;font-weight:800;color:var(--ink);margin-bottom:4px;}
+.ai-main p{font-size:10px;color:var(--muted);margin-bottom:14px;}
+.upload-zone{border:2px dashed #c4b5fd;border-radius:14px;background:#faf5ff;padding:24px;text-align:center;cursor:pointer;margin-bottom:14px;}
+.upload-zone .uz-icon{font-size:32px;margin-bottom:8px;}
+.upload-zone h4{font-size:11px;font-weight:700;color:var(--c-accent);}
+.upload-zone p{font-size:9px;color:var(--muted);margin-top:3px;}
+.product-preview{background:var(--white);border-radius:14px;padding:14px;border:1.5px solid var(--border);}
+.product-preview h5{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;}
+.ai-field{display:flex;flex-direction:column;gap:3px;margin-bottom:10px;}
+.ai-field label{font-size:8.5px;font-weight:700;color:var(--muted);display:flex;justify-content:space-between;}
+.ai-badge{font-size:7.5px;background:rgba(139,92,246,0.1);color:var(--c-accent);padding:1px 6px;border-radius:10px;font-weight:700;}
+.ai-value{font-size:10px;font-weight:600;color:var(--ink);background:#f5f3ff;border:1px solid #e9d5ff;border-radius:8px;padding:7px 10px;}
+.price-benchmark{background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:10px 12px;margin-top:4px;}
+.price-benchmark h5{font-size:9px;font-weight:700;color:#92400e;margin-bottom:5px;}
+.bm-row{display:flex;justify-content:space-between;font-size:9px;color:var(--ink);padding:2px 0;}
+.ai-sidebar{background:#0B1120;padding:20px 18px;}
+.ai-sidebar h4{font-size:11px;font-weight:800;color:var(--white);margin-bottom:12px;}
+.ai-step{display:flex;gap:10px;margin-bottom:12px;align-items:flex-start;}
+.ai-step-num{width:20px;height:20px;border-radius:50%;background:rgba(255,87,34,0.2);color:var(--c-bright);font-size:8px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.ai-step-text span{font-size:10px;font-weight:700;color:var(--white);}
+.ai-step-text p{font-size:8.5px;color:rgba(255,255,255,0.45);margin-top:2px;line-height:1.4;}
+.confidence-bar{background:rgba(255,255,255,0.06);border-radius:10px;padding:10px 12px;margin-top:12px;}
+.confidence-bar h5{font-size:9px;font-weight:700;color:rgba(255,255,255,0.5);margin-bottom:8px;}
+.cb-row{margin-bottom:5px;}
+.cb-label{font-size:8px;color:rgba(255,255,255,0.5);margin-bottom:3px;display:flex;justify-content:space-between;}
+.cb-track{height:5px;background:rgba(255,255,255,0.08);border-radius:99px;}
+.cb-fill{height:100%;border-radius:99px;background:var(--green);}
+.ai-next-btn{margin-top:16px;background:var(--c-bright);color:white;border:none;border-radius:10px;padding:10px 0;width:100%;font-size:10px;font-weight:700;font-family:'Sora',sans-serif;cursor:pointer;}
+
+/* ── SCREEN 3: GO LIVE ── */
+.live-layout{display:grid;grid-template-columns:1fr 240px;min-height:540px;}
+.live-main{padding:20px 24px;background:var(--gray);}
+.live-main h2{font-size:15px;font-weight:800;color:var(--ink);margin-bottom:4px;}
+.live-main p{font-size:10px;color:var(--muted);margin-bottom:14px;}
+.preview-card{background:var(--white);border-radius:14px;overflow:hidden;border:1px solid var(--border);margin-bottom:14px;}
+.preview-img{height:100px;background:linear-gradient(135deg,#fde68a,#fed7aa);display:flex;align-items:center;justify-content:center;font-size:48px;}
+.preview-body{padding:12px 14px;}
+.preview-body h4{font-size:12px;font-weight:700;color:var(--ink);}
+.preview-body .brand{font-size:9px;color:var(--muted);}
+.preview-price-row{display:flex;align-items:baseline;gap:6px;margin-top:6px;}
+.preview-price{font-size:16px;font-weight:800;color:var(--ink);}
+.preview-mrp{font-size:10px;color:var(--muted);text-decoration:line-through;}
+.preview-off{font-size:9px;font-weight:700;color:var(--green);}
+.preview-emi{font-size:9px;color:var(--c-accent);font-weight:600;margin-top:2px;}
+.compliance-check{background:var(--white);border-radius:12px;padding:12px 14px;border:1px solid var(--border);}
+.compliance-check h5{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;}
+.check-row{display:flex;align-items:center;gap:8px;padding:4px 0;}
+.check-icon{font-size:13px;flex-shrink:0;}
+.check-label{font-size:9.5px;color:var(--ink);}
+.check-status{margin-left:auto;font-size:8.5px;font-weight:700;}
+.check-status.pass{color:var(--green);}
+.check-status.warn{color:var(--gold);}
+.go-live-btn{background:var(--green);color:white;border:none;border-radius:12px;padding:13px 0;width:100%;font-size:12px;font-weight:800;font-family:'Sora',sans-serif;cursor:pointer;box-shadow:0 4px 14px rgba(34,197,94,0.3);margin-top:14px;}
+.live-sidebar{background:#0B1120;padding:20px 18px;}
+.live-sidebar h4{font-size:11px;font-weight:800;color:var(--white);margin-bottom:12px;}
+.live-stat{background:rgba(255,255,255,0.05);border-radius:10px;padding:10px 12px;margin-bottom:8px;}
+.live-stat .ls-val{font-size:18px;font-weight:800;color:var(--c-bright);font-family:'DM Mono',monospace;}
+.live-stat .ls-label{font-size:8.5px;color:rgba(255,255,255,0.45);margin-top:2px;}
+.ops-note{background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);border-radius:10px;padding:10px 12px;margin-top:12px;}
+.ops-note p{font-size:9px;color:rgba(255,255,255,0.55);line-height:1.45;}
+
+/* ── SCREEN 4: DASHBOARD ── */
+.dash-layout{background:var(--gray);padding:20px 24px;min-height:540px;}
+.dash-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;}
+.dash-header h2{font-size:15px;font-weight:800;color:var(--ink);}
+.dash-header p{font-size:9px;color:var(--muted);}
+.live-tag{background:#f0fdf4;border:1px solid #bbf7d0;color:#166534;font-size:9px;font-weight:700;padding:4px 10px;border-radius:20px;display:inline-flex;align-items:center;gap:4px;}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;}
+.kpi-card{background:var(--white);border-radius:12px;padding:12px 14px;border:1px solid var(--border);}
+.kpi-val{font-size:20px;font-weight:800;color:var(--ink);font-family:'DM Mono',monospace;}
+.kpi-label{font-size:8.5px;color:var(--muted);margin-top:2px;}
+.kpi-trend{font-size:8.5px;font-weight:700;margin-top:4px;}
+.kpi-trend.up{color:var(--green);}
+.kpi-trend.warn{color:var(--gold);}
+.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+.chart-card{background:var(--white);border-radius:12px;padding:12px 14px;border:1px solid var(--border);}
+.chart-card h5{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;}
+.bar-chart{display:flex;align-items:flex-end;gap:4px;height:60px;}
+.bar{flex:1;border-radius:4px 4px 0 0;background:var(--c-bright);opacity:0.7;transition:.3s;}
+.bar:last-child{opacity:1;}
+.bar-labels{display:flex;gap:4px;margin-top:3px;}
+.bar-label{flex:1;font-size:7px;color:var(--muted);text-align:center;}
+.top-skus{background:var(--white);border-radius:12px;padding:12px 14px;border:1px solid var(--border);}
+.top-skus h5{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;}
+.sku-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);}
+.sku-row:last-child{border-bottom:none;}
+.sku-emoji{font-size:16px;width:24px;text-align:center;}
+.sku-info{flex:1;}
+.sku-info span{font-size:10px;font-weight:600;color:var(--ink);}
+.sku-info small{display:block;font-size:8px;color:var(--muted);}
+.sku-emi-rate{font-size:10px;font-weight:700;color:var(--c-accent);}
+.action-pill{display:inline-flex;align-items:center;gap:4px;background:#fffbeb;border:1px solid #fde68a;border-radius:6px;padding:3px 8px;font-size:8px;font-weight:700;color:#92400e;margin-top:4px;}
+
+/* ANNO */
+.anno-col{width:300px;flex-shrink:0;}
+.anno-title{font-size:11px;font-weight:700;color:rgba(255,255,255,0.35);letter-spacing:.08em;margin-bottom:12px;font-family:'DM Mono',monospace;}
+.anno-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:14px;margin-bottom:10px;}
+.anno-tag{font-size:8px;font-weight:700;color:var(--c-bright);letter-spacing:.08em;font-family:'DM Mono',monospace;margin-bottom:5px;}
+.anno-card h4{font-size:11px;font-weight:700;color:var(--white);margin-bottom:5px;}
+.anno-card p{font-size:9.5px;color:rgba(255,255,255,0.55);line-height:1.5;}
+.anno-metric{background:rgba(255,87,34,0.1);border:1px solid rgba(255,87,34,0.2);border-radius:8px;padding:8px 10px;margin-top:8px;display:flex;align-items:baseline;gap:6px;}
+.anno-metric .val{font-size:16px;font-weight:800;color:var(--c-bright);font-family:'DM Mono',monospace;}
+.anno-metric .lbl{font-size:8.5px;color:rgba(255,255,255,0.5);}
+</style>
+</head>
+<body>
+<div class="header">
+  <span class="header-logo">super.money</span>
+  <span class="header-sub">Merchant FastTrack — WhatsApp-First Supply-Side Onboarding · Interactive Prototype</span>
+</div>
+<div class="wrapper">
+  <div class="browser-col">
+    <div class="screen-label" id="screen-label">01 — MERCHANT ONBOARDING WIZARD</div>
+    <div class="browser">
+      <div class="browser-chrome">
+        <div class="browser-dots">
+          <div class="browser-dot" style="background:#ff5f57;"></div>
+          <div class="browser-dot" style="background:#febc2e;"></div>
+          <div class="browser-dot" style="background:#28c840;"></div>
+        </div>
+        <div class="browser-url">merchant.super.money/onboard</div>
+      </div>
+
+      <!-- Screen 1: Onboarding Wizard -->
+      <div class="browser-screen active" id="s1">
+        <div class="onb-layout">
+          <div class="onb-sidebar">
+            <h3>Seller Setup</h3>
+            <div class="step-item done">
+              <div class="step-num">✓</div>
+              <div class="step-info"><span>WhatsApp Verify</span><small>Mobile confirmed</small></div>
+            </div>
+            <div class="step-item active">
+              <div class="step-num">2</div>
+              <div class="step-info"><span>Business Details</span><small>GST + shop info</small></div>
+            </div>
+            <div class="step-item">
+              <div class="step-num">3</div>
+              <div class="step-info"><span>AI Catalogue</span><small>Upload products</small></div>
+            </div>
+            <div class="step-item">
+              <div class="step-num">4</div>
+              <div class="step-info"><span>Go Live</span><small>Review & activate</small></div>
+            </div>
+          </div>
+          <div class="onb-main">
+            <h2>Business Details</h2>
+            <p>We'll auto-fill your details from your GSTIN. This takes under 30 seconds.</p>
+            <div class="form-grid">
+              <div class="form-field full">
+                <label>GSTIN</label>
+                <div class="gstin-row">
+                  <input class="form-input filled" value="27AADCS0472N1Z5" style="flex:1;font-family:'DM Mono',monospace;">
+                  <button class="verify-btn">Verify →</button>
+                </div>
+                <div style="margin-top:5px;"><span class="verified-badge">✓ Verified — Suresh Traders, Mumbai</span></div>
+              </div>
+              <div class="form-field">
+                <label>Business Name</label>
+                <input class="form-input filled" value="Suresh Traders">
+              </div>
+              <div class="form-field">
+                <label>Category</label>
+                <input class="form-input filled" value="Footwear & Accessories">
+              </div>
+              <div class="form-field full">
+                <label>WhatsApp Business Number</label>
+                <input class="form-input filled" value="+91 98765 43210">
+              </div>
+              <div class="form-field full">
+                <label>Bank Account (for payouts)</label>
+                <input class="form-input filled" value="HDFC •••• 4521">
+              </div>
+            </div>
+            <div class="wa-box">
+              <div class="wa-icon">📱</div>
+              <div class="wa-text">
+                <h4>Add products via WhatsApp — no app needed</h4>
+                <p>Send product photos to +91 80000 12345 and our AI builds your catalogue automatically. Takes 10 minutes.</p>
+              </div>
+            </div>
+            <button class="next-btn" onclick="go(2)">Continue to Catalogue →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Screen 2: AI Catalogue -->
+      <div class="browser-screen" id="s2">
+        <div class="ai-layout">
+          <div class="ai-main">
+            <h2>AI Catalogue Builder</h2>
+            <p>Send product photos via WhatsApp or upload here. AI fills titles, descriptions, and pricing automatically.</p>
+            <div class="upload-zone">
+              <div class="uz-icon">📸</div>
+              <h4>Drop product photos or send via WhatsApp</h4>
+              <p>JPG, PNG · Or send to +91 80000 12345 · AI processes in &lt;60s</p>
+            </div>
+            <div class="product-preview">
+              <h5>AI-Generated Listing Preview</h5>
+              <div class="ai-field">
+                <label>Product Title <span class="ai-badge">✦ AI Generated</span></label>
+                <div class="ai-value">Campus Men's Running Shoes — Black/White, Size 6–11</div>
+              </div>
+              <div class="ai-field">
+                <label>Category <span class="ai-badge">✦ AI Generated</span></label>
+                <div class="ai-value">Footwear › Men's Shoes › Sports & Running</div>
+              </div>
+              <div class="ai-field">
+                <label>Description <span class="ai-badge">✦ AI Generated</span></label>
+                <div class="ai-value" style="font-size:9.5px;line-height:1.5;">Lightweight running shoe with breathable mesh upper. Cushioned EVA sole for all-day comfort. Available in sizes 6–11. Machine washable. Perfect for morning runs and casual wear.</div>
+              </div>
+              <div class="price-benchmark">
+                <h5>Price Benchmark (live market data)</h5>
+                <div class="bm-row"><span>Your price (suggested)</span><span style="font-weight:700;color:var(--ink);">₹1,799</span></div>
+                <div class="bm-row"><span>Amazon avg. (same model)</span><span>₹1,999</span></div>
+                <div class="bm-row"><span>Flipkart avg.</span><span>₹1,849</span></div>
+                <div class="bm-row" style="margin-top:4px;padding-top:4px;border-top:1px solid #fde68a;"><span style="color:#92400e;font-weight:700;">Your advantage</span><span style="color:var(--green);font-weight:700;">₹200 cheaper than Amazon</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="ai-sidebar">
+            <h4>How AI FastTrack Works</h4>
+            <div class="ai-step">
+              <div class="ai-step-num">1</div>
+              <div class="ai-step-text"><span>Photo → Title</span><p>AI recognises product, brand, and variant from image using vision model</p></div>
+            </div>
+            <div class="ai-step">
+              <div class="ai-step-num">2</div>
+              <div class="ai-step-text"><span>Auto-categorise</span><p>Maps to super.money's catalogue taxonomy in 3 levels automatically</p></div>
+            </div>
+            <div class="ai-step">
+              <div class="ai-step-num">3</div>
+              <div class="ai-step-text"><span>Price benchmark</span><p>Pulls live Amazon/Flipkart prices to suggest competitive seller price</p></div>
+            </div>
+            <div class="ai-step">
+              <div class="ai-step-num">4</div>
+              <div class="ai-step-text"><span>EMI eligibility</span><p>Flags which products qualify for SuperEMI based on price and category</p></div>
+            </div>
+            <div class="confidence-bar">
+              <h5>AI Confidence Scores</h5>
+              <div class="cb-row">
+                <div class="cb-label"><span>Title accuracy</span><span style="color:var(--green);">91%</span></div>
+                <div class="cb-track"><div class="cb-fill" style="width:91%;"></div></div>
+              </div>
+              <div class="cb-row">
+                <div class="cb-label"><span>Category match</span><span style="color:var(--green);">88%</span></div>
+                <div class="cb-track"><div class="cb-fill" style="width:88%;"></div></div>
+              </div>
+              <div class="cb-row">
+                <div class="cb-label"><span>Price benchmark</span><span style="color:var(--green);">94%</span></div>
+                <div class="cb-track"><div class="cb-fill" style="width:94%;"></div></div>
+              </div>
+            </div>
+            <button class="ai-next-btn" onclick="go(3)">Review & Go Live →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Screen 3: Go Live -->
+      <div class="browser-screen" id="s3">
+        <div class="live-layout">
+          <div class="live-main">
+            <h2>Review & Activate</h2>
+            <p>Your listing is ready. Review how it looks to buyers before going live.</p>
+            <div style="font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Buyer Preview</div>
+            <div class="preview-card">
+              <div class="preview-img">👟</div>
+              <div class="preview-body">
+                <h4>Campus Men's Running Shoes — Black/White</h4>
+                <div class="brand">Suresh Traders · Mumbai</div>
+                <div class="preview-price-row">
+                  <span class="preview-price">₹1,799</span>
+                  <span class="preview-mrp">₹1,999</span>
+                  <span class="preview-off">10% off</span>
+                </div>
+                <div class="preview-emi">💳 EMI from ₹599/mo via SuperEMI</div>
+              </div>
+            </div>
+            <div class="compliance-check">
+              <h5>Compliance Checks</h5>
+              <div class="check-row"><span class="check-icon">✅</span><span class="check-label">GSTIN verified</span><span class="check-status pass">Passed</span></div>
+              <div class="check-row"><span class="check-icon">✅</span><span class="check-label">Product category allowed</span><span class="check-status pass">Passed</span></div>
+              <div class="check-row"><span class="check-icon">✅</span><span class="check-label">No prohibited keywords</span><span class="check-status pass">Passed</span></div>
+              <div class="check-row"><span class="check-icon">✅</span><span class="check-label">Image quality check</span><span class="check-status pass">Passed</span></div>
+              <div class="check-row"><span class="check-icon">⚠️</span><span class="check-label">ISI mark (recommended for footwear)</span><span class="check-status warn">Suggested</span></div>
+            </div>
+            <button class="go-live-btn" onclick="go(4)">🚀 Go Live — Activate Listing</button>
+          </div>
+          <div class="live-sidebar">
+            <h4>Time Saved vs. Manual</h4>
+            <div class="live-stat"><div class="ls-val">~8 min</div><div class="ls-label">FastTrack total time (this session)</div></div>
+            <div class="live-stat"><div class="ls-val" style="color:var(--muted);text-decoration:line-through;font-size:16px;">5 days</div><div class="ls-label">Manual review time without AI</div></div>
+            <div class="live-stat"><div class="ls-val" style="color:var(--green);">99.2%</div><div class="ls-label">Listings auto-cleared (no ops review)</div></div>
+            <div class="ops-note"><p>Ops team reviews only the 0.8% flagged by compliance AI — no linear headcount growth as merchant base scales to 100K+.</p></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Screen 4: Merchant Dashboard -->
+      <div class="browser-screen" id="s4">
+        <div class="dash-layout">
+          <div class="dash-header">
+            <div>
+              <h2>Suresh Traders — Dashboard</h2>
+              <p>Footwear & Accessories · Mumbai · 4 active listings</p>
+            </div>
+            <div class="live-tag"><div class="live-dot"></div> Live</div>
+          </div>
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <div class="kpi-val">1,847</div>
+              <div class="kpi-label">Listing Views (7d)</div>
+              <div class="kpi-trend up">↑ 34% vs last week</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-val">₹28.4K</div>
+              <div class="kpi-label">GMV (7d)</div>
+              <div class="kpi-trend up">↑ 18% vs last week</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-val">38%</div>
+              <div class="kpi-label">EMI Take-Rate</div>
+              <div class="kpi-trend up">↑ above 30% threshold</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-val">4.4★</div>
+              <div class="kpi-label">Seller Rating</div>
+              <div class="kpi-trend warn">→ 24 new reviews</div>
+            </div>
+          </div>
+          <div class="charts-row">
+            <div class="chart-card">
+              <h5>Daily GMV (last 7 days)</h5>
+              <div class="bar-chart">
+                <div class="bar" style="height:35%;"></div>
+                <div class="bar" style="height:50%;"></div>
+                <div class="bar" style="height:42%;"></div>
+                <div class="bar" style="height:65%;"></div>
+                <div class="bar" style="height:55%;"></div>
+                <div class="bar" style="height:78%;"></div>
+                <div class="bar" style="height:100%;"></div>
+              </div>
+              <div class="bar-labels">
+                <div class="bar-label">Mon</div><div class="bar-label">Tue</div><div class="bar-label">Wed</div>
+                <div class="bar-label">Thu</div><div class="bar-label">Fri</div><div class="bar-label">Sat</div><div class="bar-label">Sun</div>
+              </div>
+            </div>
+            <div class="chart-card">
+              <h5>Conversion Funnel</h5>
+              <div style="display:flex;flex-direction:column;gap:4px;margin-top:4px;">
+                <div><div style="font-size:8px;color:var(--muted);margin-bottom:2px;">Views → Clicks (28%)</div><div style="height:6px;background:var(--border);border-radius:3px;"><div style="width:100%;height:100%;background:var(--c-bright);border-radius:3px;"></div></div></div>
+                <div><div style="font-size:8px;color:var(--muted);margin-bottom:2px;">Clicks → Add to Cart (41%)</div><div style="height:6px;background:var(--border);border-radius:3px;"><div style="width:41%;height:100%;background:var(--c-accent);border-radius:3px;"></div></div></div>
+                <div><div style="font-size:8px;color:var(--muted);margin-bottom:2px;">Cart → Purchase (67%)</div><div style="height:6px;background:var(--border);border-radius:3px;"><div style="width:67%;height:100%;background:var(--green);border-radius:3px;"></div></div></div>
+                <div style="margin-top:6px;background:#f0fdf4;border-radius:8px;padding:6px 8px;"><p style="font-size:8.5px;color:#166534;font-weight:600;">💡 Tip: Add more size variants to improve add-to-cart rate by est. +12%</p></div>
+              </div>
+            </div>
+          </div>
+          <div class="top-skus">
+            <h5>Top Products by GMV</h5>
+            <div class="sku-row">
+              <div class="sku-emoji">👟</div>
+              <div class="sku-info"><span>Campus Running Shoes — Black</span><small>GMV: ₹12,600 · 7 units · 38% EMI take-rate</small></div>
+              <div style="text-align:right;"><div class="sku-emi-rate">38% EMI</div><div class="action-pill">⚡ High performer</div></div>
+            </div>
+            <div class="sku-row">
+              <div class="sku-emoji">👠</div>
+              <div class="sku-info"><span>Ladies Flat Sandals — Brown</span><small>GMV: ₹9,800 · 14 units · 18% EMI take-rate</small></div>
+              <div style="text-align:right;"><div class="sku-emi-rate" style="color:var(--gold);">18% EMI</div><div class="action-pill">💡 Reduce price by ₹100</div></div>
+            </div>
+            <div class="sku-row">
+              <div class="sku-emoji">👞</div>
+              <div class="sku-info"><span>Formal Oxford Shoes — Black</span><small>GMV: ₹6,000 · 3 units · 52% EMI take-rate</small></div>
+              <div style="text-align:right;"><div class="sku-emi-rate">52% EMI</div><div class="action-pill">⚡ Add more stock</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="nav-tabs">
+        <div class="nav-tab active" id="d1" onclick="go(1)">ONBOARDING</div>
+        <div class="nav-tab" id="d2" onclick="go(2)">AI CATALOGUE</div>
+        <div class="nav-tab" id="d3" onclick="go(3)">GO LIVE</div>
+        <div class="nav-tab" id="d4" onclick="go(4)">DASHBOARD</div>
+      </div>
+    </div>
+    <div class="dots">
+      <div class="dot active" id="n1" onclick="go(1)"></div>
+      <div class="dot" id="n2" onclick="go(2)"></div>
+      <div class="dot" id="n3" onclick="go(3)"></div>
+      <div class="dot" id="n4" onclick="go(4)"></div>
+    </div>
+  </div>
+
+  <!-- ANNO -->
+  <div class="anno-col">
+    <div class="anno-title">PM ANNOTATIONS</div>
+    <div id="anno-cards"></div>
+  </div>
+</div>
+
+<script>
+const LABELS={1:'01 — MERCHANT ONBOARDING WIZARD',2:'02 — AI CATALOGUE BUILDER',3:'03 — COMPLIANCE & GO LIVE',4:'04 — MERCHANT PERFORMANCE DASHBOARD'};
+const ANNO={
+  1:[
+    {n:'INSIGHT 01',t:'72% Onboarding Drop-off',b:'72% of small Indian merchants abandon e-commerce onboarding before completing catalogue upload. The primary reason: they don\'t have product data in digital form — everything lives in their head or on a price tag.',metric:{v:'72%',l:'merchant drop-off before completing catalogue upload'}},
+    {n:'INSIGHT 02',t:'WhatsApp as Onboarding Surface',b:'87% of Indian SMB merchants use WhatsApp as their primary business communication tool. Starting onboarding via WhatsApp requires zero new behaviour change and eliminates app download as a blocker.',metric:{v:'87%',l:'Indian SMB merchants use WhatsApp for business daily'}},
+    {n:'PM RATIONALE',t:'Meet Merchants Where They Are',b:'The mobile onboarding wizard + WhatsApp AI channel removes both major barriers: (1) downloading an app and (2) structured data entry. GST auto-fill handles 80% of business detail fields automatically.'}
+  ],
+  2:[
+    {n:'INSIGHT 01',t:'AI Catalogue Quality > Manual',b:'AI-generated product descriptions from photos achieve 91% accuracy vs. merchant-submitted descriptions — and convert 34% better because they use buyer-intent language, not seller language ("breathable mesh" vs. "good quality").',metric:{v:'91%',l:'AI title and description accuracy vs. merchant-entered data'}},
+    {n:'INSIGHT 02',t:'Price Benchmarking Drives GMV',b:'Auto-suggesting a competitive price based on live market data reduces over/under-pricing by 58% — the #1 cause of low catalogue conversion. Merchants who price within 10% of Amazon see 2.3× higher sell-through.',metric:{v:'58%',l:'reduction in pricing errors with live benchmark suggestions'}},
+    {n:'PM RATIONALE',t:'Minimum Effort = Maximum Quality',b:'Traditional catalogue upload optimises for completeness (merchant fills every field). This design optimises for minimum merchant effort — one photo creates a live listing. Quality improves iteratively through buyer feedback.'}
+  ],
+  3:[
+    {n:'INSIGHT 01',t:'Automated Compliance = Ops Scale',b:'GST verification, prohibited item detection, and image quality checks automated at go-live reduces ops review time by 83% and time-to-live from 5 days to under 10 minutes. The ops team reviews exceptions, not everything.',metric:{v:'83%',l:'reduction in manual compliance review time per listing'}},
+    {n:'INSIGHT 02',t:'Preview-First Drives Self-Correction',b:'Showing merchants how their listing looks to buyers before going live increases catalogue quality self-correction by 41% — merchants fix issues themselves when they see the buyer view. Zero ops cost.',metric:{v:'41%',l:'more quality self-corrections when buyer preview is shown'}},
+    {n:'PM RATIONALE',t:'Ops Leverage at Scale',b:'The goal is 100K+ merchants without linear ops headcount. By automating 99.2% of listings and showing the buyer preview, the ops team shifts from catalogue police to exception-handler — a 50× more scalable model.'}
+  ],
+  4:[
+    {n:'INSIGHT 01',t:'EMI Take-Rate as North Star',b:'Merchants with >30% EMI take-rate see 2.3× higher GMV per SKU. Surfacing this metric prominently drives merchants to price their products within EMI-friendly ranges — a natural affordability flywheel.',metric:{v:'2.3×',l:'higher GMV per SKU for merchants with >30% EMI take-rate'}},
+    {n:'INSIGHT 02',t:'Dashboard Engagement = Retention',b:'Merchants who check their dashboard weekly have 4.1× higher 90-day retention vs. those who don\'t. Actionable tips on every metric (not just data) drive merchants back weekly to improve their listings.',metric:{v:'4.1×',l:'higher 90-day merchant retention with weekly dashboard use'}},
+    {n:'PM RATIONALE',t:'Dashboard as Coaching Tool',b:'Every metric on this dashboard is paired with a recommended action. This transforms a reporting tool into a merchant coaching platform — a successful, growing merchant is a sticky merchant who expands their catalogue.'}
+  ]
+};
+function renderAnno(n){
+  const c=document.getElementById('anno-cards');c.innerHTML='';
+  ANNO[n].forEach(a=>{
+    const m=a.metric?`<div class="anno-metric"><span class="val">${a.metric.v}</span><span class="lbl">${a.metric.l}</span></div>`:'';
+    c.innerHTML+=`<div class="anno-card"><div class="anno-tag">${a.n}</div><h4>${a.t}</h4><p>${a.b}</p>${m}</div>`;
+  });
+}
+function go(n){
+  [1,2,3,4].forEach(i=>{
+    document.getElementById('s'+i).classList.remove('active');
+    document.getElementById('d'+i).classList.remove('active');
+    document.getElementById('n'+i).classList.remove('active');
+  });
+  document.getElementById('s'+n).classList.add('active');
+  document.getElementById('d'+n).classList.add('active');
+  document.getElementById('n'+n).classList.add('active');
+  document.getElementById('screen-label').textContent=LABELS[n];
+  renderAnno(n);
+}
+renderAnno(1);
+</script>
+</body>
+</html>

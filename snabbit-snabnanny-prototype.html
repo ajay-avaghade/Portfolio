@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SnabNanny — Snabbit Childcare</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#0f172a;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;font-family:'Inter',sans-serif;padding:24px 16px 48px;}
+
+.hero{text-align:center;margin-bottom:32px;}
+.logo{display:inline-flex;align-items:center;gap:10px;margin-bottom:12px;}
+.logo-mark{width:44px;height:44px;background:linear-gradient(135deg,#6366f1,#8b5cf6);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;}
+.logo-text{font-size:22px;font-weight:800;color:#fff;}
+.logo-sub{font-size:13px;color:#a78bfa;font-weight:600;}
+.hero h1{font-size:26px;font-weight:800;color:#fff;margin-bottom:6px;}
+.hero p{font-size:13px;color:#94a3b8;max-width:500px;line-height:1.5;}
+.tag{display:inline-block;background:rgba(99,102,241,0.12);color:#a78bfa;border:1px solid rgba(99,102,241,0.3);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:600;margin-bottom:10px;}
+
+.flow{display:flex;gap:20px;flex-wrap:wrap;justify-content:center;max-width:1200px;}
+.phone-wrap{display:flex;flex-direction:column;align-items:center;gap:10px;}
+.screen-label{font-size:11px;font-weight:700;color:#a78bfa;text-transform:uppercase;letter-spacing:.08em;}
+.screen-num{width:24px;height:24px;background:#6366f1;border-radius:50%;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-bottom:2px;}
+.phone{width:280px;height:580px;background:#fff;border-radius:36px;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,0.6);position:relative;border:6px solid #1e293b;}
+.notch{width:80px;height:22px;background:#0f0f1a;border-radius:0 0 14px 14px;position:absolute;top:0;left:50%;transform:translateX(-50%);z-index:10;}
+.arrow-connector{display:flex;align-items:center;color:#a78bfa;font-size:20px;padding-top:240px;}
+
+/* SCREEN 1 — Nanny Trust Profile */
+.s1-head{background:linear-gradient(135deg,#6366f1,#8b5cf6);padding:44px 16px 14px;color:#fff;}
+.s1-head h2{font-size:15px;font-weight:800;}
+.s1-head p{font-size:10px;opacity:.8;margin-top:2px;}
+.nanny-card{margin:10px;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.08);}
+.nanny-top{padding:14px;display:flex;gap:12px;align-items:flex-start;}
+.nanny-avatar{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#8b5cf6);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.nanny-name{font-size:14px;font-weight:700;color:#1e293b;}
+.nanny-exp{font-size:10px;color:#64748b;margin:2px 0;}
+.stars-row{color:#F59E0B;font-size:11px;}
+.score-pill{background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border-radius:8px;padding:4px 10px;font-size:11px;font-weight:700;margin-left:auto;}
+.trust-grid{padding:0 14px 10px;display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.trust-item{background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;padding:7px 8px;}
+.trust-item.done{background:#f0fdf4;border-color:#86efac;}
+.trust-item.warn{background:#fff7ed;border-color:#fed7aa;}
+.ti-icon{font-size:14px;}
+.ti-label{font-size:9px;font-weight:700;color:#1e293b;margin-top:2px;}
+.ti-val{font-size:9px;color:#64748b;}
+.video-strip{margin:0 14px 10px;background:#ede9fe;border-radius:10px;padding:10px;display:flex;align-items:center;gap:8px;}
+.play-btn{width:32px;height:32px;background:#6366f1;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;flex-shrink:0;}
+.video-text{font-size:10px;color:#4c1d95;line-height:1.4;}
+.book-btn{margin:0 14px 14px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:none;border-radius:12px;padding:11px;width:calc(100% - 28px);font-size:12px;font-weight:700;}
+.trial-note{margin:-4px 14px 10px;text-align:center;font-size:9px;color:#64748b;}
+
+/* SCREEN 2 — Booking + Session Type */
+.s2-head{background:#0f0f1a;padding:44px 14px 12px;}
+.s2-head h2{font-size:15px;font-weight:700;color:#fff;}
+.session-types{padding:10px;}
+.stype-card{border-radius:12px;padding:12px;margin-bottom:8px;cursor:pointer;border:2px solid transparent;}
+.stype-card.selected{border-color:#6366f1;background:#f5f3ff;}
+.stype-card.default{background:#f8fafc;border-color:#e2e8f0;}
+.st-header{display:flex;align-items:center;gap:8px;margin-bottom:4px;}
+.st-icon{font-size:18px;}
+.st-name{font-size:12px;font-weight:700;color:#1e293b;}
+.st-badge{margin-left:auto;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;}
+.st-green{background:#dcfce7;color:#166534;}
+.st-orange{background:#fff7ed;color:#c2410c;}
+.st-red{background:#fef2f2;color:#dc2626;}
+.st-desc{font-size:10px;color:#64748b;line-height:1.4;}
+.child-details{padding:0 10px;}
+.cd-label{font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;margin-bottom:6px;}
+.age-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+.age-chip{background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:20px;padding:5px 11px;font-size:11px;color:#475569;}
+.age-chip.sel{background:#6366f1;border-color:#6366f1;color:#fff;}
+.needs-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+.need-chip{background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:20px;padding:5px 10px;font-size:10px;color:#475569;}
+.need-chip.sel{background:#ede9fe;border-color:#6366f1;color:#4f46e5;}
+.confirm-btn{margin:0 10px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:none;border-radius:12px;padding:12px;width:calc(100% - 20px);font-size:12px;font-weight:700;}
+
+/* SCREEN 3 — Live Session */
+.s3-head{background:linear-gradient(135deg,#0f172a,#1e293b);padding:44px 14px 12px;color:#fff;}
+.s3-head h2{font-size:15px;font-weight:700;}
+.live-badge{display:inline-flex;align-items:center;gap:5px;background:#dc2626;border-radius:20px;padding:3px 10px;font-size:10px;font-weight:700;color:#fff;margin-top:4px;}
+.pulse{width:7px;height:7px;background:#fff;border-radius:50%;animation:pulse 1s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+.map-area{background:linear-gradient(135deg,#dbeafe,#e0e7ff);height:130px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#3730a3;font-weight:600;position:relative;}
+.map-pin{font-size:28px;position:absolute;}
+.eta-chip{position:absolute;bottom:8px;right:10px;background:#6366f1;color:#fff;border-radius:8px;padding:4px 10px;font-size:11px;font-weight:700;}
+.check-feed{padding:10px;}
+.cf-label{font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;margin-bottom:8px;}
+.check-item{display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid #f1f5f9;}
+.check-item:last-child{border-bottom:none;}
+.ci-photo{width:40px;height:40px;border-radius:8px;background:linear-gradient(135deg,#ede9fe,#ddd6fe);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.ci-text{flex:1;}
+.ci-time{font-size:9px;color:#94a3b8;}
+.ci-msg{font-size:11px;color:#374151;margin-top:1px;line-height:1.3;}
+.emergency-btn{margin:10px;background:linear-gradient(135deg,#dc2626,#ef4444);color:#fff;border:none;border-radius:12px;padding:11px;width:calc(100% - 20px);font-size:12px;font-weight:700;}
+.peace-note{margin:-4px 10px 8px;text-align:center;font-size:9px;color:#64748b;}
+
+/* SCREEN 4 — Post Session + My Nanny */
+.s4-head{background:linear-gradient(135deg,#16a34a,#22c55e);padding:44px 14px 16px;color:#fff;}
+.s4-head h2{font-size:16px;font-weight:800;}
+.s4-head p{font-size:10px;opacity:.85;margin-top:3px;}
+.debrief{padding:10px;}
+.debrief-card{background:#fff;border-radius:12px;padding:12px;margin-bottom:8px;box-shadow:0 2px 8px rgba(0,0,0,0.06);}
+.dc-title{font-size:11px;font-weight:700;color:#1e293b;margin-bottom:8px;}
+.activity-row{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:4px;}
+.act-chip{background:#f0fdf4;border:1px solid #86efac;color:#166534;border-radius:6px;padding:3px 8px;font-size:10px;}
+.mood-row{display:flex;gap:8px;align-items:center;}
+.mood-emoji{font-size:20px;}
+.mood-text{font-size:10px;color:#374151;}
+.meal-log{display:flex;gap:6px;flex-wrap:wrap;}
+.meal-chip{background:#fff7ed;border:1px solid #fed7aa;color:#c2410c;border-radius:6px;padding:3px 8px;font-size:10px;}
+.lock-nanny{margin:0 10px;background:linear-gradient(135deg,#ede9fe,#f5f3ff);border:2px solid #6366f1;border-radius:14px;padding:14px;margin-bottom:10px;}
+.ln-icon{font-size:26px;text-align:center;margin-bottom:6px;}
+.ln-title{font-size:14px;font-weight:800;color:#1e293b;text-align:center;}
+.ln-sub{font-size:10px;color:#64748b;text-align:center;line-height:1.4;margin:4px 0 10px;}
+.ln-perks{display:flex;gap:5px;margin-bottom:10px;}
+.ln-perk{flex:1;background:#fff;border-radius:8px;padding:6px;text-align:center;font-size:9px;color:#4f46e5;font-weight:600;}
+.ln-btn{background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:none;border-radius:12px;padding:11px;width:100%;font-size:12px;font-weight:700;}
+.ln-skip{background:transparent;border:none;color:#94a3b8;font-size:10px;width:100%;margin-top:6px;}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="logo">
+    <div class="logo-mark">👶</div>
+    <div>
+      <div class="logo-text">SnabNanny</div>
+      <div class="logo-sub">by Snabbit</div>
+    </div>
+  </div>
+  <div class="tag">CASE STUDY · PM CANDIDATE · AJAY AVAGHADE</div>
+  <h1>Childcare: Trust Infrastructure → My Nanny</h1>
+  <p>The biggest childcare problem in urban India is temporary, trusted nanny access — crèches have waitlists, informal networks have broken down, and this is your child. Trust is not a feature here. It IS the product. Four screens show the full journey.</p>
+</div>
+
+<div class="flow">
+
+  <!-- SCREEN 1 -->
+  <div class="phone-wrap">
+    <div class="screen-num">1</div>
+    <div class="screen-label">Nanny Trust Profile</div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="s1-head">
+        <h2>Verified Nanny Profile</h2>
+        <p>Every badge is real. Every check has a paper trail.</p>
+      </div>
+      <div class="nanny-card">
+        <div class="nanny-top">
+          <div class="nanny-avatar">👩</div>
+          <div style="flex:1;">
+            <div class="nanny-name">Sunita Rao</div>
+            <div class="nanny-exp">6 yrs · Infants to 8 yrs · Indiranagar</div>
+            <div class="stars-row">★★★★★ <span style="color:#64748b;font-size:10px;">312 sessions</span></div>
+          </div>
+          <div class="score-pill">96 / 100</div>
+        </div>
+        <div class="trust-grid">
+          <div class="trust-item done"><div class="ti-icon">🚔</div><div class="ti-label">Police Verified</div><div class="ti-val">Bgvrf #KA2241</div></div>
+          <div class="trust-item done"><div class="ti-icon">🏥</div><div class="ti-label">First Aid Cert</div><div class="ti-val">Red Cross · 2025</div></div>
+          <div class="trust-item done"><div class="ti-icon">👶</div><div class="ti-label">Child Dev Training</div><div class="ti-val">0–8 yrs certified</div></div>
+          <div class="trust-item done"><div class="ti-icon">💬</div><div class="ti-label">3 Family Refs</div><div class="ti-val">All 5★ · Verified</div></div>
+        </div>
+        <div class="video-strip">
+          <div class="play-btn">▶</div>
+          <div class="video-text"><strong>Watch Sunita's introduction</strong><br>"Hi, I'm Sunita. I've been caring for children for 6 years..."</div>
+        </div>
+        <button class="book-btn">Book a Trial Session →</button>
+        <div class="trial-note">Session 1: you stay home, observer mode. No commitment.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="arrow-connector">›</div>
+
+  <!-- SCREEN 2 -->
+  <div class="phone-wrap">
+    <div class="screen-num">2</div>
+    <div class="screen-label">Book + Session Type</div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="s2-head">
+        <h2>Book Sunita</h2>
+      </div>
+      <div class="session-types">
+        <div class="stype-card selected">
+          <div class="st-header">
+            <span class="st-icon">🏠</span>
+            <span class="st-name">Trial Session</span>
+            <span class="st-badge st-green">RECOMMENDED</span>
+          </div>
+          <div class="st-desc">You're home. Sunita plays with your child. You observe. Best for first-time bookings. Builds trust for both sides.</div>
+        </div>
+        <div class="stype-card default">
+          <div class="st-header">
+            <span class="st-icon">📅</span>
+            <span class="st-name">Regular Session</span>
+            <span class="st-badge st-orange">After 2 trials</span>
+          </div>
+          <div class="st-desc">You can step out. Live photo check-ins every 45 min. Emergency button always on.</div>
+        </div>
+        <div class="stype-card default">
+          <div class="st-header">
+            <span class="st-icon">🚨</span>
+            <span class="st-name">Emergency Cover</span>
+            <span class="st-badge st-red">Within 30 min</span>
+          </div>
+          <div class="st-desc">Your regular nanny is unavailable. Verified substitute dispatched within 30 min — guaranteed SLA.</div>
+        </div>
+      </div>
+      <div class="child-details">
+        <div class="cd-label">Child's Age</div>
+        <div class="age-row">
+          <div class="age-chip">0–1 yr</div>
+          <div class="age-chip sel">2–4 yrs</div>
+          <div class="age-chip">5–8 yrs</div>
+          <div class="age-chip">9–12 yrs</div>
+        </div>
+        <div class="cd-label">Any Special Needs?</div>
+        <div class="needs-row">
+          <div class="need-chip sel">Allergies</div>
+          <div class="need-chip">Special diet</div>
+          <div class="need-chip">Nap schedule</div>
+          <div class="need-chip sel">Asthma</div>
+        </div>
+        <button class="confirm-btn">Confirm Trial · 2 hrs · ₹499 →</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="arrow-connector">›</div>
+
+  <!-- SCREEN 3 -->
+  <div class="phone-wrap">
+    <div class="screen-num">3</div>
+    <div class="screen-label">Live Session Check-in</div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="s3-head">
+        <h2>Sunita is with Arjun 👶</h2>
+        <span class="live-badge"><span class="pulse"></span> LIVE SESSION</span>
+      </div>
+      <div class="map-area">
+        <span style="font-size:11px;color:#3730a3;">📍 Sunita is at your home</span>
+        <div class="eta-chip">Session ends: 4:30 PM</div>
+      </div>
+      <div class="check-feed">
+        <div class="cf-label">📸 Check-in Updates</div>
+        <div class="check-item">
+          <div class="ci-photo">🧩</div>
+          <div class="ci-text">
+            <div class="ci-time">4:08 PM · 22 min ago</div>
+            <div class="ci-msg">Arjun is playing with building blocks. He's in a really good mood today! 😊</div>
+          </div>
+        </div>
+        <div class="check-item">
+          <div class="ci-photo">🥤</div>
+          <div class="ci-text">
+            <div class="ci-time">3:25 PM · 65 min ago</div>
+            <div class="ci-msg">Had his afternoon snack — banana and milk. Ate well!</div>
+          </div>
+        </div>
+        <div class="check-item">
+          <div class="ci-photo">😴</div>
+          <div class="ci-text">
+            <div class="ci-time">3:00 PM · 90 min ago</div>
+            <div class="ci-msg">Nap time done. He woke up happy, no crying.</div>
+          </div>
+        </div>
+      </div>
+      <button class="emergency-btn">🆘 Emergency — Call Now</button>
+      <div class="peace-note">Snabbit monitors session timing · Escalation triggers if check-in missed</div>
+    </div>
+  </div>
+
+  <div class="arrow-connector">›</div>
+
+  <!-- SCREEN 4 -->
+  <div class="phone-wrap">
+    <div class="screen-num">4</div>
+    <div class="screen-label">Debrief + My Nanny</div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="s4-head">
+        <h2>Session Complete ✅</h2>
+        <p>Sunita just completed 5 sessions with Arjun. Here's what happened today.</p>
+      </div>
+      <div class="debrief">
+        <div class="debrief-card">
+          <div class="dc-title">🎮 What Arjun did today</div>
+          <div class="activity-row">
+            <span class="act-chip">🧩 Building blocks</span>
+            <span class="act-chip">📚 Story time</span>
+            <span class="act-chip">🎨 Drawing</span>
+          </div>
+        </div>
+        <div class="debrief-card">
+          <div class="dc-title">🥤 What Arjun ate</div>
+          <div class="meal-log">
+            <span class="meal-chip">Banana</span>
+            <span class="meal-chip">Milk</span>
+            <span class="meal-chip">Biscuits</span>
+          </div>
+        </div>
+        <div class="debrief-card">
+          <div class="dc-title">😊 Mood & Energy</div>
+          <div class="mood-row">
+            <span class="mood-emoji">😄</span>
+            <span class="mood-text">Happy and energetic all session. No tantrums. Napped well (45 min).</span>
+          </div>
+        </div>
+        <div class="lock-nanny">
+          <div class="ln-icon">🔐</div>
+          <div class="ln-title">Make Sunita Your Nanny</div>
+          <div class="ln-sub">5 sessions done. Arjun knows her. She knows his schedule. Lock her in — priority booking + rate freeze + emergency cover guaranteed.</div>
+          <div class="ln-perks">
+            <div class="ln-perk">📅 Priority<br>Booking</div>
+            <div class="ln-perk">💰 Rate<br>Freeze</div>
+            <div class="ln-perk">🚨 Emergency<br>Cover</div>
+          </div>
+          <button class="ln-btn">Lock In Sunita — ₹3,999/mo →</button>
+          <button class="ln-skip">Continue per-session (₹499/session)</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div style="margin-top:32px;text-align:center;color:#475569;font-size:12px;">
+  <strong style="color:#a78bfa;">SnabNanny — Snabbit Childcare Vertical</strong> &nbsp;·&nbsp; Case study by Ajay Avaghade &nbsp;·&nbsp;
+  <a href="https://ajay-avaghade.github.io/Portfolio/" style="color:#a78bfa;">Portfolio</a>
+</div>
+
+</body>
+</html>
