@@ -583,9 +583,11 @@ After writing the resume, **always open it in Chrome and check these as a senior
 - [ ] No metrics invented — everything in "WHO IS AJAY" section
 - [ ] All links work (Portfolio, LinkedIn, prototype, deck)
 
-**After QA passes**, automatically generate the PDF using headless Chrome:
+**After QA passes**, automatically generate the PDFs (Resume AND Cover Letter) using headless Chrome with the `--no-pdf-header-footer` flag to ensure clean outputs:
 ```bash
 /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --headless --no-pdf-header-footer --print-to-pdf="/Users/ajayavaghade/Job Apply AI/Ajay_Avaghade_Resume_[Company].pdf" "file:///Users/ajayavaghade/Job Apply AI/Ajay_Avaghade_Resume_[Company].html"
+
+/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --headless --no-pdf-header-footer --print-to-pdf="/Users/ajayavaghade/Job Apply AI/Ajay_Avaghade_Cover_Letter_[Company].pdf" "file:///Users/ajayavaghade/Job Apply AI/Ajay_Avaghade_Cover_Letter_[Company].html"
 ```
 
 Then open both for Ajay with:
