@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Skydo Auto-FIRA & Ledger Sync</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --c-dark: #0B0F19;
+  --c-hero: #0F172A;
+  --c-bright: #3B82F6;
+  --c-accent: #10B981;
+  --c-warn: #EF4444;
+  --c-amber: #F59E0B;
+  --ink: #0f172a;
+  --muted: #64748b;
+  --border: rgba(255,255,255,0.08);
+  --gray: #1E293B;
+  --white: #FFFFFF;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family:'Sora',sans-serif;
+  background:#030816;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:40px 24px 60px;
+  color: #fff;
+}
+.header-strip {
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  border-radius: 10px;
+  padding: 10px 28px;
+  color: var(--c-bright);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  margin-bottom: 36px;
+}
+.prototype-wrap { display:flex; gap:32px; align-items:flex-start; flex-wrap:wrap; justify-content:center; }
+.phone-col { display:flex; flex-direction:column; align-items:center; gap:14px; }
+.phone-label { font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#4a5568; font-family:'DM Mono',monospace; }
+.phone { width:375px; height:812px; border-radius:46px; background:var(--c-hero); position:relative; overflow:hidden; box-shadow:0 40px 100px rgba(0,0,0,0.55), 0 0 0 2px rgba(255,255,255,0.07); flex-shrink:0; border: 4px solid #1a2536; }
+.notch { position:absolute; top:0; left:50%; transform:translateX(-50%); width:118px; height:28px; background:#0B0F19; border-radius:0 0 16px 16px; z-index:100; display:flex; align-items:center; justify-content:center; gap:6px; }
+.ncam { width:10px; height:10px; border-radius:50%; background:#040914; border:1px solid #1a2536; }
+.ndot-sensor { width:5px; height:5px; border-radius:50%; background:#1a2536; }
+.statusbar { display:flex; justify-content:space-between; align-items:center; padding:34px 20px 6px; font-size:10px; font-weight:700; font-family:'DM Mono',monospace; position:relative; z-index:90; color:#fff; }
+.sc { overflow-y:auto; max-height:724px; scrollbar-width:none; -ms-overflow-style:none; }
+.sc::-webkit-scrollbar { display:none; }
+
+.s-header { padding: 12px 16px; border-bottom: 1px solid var(--border); background: var(--c-dark); }
+.s-header-title { font-size: 16px; font-weight: 800; }
+.s-header-sub { font-size: 10px; color: var(--muted); }
+
+/* Common Components */
+.action-btn { background: var(--c-bright); color: #fff; border: none; width: calc(100% - 32px); margin: 0 16px 20px; padding: 16px; border-radius: 14px; font-size: 14px; font-weight: 800; cursor: pointer; transition: 0.2s; box-shadow: 0 8px 20px rgba(59,130,246,0.3); position: absolute; bottom: 0; }
+.action-btn:hover { background: #2563EB; transform: translateY(-2px); }
+.action-btn.success { background: var(--c-accent); box-shadow: 0 8px 20px rgba(16,185,129,0.3); }
+
+/* Ledger Screen */
+.ledger-list { padding: 16px; }
+.tx-card { background: var(--gray); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 12px; cursor: pointer; transition: 0.2s; }
+.tx-card:hover { border-color: var(--c-bright); background: rgba(30,41,59,0.8); }
+.tx-top { display: flex; justify-content: space-between; margin-bottom: 6px; }
+.tx-client { font-size: 13px; font-weight: 800; }
+.tx-amt { font-size: 14px; font-weight: 800; font-family: 'DM Mono', monospace; }
+.tx-bot { display: flex; justify-content: space-between; align-items: center; }
+.tx-date { font-size: 10px; color: var(--muted); font-family: 'DM Mono', monospace; }
+.tx-badge { font-size: 9px; padding: 4px 8px; border-radius: 6px; font-weight: 700; text-transform: uppercase; }
+.badge-ok { background: rgba(16,185,129,0.1); color: var(--c-accent); border: 1px solid rgba(16,185,129,0.2); }
+.badge-warn { background: rgba(245,158,11,0.1); color: var(--c-amber); border: 1px solid rgba(245,158,11,0.2); animation: p-amber 1.5s infinite; }
+@keyframes p-amber { 50% { box-shadow: 0 0 10px rgba(245,158,11,0.3); } }
+
+/* Tx Detail Screen */
+.detail-hero { padding: 24px 16px; text-align: center; border-bottom: 1px solid var(--border); }
+.dh-client { font-size: 14px; color: var(--muted); margin-bottom: 4px; font-weight: 700; }
+.dh-amt { font-size: 32px; font-weight: 800; font-family: 'DM Mono', monospace; color: var(--c-accent); }
+.dh-fx { font-size: 11px; color: #94a3b8; margin-top: 4px; font-family: 'DM Mono', monospace; }
+
+.compliance-box { margin: 16px; background: rgba(245,158,11,0.05); border: 1px solid rgba(245,158,11,0.2); border-radius: 12px; padding: 16px; }
+.cb-title { font-size: 12px; font-weight: 800; color: var(--c-amber); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.cb-desc { font-size: 11px; color: #cbd5e1; line-height: 1.5; }
+
+/* Syncing Screen */
+.sync-wrap { padding: 40px 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 500px; text-align: center; }
+.sync-nodes { display: flex; align-items: center; gap: 16px; margin-bottom: 30px; }
+.s-node { width: 48px; height: 48px; background: var(--gray); border-radius: 12px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 20px; }
+.s-path { width: 40px; height: 2px; background: var(--border); position: relative; overflow: hidden; }
+.s-path::after { content: ''; position: absolute; top: 0; left: -40px; width: 40px; height: 2px; background: var(--c-bright); animation: slide 1.5s infinite linear; }
+@keyframes slide { 100% { left: 40px; } }
+.sync-log { width: 100%; background: var(--c-dark); border-radius: 8px; padding: 12px; font-family: 'DM Mono', monospace; font-size: 10px; color: var(--c-bright); text-align: left; opacity: 0; transition: 0.3s; }
+.log-line { margin-bottom: 4px; }
+
+/* FIRA Document */
+.doc-card { background: #fff; margin: 16px; border-radius: 8px; padding: 16px; color: #000; box-shadow: inset 0 0 20px rgba(0,0,0,0.1); }
+.dc-header { border-bottom: 1px solid #ccc; padding-bottom: 8px; margin-bottom: 12px; text-align: center; }
+.dc-bank { font-weight: 800; font-size: 12px; text-transform: uppercase; }
+.dc-title { font-size: 10px; color: #444; margin-top: 2px; font-weight: 700; }
+.dc-row { display: flex; justify-content: space-between; font-size: 9px; margin-bottom: 6px; border-bottom: 1px dashed #eee; padding-bottom: 4px; }
+.dc-label { color: #666; font-weight: 600; }
+.dc-val { font-weight: 800; font-family: 'DM Mono', monospace; }
+</style>
+</head>
+<body>
+
+<div class="header-strip">Skydo Prototype: Auto-FIRA & Ledger Sync</div>
+
+<div class="prototype-wrap">
+
+  <!-- SCREEN 1: Ledger -->
+  <div class="phone-col">
+    <div class="phone-label">1. Global Ledger</div>
+    <div class="phone">
+      <div class="notch"><div class="ncam"></div><div class="ndot-sensor"></div></div>
+      <div class="statusbar"><span>9:41</span><span>5G 🔋</span></div>
+      
+      <div class="sc">
+        <div class="s-header">
+          <div class="s-header-title">Incoming Payments</div>
+          <div class="s-header-sub">Your USD/GBP virtual accounts</div>
+        </div>
+
+        <div class="ledger-list">
+          <!-- Resolved Tx -->
+          <div class="tx-card" style="opacity: 0.6; cursor: default;">
+            <div class="tx-top">
+              <div class="tx-client">DesignStudio NYC</div>
+              <div class="tx-amt" style="color:var(--c-accent);">+₹412,000</div>
+            </div>
+            <div class="tx-bot">
+              <div class="tx-date">12 May 2026</div>
+              <div class="tx-badge badge-ok">✓ FIRA GENERATED</div>
+            </div>
+          </div>
+          
+          <!-- Actionable Tx -->
+          <div class="tx-card" onclick="openDetails()">
+            <div class="tx-top">
+              <div class="tx-client">TechFlow Solutions</div>
+              <div class="tx-amt" style="color:var(--c-accent);">+₹832,000</div>
+            </div>
+            <div class="tx-bot">
+              <div class="tx-date">18 Jun 2026</div>
+              <div class="tx-badge badge-warn">⚠️ FIRA PENDING</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 2: Detail -->
+  <div class="phone-col" style="opacity:0.3; pointer-events:none; transition:0.3s;" id="col2">
+    <div class="phone-label">2. Compliance Action</div>
+    <div class="phone">
+      <div class="notch"><div class="ncam"></div><div class="ndot-sensor"></div></div>
+      <div class="statusbar"><span>9:41</span><span>5G 🔋</span></div>
+      
+      <div class="sc">
+        <div class="s-header">
+          <div class="s-header-title">Transaction Details</div>
+          <div class="s-header-sub">Ref: SKY-TX-9921</div>
+        </div>
+
+        <div class="detail-hero">
+          <div class="dh-client">From: TechFlow Solutions ($10,000.00)</div>
+          <div class="dh-amt">+ ₹832,000</div>
+          <div class="dh-fx">Settled at ₹83.45 • Flat Fee: ₹2500</div>
+        </div>
+
+        <div class="compliance-box">
+          <div class="cb-title">⚠️ FIRA Certificate Required</div>
+          <div class="cb-desc">
+            This foreign remittance requires a Foreign Inward Remittance Advice (FIRA) for GST zero-rating and FEMA compliance. Skydo can auto-fetch this from the partner bank.
+          </div>
+        </div>
+      </div>
+      <button class="action-btn" onclick="startSync()">Auto-Generate FIRA</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 3: Syncing -->
+  <div class="phone-col" style="opacity:0.3; pointer-events:none; transition:0.3s;" id="col3">
+    <div class="phone-label">3. API Retrieval</div>
+    <div class="phone">
+      <div class="notch"><div class="ncam"></div><div class="ndot-sensor"></div></div>
+      <div class="statusbar"><span>9:41</span><span>5G 🔋</span></div>
+      
+      <div class="sc">
+        <div class="s-header">
+          <div class="s-header-title">Compliance Engine</div>
+          <div class="s-header-sub">Establishing secure bank tunnel</div>
+        </div>
+
+        <div class="sync-wrap">
+          <div class="sync-nodes">
+            <div class="s-node">🏦</div>
+            <div class="s-path"></div>
+            <div class="s-node" style="border-color:var(--c-bright); color:var(--c-bright);">S</div>
+            <div class="s-path"></div>
+            <div class="s-node">📊</div>
+          </div>
+          <div class="sync-log" id="syncLog">
+            <div class="log-line">> init_fira_request()</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 4: Complete -->
+  <div class="phone-col" style="opacity:0.3; pointer-events:none; transition:0.3s;" id="col4">
+    <div class="phone-label">4. Reconciled</div>
+    <div class="phone">
+      <div class="notch"><div class="ncam"></div><div class="ndot-sensor"></div></div>
+      <div class="statusbar"><span>9:41</span><span>5G 🔋</span></div>
+      
+      <div class="sc">
+        <div class="s-header">
+          <div class="s-header-title" style="color:var(--c-accent);">✓ Reconciled</div>
+          <div class="s-header-sub">Synced with Tally ERP automatically</div>
+        </div>
+
+        <div class="doc-card">
+          <div class="dc-header">
+            <div class="dc-bank">Partner Bank Ltd.</div>
+            <div class="dc-title">Foreign Inward Remittance Advice (FIRA)</div>
+          </div>
+          <div class="dc-row"><span class="dc-label">Beneficiary</span><span class="dc-val">Ajay Avaghade</span></div>
+          <div class="dc-row"><span class="dc-label">Remitter</span><span class="dc-val">TechFlow Solutions</span></div>
+          <div class="dc-row"><span class="dc-label">Currency/Amt</span><span class="dc-val">USD 10,000.00</span></div>
+          <div class="dc-row"><span class="dc-label">INR Equivalent</span><span class="dc-val">₹834,500.00</span></div>
+          <div class="dc-row"><span class="dc-label">Purpose Code</span><span class="dc-val">P0802 - Software</span></div>
+          <div class="dc-row"><span class="dc-label">FIRA Ref</span><span class="dc-val">FIRA-2026-X881</span></div>
+          <div style="text-align:center; margin-top: 16px;">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=60x60&data=FIRA-2026-X881" alt="QR" width="60" height="60" style="opacity:0.8;">
+          </div>
+        </div>
+      </div>
+      <button class="action-btn success">Download FIRA (PDF)</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function openDetails() {
+  document.getElementById('col2').style.opacity = '1';
+  document.getElementById('col2').style.pointerEvents = 'auto';
+}
+
+function startSync() {
+  document.getElementById('col3').style.opacity = '1';
+  document.getElementById('col3').style.pointerEvents = 'auto';
+  
+  const log = document.getElementById('syncLog');
+  log.style.opacity = '1';
+  
+  const steps = [
+    "> validating_purpose_code: P0802",
+    "> querying_partner_bank_API...",
+    "> OK: FIRA_CERT_X881 generated",
+    "> writing_to_ledger_db...",
+    "> pushing_to_Tally_ERP_webhook...",
+    "> SYNC_COMPLETE."
+  ];
+  
+  let i = 0;
+  const interval = setInterval(() => {
+    if(i < steps.length) {
+      log.innerHTML += `<div class="log-line" style="color:${i===steps.length-1 ? 'var(--c-accent)' : 'var(--c-bright)'}">${steps[i]}</div>`;
+      i++;
+    } else {
+      clearInterval(interval);
+      setTimeout(() => {
+        document.getElementById('col4').style.opacity = '1';
+        document.getElementById('col4').style.pointerEvents = 'auto';
+      }, 600);
+    }
+  }, 400);
+}
+</script>
+</body>
+</html>
