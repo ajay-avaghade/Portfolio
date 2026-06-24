@@ -2,7 +2,7 @@
 (async () => {
 const PptxGenJS = require('pptxgenjs');
 const prs = new PptxGenJS();
-prs.layout = 'LAYOUT_16x9';
+prs.layout = 'LAYOUT_4x3';
 
 const C = {
   dark:'131921', hero:'232F3E', bright:'FF9900',
