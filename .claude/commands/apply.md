@@ -244,81 +244,117 @@ Get Ajay's sign-off: *"Does this brief look right before I start building?"*
 
 ## PHASE 2 — PROTOTYPE STANDARD
 
+### Design Philosophy
+
+Prototypes must look and feel like **Figma prototypes handed to engineering** — pixel-perfect, realistic, indistinguishable from a real app. The goal is for the hiring manager to believe this shipped.
+
+- **No fixed screen limit.** Use as many screens as needed to tell the full user journey end-to-end. Typical range: 5–8 screens. Don't truncate the story to hit a number.
+- **Match the company's real design language** — use their actual colors, typography, spacing, and component patterns. Research their app before building.
+- **Single phone, centered** — one 390×844px phone frame centered on the page, with smooth slide/fade transitions between screens. No annotation panels. No multi-phone layouts. The design speaks for itself.
+- **Realistic content** — real product names, prices, ratings, timestamps, user names. Never placeholder text.
+- **Micro-interactions** — buttons have tap states, bottom sheets animate in, success states have confetti, progress bars fill on entry.
+
 ### HTML Prototype Spec
 
 All prototypes live at `/Users/ajayavaghade/Portfolio/[company-slug]-[feature]-prototype.html`
 
-**Structure:**
-```
-Header strip: "[Company] — [Feature Name] · Interactive Prototype"
-Prototype wrapper: horizontal layout, 4 phones side by side, gap: 32px
-Each phone: width 375px, border-radius 46px, box-shadow: 0 40px 100px rgba(0,0,0,0.28)
-Labels above each phone: "0N — SCREEN NAME" in the company's muted color
-```
-
-**CSS variables to define at top of every prototype:**
-```css
-:root {
-  --c-dark: [primary dark];      /* e.g. #0A1F0A */
-  --c-hero: [slightly lighter];  /* e.g. #162816 */
-  --c-bright: [accent green];    /* e.g. #22C55E */
-  --c-accent: [secondary accent];/* e.g. #4ADE80 */
-  --orange: [highlight];         /* e.g. #F97316 */
-  --ink: #0f172a;
-  --muted: #64748b;
-  --border: #e2e8f0;
-  --gray: #f1f5f9;
-}
-```
-
-**Fonts:** Always Sora (headings/UI) + DM Mono (numbers/codes) from Google Fonts
+**Page structure:**
 ```html
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<!-- Dark background page, single centered phone -->
+<body style="background:#0f0f1a; display:flex; flex-direction:column; align-items:center; min-height:100vh; padding:40px 20px;">
+  <div class="proto-header">Company — Feature · Interactive Prototype</div>
+  <div class="phone-wrap">
+    <!-- phone chrome: 390px wide, 844px tall, border-radius 50px, overflow:hidden -->
+    <div class="phone">
+      <div class="status-bar"><!-- 9:41, signal, wifi, battery --></div>
+      <!-- screens: position:absolute, width:100%, height:100%, transition:transform .35s ease / opacity .3s -->
+      <div class="screen active" id="s1">...</div>
+      <div class="screen" id="s2">...</div>
+      ...
+    </div>
+  </div>
+  <!-- nav dots + prev/next below phone -->
+  <div class="nav-row">
+    <button class="nav-arr" onclick="go(cur-1)">‹</button>
+    <div class="dots" id="dots"></div>
+    <button class="nav-arr" onclick="go(cur+1)">›</button>
+  </div>
+  <!-- screen label -->
+  <div class="screen-label" id="slabel">01 — SCREEN NAME</div>
+</body>
 ```
 
-**Phone anatomy:**
-- Notch: `118px × 28px`, dark, border-radius `0 0 16px 16px`; notch contains camera circle (`.nc`) + sensor dot (`.ns`) — NEVER reuse `.ns` classname for card content (known class collision bug)
-- Status bar: time left, signal right, dark background matching screen
-- Screen container: `overflow-y: auto; max-height: 724px; scrollbar-width: none`
-
-**Mandatory screens across all prototypes:**
-1. **Home / Discovery** — Main app surface with the feature surfaced prominently (banner, card, or feed item). Shows the user what's available.
-2. **Feature Detail / Tracker** — The main feature screen. Progress bars, goals, timers, product mechanics in full detail.
-3. **Success / Completion** — The reward moment. Confetti (JS-generated), exact benefit displayed, next step CTA.
-4. **Ops / Admin / Nudge** — The backstage view: how the company or ops team manages/nudges the user. Shows system thinking.
-
-**Confetti (Screen 3 standard):**
+**Screen transitions (slide left/right):**
 ```js
-const c = document.getElementById('conf');
-const cols = ['#4ADE80','#F97316','#60A5FA','#FBBF24','#F472B6','#A78BFA','#34D399'];
-for(let i=0;i<32;i++){
-  const p = document.createElement('div');
-  p.className='cp';
-  const size = 4+Math.random()*7;
-  p.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*120-10}%;width:${size}px;height:${size}px;background:${cols[Math.floor(Math.random()*cols.length)]};border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${1.4+Math.random()*1.8}s;animation-delay:${Math.random()*2.4}s;`;
-  c.appendChild(p);
+let cur = 1, total = N;
+const LABELS = { 1:'01 — NAME', 2:'02 — NAME', ... };
+function go(n) {
+  if(n<1||n>total) return;
+  const prev = document.getElementById('s'+cur);
+  const next = document.getElementById('s'+n);
+  const dir = n > cur ? 1 : -1;
+  prev.style.transform = `translateX(${-dir*100}%)`;
+  prev.style.opacity = '0';
+  setTimeout(()=>{ prev.classList.remove('active'); prev.style.transform=''; prev.style.opacity=''; },350);
+  next.classList.add('active');
+  next.style.transform = `translateX(${dir*100}%)`;
+  next.style.opacity = '0';
+  requestAnimationFrame(()=>{ next.style.transition='transform .35s ease, opacity .3s'; next.style.transform=''; next.style.opacity='1'; });
+  setTimeout(()=>{ next.style.transition=''; },380);
+  document.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('on',i===n-1));
+  document.getElementById('slabel').textContent = LABELS[n];
+  cur = n;
+  if(n === SUCCESS_SCREEN) startConfetti();
+}
+// Init dots
+const dotsEl = document.getElementById('dots');
+for(let i=1;i<=total;i++){
+  const d=document.createElement('div'); d.className='dot'+(i===1?' on':''); d.onclick=()=>go(i); dotsEl.appendChild(d);
 }
 ```
 
-**Progress bars (standard component):**
+**Status bar (always include):**
 ```html
-<div class="track"><div class="fill" style="width:[N]%"><span class="fill-badge">[N]%</span></div></div>
+<div class="status-bar">
+  <span class="sb-time">9:41</span>
+  <div class="sb-icons">
+    <svg><!-- signal --></svg>
+    <svg><!-- wifi --></svg>
+    <svg><!-- battery --></svg>
+  </div>
+</div>
 ```
-```css
-.track{height:8px;background:#e2e8f0;border-radius:99px;overflow:visible;position:relative;}
-.fill{height:100%;border-radius:99px;background:var(--c-bright);position:relative;transition:.6s ease;}
-.fill-badge{position:absolute;right:-2px;top:-9px;background:var(--c-bright);color:#fff;font-size:9px;font-weight:700;padding:2px 5px;border-radius:6px;}
+
+**Confetti (success screen):**
+```js
+function startConfetti() {
+  const c = document.getElementById('conf');
+  if(!c || c.children.length) return;
+  const cols = ['#FF9900','#00A8E1','#067D62','#FF6B6B','#FFD700','#4ADE80'];
+  for(let i=0;i<40;i++){
+    const p=document.createElement('div'); p.className='cp';
+    const sz=4+Math.random()*8;
+    p.style.cssText=`position:absolute;left:${Math.random()*100}%;top:${-10+Math.random()*30}%;width:${sz}px;height:${sz}px;background:${cols[i%cols.length]};border-radius:${Math.random()>.5?'50%':'3px'};animation:fall ${1.5+Math.random()*2}s ${Math.random()*1.5}s ease-in forwards;`;
+    c.appendChild(p);
+  }
+}
 ```
+
+**Typography:** Use the company's real font stack. If unknown, default to `-apple-system, 'SF Pro Display', sans-serif` for a native mobile feel. Load via Google Fonts only if the company uses a Google Font.
+
+**Colors:** Use the company's exact brand colors. Research their app/website. Never invent colors.
 
 **QA checklist before declaring prototype done:**
-- [ ] All 4 screens render without overlap
-- [ ] No class name collisions (especially `.ns` — the notch sensor dot)
-- [ ] Scrollable content doesn't overflow the phone chrome
-- [ ] Fonts load (Sora + DM Mono)
-- [ ] Confetti animates on Screen 3
-- [ ] Progress bars show fill-badge correctly
-- [ ] Mobile feel — touch targets ≥ 44px
-- [ ] Company colors consistent across all 4 screens
+- [ ] All screens render without overlap or cutoff
+- [ ] Slide transitions work in both directions
+- [ ] Status bar appears on every screen
+- [ ] Fonts match the company's real app
+- [ ] Confetti fires on the success screen
+- [ ] All content is realistic (no Lorem ipsum, no placeholder prices)
+- [ ] Scrollable screens use `overflow-y:auto; scrollbar-width:none`
+- [ ] Bottom nav (if app has one) is consistent across all screens
+- [ ] Touch targets ≥ 44px
+- [ ] Colors match the company's real brand
 
 ---
 

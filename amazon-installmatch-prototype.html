@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Amazon MENA — InstallMatch · Interactive Prototype</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; -webkit-font-smoothing:antialiased; }
+body { background:#0f0f1a; min-height:100vh; display:flex; flex-direction:column; align-items:center; padding:32px 16px 48px; font-family:-apple-system,'SF Pro Display','Segoe UI',sans-serif; }
+.proto-header { color:rgba(255,255,255,0.5); font-size:11px; letter-spacing:.12em; text-transform:uppercase; margin-bottom:28px; text-align:center; }
+.proto-header strong { color:#FF9900; }
+.phone { width:390px; height:844px; border-radius:50px; background:#fff; overflow:hidden; position:relative; box-shadow:0 0 0 8px #1c1c2e, 0 40px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.06); }
+.screen { position:absolute; top:0; left:0; width:100%; height:100%; background:#fff; overflow:hidden; opacity:0; pointer-events:none; }
+.screen.active { opacity:1; pointer-events:all; }
+.sb { height:50px; display:flex; align-items:center; justify-content:space-between; padding:14px 24px 8px; }
+.sb-time { font-size:15px; font-weight:700; }
+.sb-right { display:flex; align-items:center; gap:5px; }
+.amz-header { background:#131921; padding:8px 12px; display:flex; align-items:center; gap:8px; }
+.amz-logo { color:#FF9900; font-size:20px; font-weight:800; }
+.amz-logo span { color:#fff; font-size:13px; font-weight:400; }
+.amz-search { flex:1; background:#FF9900; border-radius:6px; height:36px; display:flex; align-items:center; padding:0 10px; gap:6px; }
+.amz-search input { background:none; border:none; outline:none; font-size:13px; flex:1; color:#0F1111; }
+.amz-cart { position:relative; }
+.amz-cart svg { width:26px; height:26px; color:#fff; }
+.amz-cart-count { position:absolute; top:-4px; right:-6px; background:#FF9900; color:#0F1111; font-size:10px; font-weight:700; border-radius:50%; width:16px; height:16px; display:flex; align-items:center; justify-content:center; }
+.amz-bottom-nav { position:absolute; bottom:0; left:0; right:0; height:60px; background:#fff; border-top:1px solid #D5D9D9; display:flex; align-items:center; justify-content:space-around; padding:0 4px 8px; }
+.amz-nav-item { display:flex; flex-direction:column; align-items:center; gap:2px; flex:1; padding-top:6px; }
+.amz-nav-item svg { width:20px; height:20px; color:#565959; }
+.amz-nav-item span { font-size:9px; color:#565959; }
+.amz-nav-item.active svg { color:#FF9900; }
+.amz-nav-item.active span { color:#FF9900; }
+.scroll { overflow-y:auto; scrollbar-width:none; }
+.scroll::-webkit-scrollbar { display:none; }
+
+/* Install card styles */
+.install-card {
+  margin:12px; border-radius:12px; overflow:hidden;
+  border:2px solid #FF9900;
+  background:linear-gradient(135deg,#131921,#1a2535);
+}
+.install-card-head {
+  background:#FF9900; padding:9px 14px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.install-head-title { font-size:12px; font-weight:800; color:#131921; }
+.install-head-sub { font-size:10px; color:rgba(0,0,0,0.55); margin-top:1px; }
+.install-tag { background:#131921; color:#FF9900; font-size:10px; font-weight:700; padding:3px 8px; border-radius:4px; }
+
+.install-content { padding:12px 14px; }
+.install-service-row { display:flex; gap:10px; align-items:flex-start; margin-bottom:10px; }
+.install-service-icon { width:44px; height:44px; background:rgba(255,255,255,0.08); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; }
+.install-service-info h4 { font-size:13px; font-weight:600; color:#fff; margin-bottom:3px; }
+.install-service-info p { font-size:11px; color:rgba(255,255,255,0.55); line-height:1.4; }
+.install-price-row { display:flex; align-items:center; justify-content:space-between; background:rgba(255,255,255,0.05); border-radius:8px; padding:8px 12px; margin-bottom:10px; }
+.install-price-left { font-size:12px; color:rgba(255,255,255,0.6); }
+.install-price-val { font-size:18px; font-weight:700; color:#FF9900; }
+.install-price-note { font-size:10px; color:rgba(255,255,255,0.4); }
+.install-bullets { display:flex; flex-direction:column; gap:5px; margin-bottom:12px; }
+.install-bullet { display:flex; align-items:center; gap:8px; font-size:11px; color:rgba(255,255,255,0.65); }
+.install-bullet svg { width:14px; height:14px; color:#4ade80; flex-shrink:0; }
+.install-cta-row { display:flex; gap:8px; }
+.install-btn-add { flex:1; background:#FF9900; border:none; border-radius:8px; padding:11px; font-size:13px; font-weight:700; color:#131921; cursor:pointer; }
+.install-btn-skip { background:transparent; border:1px solid rgba(255,255,255,0.2); border-radius:8px; padding:11px 12px; font-size:12px; color:rgba(255,255,255,0.5); cursor:pointer; white-space:nowrap; }
+
+/* Installer cards */
+.installer-card {
+  margin:0 16px 10px; border-radius:12px; border:1.5px solid #D5D9D9;
+  padding:14px; background:#fff; cursor:pointer;
+}
+.installer-card.selected { border:2px solid #FF9900; background:rgba(255,153,0,0.03); }
+.installer-header { display:flex; gap:12px; align-items:flex-start; margin-bottom:10px; }
+.installer-avatar { width:48px; height:48px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; }
+.installer-name { font-size:14px; font-weight:700; color:#0F1111; margin-bottom:2px; }
+.installer-stars { display:flex; align-items:center; gap:4px; margin-bottom:2px; }
+.installer-stars span { font-size:12px; color:#FF9900; }
+.installer-rating { font-size:12px; font-weight:600; color:#0F1111; }
+.installer-reviews { font-size:11px; color:#007185; }
+.installer-badge { display:inline-flex; align-items:center; gap:4px; background:#E8F5E9; color:#067D62; font-size:10px; font-weight:700; padding:2px 7px; border-radius:20px; margin-top:3px; }
+.installer-meta { display:flex; gap:8px; flex-wrap:wrap; }
+.installer-meta-chip { background:#f8f8f8; border-radius:4px; padding:4px 8px; font-size:11px; color:#565959; }
+.installer-price-row { display:flex; justify-content:space-between; align-items:center; margin-top:10px; padding-top:10px; border-top:1px solid #EAEDED; }
+.installer-price { font-size:16px; font-weight:700; color:#0F1111; }
+.installer-avail { font-size:11px; color:#067D62; font-weight:600; }
+.select-btn { background:#FFD814; border:1px solid #FCD200; border-radius:6px; padding:7px 16px; font-size:12px; font-weight:700; color:#0F1111; cursor:pointer; }
+.installer-card.selected .select-btn { background:#FF9900; border-color:#e68900; }
+
+/* Booking calendar */
+.date-row { display:flex; gap:8px; overflow-x:auto; padding:0 16px 12px; scrollbar-width:none; }
+.date-row::-webkit-scrollbar { display:none; }
+.date-chip { min-width:52px; height:64px; border-radius:10px; border:1.5px solid #D5D9D9; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; cursor:pointer; flex-shrink:0; }
+.date-chip.on { border-color:#FF9900; background:#FFF8F0; }
+.date-chip .day { font-size:10px; color:#565959; }
+.date-chip .date-num { font-size:16px; font-weight:700; color:#0F1111; }
+.date-chip.on .date-num { color:#FF9900; }
+.date-chip .avail { font-size:9px; color:#067D62; }
+.date-chip.full .avail { color:#B12704; }
+.time-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; padding:0 16px 12px; }
+.time-slot { border:1.5px solid #D5D9D9; border-radius:8px; padding:10px 8px; text-align:center; cursor:pointer; }
+.time-slot.on { border-color:#FF9900; background:#FFF8F0; }
+.time-slot.busy { background:#f8f8f8; opacity:0.5; cursor:default; }
+.time-slot .t-time { font-size:13px; font-weight:600; color:#0F1111; }
+.time-slot .t-dur { font-size:10px; color:#565959; margin-top:2px; }
+.time-slot.on .t-time { color:#FF9900; }
+
+/* Tracking timeline */
+.track-step { display:flex; gap:12px; padding:12px 16px; }
+.track-line-wrap { display:flex; flex-direction:column; align-items:center; }
+.track-dot { width:20px; height:20px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.track-dot.done { background:#067D62; }
+.track-dot.active { background:#FF9900; }
+.track-dot.pending { background:#EAEDED; border:2px solid #D5D9D9; }
+.track-connector { width:2px; flex:1; min-height:20px; margin:3px 0; }
+.track-connector.done { background:#067D62; }
+.track-connector.pending { background:#EAEDED; }
+.track-info { flex:1; padding-bottom:12px; }
+.track-title { font-size:13px; font-weight:600; color:#0F1111; margin-bottom:2px; }
+.track-sub { font-size:12px; color:#565959; }
+.track-time { font-size:11px; color:#007185; margin-top:2px; font-weight:600; }
+
+/* Confetti */
+#conf { position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; overflow:hidden; z-index:10; }
+@keyframes fall { 0%{transform:translateY(-20px) rotate(0deg);opacity:1} 100%{transform:translateY(900px) rotate(360deg);opacity:0} }
+
+/* Nav */
+.nav-row { display:flex; align-items:center; gap:16px; margin-top:20px; }
+.nav-arr { background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12); color:#fff; width:36px; height:36px; border-radius:50%; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.nav-arr:hover { background:rgba(255,153,0,0.2); border-color:rgba(255,153,0,0.4); }
+.dots { display:flex; gap:8px; }
+.dot { width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,0.2); cursor:pointer; transition:all .2s; }
+.dot.on { background:#FF9900; transform:scale(1.3); }
+.screen-lbl { margin-top:10px; color:rgba(255,255,255,0.4); font-size:10px; letter-spacing:.1em; text-transform:uppercase; text-align:center; }
+</style>
+</head>
+<body>
+<div class="proto-header"><strong>Amazon MENA</strong> — InstallMatch · In-Flow Installation Booking</div>
+
+<div class="phone">
+
+<!-- SCREEN 1: PDP with Install Card -->
+<div class="screen active" id="s1">
+  <div class="sb" style="background:#131921;"><span class="sb-time" style="color:#fff;">9:41</span><div class="sb-right"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" style="width:16px;height:16px;"><path d="M1 6l5 5 5-5"/></svg><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" style="width:16px;height:16px;"><path d="M5 12.55a11 11 0 0 1 14.08 0M12 20h.01"/></svg><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" style="width:16px;height:16px;"><rect x="2" y="7" width="18" height="11" rx="2"/></svg></div></div>
+  <div class="amz-header">
+    <svg onclick="go(0)" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" style="width:22px;height:22px;cursor:pointer;flex-shrink:0;"><path d="M19 12H5m7-7l-7 7 7 7"/></svg>
+    <div class="amz-search" style="flex:1;margin-left:8px;"><svg viewBox="0 0 24 24" fill="none" stroke="#0F1111" stroke-width="2.5" style="width:16px;height:16px;"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input placeholder="Daikin split AC 1.5 ton" readonly></div>
+    <div class="amz-cart" style="margin-left:8px;"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" style="width:26px;height:26px;"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg><div class="amz-cart-count">0</div></div>
+  </div>
+
+  <div class="scroll" style="height:calc(100% - 50px - 52px - 60px);">
+    <!-- Product image -->
+    <div style="background:#EAEDED;height:240px;display:flex;align-items:center;justify-content:center;font-size:80px;position:relative;">
+      ❄️
+      <div style="position:absolute;bottom:10px;right:14px;background:rgba(0,0,0,0.6);color:#fff;font-size:10px;padding:4px 10px;border-radius:20px;">1 / 8 photos</div>
+      <div style="position:absolute;top:10px;left:14px;background:#B12704;color:#fff;font-size:10px;font-weight:700;padding:4px 10px;border-radius:4px;">Deal of the Day</div>
+    </div>
+
+    <!-- Product info -->
+    <div style="padding:12px 14px;border-bottom:1px solid #EAEDED;">
+      <div style="font-size:12px;color:#007185;margin-bottom:4px;">Visit the Daikin Store</div>
+      <div style="font-size:15px;color:#0F1111;line-height:1.4;margin-bottom:8px;">Daikin FTKF50TV16U 1.5 Ton 5 Star Inverter Split Air Conditioner with Wi-Fi — White</div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+        <span style="color:#FF9900;font-size:14px;">★★★★★</span>
+        <span style="color:#FF9900;font-size:13px;">4.6</span>
+        <span style="color:#007185;font-size:13px;">(4,219 ratings)</span>
+      </div>
+      <div style="border-top:1px solid #EAEDED;padding-top:10px;">
+        <div style="display:flex;align-items:baseline;gap:8px;">
+          <span style="font-size:24px;font-weight:700;color:#0F1111;">AED 2,499</span>
+          <span style="font-size:14px;color:#565959;text-decoration:line-through;">AED 3,199</span>
+          <span style="font-size:13px;color:#B12704;font-weight:600;">22% off</span>
+        </div>
+        <div style="font-size:12px;color:#00A8E1;font-weight:600;margin-top:4px;">✦ prime · Free delivery · Get it in 2 days</div>
+      </div>
+    </div>
+
+    <!-- Delivery & stock -->
+    <div style="padding:10px 14px;background:#f8f8f8;border-bottom:1px solid #EAEDED;font-size:12px;">
+      <div style="color:#067D62;font-weight:600;margin-bottom:3px;">✓ In Stock · Usually dispatched in 1–2 days</div>
+      <div style="color:#565959;">Ships from and sold by <span style="color:#007185;">Amazon.ae</span></div>
+    </div>
+
+    <!-- Add to cart buttons -->
+    <div style="padding:12px 14px;border-bottom:1px solid #EAEDED;">
+      <button style="width:100%;background:#FFD814;border:1px solid #FCD200;border-radius:8px;padding:13px;font-size:15px;font-weight:700;color:#0F1111;cursor:pointer;margin-bottom:8px;">Add to Cart</button>
+      <button style="width:100%;background:#FF9900;border:1px solid #e68900;border-radius:8px;padding:13px;font-size:15px;font-weight:700;color:#0F1111;cursor:pointer;">Buy Now</button>
+    </div>
+
+    <!-- InstallMatch Card -->
+    <div style="background:#FFF8F0;padding:8px 14px;border-bottom:1px solid #FFD580;display:flex;align-items:center;gap:6px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#FF9900" stroke-width="2" style="width:14px;height:14px;flex-shrink:0;"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+      <span style="font-size:11px;color:#B8860B;font-weight:600;">InstallMatch: Professional AC installation available — book alongside your order</span>
+    </div>
+
+    <div class="install-card">
+      <div class="install-card-head">
+        <div>
+          <div class="install-head-title">🔧 INSTALLMATCH — PROFESSIONAL INSTALLATION</div>
+          <div class="install-head-sub">Certified technicians · Book now, schedule on delivery day</div>
+        </div>
+        <div class="install-tag">36 installers nearby</div>
+      </div>
+
+      <div class="install-content">
+        <div class="install-service-row">
+          <div class="install-service-icon">❄️</div>
+          <div class="install-service-info">
+            <h4>Split AC Installation — Standard</h4>
+            <p>Indoor unit mount · Outdoor unit bracket · Copper pipe (up to 5m) · Electrical connection · Gas charge &amp; testing · Demo + cleanup</p>
+          </div>
+        </div>
+
+        <div class="install-price-row">
+          <div>
+            <div class="install-price-left">Starting from</div>
+            <div class="install-price-val">AED 149</div>
+            <div class="install-price-note">Final price shown after slot selection</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:10px;color:rgba(255,255,255,0.5);margin-bottom:3px;">Without InstallMatch</div>
+            <div style="font-size:13px;color:rgba(255,255,255,0.4);text-decoration:line-through;">AED 250–400</div>
+          </div>
+        </div>
+
+        <div class="install-bullets">
+          <div class="install-bullet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>Background-verified, insured technicians only</div>
+          <div class="install-bullet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>Same-day slots available if ordered before 12 PM</div>
+          <div class="install-bullet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>30-day workmanship guarantee — rebook free</div>
+          <div class="install-bullet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>Real-time technician tracking on install day</div>
+        </div>
+
+        <div class="install-cta-row">
+          <button class="install-btn-add" onclick="go(2)">Choose Installer — AED 149+</button>
+          <button class="install-btn-skip">No install</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- About product -->
+    <div style="padding:12px 14px;border-top:1px solid #EAEDED;">
+      <div style="font-size:13px;font-weight:700;color:#0F1111;margin-bottom:8px;">About this item</div>
+      <div style="font-size:12px;color:#565959;line-height:1.6;">
+        <div style="margin-bottom:4px;">• 5-Star Inverter technology — saves up to 50% electricity vs fixed-speed</div>
+        <div style="margin-bottom:4px;">• Coanda airflow for silent, even cooling across the room</div>
+        <div style="margin-bottom:4px;">• Wi-Fi enabled — control via Daikin Mobile Controller app</div>
+        <div>• R-32 refrigerant — low GWP, eco-friendly</div>
+      </div>
+    </div>
+    <div style="height:70px;"></div>
+  </div>
+  <div class="amz-bottom-nav">
+    <div class="amz-nav-item active"><svg viewBox="0 0 24 24" fill="currentColor" style="width:20px;height:20px;color:#FF9900;"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg><span>Home</span></div>
+    <div class="amz-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><span>Search</span></div>
+    <div class="amz-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg><span>Cart</span></div>
+    <div class="amz-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Account</span></div>
+    <div class="amz-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg><span>Menu</span></div>
+  </div>
+</div>
+
+<!-- SCREEN 2: Installer Selection -->
+<div class="screen" id="s2">
+  <div class="sb" style="background:#131921;"><span class="sb-time" style="color:#fff;">9:42</span><div class="sb-right"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" style="width:16px;height:16px;"><path d="M1 6l5 5 5-5"/></svg><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" style="width:16px;height:16px;"><path d="M5 12.55a11 11 0 0 1 14.08 0M12 20h.01"/></svg><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" style="width:16px;height:16px;"><rect x="2" y="7" width="18" height="11" rx="2"/></svg></div></div>
+  <div style="background:#131921;padding:10px 16px;display:flex;align-items:center;gap:12px;">
+    <svg onclick="go(1)" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" style="width:22px;height:22px;cursor:pointer;"><path d="M19 12H5m7-7l-7 7 7 7"/></svg>
+    <div><div style="color:#fff;font-size:17px;font-weight:700;">Choose Your Installer</div><div style="color:rgba(255,255,255,0.6);font-size:11px;">36 verified technicians near Dubai Marina</div></div>
+  </div>
+
+  <div class="scroll" style="height:calc(100% - 50px - 52px - 60px);">
+    <!-- Filter chips -->
+    <div style="display:flex;gap:8px;padding:10px 16px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid #EAEDED;">
+      <div style="background:#131921;color:#FF9900;border:1px solid #FF9900;border-radius:20px;padding:5px 12px;font-size:11px;font-weight:600;white-space:nowrap;flex-shrink:0;">All (36)</div>
+      <div style="background:#f8f8f8;color:#565959;border:1px solid #D5D9D9;border-radius:20px;padding:5px 12px;font-size:11px;white-space:nowrap;flex-shrink:0;">⭐ Top rated</div>
+      <div style="background:#f8f8f8;color:#565959;border:1px solid #D5D9D9;border-radius:20px;padding:5px 12px;font-size:11px;white-space:nowrap;flex-shrink:0;">Today available</div>
+      <div style="background:#f8f8f8;color:#565959;border:1px solid #D5D9D9;border-radius:20px;padding:5px 12px;font-size:11px;white-space:nowrap;flex-shrink:0;">Lowest price</div>
+    </div>
+
+    <div style="padding:8px 16px 4px;font-size:12px;color:#565959;">Sorted by: Highest rated · Nearest to you</div>
+
+    <!-- Installer 1 (selected) -->
+    <div class="installer-card selected" onclick="selectInstaller(this,3)">
+      <div style="background:#FF9900;color:#131921;font-size:9px;font-weight:800;padding:3px 10px;border-radius:4px;margin-bottom:8px;display:inline-block;">⭐ TOP MATCH FOR YOUR LOCATION</div>
+      <div class="installer-header">
+        <div class="installer-avatar" style="background:#FFF3CD;">👨‍🔧</div>
+        <div style="flex:1;">
+          <div class="installer-name">Mohammed Al Rashidi</div>
+          <div class="installer-stars"><span>★★★★★</span><span class="installer-rating">4.9</span><span class="installer-reviews">(847 reviews)</span></div>
+          <div><span class="installer-badge">✓ Amazon Certified Pro</span></div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:11px;color:#565959;">2.1 km away</div>
+          <div style="font-size:11px;color:#067D62;font-weight:600;">Today slots open</div>
+        </div>
+      </div>
+      <div class="installer-meta">
+        <div class="installer-meta-chip">🔧 AC Specialist</div>
+        <div class="installer-meta-chip">📋 1,240 jobs done</div>
+        <div class="installer-meta-chip">🇦🇪 Arabic + English</div>
+        <div class="installer-meta-chip">⏱ Usually 2–3 hrs</div>
+      </div>
+      <div style="margin-top:8px;font-size:11px;color:#565959;font-style:italic;">"Arrived on time, did clean work, explained everything. Would definitely use again." — Fatima K., 2 days ago</div>
+      <div class="installer-price-row">
+        <div>
+          <div class="installer-price">AED 149</div>
+          <div class="installer-avail">✓ Available: Today 2–5 PM, Tomorrow AM</div>
+        </div>
+        <button class="select-btn" onclick="go(3)">Select →</button>
+      </div>
+    </div>
+
+    <!-- Installer 2 -->
+    <div class="installer-card" onclick="selectInstaller(this,2)">
+      <div class="installer-header">
+        <div class="installer-avatar" style="background:#E8F5E9;">👷</div>
+        <div style="flex:1;">
+          <div class="installer-name">Ahmed Hassan</div>
+          <div class="installer-stars"><span>★★★★</span><span style="color:#ccc;">★</span><span class="installer-rating">4.7</span><span class="installer-reviews">(523 reviews)</span></div>
+          <div><span class="installer-badge">✓ Amazon Certified Pro</span></div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:11px;color:#565959;">3.4 km away</div>
+          <div style="font-size:11px;color:#067D62;font-weight:600;">Tomorrow slots open</div>
+        </div>
+      </div>
+      <div class="installer-meta">
+        <div class="installer-meta-chip">🔧 HVAC Expert</div>
+        <div class="installer-meta-chip">📋 892 jobs done</div>
+        <div class="installer-meta-chip">⏱ Usually 2–4 hrs</div>
+      </div>
+      <div class="installer-price-row">
+        <div>
+          <div class="installer-price">AED 169</div>
+          <div class="installer-avail" style="color:#565959;">Next: Tomorrow 9 AM–12 PM</div>
+        </div>
+        <button class="select-btn">Select →</button>
+      </div>
+    </div>
+
+    <!-- Installer 3 -->
+    <div class="installer-card" onclick="selectInstaller(this,1)">
+      <div class="installer-header">
+        <div class="installer-avatar" style="background:#E3F2FD;">🧑‍🔧</div>
+        <div style="flex:1;">
+          <div class="installer-name">TechFix UAE — Team</div>
+          <div class="installer-stars"><span>★★★★</span><span style="color:#ccc;">★</span><span class="installer-rating">4.5</span><span class="installer-reviews">(1,204 reviews)</span></div>
+          <div><span class="installer-badge" style="background:#E3F2FD;color:#007185;">🏢 Company</span></div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:11px;color:#565959;">5.8 km away</div>
+          <div style="font-size:11px;color:#B12704;font-weight:600;">Next slot: Thu</div>
+        </div>
+      </div>
+      <div class="installer-meta">
+        <div class="installer-meta-chip">🔧 All AC brands</div>
+        <div class="installer-meta-chip">📋 3,100+ jobs</div>
+        <div class="installer-meta-chip">⏱ Usually 1.5–2 hrs</div>
+      </div>
+      <div class="installer-price-row">
+        <div>
+          <div class="installer-price">AED 189</div>
+          <div class="installer-avail" style="color:#565959;">Next: Thu 10 AM–1 PM</div>
+        </div>
+        <button class="select-btn">Select →</button>
+      </div>
+    </div>
+    <div style="height:70px;"></div>
+  </div>
+  <div class="amz-bottom-nav">
+    <div class="amz-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg><span>Home</span></div>
+    <div class="amz-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><span>Search</span></div>
+    <div class="amz-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg><span>Cart</span></div>
+    <div class="amz-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Account</span></div>
+    <div class="amz-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg><span>Menu</span></div>
+  </div>
+</div>
+
+<!-- SCREEN 3: Time Slot Booking -->
+<div class="screen" id="s3">
+  <div class="sb" style="background:#131921;"><span class="sb-time" style="color:#fff;">9:43</span><div class="sb-right"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" style="width:16px;height:16px;"><path d="M1 6l5 5 5-5"/></svg><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" style="width:16px;height:16px;"><path d="M5 12.55a11 11 0 0 1 14.08 0M12 20h.01"/></svg><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" style="width:16px;height:16px;"><rect x="2" y="7" width="18" height="11" rx="2"/></svg></div></div>
+  <div style="background:#131921;padding:10px 16px;display:flex;align-items:center;gap:12px;">
+    <svg onclick="go(2)" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" style="width:22px;height:22px;cursor:pointer;"><path d="M19 12H5m7-7l-7 7 7 7"/></svg>
+    <div><div style="color:#fff;font-size:17px;font-weight:700;">Pick a Time Slot</div><div style="color:rgba(255,255,255,0.6);font-size:11px;">Mohammed Al Rashidi · AED 149</div></div>
+  </div>
+
+  <div class="scroll" style="height:calc(100% - 50px - 52px - 90px - 60px);">
+    <!-- Installer summary bar -->
+    <div style="padding:10px 16px;background:#FFF8F0;border-bottom:1px solid #FFD580;display:flex;gap:10px;align-items:center;">
+      <div style="font-size:24px;width:40px;height:40px;background:#FFF3CD;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">👨‍🔧</div>
+      <div style="flex:1;">
+        <div style="font-size:13px;font-weight:600;color:#0F1111;">Mohammed Al Rashidi</div>
+        <div style="display:flex;align-items:center;gap:4px;font-size:11px;color:#565959;"><span style="color:#FF9900;">★</span> 4.9 · Amazon Certified Pro · 2.1 km away</div>
+      </div>
+      <button onclick="go(2)" style="background:none;border:1px solid #D5D9D9;border-radius:6px;padding:4px 10px;font-size:11px;color:#007185;cursor:pointer;">Change</button>
+    </div>
+
+    <!-- Date picker -->
+    <div style="padding:12px 16px 6px;font-size:13px;font-weight:700;color:#0F1111;">Select date</div>
+    <div class="date-row">
+      <div class="date-chip on" onclick="selectDate(this)">
+        <div class="day">TUE</div>
+        <div class="date-num">24</div>
+        <div class="avail">2 slots</div>
+      </div>
+      <div class="date-chip" onclick="selectDate(this)">
+        <div class="day">WED</div>
+        <div class="date-num">25</div>
+        <div class="avail">4 slots</div>
+      </div>
+      <div class="date-chip full" style="opacity:0.45;">
+        <div class="day">THU</div>
+        <div class="date-num">26</div>
+        <div class="avail" style="color:#B12704;">Full</div>
+      </div>
+      <div class="date-chip" onclick="selectDate(this)">
+        <div class="day">FRI</div>
+        <div class="date-num">27</div>
+        <div class="avail">3 slots</div>
+      </div>
+      <div class="date-chip" onclick="selectDate(this)">
+        <div class="day">SAT</div>
+        <div class="date-num">28</div>
+        <div class="avail">5 slots</div>
+      </div>
+    </div>
+
+    <!-- Time slots -->
+    <div style="padding:4px 16px 8px;font-size:13px;font-weight:700;color:#0F1111;">Select time</div>
+    <div class="time-grid">
+      <div class="time-slot busy"><div class="t-time">9–11 AM</div><div class="t-dur">Booked</div></div>
+      <div class="time-slot busy"><div class="t-time">11–1 PM</div><div class="t-dur">Booked</div></div>
+      <div class="time-slot on" onclick="selectTime(this)"><div class="t-time">2–5 PM</div><div class="t-dur">2–3 hrs</div></div>
+      <div class="time-slot" onclick="selectTime(this)"><div class="t-time">5–8 PM</div><div class="t-dur">2–3 hrs</div></div>
+      <div class="time-slot busy"><div class="t-time">8–10 PM</div><div class="t-dur">Booked</div></div>
+    </div>
+
+    <!-- Address -->
+    <div style="padding:0 16px 10px;">
+      <div style="font-size:13px;font-weight:700;color:#0F1111;margin-bottom:6px;">Installation address</div>
+      <div style="border:1px solid #D5D9D9;border-radius:8px;padding:12px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+          <div>
+            <div style="font-size:13px;font-weight:600;color:#0F1111;">Home — Dubai Marina</div>
+            <div style="font-size:12px;color:#565959;margin-top:2px;">Flat 8B, Tower 3, Marina Walk, Dubai Marina</div>
+            <div style="font-size:12px;color:#565959;">Dubai, 00000</div>
+          </div>
+          <button style="background:none;border:none;color:#007185;font-size:12px;cursor:pointer;">Change</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Room info -->
+    <div style="padding:0 16px 10px;">
+      <div style="font-size:13px;font-weight:700;color:#0F1111;margin-bottom:6px;">Room details <span style="font-weight:400;color:#565959;font-size:12px;">(helps technician prepare)</span></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div style="border:1.5px solid #FF9900;border-radius:8px;padding:10px;background:#FFF8F0;text-align:center;cursor:pointer;">
+          <div style="font-size:20px;margin-bottom:4px;">🛋️</div>
+          <div style="font-size:12px;font-weight:600;color:#0F1111;">Living Room</div>
+        </div>
+        <div style="border:1px solid #D5D9D9;border-radius:8px;padding:10px;text-align:center;cursor:pointer;">
+          <div style="font-size:20px;margin-bottom:4px;">🛏️</div>
+          <div style="font-size:12px;font-weight:600;color:#565959;">Bedroom</div>
+        </div>
+        <div style="border:1px solid #D5D9D9;border-radius:8px;padding:10px;text-align:center;cursor:pointer;">
+          <div style="font-size:20px;margin-bottom:4px;">🍳</div>
+          <div style="font-size:12px;font-weight:600;color:#565959;">Kitchen</div>
+        </div>
+        <div style="border:1px solid #D5D9D9;border-radius:8px;padding:10px;text-align:center;cursor:pointer;">
+          <div style="font-size:20px;margin-bottom:4px;">📐</div>
+          <div style="font-size:12px;font-weight:600;color:#565959;">Office</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sticky confirm bar -->
+  <div style="position:absolute;bottom:60px;left:0;right:0;background:#fff;border-top:1px solid #D5D9D9;padding:10px 16px;">
+    <div style="display:flex;justify-content:space-between;font-size:12px;color:#565959;margin-bottom:6px;">
+      <span>Tue 24 Jun · 2–5 PM · Mohammed Al Rashidi</span>
+      <span style="font-weight:700;color:#0F1111;">AED 149</span>
+    </div>
+    <button onclick="go(4)" style="width:100%;background:#FF9900;border:none;border-radius:8px;padding:13px;font-size:15px;font-weight:700;color:#0F1111;cursor:pointer;">Confirm Booking</button>
+  </div>
+  <div class="amz-bottom-nav">
+    <div class="amz-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg><span>Home</span></div>
+    <div class="amz-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><span>Search</span></div>
+    <div class="amz-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg><span>Cart</span></div>
+    <div class="amz-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Account</span></div>
+    <div class="amz-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg><span>Menu</span></div>
+  </div>
+</div>
+
+<!-- SCREEN 4: Order + Install Confirmed -->
+<div class="screen" id="s4">
+  <div id="conf" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:hidden;z-index:10;"></div>
+  <div class="sb" style="background:#131921;"><span class="sb-time" style="color:#fff;">9:58</span><div class="sb-right"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" style="width:16px;height:16px;"><path d="M1 6l5 5 5-5"/></svg><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" style="width:16px;height:16px;"><path d="M5 12.55a11 11 0 0 1 14.08 0M12 20h.01"/></svg><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" style="width:16px;height:16px;"><rect x="2" y="7" width="18" height="11" rx="2"/></svg></div></div>
+
+  <div style="background:#131921;padding:20px 24px 22px;text-align:center;">
+    <div style="width:54px;height:54px;background:#067D62;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" style="width:26px;height:26px;"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <div style="color:#fff;font-size:20px;font-weight:700;margin-bottom:2px;">Order + Install Booked!</div>
+    <div style="color:rgba(255,255,255,0.6);font-size:12px;">Order #406-7920341-3389182</div>
+  </div>
+
+  <div class="scroll" style="height:calc(100% - 50px - 114px);padding:14px;">
+    <!-- AC Delivery card -->
+    <div style="border:1px solid #D5D9D9;border-radius:12px;overflow:hidden;margin-bottom:10px;">
+      <div style="background:#f8f8f8;padding:8px 14px;font-size:11px;font-weight:700;color:#565959;letter-spacing:.04em;text-transform:uppercase;">📦 AC Unit — Delivery</div>
+      <div style="padding:12px 14px;display:flex;gap:10px;align-items:center;">
+        <div style="font-size:32px;width:50px;height:50px;background:#EAEDED;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">❄️</div>
+        <div style="flex:1;">
+          <div style="font-size:13px;font-weight:600;color:#0F1111;">Daikin 1.5T Inverter Split AC</div>
+          <div style="font-size:11px;color:#067D62;font-weight:600;margin-top:2px;">✓ Arrives: Thursday, 26 June by 8 PM</div>
+          <div style="font-size:13px;font-weight:700;color:#0F1111;margin-top:4px;">AED 2,499</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Install booking card -->
+    <div style="border:2px solid #FF9900;border-radius:12px;overflow:hidden;margin-bottom:10px;">
+      <div style="background:#FF9900;padding:8px 14px;font-size:11px;font-weight:800;color:#131921;letter-spacing:.04em;">🔧 INSTALLMATCH — CONFIRMED</div>
+      <div style="padding:12px 14px;">
+        <div style="display:flex;gap:10px;align-items:center;margin-bottom:10px;">
+          <div style="font-size:22px;width:44px;height:44px;background:#FFF3CD;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">👨‍🔧</div>
+          <div>
+            <div style="font-size:13px;font-weight:600;color:#0F1111;">Mohammed Al Rashidi</div>
+            <div style="font-size:11px;color:#565959;">⭐ 4.9 · Amazon Certified Pro</div>
+          </div>
+          <div style="margin-left:auto;text-align:right;">
+            <div style="font-size:13px;font-weight:700;color:#0F1111;">AED 149</div>
+          </div>
+        </div>
+        <div style="background:#FFF8F0;border-radius:8px;padding:10px 12px;">
+          <div style="font-size:12px;font-weight:700;color:#0F1111;margin-bottom:4px;">📅 Installation Appointment</div>
+          <div style="font-size:13px;color:#0F1111;font-weight:600;">Tuesday, 24 June · 2:00 PM – 5:00 PM</div>
+          <div style="font-size:11px;color:#565959;margin-top:2px;">Living Room · Dubai Marina Tower 3</div>
+          <div style="font-size:11px;color:#067D62;margin-top:3px;font-weight:600;">Mohammed will call you 30 min before arrival</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Total -->
+    <div style="border:1px solid #D5D9D9;border-radius:10px;padding:12px;margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;font-size:13px;color:#565959;margin-bottom:4px;"><span>Daikin Split AC:</span><span>AED 2,499</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;color:#565959;margin-bottom:4px;"><span>InstallMatch (Mohammed):</span><span>AED 149</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;color:#067D62;font-weight:600;margin-bottom:4px;"><span>Prime delivery:</span><span>FREE</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:14px;font-weight:700;border-top:1px solid #D5D9D9;padding-top:8px;margin-top:4px;"><span>Total paid:</span><span>AED 2,648</span></div>
+    </div>
+
+    <button onclick="go(5)" style="width:100%;background:#131921;border:none;border-radius:8px;padding:13px;font-size:14px;font-weight:700;color:#FF9900;cursor:pointer;margin-bottom:8px;">Track Delivery + Installation →</button>
+    <button style="width:100%;background:#FFD814;border:1px solid #FCD200;border-radius:8px;padding:12px;font-size:14px;font-weight:700;color:#0F1111;cursor:pointer;">Continue shopping</button>
+    <div style="height:16px;"></div>
+  </div>
+</div>
+
+<!-- SCREEN 5: Live Tracking -->
+<div class="screen" id="s5">
+  <div class="sb" style="background:#131921;"><span class="sb-time" style="color:#fff;">2:08 PM</span><div class="sb-right"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" style="width:16px;height:16px;"><path d="M1 6l5 5 5-5"/></svg><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" style="width:16px;height:16px;"><path d="M5 12.55a11 11 0 0 1 14.08 0M12 20h.01"/></svg><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" style="width:16px;height:16px;"><rect x="2" y="7" width="18" height="11" rx="2"/></svg></div></div>
+  <div style="background:#131921;padding:10px 16px;display:flex;align-items:center;gap:12px;">
+    <svg onclick="go(4)" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" style="width:22px;height:22px;cursor:pointer;"><path d="M19 12H5m7-7l-7 7 7 7"/></svg>
+    <div><div style="color:#fff;font-size:17px;font-weight:700;">Live Tracking</div><div style="color:rgba(255,255,255,0.6);font-size:11px;">Installation day · Order #406-7920341</div></div>
+  </div>
+
+  <div class="scroll" style="height:calc(100% - 50px - 52px - 60px);">
+    <!-- Installer arriving banner -->
+    <div style="background:linear-gradient(135deg,#FF9900,#e68900);padding:14px 16px;display:flex;gap:12px;align-items:center;">
+      <div style="font-size:28px;width:52px;height:52px;background:rgba(255,255,255,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">👨‍🔧</div>
+      <div style="flex:1;">
+        <div style="font-size:14px;font-weight:700;color:#131921;">Mohammed is on his way!</div>
+        <div style="font-size:12px;color:rgba(0,0,0,0.7);margin-top:2px;">Arriving in ~18 minutes · 3.2 km away</div>
+        <div style="margin-top:8px;display:flex;gap:8px;">
+          <button style="background:#131921;color:#FF9900;border:none;border-radius:6px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;">📞 Call</button>
+          <button style="background:rgba(255,255,255,0.2);color:#131921;border:none;border-radius:6px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;">💬 Message</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Map placeholder -->
+    <div style="height:160px;background:linear-gradient(135deg,#e8f4e8,#d4ecd4);position:relative;display:flex;align-items:center;justify-content:center;">
+      <div style="text-align:center;color:#565959;">
+        <div style="font-size:32px;margin-bottom:4px;">🗺️</div>
+        <div style="font-size:12px;font-weight:600;">Live map · Mohammed moving toward you</div>
+      </div>
+      <!-- Fake map pin -->
+      <div style="position:absolute;bottom:30px;right:80px;font-size:24px;">📍</div>
+      <div style="position:absolute;top:40px;left:100px;font-size:20px;">🏠</div>
+    </div>
+
+    <!-- Progress steps -->
+    <div style="padding:14px 16px 6px;font-size:13px;font-weight:700;color:#0F1111;">Installation progress</div>
+
+    <div class="track-step">
+      <div class="track-line-wrap">
+        <div class="track-dot done"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" style="width:12px;height:12px;"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="track-connector done"></div>
+      </div>
+      <div class="track-info">
+        <div class="track-title">Order confirmed</div>
+        <div class="track-sub">Daikin AC + InstallMatch booked</div>
+        <div class="track-time">Tue 24 Jun · 9:58 AM</div>
+      </div>
+    </div>
+
+    <div class="track-step">
+      <div class="track-line-wrap">
+        <div class="track-dot done"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" style="width:12px;height:12px;"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="track-connector done"></div>
+      </div>
+      <div class="track-info">
+        <div class="track-title">AC unit delivered</div>
+        <div class="track-sub">Delivered at door · Signed by you</div>
+        <div class="track-time">Thu 26 Jun · 11:42 AM</div>
+      </div>
+    </div>
+
+    <div class="track-step">
+      <div class="track-line-wrap">
+        <div class="track-dot active">→</div>
+        <div class="track-connector pending"></div>
+      </div>
+      <div class="track-info" style="background:#FFF8F0;border-radius:10px;padding:10px 12px;">
+        <div class="track-title" style="color:#FF9900;">Mohammed is on his way</div>
+        <div class="track-sub">ETA: 2:26 PM · 3.2 km away</div>
+        <div style="margin-top:6px;height:6px;background:#EAEDED;border-radius:99px;overflow:hidden;">
+          <div style="width:65%;height:100%;background:#FF9900;border-radius:99px;"></div>
+        </div>
+        <div style="font-size:10px;color:#565959;margin-top:3px;">65% of route complete</div>
+      </div>
+    </div>
+
+    <div class="track-step">
+      <div class="track-line-wrap">
+        <div class="track-dot pending"></div>
+        <div class="track-connector pending"></div>
+      </div>
+      <div class="track-info">
+        <div class="track-title" style="color:#565959;">Installation in progress</div>
+        <div class="track-sub" style="color:#D5D9D9;">Est. 2–3 hours</div>
+      </div>
+    </div>
+
+    <div class="track-step">
+      <div class="track-line-wrap">
+        <div class="track-dot pending"></div>
+      </div>
+      <div class="track-info">
+        <div class="track-title" style="color:#565959;">Installation complete + tested</div>
+        <div class="track-sub" style="color:#D5D9D9;">Demo + cleanup included</div>
+      </div>
+    </div>
+
+    <!-- Technician notes -->
+    <div style="margin:8px 16px 16px;background:#f8f8f8;border-radius:10px;padding:12px;">
+      <div style="font-size:12px;font-weight:700;color:#0F1111;margin-bottom:6px;">📋 What to expect today</div>
+      <div style="font-size:12px;color:#565959;line-height:1.6;">
+        <div>1. Mohammed will call when 30 min away</div>
+        <div>2. Installation: 2–3 hours</div>
+        <div>3. You'll get a demo of the AC + remote</div>
+        <div>4. Full cleanup after install</div>
+        <div>5. Rate Mohammed after job completion</div>
+      </div>
+    </div>
+    <div style="height:70px;"></div>
+  </div>
+  <div class="amz-bottom-nav">
+    <div class="amz-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg><span>Home</span></div>
+    <div class="amz-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><span>Search</span></div>
+    <div class="amz-nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="#FF9900" stroke-width="2" style="width:20px;height:20px;"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg><span style="color:#FF9900;">Orders</span></div>
+    <div class="amz-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Account</span></div>
+    <div class="amz-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg><span>Menu</span></div>
+  </div>
+</div>
+
+</div><!-- /phone -->
+
+<div class="nav-row">
+  <button class="nav-arr" onclick="go(cur-1)">‹</button>
+  <div class="dots" id="dots"></div>
+  <button class="nav-arr" onclick="go(cur+1)">›</button>
+</div>
+<div class="screen-lbl" id="slabel">01 — PDP · Installation Card</div>
+
+<script>
+let cur=1, total=5;
+const LABELS={
+  1:'01 — PDP · InstallMatch Card Surfaced',
+  2:'02 — Installer Selection · 36 Verified Nearby',
+  3:'03 — Slot Booking · Date + Time + Address',
+  4:'04 — Order + Install Confirmed',
+  5:'05 — Installation Day · Live Tracking'
+};
+const dotsEl=document.getElementById('dots');
+for(let i=1;i<=total;i++){
+  const d=document.createElement('div');
+  d.className='dot'+(i===1?' on':'');
+  d.onclick=()=>go(i);
+  dotsEl.appendChild(d);
+}
+function go(n){
+  if(n<1||n>total) return;
+  const prev=document.getElementById('s'+cur);
+  const next=document.getElementById('s'+n);
+  const dir=n>cur?1:-1;
+  prev.style.transition='transform .32s ease,opacity .28s';
+  prev.style.transform=`translateX(${-dir*100}%)`;
+  prev.style.opacity='0';
+  setTimeout(()=>{ prev.classList.remove('active'); prev.style.transition=''; prev.style.transform=''; prev.style.opacity=''; },340);
+  next.classList.add('active');
+  next.style.transition='none';
+  next.style.transform=`translateX(${dir*100}%)`;
+  next.style.opacity='0';
+  requestAnimationFrame(()=>{ requestAnimationFrame(()=>{ next.style.transition='transform .32s ease,opacity .28s'; next.style.transform=''; next.style.opacity='1'; setTimeout(()=>{ next.style.transition=''; },340); }); });
+  document.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('on',i===n-1));
+  document.getElementById('slabel').textContent=LABELS[n];
+  cur=n;
+  if(n===4) startConfetti();
+}
+function selectInstaller(el){ document.querySelectorAll('.installer-card').forEach(c=>c.classList.remove('selected')); el.classList.add('selected'); }
+function selectDate(el){ document.querySelectorAll('.date-chip').forEach(c=>c.classList.remove('on')); el.classList.add('on'); }
+function selectTime(el){ document.querySelectorAll('.time-slot:not(.busy)').forEach(c=>c.classList.remove('on')); el.classList.add('on'); }
+function startConfetti(){
+  const c=document.getElementById('conf');
+  if(!c||c.children.length) return;
+  const cols=['#FF9900','#067D62','#00A8E1','#FFD814','#4ADE80','#FF6B6B'];
+  for(let i=0;i<40;i++){
+    const p=document.createElement('div');
+    const sz=4+Math.random()*8;
+    p.style.cssText=`position:absolute;left:${Math.random()*100}%;top:${-15+Math.random()*20}%;width:${sz}px;height:${sz}px;background:${cols[i%cols.length]};border-radius:${Math.random()>.5?'50%':'2px'};animation:fall ${1.5+Math.random()*2}s ${Math.random()*1.5}s ease-in forwards;pointer-events:none;`;
+    c.appendChild(p);
+  }
+}
+</script>
+</body>
+</html>

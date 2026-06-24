@@ -56,10 +56,11 @@ Each company lives in `index.html` as a `.rw-company-block` with `id="rw-[slug]"
 
 ### Prototypes (`[company]-[feature]-prototype.html`)
 
-~59 standalone HTML files. Each is fully self-contained (no external JS except Google Fonts). All follow a shared pattern:
+~60+ standalone HTML files. Each is fully self-contained (no external JS except Google Fonts). Two layout generations exist:
 
-- **Phone prototypes** (consumer-facing): 375px phone frame + 300px annotation panel to the right
-- **Browser prototypes** (dashboards/ops tools): 640px browser frame + 300px annotation panel
+**Current layout** (used in all `/apply` builds): 4 phones side-by-side, 375px each, no annotation panel. Navigation via prev/next arrows + numbered dot tabs below phones. Confetti on screen 3. See `.claude/commands/apply.md` Phase 2 for the full spec.
+
+**Older layout** (legacy prototypes): single 375px phone frame + 300px annotation panel to the right. Still valid for one-off prototypes not generated via `/apply`.
 
 Navigation pattern used in every prototype:
 ```js
@@ -105,6 +106,25 @@ const makeShadow = () => ({ type:'outer', color:'000000', blur:4, offset:2, angl
 Standard 8-slide structure: Cover (dark) → Problem (dark) → Insight (light) → Mechanic (dark) → Product (light) → Impact & ROI (dark) → Proof of Work (light/split) → Rollout Plan (dark).
 
 **Critical rules**: No `#` prefix on hex colors in PptxGenJS. Apostrophes inside single-quoted JS strings cause `SyntaxError` — rephrase or escape. The `makeShadow()` must be a factory (called fresh each time), not a reused object.
+
+**PptxGenJS async — mandatory pattern** (file won't be written without this):
+```js
+(async () => {
+  const prs = new PptxGenJS();
+  // ... build slides ...
+  await prs.writeFile({ fileName: 'assets/name.pptx' });
+  console.log('Done');
+})();
+```
+Never use `prs.save()` (not a function) or `fs.writeFileSync` on the result of `prs.write()` (returns a Blob, not a Buffer). Always `await prs.writeFile({ fileName: '...' })` inside an async wrapper.
+
+**PptxGenJS shape types** — use string literals only:
+```js
+slide.addShape('rect', {...})    // ✅
+slide.addShape('ellipse', {...}) // ✅
+slide.addShape('line', {...})    // ✅
+slide.addShape(prs.ShapeType.rect, {...}) // ❌ throws TypeError
+```
 
 ---
 

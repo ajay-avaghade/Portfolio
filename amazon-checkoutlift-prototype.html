@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Amazon MENA — CheckoutLift · Interactive Prototype</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; -webkit-font-smoothing:antialiased; }
+body { background:#0f0f1a; min-height:100vh; display:flex; flex-direction:column; align-items:center; padding:32px 16px 48px; font-family:-apple-system,'SF Pro Display','Segoe UI',sans-serif; }
+
+.proto-header { color:rgba(255,255,255,0.5); font-size:11px; letter-spacing:.12em; text-transform:uppercase; margin-bottom:28px; text-align:center; }
+.proto-header strong { color:#FF9900; }
+
+.phone-wrap { position:relative; }
+.phone {
+  width:390px; height:844px; border-radius:50px;
+  background:#fff; overflow:hidden; position:relative;
+  box-shadow:0 0 0 8px #1c1c2e, 0 40px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.06);
+}
+
+.screen {
+  position:absolute; top:0; left:0; width:100%; height:100%;
+  background:#fff; overflow:hidden;
+  opacity:0; pointer-events:none; transition:none;
+}
+.screen.active { opacity:1; pointer-events:all; }
+
+/* Status bar */
+.sb {
+  height:50px; display:flex; align-items:center; justify-content:space-between;
+  padding:14px 24px 8px; font-size:12px; font-weight:600; flex-shrink:0;
+}
+.sb-time { font-size:15px; font-weight:700; }
+.sb-right { display:flex; align-items:center; gap:5px; }
+.sb-right svg { width:16px; height:16px; }
+
+/* Amazon colors */
+:root {
+  --amz-orange: #FF9900;
+  --amz-dark: #131921;
+  --amz-blue: #007185;
+  --amz-prime: #00A8E1;
+  --amz-text: #0F1111;
+  --amz-muted: #565959;
+  --amz-border: #D5D9D9;
+  --amz-bg: #EAEDED;
+  --amz-green: #067D62;
+  --amz-red: #B12704;
+}
+
+/* Amazon top nav */
+.amz-header {
+  background:var(--amz-dark); padding:8px 12px; display:flex; align-items:center; gap:8px;
+}
+.amz-logo { color:var(--amz-orange); font-size:20px; font-weight:800; letter-spacing:-0.5px; margin-right:4px; }
+.amz-logo span { color:#fff; font-size:13px; font-weight:400; }
+.amz-search {
+  flex:1; background:var(--amz-orange); border-radius:6px; height:36px;
+  display:flex; align-items:center; padding:0 10px; gap:6px;
+}
+.amz-search input { background:none; border:none; outline:none; font-size:13px; flex:1; color:var(--amz-text); }
+.amz-search svg { width:18px; height:18px; color:var(--amz-text); flex-shrink:0; }
+.amz-cart { position:relative; margin-left:4px; }
+.amz-cart svg { width:26px; height:26px; color:#fff; }
+.amz-cart-count { position:absolute; top:-4px; right:-6px; background:var(--amz-orange); color:var(--amz-text); font-size:10px; font-weight:700; border-radius:50%; width:16px; height:16px; display:flex; align-items:center; justify-content:center; }
+
+.amz-location { background:#232f3e; padding:5px 12px; display:flex; align-items:center; gap:4px; }
+.amz-location svg { width:14px; height:14px; color:#ddd; }
+.amz-location span { font-size:11px; color:#ddd; }
+.amz-location strong { color:#fff; font-size:12px; }
+
+/* Screen content areas */
+.scroll-area { overflow-y:auto; height:calc(100% - 50px - 52px - 41px - 36px - 60px); scrollbar-width:none; }
+.scroll-area::-webkit-scrollbar { display:none; }
+
+.scroll-area-cart { overflow-y:auto; scrollbar-width:none; }
+.scroll-area-cart::-webkit-scrollbar { display:none; }
+
+/* Bottom nav */
+.amz-bottom-nav {
+  position:absolute; bottom:0; left:0; right:0; height:60px;
+  background:#fff; border-top:1px solid var(--amz-border);
+  display:flex; align-items:center; justify-content:space-around; padding:0 4px 8px;
+}
+.amz-nav-item { display:flex; flex-direction:column; align-items:center; gap:2px; flex:1; padding-top:6px; }
+.amz-nav-item svg { width:20px; height:20px; }
+.amz-nav-item span { font-size:9px; color:var(--amz-muted); }
+.amz-nav-item.active svg { color:var(--amz-orange); }
+.amz-nav-item.active span { color:var(--amz-orange); }
+.amz-nav-item svg { color:var(--amz-muted); }
+
+/* Category tabs */
+.cat-tabs { display:flex; gap:0; overflow-x:auto; scrollbar-width:none; border-bottom:1px solid var(--amz-border); background:#fff; }
+.cat-tabs::-webkit-scrollbar { display:none; }
+.cat-tab { white-space:nowrap; padding:8px 14px; font-size:12px; color:var(--amz-muted); border-bottom:2px solid transparent; flex-shrink:0; }
+.cat-tab.active { color:var(--amz-text); border-bottom:2px solid var(--amz-orange); font-weight:600; }
+
+/* Product cards */
+.prod-grid { display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--amz-bg); }
+.prod-card { background:#fff; padding:12px; }
+.prod-img { width:100%; aspect-ratio:1; background:var(--amz-bg); border-radius:4px; display:flex; align-items:center; justify-content:center; margin-bottom:8px; font-size:32px; }
+.prod-title { font-size:12px; color:var(--amz-text); line-height:1.4; margin-bottom:4px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.stars { display:flex; align-items:center; gap:3px; margin-bottom:4px; }
+.stars-val { color:var(--amz-orange); font-size:11px; }
+.stars-count { color:var(--amz-blue); font-size:11px; }
+.prod-price { font-size:14px; font-weight:700; color:var(--amz-text); }
+.prod-price-orig { font-size:11px; color:var(--amz-muted); text-decoration:line-through; }
+.prod-price-save { font-size:11px; color:var(--amz-red); font-weight:600; }
+.prime-badge { display:inline-flex; align-items:center; gap:2px; margin-top:3px; }
+.prime-badge svg { width:30px; height:12px; }
+
+/* Steal deal banner */
+.steal-banner {
+  margin:12px; border-radius:10px; overflow:hidden;
+  background:linear-gradient(135deg,#131921 0%,#1e3a5f 100%);
+  border:1.5px solid var(--amz-orange);
+}
+.steal-banner-head {
+  background:var(--amz-orange); padding:6px 14px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.steal-banner-head span { font-size:11px; font-weight:700; color:var(--amz-text); letter-spacing:.04em; }
+.steal-timer { background:var(--amz-text); color:var(--amz-orange); font-size:11px; font-weight:700; padding:2px 8px; border-radius:4px; font-family:'SF Mono',monospace; }
+.steal-banner-body { padding:10px 14px; display:flex; gap:10px; align-items:center; }
+.steal-prod-img { width:56px; height:56px; background:rgba(255,255,255,0.08); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:26px; flex-shrink:0; }
+.steal-info { flex:1; }
+.steal-info h4 { font-size:12px; color:#fff; font-weight:600; line-height:1.3; margin-bottom:4px; }
+.steal-discount { background:#B12704; color:#fff; font-size:10px; font-weight:700; padding:2px 6px; border-radius:3px; display:inline-block; margin-bottom:4px; }
+.steal-price { font-size:15px; font-weight:700; color:var(--amz-orange); }
+.steal-price-orig { font-size:11px; color:rgba(255,255,255,0.5); text-decoration:line-through; margin-left:4px; }
+.steal-cta { margin:0 14px 12px; background:var(--amz-orange); border:none; border-radius:6px; padding:9px; width:calc(100% - 28px); font-size:13px; font-weight:700; color:var(--amz-text); cursor:pointer; }
+
+/* Cart screen */
+.cart-header { background:var(--amz-dark); padding:12px 16px; }
+.cart-header h2 { color:#fff; font-size:18px; font-weight:700; }
+.cart-header p { color:rgba(255,255,255,0.6); font-size:12px; margin-top:1px; }
+
+.cart-section-label { background:var(--amz-bg); padding:8px 16px; font-size:11px; color:var(--amz-muted); font-weight:600; letter-spacing:.04em; text-transform:uppercase; }
+
+.cart-item { background:#fff; padding:14px 16px; display:flex; gap:12px; border-bottom:1px solid var(--amz-border); }
+.cart-item-img { width:72px; height:72px; background:var(--amz-bg); border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:30px; flex-shrink:0; }
+.cart-item-info { flex:1; }
+.cart-item-title { font-size:13px; color:var(--amz-text); line-height:1.4; margin-bottom:4px; }
+.cart-item-seller { font-size:11px; color:var(--amz-muted); margin-bottom:6px; }
+.cart-item-price { font-size:16px; font-weight:700; color:var(--amz-text); }
+.cart-item-actions { display:flex; gap:12px; margin-top:6px; }
+.cart-link { font-size:12px; color:var(--amz-blue); }
+.qty-sel { font-size:12px; color:var(--amz-blue); border:1px solid var(--amz-border); border-radius:4px; padding:2px 8px; display:flex; align-items:center; gap:4px; }
+
+/* CheckoutLift in cart */
+.checkout-lift-card {
+  margin:12px; border-radius:12px; overflow:hidden;
+  border:2px solid var(--amz-orange);
+  box-shadow:0 4px 16px rgba(255,153,0,0.2);
+}
+.cl-head {
+  background:linear-gradient(90deg,#131921,#1a2a3a);
+  padding:10px 14px; display:flex; align-items:center; justify-content:space-between;
+}
+.cl-head-left { display:flex; align-items:center; gap:8px; }
+.cl-badge { background:var(--amz-orange); color:var(--amz-text); font-size:9px; font-weight:800; padding:3px 7px; border-radius:4px; letter-spacing:.06em; }
+.cl-head-title { color:#fff; font-size:13px; font-weight:600; }
+.cl-head-sub { color:rgba(255,255,255,0.5); font-size:10px; }
+.cl-timer-wrap { display:flex; flex-direction:column; align-items:flex-end; }
+.cl-timer-label { color:rgba(255,255,255,0.5); font-size:9px; margin-bottom:1px; }
+.cl-timer { color:var(--amz-orange); font-size:13px; font-weight:700; font-family:'SF Mono',monospace; }
+
+.cl-why { background:rgba(255,153,0,0.06); border-bottom:1px solid rgba(255,153,0,0.15); padding:6px 14px; font-size:11px; color:rgba(255,255,255,0.5); }
+.cl-why strong { color:rgba(255,153,0,0.9); }
+
+.cl-product { background:linear-gradient(180deg,#1a2540 0%,#131921 100%); padding:12px 14px; display:flex; gap:12px; }
+.cl-prod-img { width:68px; height:68px; background:rgba(255,255,255,0.07); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:28px; flex-shrink:0; border:1px solid rgba(255,255,255,0.08); }
+.cl-prod-info { flex:1; }
+.cl-prod-title { font-size:12px; color:#fff; font-weight:500; line-height:1.4; margin-bottom:5px; }
+.cl-prod-disc { background:#B12704; color:#fff; font-size:9px; font-weight:700; padding:2px 6px; border-radius:3px; display:inline-block; margin-bottom:5px; }
+.cl-prod-prices { display:flex; align-items:baseline; gap:6px; margin-bottom:4px; }
+.cl-prod-price-now { font-size:18px; font-weight:700; color:var(--amz-orange); }
+.cl-prod-price-was { font-size:12px; color:rgba(255,255,255,0.4); text-decoration:line-through; }
+.cl-prod-prime { display:flex; align-items:center; gap:4px; font-size:10px; color:var(--amz-prime); }
+.cl-prod-stock { font-size:10px; color:#4ade80; margin-top:2px; }
+
+.cl-actions { background:#131921; padding:10px 14px; display:flex; gap:8px; }
+.cl-btn-add { flex:1; background:var(--amz-orange); border:none; border-radius:6px; padding:10px; font-size:13px; font-weight:700; color:var(--amz-text); cursor:pointer; }
+.cl-btn-skip { background:transparent; border:1px solid rgba(255,255,255,0.2); border-radius:6px; padding:10px 14px; font-size:12px; color:rgba(255,255,255,0.5); cursor:pointer; white-space:nowrap; }
+
+/* Order summary */
+.order-summary { background:#fff; padding:14px 16px; }
+.order-summary h3 { font-size:14px; font-weight:700; color:var(--amz-text); margin-bottom:12px; }
+.order-row { display:flex; justify-content:space-between; font-size:13px; color:var(--amz-muted); margin-bottom:6px; }
+.order-row.total { font-size:15px; font-weight:700; color:var(--amz-text); margin-top:8px; padding-top:8px; border-top:1px solid var(--amz-border); }
+.order-row.steal { color:var(--amz-green); font-weight:600; }
+.order-row.steal .order-save { background:rgba(6,125,98,0.1); color:var(--amz-green); font-size:10px; padding:1px 6px; border-radius:3px; }
+
+.checkout-btn { margin:0 16px 12px; background:#FFD814; border:1px solid #FCD200; border-radius:8px; padding:13px; width:calc(100% - 32px); font-size:15px; font-weight:700; color:var(--amz-text); cursor:pointer; }
+.checkout-btn.orange { background:var(--amz-orange); border-color:#e68900; }
+
+/* Delivery estimate */
+.delivery-badge { display:inline-flex; align-items:center; gap:4px; font-size:11px; color:var(--amz-green); font-weight:600; }
+
+/* Success screen */
+.success-screen { background:#fff; display:flex; flex-direction:column; align-items:center; }
+.success-header { width:100%; background:var(--amz-dark); padding:20px 24px 24px; text-align:center; }
+.success-check { width:56px; height:56px; background:var(--amz-green); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 12px; }
+.success-check svg { width:28px; height:28px; color:#fff; }
+.success-header h2 { color:#fff; font-size:20px; font-weight:700; margin-bottom:4px; }
+.success-header p { color:rgba(255,255,255,0.6); font-size:13px; }
+.order-num { color:var(--amz-orange); font-weight:600; }
+
+.success-body { width:100%; padding:16px; overflow-y:auto; scrollbar-width:none; flex:1; }
+.success-body::-webkit-scrollbar { display:none; }
+
+.success-item { background:#fff; border:1px solid var(--amz-border); border-radius:10px; padding:12px; display:flex; gap:12px; margin-bottom:10px; }
+.success-item-img { width:60px; height:60px; background:var(--amz-bg); border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:26px; flex-shrink:0; }
+.success-item-info { flex:1; }
+.success-item-title { font-size:12px; color:var(--amz-text); line-height:1.4; margin-bottom:4px; font-weight:500; }
+.success-item-del { font-size:12px; color:var(--amz-green); font-weight:600; margin-bottom:2px; }
+.success-item-price { font-size:13px; font-weight:700; color:var(--amz-text); }
+
+.steal-success-callout {
+  background:linear-gradient(135deg,rgba(255,153,0,0.08),rgba(255,153,0,0.03));
+  border:1.5px solid rgba(255,153,0,0.3); border-radius:10px; padding:12px 14px; margin-bottom:12px;
+}
+.steal-success-callout h4 { font-size:12px; font-weight:700; color:var(--amz-text); margin-bottom:2px; display:flex; align-items:center; gap:6px; }
+.steal-success-callout h4 .tag { background:var(--amz-orange); color:var(--amz-text); font-size:9px; font-weight:800; padding:2px 6px; border-radius:3px; }
+.steal-success-callout p { font-size:12px; color:var(--amz-muted); line-height:1.5; }
+.steal-success-callout .savings { font-size:15px; font-weight:700; color:var(--amz-orange); margin-top:6px; }
+
+.track-btn { width:100%; background:#FFD814; border:1px solid #FCD200; border-radius:8px; padding:12px; font-size:14px; font-weight:700; color:var(--amz-text); cursor:pointer; margin-bottom:8px; }
+.cont-btn { width:100%; background:transparent; border:1px solid var(--amz-border); border-radius:8px; padding:12px; font-size:14px; font-weight:600; color:var(--amz-blue); cursor:pointer; }
+
+/* Confetti */
+#conf { position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; overflow:hidden; }
+@keyframes fall { 0%{transform:translateY(-20px) rotate(0deg);opacity:1} 100%{transform:translateY(900px) rotate(360deg);opacity:0} }
+
+/* Deal detail bottom sheet */
+.deal-sheet { position:absolute; bottom:0; left:0; right:0; background:#fff; border-radius:20px 20px 0 0; box-shadow:0 -8px 40px rgba(0,0,0,0.15); display:flex; flex-direction:column; max-height:92%; }
+.deal-sheet-drag { width:36px; height:4px; background:var(--amz-border); border-radius:2px; margin:10px auto 0; }
+.deal-sheet-img { width:100%; height:200px; background:var(--amz-bg); display:flex; align-items:center; justify-content:center; font-size:72px; }
+.deal-sheet-body { padding:16px; overflow-y:auto; flex:1; scrollbar-width:none; }
+.deal-sheet-body::-webkit-scrollbar { display:none; }
+.deal-sheet-badge { display:inline-flex; gap:6px; align-items:center; margin-bottom:8px; }
+.deal-live-tag { background:#B12704; color:#fff; font-size:10px; font-weight:700; padding:3px 8px; border-radius:4px; }
+.deal-timer-tag { background:var(--amz-dark); color:var(--amz-orange); font-size:11px; font-weight:700; padding:3px 8px; border-radius:4px; font-family:'SF Mono',monospace; }
+.deal-title { font-size:16px; font-weight:600; color:var(--amz-text); line-height:1.4; margin-bottom:8px; }
+.deal-rating { display:flex; align-items:center; gap:6px; margin-bottom:10px; }
+.deal-rating .stars-val { font-size:13px; color:var(--amz-orange); }
+.deal-rating .count { font-size:12px; color:var(--amz-blue); }
+.deal-price-row { display:flex; align-items:baseline; gap:10px; margin-bottom:4px; }
+.deal-price-now { font-size:24px; font-weight:700; color:var(--amz-text); }
+.deal-price-was { font-size:14px; color:var(--amz-muted); text-decoration:line-through; }
+.deal-price-save { font-size:13px; color:var(--amz-red); font-weight:600; }
+.deal-prime { display:flex; align-items:center; gap:6px; font-size:12px; color:var(--amz-prime); font-weight:600; margin-bottom:14px; }
+.deal-feature { display:flex; align-items:flex-start; gap:8px; padding:8px 0; border-top:1px solid var(--amz-bg); }
+.deal-feature svg { width:16px; height:16px; color:var(--amz-green); flex-shrink:0; margin-top:1px; }
+.deal-feature span { font-size:12px; color:var(--amz-muted); line-height:1.4; }
+.deal-sheet-footer { padding:12px 16px; border-top:1px solid var(--amz-border); }
+.deal-add-btn { width:100%; background:var(--amz-orange); border:none; border-radius:8px; padding:14px; font-size:15px; font-weight:700; color:var(--amz-text); cursor:pointer; margin-bottom:6px; }
+.deal-save-btn { width:100%; background:transparent; border:none; padding:8px; font-size:13px; color:var(--amz-blue); cursor:pointer; }
+
+/* Nav below phone */
+.nav-row { display:flex; align-items:center; gap:16px; margin-top:20px; }
+.nav-arr { background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12); color:#fff; width:36px; height:36px; border-radius:50%; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background .2s; }
+.nav-arr:hover { background:rgba(255,153,0,0.2); border-color:rgba(255,153,0,0.4); }
+.dots { display:flex; gap:8px; }
+.dot { width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,0.2); cursor:pointer; transition:all .2s; }
+.dot.on { background:#FF9900; transform:scale(1.3); }
+.screen-lbl { margin-top:10px; color:rgba(255,255,255,0.4); font-size:10px; letter-spacing:.1em; text-transform:uppercase; text-align:center; }
+</style>
+</head>
+<body>
+
+<div class="proto-header"><strong>Amazon MENA</strong> — CheckoutLift · Home &amp; Leisure Steal Deals at Checkout</div>
+
+<div class="phone-wrap">
+<div class="phone">
+
+<!-- SCREEN 1: Home Feed -->
+<div class="screen active" id="s1">
+  <div class="sb" style="background:#131921;">
+    <span class="sb-time" style="color:#fff;">9:41</span>
+    <div class="sb-right">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M1 6l5 5 5-5M7 11V3"/><path d="M13 6l5 5 5-5M19 11V3" opacity=".4"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="2" y="7" width="18" height="11" rx="2"/><path d="M22 11v3"/></svg>
+    </div>
+  </div>
+  <div class="amz-header">
+    <span class="amz-logo">amazon<span>.ae</span></span>
+    <div class="amz-search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input placeholder="Search Amazon.ae" readonly>
+    </div>
+    <div class="amz-cart">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+      <div class="amz-cart-count">3</div>
+    </div>
+  </div>
+  <div class="amz-location">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+    <span>Deliver to</span>&nbsp;<strong>Dubai, UAE 00000</strong>
+  </div>
+
+  <div class="cat-tabs">
+    <div class="cat-tab active">All</div>
+    <div class="cat-tab">Home &amp; Kitchen</div>
+    <div class="cat-tab">Electronics</div>
+    <div class="cat-tab">Clothing</div>
+    <div class="cat-tab">Beauty</div>
+  </div>
+
+  <!-- CheckoutLift deal teaser banner -->
+  <div style="overflow-y:auto;height:calc(100% - 50px - 52px - 41px - 36px - 60px);scrollbar-width:none;">
+    <div style="padding:12px 12px 6px;">
+      <div style="background:linear-gradient(135deg,#131921,#1e3a5f);border-radius:12px;overflow:hidden;border:1.5px solid #FF9900;">
+        <div style="background:#FF9900;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="font-size:10px;font-weight:800;color:#131921;letter-spacing:.05em;">⚡ CHECKOUT STEAL DEALS</span>
+          </div>
+          <span style="font-size:10px;font-weight:700;color:#131921;">Ends at checkout</span>
+        </div>
+        <div style="padding:12px 14px;display:flex;gap:10px;align-items:center;">
+          <div style="font-size:28px;background:rgba(255,255,255,0.07);width:52px;height:52px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">☕</div>
+          <div style="flex:1;">
+            <div style="font-size:11px;color:#FF9900;font-weight:600;margin-bottom:2px;">Home &amp; Leisure · Add to your cart</div>
+            <div style="font-size:13px;color:#fff;font-weight:600;line-height:1.3;margin-bottom:4px;">Nespresso Vertuo Coffee Machine Bundle</div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="background:#B12704;color:#fff;font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;">45% OFF</span>
+              <span style="font-size:16px;font-weight:700;color:#FF9900;">AED 299</span>
+              <span style="font-size:12px;color:rgba(255,255,255,0.4);text-decoration:line-through;">AED 545</span>
+            </div>
+          </div>
+          <button onclick="go(3)" style="background:#FF9900;border:none;border-radius:8px;padding:8px 12px;font-size:12px;font-weight:700;color:#131921;cursor:pointer;flex-shrink:0;">See Deal</button>
+        </div>
+        <div style="background:rgba(255,255,255,0.04);padding:7px 14px;font-size:10px;color:rgba(255,255,255,0.4);border-top:1px solid rgba(255,255,255,0.06);">
+          💡 Curated because you have <strong style="color:rgba(255,255,255,0.65);">Nescafé capsules</strong> in your cart
+        </div>
+      </div>
+    </div>
+
+    <!-- Hero banner -->
+    <div style="margin:6px 12px;border-radius:10px;overflow:hidden;background:linear-gradient(135deg,#FF9900,#e68900);padding:16px;display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <div style="font-size:11px;color:rgba(0,0,0,0.6);font-weight:600;margin-bottom:4px;">GREAT INDIAN SALE</div>
+        <div style="font-size:18px;font-weight:800;color:#131921;line-height:1.2;">Up to 70% off<br>Home &amp; Leisure</div>
+        <div style="margin-top:8px;background:#131921;color:#FF9900;font-size:11px;font-weight:700;padding:5px 12px;border-radius:4px;display:inline-block;">Shop Now</div>
+      </div>
+      <div style="font-size:52px;line-height:1;">🛋️</div>
+    </div>
+
+    <div style="padding:0 12px;margin-top:8px;margin-bottom:4px;font-size:13px;font-weight:700;color:#0F1111;">Top picks in Home &amp; Leisure</div>
+
+    <div class="prod-grid">
+      <div class="prod-card">
+        <div class="prod-img">🫖</div>
+        <div class="prod-title">Philips HD7769 Coffee Maker, 1.2L, 1000W</div>
+        <div class="stars"><span style="color:#FF9900;font-size:12px;">★★★★</span><span class="stars-count" style="font-size:10px;">★</span> <span class="stars-val">4.1</span><span class="stars-count">(2,847)</span></div>
+        <div class="prod-price">AED 189 <span class="prod-price-orig">AED 299</span></div>
+        <div class="prod-price-save">Save AED 110 (37%)</div>
+        <div class="prime-badge" style="color:#00A8E1;font-size:10px;font-weight:600;">✦ prime</div>
+      </div>
+      <div class="prod-card">
+        <div class="prod-img">🪴</div>
+        <div class="prod-title">IKEA FEJKA Artificial Potted Plant, Set of 3</div>
+        <div class="stars"><span style="color:#FF9900;font-size:12px;">★★★★★</span> <span class="stars-val">4.6</span><span class="stars-count">(5,231)</span></div>
+        <div class="prod-price">AED 79</div>
+        <div class="prime-badge" style="color:#00A8E1;font-size:10px;font-weight:600;">✦ prime</div>
+      </div>
+      <div class="prod-card">
+        <div class="prod-img">🛁</div>
+        <div class="prod-title">Dyson V15 Detect Complete Vacuum</div>
+        <div class="stars"><span style="color:#FF9900;font-size:12px;">★★★★</span><span class="stars-count" style="font-size:12px;">★</span> <span class="stars-val">4.4</span><span class="stars-count">(1,203)</span></div>
+        <div class="prod-price">AED 1,449 <span class="prod-price-orig">AED 1,999</span></div>
+        <div class="prod-price-save">Save 28%</div>
+        <div class="prime-badge" style="color:#00A8E1;font-size:10px;font-weight:600;">✦ prime</div>
+      </div>
+      <div class="prod-card">
+        <div class="prod-img">🕯️</div>
+        <div class="prod-title">Yankee Candle Large Jar Set - 4 Scents</div>
+        <div class="stars"><span style="color:#FF9900;font-size:12px;">★★★★</span><span class="stars-count" style="font-size:12px;">☆</span> <span class="stars-val">4.3</span><span class="stars-count">(892)</span></div>
+        <div class="prod-price">AED 145 <span class="prod-price-orig">AED 195</span></div>
+        <div class="prod-price-save">Save 26%</div>
+      </div>
+    </div>
+    <div style="height:70px;"></div>
+  </div>
+
+  <!-- Bottom nav -->
+  <div class="amz-bottom-nav">
+    <div class="amz-nav-item active">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+      <span>Home</span>
+    </div>
+    <div class="amz-nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <span>Search</span>
+    </div>
+    <div class="amz-nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg>
+      <span>Cart (3)</span>
+    </div>
+    <div class="amz-nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span>Account</span>
+    </div>
+    <div class="amz-nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      <span>Menu</span>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN 2: Cart with CheckoutLift -->
+<div class="screen" id="s2">
+  <div class="sb" style="background:#131921;">
+    <span class="sb-time" style="color:#fff;">9:43</span>
+    <div class="sb-right">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" style="width:16px;height:16px;"><path d="M1 6l5 5 5-5M7 11V3"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" style="width:16px;height:16px;"><path d="M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" style="width:16px;height:16px;"><rect x="2" y="7" width="18" height="11" rx="2"/><path d="M22 11v3"/></svg>
+    </div>
+  </div>
+
+  <div style="background:#131921;padding:10px 16px;display:flex;align-items:center;gap:12px;">
+    <svg onclick="go(1)" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" style="width:22px;height:22px;cursor:pointer;flex-shrink:0;"><path d="M19 12H5m7-7l-7 7 7 7"/></svg>
+    <div>
+      <div style="color:#fff;font-size:17px;font-weight:700;">Shopping Cart</div>
+      <div style="color:rgba(255,255,255,0.6);font-size:11px;">3 items · Subtotal AED 487</div>
+    </div>
+  </div>
+
+  <div style="overflow-y:auto;height:calc(100% - 50px - 52px - 60px);scrollbar-width:none;">
+  <div style="scrollbar-width:none;">
+    <div class="cart-section-label">Your items (3)</div>
+
+    <div class="cart-item">
+      <div class="cart-item-img">☕</div>
+      <div class="cart-item-info">
+        <div class="cart-item-title">Nescafé Gold Blend Barista Style Capsules — 30 Count</div>
+        <div class="cart-item-seller" style="color:#067D62;">✓ In Stock</div>
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;"><span style="color:#00A8E1;font-size:10px;font-weight:600;">✦ prime</span><span style="font-size:10px;color:#067D62;">Free delivery tomorrow</span></div>
+        <div class="cart-item-price">AED 89</div>
+        <div class="cart-item-actions">
+          <div class="qty-sel">Qty: 1 <span style="font-size:10px;">▾</span></div>
+          <div class="cart-link">Delete</div>
+          <div class="cart-link">Save for later</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cart-item">
+      <div class="cart-item-img">🧴</div>
+      <div class="cart-item-info">
+        <div class="cart-item-title">Cetaphil Moisturising Lotion 500ml</div>
+        <div class="cart-item-seller" style="color:#067D62;">✓ In Stock</div>
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;"><span style="color:#00A8E1;font-size:10px;font-weight:600;">✦ prime</span><span style="font-size:10px;color:#067D62;">Free delivery tomorrow</span></div>
+        <div class="cart-item-price">AED 65</div>
+        <div class="cart-item-actions">
+          <div class="qty-sel">Qty: 2 <span style="font-size:10px;">▾</span></div>
+          <div class="cart-link">Delete</div>
+          <div class="cart-link">Save for later</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cart-item">
+      <div class="cart-item-img">📚</div>
+      <div class="cart-item-info">
+        <div class="cart-item-title">Atomic Habits by James Clear — Paperback</div>
+        <div class="cart-item-seller">Sold by: Books Arabia</div>
+        <div style="font-size:10px;color:#067D62;margin-bottom:4px;">Delivers in 2–3 days</div>
+        <div class="cart-item-price">AED 59</div>
+        <div class="cart-item-actions">
+          <div class="qty-sel">Qty: 1 <span style="font-size:10px;">▾</span></div>
+          <div class="cart-link">Delete</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CheckoutLift Card -->
+    <div style="background:#0a1628;padding:10px 12px;margin:0;">
+      <div style="font-size:11px;color:rgba(255,255,255,0.4);text-align:center;margin-bottom:8px;">── Before you checkout ──</div>
+    </div>
+    <div class="checkout-lift-card" style="margin:0 12px 12px;">
+      <div class="cl-head">
+        <div class="cl-head-left">
+          <span class="cl-badge">⚡ STEAL DEAL</span>
+          <div>
+            <div class="cl-head-title">Perfect match for your cart</div>
+            <div class="cl-head-sub">Because you have Nescafé capsules · Home &amp; Leisure</div>
+          </div>
+        </div>
+        <div class="cl-timer-wrap">
+          <div class="cl-timer-label">Ends in</div>
+          <div class="cl-timer" id="timer1">38:47</div>
+        </div>
+      </div>
+      <div class="cl-product">
+        <div class="cl-prod-img">☕</div>
+        <div class="cl-prod-info">
+          <div class="cl-prod-title">Nespresso Vertuo Next Coffee Machine + 30 Capsules Bundle</div>
+          <span class="cl-prod-disc">45% OFF · Today Only</span>
+          <div class="cl-prod-prices">
+            <span class="cl-prod-price-now">AED 299</span>
+            <span class="cl-prod-price-was">AED 545</span>
+          </div>
+          <div class="cl-prod-prime">✦ prime &nbsp;·&nbsp; Free delivery tomorrow</div>
+          <div class="cl-prod-stock">🔴 Only 14 left in stock</div>
+        </div>
+      </div>
+      <div class="cl-actions">
+        <button class="cl-btn-add" onclick="go(3)">Add to Cart — Save AED 246</button>
+        <button class="cl-btn-skip">Not now</button>
+      </div>
+    </div>
+
+    <!-- Also brought -->
+    <div style="padding:10px 12px 4px;font-size:12px;font-weight:700;color:#0F1111;">Customers also bought</div>
+    <div style="display:flex;gap:8px;padding:0 12px 12px;overflow-x:auto;scrollbar-width:none;">
+      <div style="background:#fff;border:1px solid #D5D9D9;border-radius:8px;padding:10px;min-width:110px;flex-shrink:0;">
+        <div style="font-size:24px;text-align:center;margin-bottom:6px;">🧽</div>
+        <div style="font-size:10px;color:#0F1111;line-height:1.3;margin-bottom:4px;">Scotch-Brite Sponge Set (6pk)</div>
+        <div style="font-size:12px;font-weight:700;color:#0F1111;">AED 22</div>
+      </div>
+      <div style="background:#fff;border:1px solid #D5D9D9;border-radius:8px;padding:10px;min-width:110px;flex-shrink:0;">
+        <div style="font-size:24px;text-align:center;margin-bottom:6px;">🧴</div>
+        <div style="font-size:10px;color:#0F1111;line-height:1.3;margin-bottom:4px;">Flash Multi-Surface Spray 750ml</div>
+        <div style="font-size:12px;font-weight:700;color:#0F1111;">AED 18</div>
+      </div>
+      <div style="background:#fff;border:1px solid #D5D9D9;border-radius:8px;padding:10px;min-width:110px;flex-shrink:0;">
+        <div style="font-size:24px;text-align:center;margin-bottom:6px;">🫙</div>
+        <div style="font-size:10px;color:#0F1111;line-height:1.3;margin-bottom:4px;">Anchor Storage Containers (5pc)</div>
+        <div style="font-size:12px;font-weight:700;color:#0F1111;">AED 69</div>
+      </div>
+    </div>
+    <div style="height:70px;"></div>
+  </div>
+  </div>
+
+  <div style="position:absolute;bottom:60px;left:0;right:0;background:#fff;border-top:1px solid #D5D9D9;padding:10px 14px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+      <span style="font-size:13px;color:#565959;">Subtotal (3 items):</span>
+      <span style="font-size:16px;font-weight:700;color:#0F1111;">AED 487.00</span>
+    </div>
+    <button onclick="go(4)" style="width:100%;background:#FFD814;border:1px solid #FCD200;border-radius:8px;padding:12px;font-size:15px;font-weight:700;color:#0F1111;cursor:pointer;">Proceed to checkout</button>
+  </div>
+
+  <div class="amz-bottom-nav">
+    <div class="amz-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;color:#565959;"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg><span>Home</span></div>
+    <div class="amz-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;color:#565959;"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><span>Search</span></div>
+    <div class="amz-nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;color:#FF9900;"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg><span style="color:#FF9900;">Cart</span></div>
+    <div class="amz-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;color:#565959;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Account</span></div>
+    <div class="amz-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;color:#565959;"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg><span>Menu</span></div>
+  </div>
+</div>
+
+<!-- SCREEN 3: Deal Bottom Sheet -->
+<div class="screen" id="s3">
+  <div class="sb" style="background:#131921;">
+    <span class="sb-time" style="color:#fff;">9:43</span>
+    <div class="sb-right">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" style="width:16px;height:16px;"><path d="M1 6l5 5 5-5M7 11V3"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" style="width:16px;height:16px;"><path d="M5 12.55a11 11 0 0 1 14.08 0M12 20h.01"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" style="width:16px;height:16px;"><rect x="2" y="7" width="18" height="11" rx="2"/></svg>
+    </div>
+  </div>
+
+  <!-- Blurred cart in background -->
+  <div style="position:absolute;top:50px;left:0;right:0;bottom:0;background:#f0f0f0;filter:blur(1px);opacity:0.4;"></div>
+
+  <!-- Bottom sheet -->
+  <div class="deal-sheet" style="top:60px;position:absolute;">
+    <div class="deal-sheet-drag"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px 0;">
+      <div style="display:flex;gap:6px;align-items:center;">
+        <span class="deal-live-tag">⚡ LIVE DEAL</span>
+        <span class="deal-timer-tag">38:47 left</span>
+      </div>
+      <button onclick="go(2)" style="background:none;border:none;font-size:22px;color:#565959;cursor:pointer;line-height:1;">×</button>
+    </div>
+
+    <div class="deal-sheet-img">☕</div>
+
+    <div class="deal-sheet-body">
+      <div class="deal-title">Nespresso Vertuo Next Coffee Machine + Nespresso Vertuo Original 30-Capsule Variety Pack</div>
+
+      <div class="deal-rating">
+        <span style="color:#FF9900;font-size:14px;">★★★★★</span>
+        <span style="font-size:13px;color:#FF9900;">4.7</span>
+        <span style="font-size:12px;color:#007185;">(8,492 ratings)</span>
+        <span style="font-size:11px;color:#565959;">· 2K+ bought last month</span>
+      </div>
+
+      <div class="deal-price-row">
+        <span class="deal-price-now">AED 299</span>
+        <span class="deal-price-was">AED 545</span>
+        <span class="deal-price-save">Save AED 246 (45%)</span>
+      </div>
+
+      <div class="deal-prime">
+        <span>✦ prime</span>
+        <span style="color:#565959;font-weight:400;">Free delivery · Get it tomorrow</span>
+      </div>
+
+      <div style="background:#FFF3CD;border:1px solid #FFD814;border-radius:6px;padding:8px 10px;margin-bottom:12px;">
+        <div style="font-size:11px;font-weight:600;color:#0F1111;margin-bottom:2px;">💡 Why CheckoutLift recommended this</div>
+        <div style="font-size:11px;color:#565959;line-height:1.5;">You have Nescafé capsules in your cart — 68% of customers who buy coffee capsules also purchase a coffee machine within 30 days. Get it now at checkout price.</div>
+      </div>
+
+      <div class="deal-feature">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        <span>Includes 30 Nespresso Vertuo capsules across 5 flavours (Espresso, Lungo, Alto, Mug, Carafe)</span>
+      </div>
+      <div class="deal-feature">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        <span>15-bar pressure, automatic capsule ejection, energy-saving auto-off after 9 minutes</span>
+      </div>
+      <div class="deal-feature">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        <span>Includes 1-year manufacturer warranty with authorised service in Dubai &amp; Abu Dhabi</span>
+      </div>
+      <div class="deal-feature">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        <span>Ships from Amazon.ae · Sold by Nespresso Official Store UAE</span>
+      </div>
+    </div>
+
+    <div class="deal-sheet-footer">
+      <button class="deal-add-btn" onclick="go(4)">Add to Cart — AED 299</button>
+      <button class="deal-save-btn">Save for later</button>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN 4: Cart Updated + Checkout -->
+<div class="screen" id="s4">
+  <div class="sb" style="background:#131921;">
+    <span class="sb-time" style="color:#fff;">9:44</span>
+    <div class="sb-right">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" style="width:16px;height:16px;"><path d="M1 6l5 5 5-5M7 11V3"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" style="width:16px;height:16px;"><path d="M5 12.55a11 11 0 0 1 14.08 0M12 20h.01"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" style="width:16px;height:16px;"><rect x="2" y="7" width="18" height="11" rx="2"/></svg>
+    </div>
+  </div>
+
+  <div style="background:#131921;padding:10px 16px;display:flex;align-items:center;gap:12px;">
+    <svg onclick="go(2)" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" style="width:22px;height:22px;cursor:pointer;"><path d="M19 12H5m7-7l-7 7 7 7"/></svg>
+    <div>
+      <div style="color:#fff;font-size:17px;font-weight:700;">Shopping Cart</div>
+      <div style="color:rgba(255,255,255,0.6);font-size:11px;">4 items · Subtotal AED 786</div>
+    </div>
+  </div>
+
+  <div style="overflow-y:auto;height:calc(100% - 50px - 52px - 90px - 60px);scrollbar-width:none;">
+    <!-- Steal deal added toast -->
+    <div style="background:linear-gradient(90deg,#0d3320,#0a2718);border-bottom:1px solid #2d5a3d;padding:10px 16px;display:flex;align-items:center;gap:10px;">
+      <div style="width:32px;height:32px;background:#067D62;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" style="width:16px;height:16px;"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div>
+        <div style="font-size:12px;font-weight:700;color:#4ade80;">Steal Deal added! 🎉</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.5);">You saved AED 246 with CheckoutLift</div>
+      </div>
+    </div>
+
+    <div class="cart-section-label">⚡ STEAL DEAL (limited time)</div>
+    <div class="cart-item" style="border-left:3px solid #FF9900;">
+      <div class="cart-item-img" style="background:rgba(255,153,0,0.08);border:1px solid rgba(255,153,0,0.2);">☕</div>
+      <div class="cart-item-info">
+        <div class="cart-item-title">Nespresso Vertuo Next + 30 Capsules Bundle</div>
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+          <span style="background:#B12704;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:2px;">45% OFF</span>
+          <span style="color:#00A8E1;font-size:10px;font-weight:600;">✦ prime</span>
+        </div>
+        <div style="display:flex;align-items:baseline;gap:6px;">
+          <span style="font-size:16px;font-weight:700;color:#0F1111;">AED 299</span>
+          <span style="font-size:12px;color:#565959;text-decoration:line-through;">AED 545</span>
+          <span style="font-size:11px;color:#B12704;font-weight:600;">Save AED 246</span>
+        </div>
+        <div class="cart-item-actions">
+          <div class="qty-sel">Qty: 1 <span style="font-size:10px;">▾</span></div>
+          <div class="cart-link">Delete</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cart-section-label">Your items (3)</div>
+    <div class="cart-item">
+      <div class="cart-item-img">☕</div>
+      <div class="cart-item-info">
+        <div class="cart-item-title">Nescafé Gold Blend Barista Style Capsules — 30 Count</div>
+        <div style="color:#00A8E1;font-size:10px;font-weight:600;margin-bottom:3px;">✦ prime · Free delivery tomorrow</div>
+        <div style="font-size:15px;font-weight:700;">AED 89</div>
+      </div>
+    </div>
+    <div class="cart-item">
+      <div class="cart-item-img">🧴</div>
+      <div class="cart-item-info">
+        <div class="cart-item-title">Cetaphil Moisturising Lotion 500ml × 2</div>
+        <div style="color:#00A8E1;font-size:10px;font-weight:600;margin-bottom:3px;">✦ prime · Free delivery tomorrow</div>
+        <div style="font-size:15px;font-weight:700;">AED 130</div>
+      </div>
+    </div>
+    <div class="cart-item">
+      <div class="cart-item-img">📚</div>
+      <div class="cart-item-info">
+        <div class="cart-item-title">Atomic Habits — Paperback</div>
+        <div style="font-size:10px;color:#067D62;margin-bottom:3px;">Delivers in 2–3 days</div>
+        <div style="font-size:15px;font-weight:700;">AED 59</div>
+      </div>
+    </div>
+    <div style="height:10px;"></div>
+  </div>
+
+  <div style="position:absolute;bottom:60px;left:0;right:0;background:#fff;border-top:1px solid #D5D9D9;padding:10px 14px;">
+    <div style="display:flex;justify-content:space-between;font-size:12px;color:#565959;margin-bottom:2px;">
+      <span>Subtotal (4 items):</span>
+      <span style="font-weight:700;font-size:15px;color:#0F1111;">AED 786.00</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:12px;color:#067D62;font-weight:600;margin-bottom:8px;">
+      <span>Steal Deal savings:</span>
+      <span>− AED 246.00</span>
+    </div>
+    <button onclick="go(5)" style="width:100%;background:#FFD814;border:1px solid #FCD200;border-radius:8px;padding:12px;font-size:15px;font-weight:700;color:#0F1111;cursor:pointer;">Proceed to Checkout</button>
+  </div>
+
+  <div class="amz-bottom-nav">
+    <div class="amz-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;color:#565959;"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg><span>Home</span></div>
+    <div class="amz-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;color:#565959;"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><span>Search</span></div>
+    <div class="amz-nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="#FF9900" stroke-width="2" style="width:20px;height:20px;"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg><span style="color:#FF9900;">Cart</span></div>
+    <div class="amz-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;color:#565959;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Account</span></div>
+    <div class="amz-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;color:#565959;"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg><span>Menu</span></div>
+  </div>
+</div>
+
+<!-- SCREEN 5: Order Confirmed -->
+<div class="screen" id="s5">
+  <div id="conf" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:hidden;z-index:10;"></div>
+  <div class="sb" style="background:#131921;">
+    <span class="sb-time" style="color:#fff;">9:52</span>
+    <div class="sb-right">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" style="width:16px;height:16px;"><path d="M1 6l5 5 5-5M7 11V3"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" style="width:16px;height:16px;"><path d="M5 12.55a11 11 0 0 1 14.08 0M12 20h.01"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" style="width:16px;height:16px;"><rect x="2" y="7" width="18" height="11" rx="2"/></svg>
+    </div>
+  </div>
+
+  <div style="background:#131921;padding:20px 24px 24px;text-align:center;">
+    <div style="width:56px;height:56px;background:#067D62;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" style="width:28px;height:28px;"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <div style="color:#fff;font-size:20px;font-weight:700;margin-bottom:4px;">Order Placed!</div>
+    <div style="color:rgba(255,255,255,0.6);font-size:13px;">Order #406-8834792-2912753</div>
+  </div>
+
+  <div style="overflow-y:auto;height:calc(100% - 50px - 120px);scrollbar-width:none;padding:14px;">
+    <div style="background:linear-gradient(135deg,rgba(255,153,0,0.1),rgba(255,153,0,0.04));border:1.5px solid rgba(255,153,0,0.35);border-radius:12px;padding:14px;margin-bottom:12px;">
+      <div style="font-size:11px;font-weight:800;color:#FF9900;letter-spacing:.06em;margin-bottom:6px;">⚡ CHECKOUTLIFT · STEAL DEAL UNLOCKED</div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="font-size:28px;width:48px;height:48px;background:rgba(255,255,255,0.06);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">☕</div>
+        <div>
+          <div style="font-size:13px;font-weight:600;color:#0F1111;line-height:1.3;">Nespresso Vertuo Next Bundle</div>
+          <div style="font-size:11px;color:#067D62;font-weight:600;margin-top:2px;">You saved AED 246 at checkout</div>
+          <div style="font-size:12px;color:#565959;margin-top:1px;">Delivers: Tomorrow by 10 PM</div>
+        </div>
+      </div>
+      <div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,153,0,0.2);">
+        <div style="display:flex;justify-content:space-between;font-size:12px;">
+          <span style="color:#565959;">Deal price:</span>
+          <span style="font-weight:700;color:#0F1111;">AED 299</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-top:2px;">
+          <span style="color:#565959;">Original price:</span>
+          <span style="text-decoration:line-through;color:#565959;">AED 545</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-top:4px;font-weight:700;">
+          <span style="color:#067D62;">Total savings:</span>
+          <span style="color:#067D62;">AED 246 saved ✓</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-bottom:10px;">
+      <div style="font-size:12px;font-weight:700;color:#565959;letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px;">Other items in your order</div>
+      <div style="display:flex;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid #EAEDED;">
+        <div style="font-size:22px;width:40px;height:40px;background:#EAEDED;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">☕</div>
+        <div style="flex:1;font-size:12px;color:#0F1111;">Nescafé Gold Capsules × 1</div>
+        <div style="font-size:13px;font-weight:600;">AED 89</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid #EAEDED;">
+        <div style="font-size:22px;width:40px;height:40px;background:#EAEDED;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">🧴</div>
+        <div style="flex:1;font-size:12px;color:#0F1111;">Cetaphil Lotion × 2</div>
+        <div style="font-size:13px;font-weight:600;">AED 130</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;padding:8px 0;">
+        <div style="font-size:22px;width:40px;height:40px;background:#EAEDED;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">📚</div>
+        <div style="flex:1;font-size:12px;color:#0F1111;">Atomic Habits × 1</div>
+        <div style="font-size:13px;font-weight:600;">AED 59</div>
+      </div>
+    </div>
+
+    <div style="background:#f8f8f8;border-radius:10px;padding:12px;margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;font-size:13px;color:#565959;margin-bottom:4px;">
+        <span>Order total:</span>
+        <span style="font-weight:700;color:#0F1111;">AED 786.00</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;">
+        <span style="color:#567D62;font-weight:600;">Steal Deal savings:</span>
+        <span style="color:#067D62;font-weight:700;">− AED 246.00</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;color:#565959;margin-bottom:4px;">
+        <span>Delivery:</span>
+        <span style="color:#067D62;font-weight:600;">FREE (Prime)</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:14px;font-weight:700;border-top:1px solid #D5D9D9;padding-top:8px;margin-top:4px;">
+        <span>Paid:</span>
+        <span>AED 786.00</span>
+      </div>
+    </div>
+
+    <button style="width:100%;background:#FFD814;border:1px solid #FCD200;border-radius:8px;padding:12px;font-size:14px;font-weight:700;color:#0F1111;cursor:pointer;margin-bottom:8px;">Track your package</button>
+    <button style="width:100%;background:transparent;border:1px solid #D5D9D9;border-radius:8px;padding:12px;font-size:14px;font-weight:600;color:#007185;cursor:pointer;">Continue shopping</button>
+    <div style="height:16px;"></div>
+  </div>
+</div>
+
+</div><!-- /phone -->
+</div><!-- /phone-wrap -->
+
+<div class="nav-row">
+  <button class="nav-arr" onclick="go(cur-1)">‹</button>
+  <div class="dots" id="dots"></div>
+  <button class="nav-arr" onclick="go(cur+1)">›</button>
+</div>
+<div class="screen-lbl" id="slabel">01 — Home Feed</div>
+
+<script>
+let cur = 1;
+const total = 5;
+const LABELS = {
+  1:'01 — Home Feed · H&L Steal Deals Teaser',
+  2:'02 — Cart · CheckoutLift Card Surfaced',
+  3:'03 — Deal Detail · Bottom Sheet',
+  4:'04 — Cart Updated · Deal Added',
+  5:'05 — Order Confirmed · Savings Highlighted'
+};
+
+// Build dots
+const dotsEl = document.getElementById('dots');
+for(let i=1;i<=total;i++){
+  const d=document.createElement('div');
+  d.className='dot'+(i===1?' on':'');
+  d.onclick=()=>go(i);
+  dotsEl.appendChild(d);
+}
+
+function go(n){
+  if(n<1||n>total) return;
+  const prev=document.getElementById('s'+cur);
+  const next=document.getElementById('s'+n);
+  const dir=n>cur?1:-1;
+  prev.style.transition='transform .32s ease, opacity .28s';
+  prev.style.transform=`translateX(${-dir*100}%)`;
+  prev.style.opacity='0';
+  setTimeout(()=>{
+    prev.classList.remove('active');
+    prev.style.transition='';
+    prev.style.transform='';
+    prev.style.opacity='';
+  },340);
+  next.classList.add('active');
+  next.style.transition='none';
+  next.style.transform=`translateX(${dir*100}%)`;
+  next.style.opacity='0';
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      next.style.transition='transform .32s ease, opacity .28s';
+      next.style.transform='';
+      next.style.opacity='1';
+      setTimeout(()=>{ next.style.transition=''; },340);
+    });
+  });
+  document.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('on',i===n-1));
+  document.getElementById('slabel').textContent=LABELS[n];
+  cur=n;
+  if(n===5) startConfetti();
+}
+
+// Timer countdown
+let secs = 38*60+47;
+function tickTimer(){
+  const m=Math.floor(secs/60), s=secs%60;
+  const str=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  const el=document.getElementById('timer1');
+  if(el) el.textContent=str;
+  secs=Math.max(0,secs-1);
+}
+setInterval(tickTimer,1000);
+
+function startConfetti(){
+  const c=document.getElementById('conf');
+  if(!c||c.children.length) return;
+  const cols=['#FF9900','#00A8E1','#067D62','#FFD814','#B12704','#4ADE80','#FF6B6B'];
+  for(let i=0;i<45;i++){
+    const p=document.createElement('div');
+    const sz=4+Math.random()*9;
+    p.style.cssText=`position:absolute;left:${Math.random()*100}%;top:${-15+Math.random()*20}%;width:${sz}px;height:${sz}px;background:${cols[i%cols.length]};border-radius:${Math.random()>.5?'50%':'2px'};animation:fall ${1.4+Math.random()*2}s ${Math.random()*1.8}s ease-in forwards;pointer-events:none;`;
+    c.appendChild(p);
+  }
+}
+</script>
+</body>
+</html>
