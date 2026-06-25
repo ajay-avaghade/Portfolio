@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>eyewa — RepeatIQ · Behavioral Cohort Repeat-Purchase Engine · Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#0d1117;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:36px 20px 60px;font-family:'Inter',sans-serif;}
+.proto-hdr{font-size:11px;font-weight:600;color:rgba(255,255,255,0.38);letter-spacing:2px;text-transform:uppercase;margin-bottom:20px;text-align:center;}
+.phone-wrap{position:relative;}
+.phone{width:390px;height:844px;background:#F5F7F8;border-radius:48px;overflow:hidden;position:relative;box-shadow:0 40px 100px rgba(0,0,0,0.7),0 0 0 1px rgba(255,255,255,0.07),inset 0 0 0 2px rgba(0,0,0,0.15);}
+.ndot{position:absolute;top:0;left:50%;transform:translateX(-50%);width:126px;height:36px;background:#000;border-radius:0 0 24px 24px;z-index:200;}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;transform:translateX(100%);opacity:0;transition:none;overflow:hidden;}
+.screen.active{transform:translateX(0);opacity:1;}
+.sb{height:50px;background:#fff;display:flex;align-items:flex-end;justify-content:space-between;padding:0 24px 10px;flex-shrink:0;position:relative;z-index:10;}
+.sb-time{font-size:14px;font-weight:600;color:#111;}
+.sb-icons{display:flex;align-items:center;gap:5px;}
+.app-hdr{background:#fff;padding:12px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #F0F0F0;flex-shrink:0;}
+.logo{font-size:21px;font-weight:800;color:#111827;letter-spacing:-.5px;}
+.logo em{font-style:normal;color:#00BFA5;}
+.hdr-icons{display:flex;gap:14px;}
+.ico{width:22px;height:22px;color:#374151;}
+.scroll{flex:1;overflow-y:auto;scrollbar-width:none;background:#F5F7F8;}
+.scroll::-webkit-scrollbar{display:none;}
+.bnav{height:82px;background:#fff;border-top:1px solid #E5E7EB;display:flex;justify-content:space-around;align-items:flex-start;padding-top:12px;flex-shrink:0;}
+.ni{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;}
+.ni span{font-size:10px;font-weight:500;color:#9CA3AF;}
+.ni.on span{color:#6366F1;}
+.card{background:#fff;border-radius:16px;padding:16px;box-shadow:0 2px 10px rgba(0,0,0,0.06);}
+.btn-p{background:#6366F1;color:#fff;border:none;border-radius:50px;padding:16px;font-size:15px;font-weight:700;width:100%;cursor:pointer;font-family:'Inter',sans-serif;}
+.btn-o{background:transparent;color:#6366F1;border:1.5px solid #6366F1;border-radius:50px;padding:14px;font-size:14px;font-weight:600;width:100%;cursor:pointer;font-family:'Inter',sans-serif;}
+.btn-g{background:#F3F4F6;color:#6B7280;border:none;border-radius:50px;padding:13px;font-size:14px;font-weight:500;width:100%;cursor:pointer;font-family:'Inter',sans-serif;}
+.back-hdr{background:#fff;padding:12px 18px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #F0F0F0;flex-shrink:0;}
+.back-btn{background:none;border:none;cursor:pointer;padding:2px;display:flex;}
+.sh{font-size:14px;font-weight:700;color:#111827;padding:14px 16px 8px;}
+.divider{height:8px;background:#F5F7F8;flex-shrink:0;}
+.tag-p{background:#EEF2FF;color:#4338CA;font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;display:inline-block;}
+.tag-t{background:#E0F7F4;color:#007A6E;font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;display:inline-block;}
+.tag-y{background:#FEF3C7;color:#D97706;font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;display:inline-block;}
+.conf{position:absolute;inset:0;pointer-events:none;z-index:50;}
+@keyframes fall{0%{transform:translateY(-20px) rotate(0);opacity:1;}100%{transform:translateY(900px) rotate(720deg);opacity:0;}}
+.nav-row{display:flex;align-items:center;gap:16px;margin-top:20px;}
+.arr{width:44px;height:44px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:50%;color:#fff;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s;font-family:sans-serif;line-height:1;}
+.arr:hover{background:rgba(255,255,255,0.14);}
+.dots{display:flex;gap:8px;}
+.dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.2);cursor:pointer;transition:all .25s;}
+.dot.on{background:#6366F1;width:22px;border-radius:4px;}
+.slabel{margin-top:12px;font-size:10px;font-weight:600;color:rgba(255,255,255,0.35);letter-spacing:2.5px;text-transform:uppercase;}
+</style>
+</head>
+<body>
+
+<div class="proto-hdr">eyewa — RepeatIQ · Behavioral Cohort Repeat-Purchase Engine · Interactive Prototype</div>
+
+<div class="phone-wrap">
+<div class="phone">
+<div class="ndot"></div>
+
+<!-- ═══ SCREEN 1: TODAY (GENERIC HOME) ═══ -->
+<div class="screen active" id="s1">
+  <div class="sb"><span class="sb-time">9:41</span><div class="sb-icons"><svg width="16" height="12" viewBox="0 0 17 12"><rect x="0" y="6" width="3" height="6" rx="1" fill="#111"/><rect x="4.5" y="4" width="3" height="8" rx="1" fill="#111"/><rect x="9" y="2" width="3" height="10" rx="1" fill="#111"/><rect x="13.5" y="0" width="3" height="12" rx="1" fill="#111"/></svg><svg width="25" height="12" viewBox="0 0 27 13"><rect x=".5" y=".5" width="22" height="12" rx="3.5" stroke="#111"/><path d="M23 4.5v4a2 2 0 000-4z" fill="#111"/><rect x="2" y="2" width="18" height="9" rx="2" fill="#111"/></svg></div></div>
+
+  <div class="app-hdr">
+    <div class="logo">eye<em>wa</em></div>
+    <div class="hdr-icons">
+      <svg class="ico" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="M21 21l-4.35-4.35"/></svg>
+      <svg class="ico" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.3 2.3c-.63.63-.18 1.7.7 1.7H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+    </div>
+  </div>
+
+  <!-- "Before" label overlay -->
+  <div style="background:#111827;padding:10px 18px;display:flex;align-items:center;gap:8px;flex-shrink:0;">
+    <div style="width:8px;height:8px;border-radius:50%;background:#EF4444;flex-shrink:0;"></div>
+    <span style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.6);letter-spacing:.5px;">TODAY — GENERIC HOME · NO BEHAVIORAL PERSONALIZATION</span>
+  </div>
+
+  <div class="scroll">
+    <!-- Generic search -->
+    <div style="padding:12px 16px 8px;">
+      <div style="background:#F3F4F6;border-radius:12px;padding:10px 14px;display:flex;gap:8px;align-items:center;">
+        <svg width="16" height="16" fill="none" stroke="#9CA3AF" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="M21 21l-4.35-4.35"/></svg>
+        <span style="font-size:13px;color:#9CA3AF;">Search frames, lenses, sunglasses...</span>
+      </div>
+    </div>
+
+    <!-- Generic banner -->
+    <div style="margin:0 16px 14px;background:linear-gradient(135deg,#374151,#1F2937);border-radius:18px;padding:22px 20px;text-align:center;">
+      <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.5);letter-spacing:1px;margin-bottom:6px;">SUMMER COLLECTION</div>
+      <div style="font-size:20px;font-weight:800;color:#fff;margin-bottom:4px;">Up to 50% off</div>
+      <div style="font-size:12px;color:rgba(255,255,255,0.65);margin-bottom:14px;">Shop the latest styles</div>
+      <div style="display:inline-block;background:#00BFA5;color:#fff;font-size:12px;font-weight:700;padding:8px 20px;border-radius:20px;cursor:pointer;">Shop Now</div>
+    </div>
+
+    <!-- Category grid (generic) -->
+    <div style="padding:0 16px;display:flex;gap:8px;margin-bottom:14px;overflow-x:auto;scrollbar-width:none;">
+      <div style="flex-shrink:0;background:#fff;color:#374151;font-size:12px;font-weight:500;padding:7px 14px;border-radius:20px;border:1px solid #E5E7EB;">Frames</div>
+      <div style="flex-shrink:0;background:#fff;color:#374151;font-size:12px;font-weight:500;padding:7px 14px;border-radius:20px;border:1px solid #E5E7EB;">Sunglasses</div>
+      <div style="flex-shrink:0;background:#fff;color:#374151;font-size:12px;font-weight:500;padding:7px 14px;border-radius:20px;border:1px solid #E5E7EB;">Contacts</div>
+      <div style="flex-shrink:0;background:#fff;color:#374151;font-size:12px;font-weight:500;padding:7px 14px;border-radius:20px;border:1px solid #E5E7EB;">Accessories</div>
+    </div>
+
+    <!-- Generic new arrivals -->
+    <div class="sh">New Arrivals</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 16px 14px;">
+      <div style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);"><div style="background:#F5F0FF;height:90px;display:flex;align-items:center;justify-content:center;font-size:36px;">🕶️</div><div style="padding:10px;"><div style="font-size:12px;font-weight:600;color:#111;">Persol PO3092</div><div style="font-size:12px;color:#00BFA5;font-weight:700;margin-top:4px;">AED 349</div></div></div>
+      <div style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);"><div style="background:#EFF6FF;height:90px;display:flex;align-items:center;justify-content:center;font-size:36px;">👓</div><div style="padding:10px;"><div style="font-size:12px;font-weight:600;color:#111;">Tom Ford FT0588</div><div style="font-size:12px;color:#00BFA5;font-weight:700;margin-top:4px;">AED 449</div></div></div>
+      <div style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);"><div style="background:#F0FFF9;height:90px;display:flex;align-items:center;justify-content:center;font-size:36px;">🕶️</div><div style="padding:10px;"><div style="font-size:12px;font-weight:600;color:#111;">Maui Jim MJ440</div><div style="font-size:12px;color:#00BFA5;font-weight:700;margin-top:4px;">AED 289</div></div></div>
+      <div style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);"><div style="background:#FFF8F0;height:90px;display:flex;align-items:center;justify-content:center;font-size:36px;">👓</div><div style="padding:10px;"><div style="font-size:12px;font-weight:600;color:#111;">Oakley OX8046</div><div style="font-size:12px;color:#00BFA5;font-weight:700;margin-top:4px;">AED 199</div></div></div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- "What's missing" callout -->
+    <div style="margin:14px 16px;background:#FFFBEB;border:1px solid #FDE68A;border-radius:14px;padding:14px;">
+      <div style="font-size:12px;font-weight:700;color:#92400E;margin-bottom:6px;">⚠️ What's missing today</div>
+      <div style="display:flex;flex-direction:column;gap:5px;">
+        <div style="font-size:11px;color:#78350F;">✗ No "your lenses run out soon" alert</div>
+        <div style="font-size:11px;color:#78350F;">✗ No cross-category recommendation (you own frames — try contacts)</div>
+        <div style="font-size:11px;color:#78350F;">✗ No win-back for 82-day lapse — silent churn</div>
+        <div style="font-size:11px;color:#78350F;">✗ Same homepage for every customer regardless of history</div>
+      </div>
+      <button onclick="go(2)" style="background:#F59E0B;border:none;color:#fff;font-size:12px;font-weight:700;padding:8px 16px;border-radius:20px;margin-top:10px;cursor:pointer;font-family:Inter,sans-serif;">See RepeatIQ version →</button>
+    </div>
+  </div>
+
+  <div class="bnav">
+    <div class="ni on"><svg width="22" height="22" fill="none" stroke="#6366F1" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9.75L12 3l9 6.75V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.75z"/><path stroke-linecap="round" stroke-linejoin="round" d="M9 21V12h6v9"/></svg><span style="color:#6366F1;">Home</span></div>
+    <div class="ni"><svg width="22" height="22" fill="none" stroke="#9CA3AF" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="M21 21l-4.35-4.35"/></svg><span>Search</span></div>
+    <div class="ni"><svg width="22" height="22" fill="none" stroke="#9CA3AF" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.3 2.3c-.63.63-.18 1.7.7 1.7H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg><span>Cart</span></div>
+    <div class="ni"><svg width="22" height="22" fill="none" stroke="#9CA3AF" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg><span>Wishlist</span></div>
+    <div class="ni"><svg width="22" height="22" fill="none" stroke="#9CA3AF" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg><span>Account</span></div>
+  </div>
+</div>
+
+<!-- ═══ SCREEN 2: REPEATIQ PERSONALIZED HOME ═══ -->
+<div class="screen" id="s2">
+  <div class="sb"><span class="sb-time">9:41</span><div class="sb-icons"><svg width="16" height="12" viewBox="0 0 17 12"><rect x="0" y="6" width="3" height="6" rx="1" fill="#111"/><rect x="4.5" y="4" width="3" height="8" rx="1" fill="#111"/><rect x="9" y="2" width="3" height="10" rx="1" fill="#111"/><rect x="13.5" y="0" width="3" height="12" rx="1" fill="#111"/></svg><svg width="25" height="12" viewBox="0 0 27 13"><rect x=".5" y=".5" width="22" height="12" rx="3.5" stroke="#111"/><path d="M23 4.5v4a2 2 0 000-4z" fill="#111"/><rect x="2" y="2" width="18" height="9" rx="2" fill="#111"/></svg></div></div>
+
+  <div class="app-hdr">
+    <div class="logo">eye<em>wa</em></div>
+    <div class="hdr-icons">
+      <svg class="ico" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="M21 21l-4.35-4.35"/></svg>
+      <svg class="ico" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.3 2.3c-.63.63-.18 1.7.7 1.7H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+    </div>
+  </div>
+
+  <!-- "After" label -->
+  <div style="background:#1E1B4B;padding:10px 18px;display:flex;align-items:center;gap:8px;flex-shrink:0;">
+    <div style="width:8px;height:8px;border-radius:50%;background:#6366F1;flex-shrink:0;animation:pulse 1.5s infinite;"></div>
+    <span style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.7);letter-spacing:.5px;">WITH REPEATIQ — BEHAVIORAL PERSONALIZATION ACTIVE</span>
+  </div>
+
+  <div class="scroll">
+    <!-- Personalized greeting -->
+    <div style="padding:16px 18px 10px;background:#fff;border-bottom:1px solid #F0F0F0;">
+      <div style="font-size:18px;font-weight:800;color:#111827;margin-bottom:2px;">Good morning, Sara 👋</div>
+      <div style="font-size:12px;color:#6B7280;">Here's what RepeatIQ found for you today</div>
+    </div>
+
+    <!-- RepeatIQ "For You" tray -->
+    <div style="padding:14px 16px 8px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <div style="display:flex;align-items:center;gap:6px;">
+          <div style="width:20px;height:20px;background:#6366F1;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;font-weight:700;">AI</div>
+          <span style="font-size:14px;font-weight:700;color:#111;">For You</span>
+        </div>
+        <span style="font-size:11px;color:#6366F1;font-weight:600;">Powered by RepeatIQ</span>
+      </div>
+
+      <!-- Card 1: Lens supply alert -->
+      <div style="background:#fff;border-radius:16px;padding:14px;box-shadow:0 2px 10px rgba(0,0,0,0.07);border-left:4px solid #EF4444;margin-bottom:10px;cursor:pointer;" onclick="go(3)">
+        <div style="display:flex;gap:10px;align-items:flex-start;">
+          <span style="font-size:24px;flex-shrink:0;">🔄</span>
+          <div style="flex:1;">
+            <div style="font-size:12px;font-weight:700;color:#DC2626;margin-bottom:3px;">⏰ Lens supply runs out in 12 days</div>
+            <div style="font-size:13px;color:#111827;font-weight:600;">Acuvue Oasys 1-Day reorder</div>
+            <div style="font-size:11px;color:#6B7280;margin-top:2px;">Based on: your order history + wear pattern</div>
+          </div>
+          <div style="background:#FEE2E2;color:#DC2626;font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;white-space:nowrap;">Reorder →</div>
+        </div>
+      </div>
+
+      <!-- Card 2: Complete eyecare -->
+      <div style="background:#fff;border-radius:16px;padding:14px;box-shadow:0 2px 10px rgba(0,0,0,0.07);border-left:4px solid #6366F1;margin-bottom:10px;cursor:pointer;" onclick="go(3)">
+        <div style="display:flex;gap:10px;align-items:flex-start;">
+          <span style="font-size:24px;flex-shrink:0;">👁️</span>
+          <div style="flex:1;">
+            <div style="font-size:12px;font-weight:700;color:#6366F1;margin-bottom:3px;">✦ COMPLETE YOUR EYECARE</div>
+            <div style="font-size:13px;color:#111827;font-weight:600;">68% of Rx glasses wearers also use daily contacts</div>
+            <div style="font-size:11px;color:#6B7280;margin-top:2px;">Your Rx is on file · Trial pack: AED 29</div>
+          </div>
+          <div style="background:#EEF2FF;color:#4338CA;font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;white-space:nowrap;">Try →</div>
+        </div>
+      </div>
+
+      <!-- Card 3: Rx check reminder -->
+      <div style="background:#fff;border-radius:16px;padding:14px;box-shadow:0 2px 10px rgba(0,0,0,0.07);border-left:4px solid #10B981;margin-bottom:10px;">
+        <div style="display:flex;gap:10px;align-items:flex-start;">
+          <span style="font-size:24px;flex-shrink:0;">🗓️</span>
+          <div style="flex:1;">
+            <div style="font-size:12px;font-weight:700;color:#059669;margin-bottom:3px;">HEALTH REMINDER</div>
+            <div style="font-size:13px;color:#111827;font-weight:600;">Your last Rx check was 18 months ago</div>
+            <div style="font-size:11px;color:#6B7280;margin-top:2px;">Optometrists recommend checking every 12 months</div>
+          </div>
+          <div style="background:#D1FAE5;color:#065F46;font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;white-space:nowrap;">Book →</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Summer sunglasses personalized -->
+    <div style="padding:14px 16px 8px;display:flex;justify-content:space-between;align-items:center;">
+      <div style="font-size:14px;font-weight:700;color:#111;">☀️ Summer picks · your frame style</div>
+      <div style="background:#EEF2FF;color:#4338CA;font-size:10px;font-weight:700;padding:3px 8px;border-radius:10px;">AI matched</div>
+    </div>
+    <div style="display:flex;gap:12px;padding:0 16px 14px;overflow-x:auto;scrollbar-width:none;">
+      <div style="flex-shrink:0;width:152px;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+        <div style="background:#FFFBEB;height:90px;display:flex;align-items:center;justify-content:center;font-size:36px;">🕶️</div>
+        <div style="padding:10px;"><div style="font-size:10px;font-weight:700;color:#6366F1;margin-bottom:2px;">MATCHES YOUR FRAMES</div><div style="font-size:12px;font-weight:600;color:#111;">Ray-Ban RB3025</div><div style="font-size:12px;color:#00BFA5;font-weight:700;margin-top:4px;">AED 289</div></div>
+      </div>
+      <div style="flex-shrink:0;width:152px;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+        <div style="background:#F0F9FF;height:90px;display:flex;align-items:center;justify-content:center;font-size:36px;">🕶️</div>
+        <div style="padding:10px;"><div style="font-size:10px;font-weight:700;color:#6366F1;margin-bottom:2px;">SIMILAR LENS SHAPE</div><div style="font-size:12px;font-weight:600;color:#111;">Persol PO3092</div><div style="font-size:12px;color:#00BFA5;font-weight:700;margin-top:4px;">AED 349</div></div>
+      </div>
+      <div style="flex-shrink:0;width:152px;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+        <div style="background:#F5F0FF;height:90px;display:flex;align-items:center;justify-content:center;font-size:36px;">🕶️</div>
+        <div style="padding:10px;"><div style="font-size:10px;font-weight:700;color:#6366F1;margin-bottom:2px;">TOP-RATED IN YOUR COHORT</div><div style="font-size:12px;font-weight:600;color:#111;">Maui Jim MJ440</div><div style="font-size:12px;color:#00BFA5;font-weight:700;margin-top:4px;">AED 289</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bnav">
+    <div class="ni on"><svg width="22" height="22" fill="none" stroke="#6366F1" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9.75L12 3l9 6.75V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.75z"/><path stroke-linecap="round" stroke-linejoin="round" d="M9 21V12h6v9"/></svg><span style="color:#6366F1;">Home</span></div>
+    <div class="ni"><svg width="22" height="22" fill="none" stroke="#9CA3AF" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="M21 21l-4.35-4.35"/></svg><span>Search</span></div>
+    <div class="ni"><svg width="22" height="22" fill="none" stroke="#9CA3AF" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.3 2.3c-.63.63-.18 1.7.7 1.7H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg><span>Cart</span></div>
+    <div class="ni"><svg width="22" height="22" fill="none" stroke="#9CA3AF" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg><span>Wishlist</span></div>
+    <div class="ni"><svg width="22" height="22" fill="none" stroke="#9CA3AF" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg><span>Account</span></div>
+  </div>
+</div>
+
+<!-- ═══ SCREEN 3: COMPLETE YOUR EYECARE ═══ -->
+<div class="screen" id="s3">
+  <div class="sb"><span class="sb-time">9:41</span><div class="sb-icons"><svg width="16" height="12" viewBox="0 0 17 12"><rect x="0" y="6" width="3" height="6" rx="1" fill="#111"/><rect x="4.5" y="4" width="3" height="8" rx="1" fill="#111"/><rect x="9" y="2" width="3" height="10" rx="1" fill="#111"/><rect x="13.5" y="0" width="3" height="12" rx="1" fill="#111"/></svg><svg width="25" height="12" viewBox="0 0 27 13"><rect x=".5" y=".5" width="22" height="12" rx="3.5" stroke="#111"/><path d="M23 4.5v4a2 2 0 000-4z" fill="#111"/><rect x="2" y="2" width="18" height="9" rx="2" fill="#111"/></svg></div></div>
+
+  <div class="back-hdr">
+    <button class="back-btn" onclick="go(2)"><svg width="24" height="24" fill="none" stroke="#111" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg></button>
+    <span style="font-size:17px;font-weight:700;color:#111;flex:1;">Complete Your Eyecare</span>
+    <div style="width:20px;height:20px;background:#6366F1;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;font-weight:700;">AI</div>
+  </div>
+
+  <div class="scroll">
+    <!-- RepeatIQ insight header -->
+    <div style="background:linear-gradient(135deg,#4338CA,#6366F1);padding:20px 18px 22px;">
+      <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.7);letter-spacing:.5px;margin-bottom:8px;">✦ REPEATIQ INSIGHT</div>
+      <div style="font-size:18px;font-weight:800;color:#fff;line-height:1.3;margin-bottom:6px;">68% of eyewa Rx glasses customers also wear daily contacts</div>
+      <div style="font-size:12px;color:rgba(255,255,255,0.75);">Based on 14,200 customers with a similar purchase profile to yours</div>
+    </div>
+
+    <!-- Sara's profile -->
+    <div style="margin:14px 16px 0;" class="card">
+      <div style="font-size:13px;font-weight:700;color:#111;margin-bottom:12px;">Your eyecare profile</div>
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:10px;">
+        <div style="width:44px;height:44px;background:#EEF2FF;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">👤</div>
+        <div><div style="font-size:13px;font-weight:700;color:#111;">Sara A.</div><div style="font-size:12px;color:#6B7280;">Rx glasses wearer · Customer since 2023</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div style="background:#F9FAFB;border-radius:10px;padding:10px;"><div style="font-size:10px;color:#6B7280;margin-bottom:2px;">RIGHT EYE (OD)</div><div style="font-size:13px;font-weight:600;color:#111;">-2.50 SPH</div></div>
+        <div style="background:#F9FAFB;border-radius:10px;padding:10px;"><div style="font-size:10px;color:#6B7280;margin-bottom:2px;">LEFT EYE (OS)</div><div style="font-size:13px;font-weight:600;color:#111;">-2.75 SPH</div></div>
+      </div>
+      <div style="background:#E0F7F4;border-radius:10px;padding:8px 12px;margin-top:8px;display:flex;gap:6px;align-items:center;">
+        <span style="font-size:12px;color:#007A6E;">✓</span>
+        <span style="font-size:11px;color:#007A6E;font-weight:600;">Prescription on file — no form needed to try contacts</span>
+      </div>
+    </div>
+
+    <!-- Contact lens recommendation -->
+    <div style="margin:12px 16px 0;" class="card">
+      <div style="font-size:13px;font-weight:700;color:#111;margin-bottom:14px;">RepeatIQ recommends</div>
+      <div style="display:flex;gap:14px;align-items:center;padding-bottom:14px;border-bottom:1px solid #F0F0F0;margin-bottom:14px;">
+        <div style="width:72px;height:72px;background:#EEF2FF;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:30px;flex-shrink:0;">👁️</div>
+        <div style="flex:1;">
+          <div style="font-size:15px;font-weight:700;color:#111;margin-bottom:3px;">Acuvue Oasys 1-Day</div>
+          <div style="font-size:12px;color:#6B7280;margin-bottom:6px;">5-pair trial pack · Power -2.50 / -2.75</div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="font-size:18px;font-weight:800;color:#111;">AED 29</span>
+            <span class="tag-p" style="font-size:10px;padding:3px 8px;">Trial pack</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Why RepeatIQ chose this -->
+      <div style="background:#F9FAFB;border-radius:12px;padding:12px;">
+        <div style="font-size:12px;font-weight:700;color:#111;margin-bottom:8px;">Why RepeatIQ chose this</div>
+        <div style="display:flex;flex-direction:column;gap:7px;">
+          <div style="display:flex;gap:8px;align-items:flex-start;"><span style="font-size:14px;color:#6366F1;flex-shrink:0;margin-top:-1px;">•</span><span style="font-size:12px;color:#374151;line-height:1.4;">Most popular first contact purchase among customers with your Rx (-2.50 to -3.00)</span></div>
+          <div style="display:flex;gap:8px;align-items:flex-start;"><span style="font-size:14px;color:#6366F1;flex-shrink:0;margin-top:-1px;">•</span><span style="font-size:12px;color:#374151;line-height:1.4;">Compatible with your eyewa prescription file — no optometrist visit needed</span></div>
+          <div style="display:flex;gap:8px;align-items:flex-start;"><span style="font-size:14px;color:#6366F1;flex-shrink:0;margin-top:-1px;">•</span><span style="font-size:12px;color:#374151;line-height:1.4;">4.8★ rating from 2,341 first-time contact wearers like you</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Social proof -->
+    <div style="margin:12px 16px 0;" class="card">
+      <div style="font-size:12px;font-weight:700;color:#111;margin-bottom:10px;">What happened to customers like you</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div style="background:#EEF2FF;border-radius:12px;padding:12px;text-align:center;"><div style="font-size:24px;font-weight:800;color:#4338CA;">78%</div><div style="font-size:11px;color:#6B7280;margin-top:3px;">ordered full-box contacts within 14 days of trial</div></div>
+        <div style="background:#ECFDF5;border-radius:12px;padding:12px;text-align:center;"><div style="font-size:24px;font-weight:800;color:#059669;">4.8×</div><div style="font-size:11px;color:#6B7280;margin-top:3px;">higher LTV vs Rx-glasses-only customers over 12 months</div></div>
+      </div>
+    </div>
+
+    <div style="padding:14px 16px 24px;">
+      <button class="btn-p" onclick="go(5)">Add trial pack · AED 29</button>
+      <div style="text-align:center;margin-top:10px;">
+        <button onclick="go(4)" style="background:none;border:none;font-size:12px;color:#6B7280;cursor:pointer;font-family:Inter,sans-serif;">View win-back example instead →</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="bnav">
+    <div class="ni on"><svg width="22" height="22" fill="none" stroke="#6366F1" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9.75L12 3l9 6.75V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.75z"/><path stroke-linecap="round" stroke-linejoin="round" d="M9 21V12h6v9"/></svg><span style="color:#6366F1;">Home</span></div>
+    <div class="ni"><svg width="22" height="22" fill="none" stroke="#9CA3AF" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="M21 21l-4.35-4.35"/></svg><span>Search</span></div>
+    <div class="ni"><svg width="22" height="22" fill="none" stroke="#9CA3AF" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.3 2.3c-.63.63-.18 1.7.7 1.7H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg><span>Cart</span></div>
+    <div class="ni"><svg width="22" height="22" fill="none" stroke="#9CA3AF" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg><span>Wishlist</span></div>
+    <div class="ni"><svg width="22" height="22" fill="none" stroke="#9CA3AF" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg><span>Account</span></div>
+  </div>
+</div>
+
+<!-- ═══ SCREEN 4: WIN-BACK (LAPSED BUYER) ═══ -->
+<div class="screen" id="s4">
+  <div class="sb"><span class="sb-time">9:41</span><div class="sb-icons"><svg width="16" height="12" viewBox="0 0 17 12"><rect x="0" y="6" width="3" height="6" rx="1" fill="#111"/><rect x="4.5" y="4" width="3" height="8" rx="1" fill="#111"/><rect x="9" y="2" width="3" height="10" rx="1" fill="#111"/><rect x="13.5" y="0" width="3" height="12" rx="1" fill="#111"/></svg><svg width="25" height="12" viewBox="0 0 27 13"><rect x=".5" y=".5" width="22" height="12" rx="3.5" stroke="#111"/><path d="M23 4.5v4a2 2 0 000-4z" fill="#111"/><rect x="2" y="2" width="18" height="9" rx="2" fill="#111"/></svg></div></div>
+
+  <div class="back-hdr">
+    <button class="back-btn" onclick="go(3)"><svg width="24" height="24" fill="none" stroke="#111" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg></button>
+    <span style="font-size:17px;font-weight:700;color:#111;flex:1;">We miss you, Sara</span>
+    <div style="width:20px;height:20px;background:#6366F1;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;font-weight:700;">AI</div>
+  </div>
+
+  <div class="scroll">
+    <!-- Win-back hero -->
+    <div style="background:linear-gradient(135deg,#1E1B4B,#312E81);padding:22px 18px 24px;text-align:center;">
+      <div style="font-size:42px;margin-bottom:10px;">🛒</div>
+      <div style="font-size:20px;font-weight:800;color:#fff;margin-bottom:6px;">It's been 82 days, Sara</div>
+      <div style="font-size:13px;color:rgba(255,255,255,0.75);line-height:1.4;">We saved your cart from your last visit.<br>Here's a reason to come back today.</div>
+    </div>
+
+    <!-- Lapse trigger insight -->
+    <div style="margin:14px 16px 0;background:#FEF3C7;border:1px solid #FCD34D;border-radius:14px;padding:14px;display:flex;gap:10px;align-items:flex-start;">
+      <span style="font-size:20px;flex-shrink:0;">🔍</span>
+      <div>
+        <div style="font-size:12px;font-weight:700;color:#92400E;margin-bottom:3px;">RepeatIQ detected: lapse trigger</div>
+        <div style="font-size:11px;color:#78350F;line-height:1.4;">Last order: Sep 17, 2025 · Rx frames<br>Typical reorder: 60–90 days · You're at 82 days<br>Predicted churn probability: <strong>74%</strong> without intervention</div>
+      </div>
+    </div>
+
+    <!-- Saved cart -->
+    <div style="margin:12px 16px 0;" class="card">
+      <div style="font-size:13px;font-weight:700;color:#111;margin-bottom:14px;">Your saved cart from Sep 17</div>
+      <div style="display:flex;gap:12px;align-items:center;padding-bottom:12px;border-bottom:1px solid #F0F0F0;">
+        <div style="width:56px;height:56px;background:#EFF6FF;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;">👓</div>
+        <div style="flex:1;"><div style="font-size:13px;font-weight:600;color:#111;">Tom Ford FT0588-B</div><div style="font-size:12px;color:#6B7280;margin:2px 0;">Blue block · Rx fitted</div><div style="font-size:13px;font-weight:700;color:#111;">AED 449</div></div>
+        <div style="background:#FEE2E2;color:#DC2626;font-size:10px;font-weight:700;padding:4px 8px;border-radius:10px;">Low stock</div>
+      </div>
+      <div style="display:flex;gap:12px;align-items:center;padding-top:12px;">
+        <div style="width:56px;height:56px;background:#F0FFF9;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;">🔵</div>
+        <div style="flex:1;"><div style="font-size:13px;font-weight:600;color:#111;">Acuvue Oasys 1-Day</div><div style="font-size:12px;color:#6B7280;margin:2px 0;">30-pack trial · Power -2.50</div><div style="font-size:13px;font-weight:700;color:#111;">AED 29</div></div>
+        <div style="background:#ECFDF5;color:#059669;font-size:10px;font-weight:700;padding:4px 8px;border-radius:10px;">In stock</div>
+      </div>
+    </div>
+
+    <!-- Pro unused benefits -->
+    <div style="margin:12px 16px 0;" class="card">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+        <div style="width:32px;height:32px;background:linear-gradient(135deg,#00BFA5,#007A6E);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff;flex-shrink:0;">★</div>
+        <div style="font-size:13px;font-weight:700;color:#111;">Unused Pro benefits this month</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;background:#F9FAFB;border-radius:10px;padding:8px 12px;">
+          <span style="font-size:12px;color:#374151;">3 BOGO vouchers available</span>
+          <span style="font-size:11px;font-weight:700;color:#00BFA5;">Use now</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;background:#F9FAFB;border-radius:10px;padding:8px 12px;">
+          <span style="font-size:12px;color:#374151;">Free shipping on comeback order</span>
+          <span style="font-size:11px;font-weight:700;color:#00BFA5;">Auto-applied</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Win-back offer -->
+    <div style="margin:12px 16px 0;background:linear-gradient(135deg,#EEF2FF,#E0E7FF);border:1px solid #C7D2FE;border-radius:16px;padding:16px;">
+      <div style="font-size:13px;font-weight:700;color:#3730A3;margin-bottom:6px;">🎁 Come-back offer · Today only</div>
+      <div style="font-size:12px;color:#4338CA;line-height:1.4;margin-bottom:12px;">Complete your saved cart today and get <strong>free shipping + your first BOGO auto-applied</strong> to the frames. Total order value: AED 478 → effective AED 253 with Pro BOGO.</div>
+      <button class="btn-p" onclick="go(5)">Resume cart · Complete order</button>
+    </div>
+
+    <div style="padding:12px 16px 24px;text-align:center;">
+      <button style="background:none;border:none;font-size:12px;color:#9CA3AF;cursor:pointer;font-family:Inter,sans-serif;">Not now · Don't remind me</button>
+    </div>
+  </div>
+
+  <div class="bnav">
+    <div class="ni on"><svg width="22" height="22" fill="none" stroke="#6366F1" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9.75L12 3l9 6.75V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.75z"/><path stroke-linecap="round" stroke-linejoin="round" d="M9 21V12h6v9"/></svg><span style="color:#6366F1;">Home</span></div>
+    <div class="ni"><svg width="22" height="22" fill="none" stroke="#9CA3AF" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="M21 21l-4.35-4.35"/></svg><span>Search</span></div>
+    <div class="ni"><svg width="22" height="22" fill="none" stroke="#9CA3AF" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.3 2.3c-.63.63-.18 1.7.7 1.7H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg><span>Cart</span></div>
+    <div class="ni"><svg width="22" height="22" fill="none" stroke="#9CA3AF" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg><span>Wishlist</span></div>
+    <div class="ni"><svg width="22" height="22" fill="none" stroke="#9CA3AF" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg><span>Account</span></div>
+  </div>
+</div>
+
+<!-- ═══ SCREEN 5: ACTIVATED + NEXT QUEUED ═══ -->
+<div class="screen" id="s5">
+  <div class="sb" style="background:#6366F1;"><span class="sb-time" style="color:#fff;">9:41</span><div class="sb-icons"><svg width="16" height="12" viewBox="0 0 17 12"><rect x="0" y="6" width="3" height="6" rx="1" fill="#fff"/><rect x="4.5" y="4" width="3" height="8" rx="1" fill="#fff"/><rect x="9" y="2" width="3" height="10" rx="1" fill="#fff"/><rect x="13.5" y="0" width="3" height="12" rx="1" fill="#fff"/></svg><svg width="25" height="12" viewBox="0 0 27 13"><rect x=".5" y=".5" width="22" height="12" rx="3.5" stroke="#fff"/><path d="M23 4.5v4a2 2 0 000-4z" fill="#fff"/><rect x="2" y="2" width="18" height="9" rx="2" fill="#fff"/></svg></div></div>
+  <div class="conf" id="conf5"></div>
+
+  <!-- Success hero -->
+  <div style="background:linear-gradient(180deg,#6366F1,#4338CA);padding:28px 20px 24px;text-align:center;flex-shrink:0;">
+    <div style="width:72px;height:72px;background:rgba(255,255,255,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:36px;margin:0 auto 14px;">✓</div>
+    <div style="font-size:22px;font-weight:800;color:#fff;margin-bottom:4px;">Order placed, Sara!</div>
+    <div style="font-size:13px;color:rgba(255,255,255,0.8);margin-bottom:2px;">Tom Ford FT0588-B · Acuvue trial pack</div>
+    <div style="font-size:13px;color:rgba(255,255,255,0.7);">📦 Delivery: Tomorrow by 10 PM</div>
+  </div>
+
+  <div class="scroll" style="background:#F5F7F8;">
+    <!-- Complete Eyecare milestone -->
+    <div style="margin:14px 16px 0;background:linear-gradient(135deg,#EEF2FF,#E0E7FF);border:1px solid #C7D2FE;border-radius:16px;padding:16px;text-align:center;">
+      <div style="font-size:28px;margin-bottom:8px;">🏅</div>
+      <div style="font-size:14px;font-weight:800;color:#3730A3;margin-bottom:4px;">Complete Eyecare Customer</div>
+      <div style="font-size:12px;color:#4338CA;line-height:1.4;">You now own Rx frames <em>and</em> use daily contacts — you're in the top 12% of eyewa customers by LTV. Welcome to the club.</div>
+    </div>
+
+    <!-- Next recommendation queued -->
+    <div style="margin:12px 16px 0;" class="card">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+        <div style="width:20px;height:20px;background:#6366F1;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;font-weight:700;">AI</div>
+        <span style="font-size:13px;font-weight:700;color:#111;">RepeatIQ has queued your next step</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="background:#F9FAFB;border-radius:12px;padding:12px;display:flex;gap:10px;align-items:center;">
+          <span style="font-size:20px;flex-shrink:0;">🔔</span>
+          <div><div style="font-size:12px;font-weight:600;color:#111;">Contact trial ends in 5 days</div><div style="font-size:11px;color:#6B7280;margin-top:2px;">Reminder auto-set: Nov 14 · Full-box reorder recommendation</div></div>
+          <div style="background:#E0F7F4;color:#007A6E;font-size:10px;font-weight:700;padding:3px 8px;border-radius:10px;white-space:nowrap;">Auto ✓</div>
+        </div>
+        <div style="background:#F9FAFB;border-radius:12px;padding:12px;display:flex;gap:10px;align-items:center;">
+          <span style="font-size:20px;flex-shrink:0;">📅</span>
+          <div><div style="font-size:12px;font-weight:600;color:#111;">Rx check due in 6 months</div><div style="font-size:11px;color:#6B7280;margin-top:2px;">RepeatIQ will suggest a reminder in April 2026</div></div>
+          <div style="background:#E0F7F4;color:#007A6E;font-size:10px;font-weight:700;padding:3px 8px;border-radius:10px;white-space:nowrap;">Queued</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RepeatIQ outcome stats -->
+    <div style="margin:12px 16px 0;" class="card">
+      <div style="font-size:13px;font-weight:700;color:#111;margin-bottom:12px;">What RepeatIQ does for eyewa</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div style="background:#EEF2FF;border-radius:12px;padding:12px;text-align:center;"><div style="font-size:22px;font-weight:800;color:#4338CA;">+32%</div><div style="font-size:11px;color:#6B7280;margin-top:3px;">repeat purchase rate (projected)</div></div>
+        <div style="background:#ECFDF5;border-radius:12px;padding:12px;text-align:center;"><div style="font-size:22px;font-weight:800;color:#059669;">4.8×</div><div style="font-size:11px;color:#6B7280;margin-top:3px;">LTV uplift: 1-cat → Complete Eyecare</div></div>
+        <div style="background:#EFF6FF;border-radius:12px;padding:12px;text-align:center;"><div style="font-size:22px;font-weight:800;color:#2563EB;">−48%</div><div style="font-size:11px;color:#6B7280;margin-top:3px;">90-day lapse churn (with win-back)</div></div>
+        <div style="background:#FEF3C7;border-radius:12px;padding:12px;text-align:center;"><div style="font-size:22px;font-weight:800;color:#D97706;">68%</div><div style="font-size:11px;color:#6B7280;margin-top:3px;">cross-category trial-to-full conversion</div></div>
+      </div>
+    </div>
+
+    <div style="padding:14px 16px 24px;">
+      <button class="btn-p" onclick="go(1)">Back to Home</button>
+    </div>
+  </div>
+
+  <div class="bnav">
+    <div class="ni on"><svg width="22" height="22" fill="none" stroke="#6366F1" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9.75L12 3l9 6.75V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.75z"/><path stroke-linecap="round" stroke-linejoin="round" d="M9 21V12h6v9"/></svg><span style="color:#6366F1;">Home</span></div>
+    <div class="ni"><svg width="22" height="22" fill="none" stroke="#9CA3AF" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="M21 21l-4.35-4.35"/></svg><span>Search</span></div>
+    <div class="ni"><svg width="22" height="22" fill="none" stroke="#9CA3AF" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.3 2.3c-.63.63-.18 1.7.7 1.7H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg><span>Cart</span></div>
+    <div class="ni"><svg width="22" height="22" fill="none" stroke="#9CA3AF" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg><span>Wishlist</span></div>
+    <div class="ni"><svg width="22" height="22" fill="none" stroke="#9CA3AF" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg><span>Account</span></div>
+  </div>
+</div>
+
+</div><!-- /phone -->
+</div><!-- /phone-wrap -->
+
+<div class="nav-row">
+  <button class="arr" onclick="go(cur-1)">‹</button>
+  <div class="dots" id="dots"></div>
+  <button class="arr" onclick="go(cur+1)">›</button>
+</div>
+<div class="slabel" id="slabel">01 — TODAY (NO PERSONALIZATION)</div>
+
+<script>
+let cur=1,total=5;
+const LABELS={1:'01 — TODAY (NO PERSONALIZATION)',2:'02 — REPEATIQ HOME',3:'03 — COMPLETE YOUR EYECARE',4:'04 — WIN-BACK',5:'05 — ACTIVATED'};
+
+function go(n){
+  if(n<1||n>total)return;
+  const prev=document.getElementById('s'+cur);
+  const next=document.getElementById('s'+n);
+  const dir=n>cur?1:-1;
+  prev.style.transition='transform .32s ease,opacity .25s';
+  prev.style.transform=`translateX(${-dir*100}%)`;
+  prev.style.opacity='0';
+  setTimeout(()=>{prev.classList.remove('active');prev.style.transition='';prev.style.transform='';prev.style.opacity='';},340);
+  next.classList.add('active');
+  next.style.transform=`translateX(${dir*100}%)`;
+  next.style.opacity='0';
+  requestAnimationFrame(()=>{
+    next.style.transition='transform .32s ease,opacity .25s';
+    next.style.transform='';
+    next.style.opacity='1';
+  });
+  setTimeout(()=>{next.style.transition='';},360);
+  document.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('on',i===n-1));
+  document.getElementById('slabel').textContent=LABELS[n];
+  cur=n;
+  if(n===5) startConfetti('conf5');
+}
+
+function startConfetti(id){
+  const c=document.getElementById(id);
+  if(!c||c.children.length)return;
+  const cols=['#6366F1','#4338CA','#A5B4FC','#F59E0B','#fff','#C7D2FE'];
+  for(let i=0;i<50;i++){
+    const p=document.createElement('div');
+    const sz=4+Math.random()*8;
+    p.style.cssText=`position:absolute;left:${Math.random()*100}%;top:${-5+Math.random()*20}%;width:${sz}px;height:${sz}px;background:${cols[i%cols.length]};border-radius:${Math.random()>.5?'50%':'2px'};animation:fall ${1.4+Math.random()*2}s ${Math.random()*1.2}s ease-in forwards;pointer-events:none;`;
+    c.appendChild(p);
+  }
+}
+
+const dotsEl=document.getElementById('dots');
+for(let i=1;i<=total;i++){
+  const d=document.createElement('div');
+  d.className='dot'+(i===1?' on':'');
+  d.onclick=()=>go(i);
+  dotsEl.appendChild(d);
+}
+</script>
+</body>
+</html>
