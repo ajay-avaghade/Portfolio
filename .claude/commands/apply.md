@@ -10,7 +10,8 @@
 1. **Never ask for permission** in this project to commit anything to git or make changes. Just execute.
 2. **PRDs should always be 1-pager** and almost completely filled.
 3. **Only consult for case studies** with Ajay. For everything else, take initiative.
-4. Always generate the **Resume in PDF format** & outreach messages in **text format**.
+4. **Resume MUST be generated as both HTML AND PDF — always.** After writing the HTML, immediately run the headless Chrome command to produce the PDF. Do NOT declare Phase 5 complete until the `.pdf` file exists on disk. Never ask Ajay to print it himself.
+5. **Always cite sources for projected/industry metrics.** Every prototype and CEO deck must include a sources section that maps each projected metric to a named industry benchmark (e.g. Zendesk CX Trends 2024, McKinsey Digital Banking Survey 2022, PYMNTS Payment Failure Index 2023). Sources go in a 2-column grid below the phone frame in prototypes, and inline as "(Source: X)" on impact slides in decks. Never present a projected metric without a benchmark source. Research and cite real publications — do not fabricate sources.
 
 ---
 
@@ -124,6 +125,8 @@ Always use this as the single source of truth. Never fabricate metrics or experi
 | STYLI | ReconHub | styli-reconhub-prototype.html | assets/styli-reconhub-deck.pptx | #real-world/styli |
 | eyewa | eyewa ProLoop | eyewa-proloop-prototype.html | assets/eyewa-proloop-deck.pptx | #real-world/eyewa |
 | eyewa | eyewa RepeatIQ | eyewa-repeatiq-prototype.html | assets/eyewa-repeatiq-deck.pptx | #real-world/eyewa |
+| Nomupay | MerchantIQ + SupportIQ | nomupay-merchantiq-prototype.html | assets/nomupay-merchantiq-deck.pptx | #real-world/nomupay |
+| Nomupay | BatchPayIQ | nomupay-batchpayiq-prototype.html | assets/nomupay-batchpayiq-deck.pptx | #real-world/nomupay |
 
 ---
 
@@ -459,8 +462,15 @@ git push origin main
 
 ### Resume Spec
 
-**Output:** `/Users/ajayavaghade/Job Apply AI/Ajay_Avaghade_Resume_[Company].html`
-The HTML file uses `@media print` CSS so Ajay can File → Print → Save as PDF in Chrome, matching the exact visual style of his existing resumes.
+**Outputs (both required — Phase 5 is not complete until both files exist):**
+- `/Users/ajayavaghade/Job Apply AI/Ajay_Avaghade_Resume_[Company].html` — source file
+- `/Users/ajayavaghade/Job Apply AI/Ajay_Avaghade_Resume_[Company].pdf` — generated automatically via headless Chrome immediately after the HTML is written
+
+**PDF generation command (run this automatically, no prompting):**
+```bash
+/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --headless --no-pdf-header-footer --print-to-pdf="/Users/ajayavaghade/Job Apply AI/Ajay_Avaghade_Resume_[Company].pdf" "file:///Users/ajayavaghade/Job Apply AI/Ajay_Avaghade_Resume_[Company].html"
+```
+Then open it: `open "/Users/ajayavaghade/Job Apply AI/Ajay_Avaghade_Resume_[Company].pdf"`
 
 **One-pager rule — STRICT:** Everything must fit on a single A4/Letter page. The page must also be **completely filled** — content should reach close to the bottom margin, not end halfway down. After writing, mentally estimate page fill: if content ends above ~85% of the page, add substance (expand a bullet, add a relevant case study to Projects). If overflowing: reduce `@page` margins first (.20in .25in), then trim bullet text — do NOT shrink font below 8.2pt.
 
@@ -621,21 +631,24 @@ After writing the resume, **always open it in Chrome and check these as a senior
 - [ ] No metrics invented — everything in "WHO IS AJAY" section
 - [ ] All links work (Portfolio, LinkedIn, prototype, deck)
 
-**After QA passes**, automatically generate the PDFs (Resume AND Cover Letter) using headless Chrome with the `--no-pdf-header-footer` flag to ensure clean outputs:
+**After completing the QA checklist above, immediately run the PDF generation command — this is mandatory, not optional:**
+
 ```bash
 /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --headless --no-pdf-header-footer --print-to-pdf="/Users/ajayavaghade/Job Apply AI/Ajay_Avaghade_Resume_[Company].pdf" "file:///Users/ajayavaghade/Job Apply AI/Ajay_Avaghade_Resume_[Company].html"
-
-/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --headless --no-pdf-header-footer --print-to-pdf="/Users/ajayavaghade/Job Apply AI/Ajay_Avaghade_Cover_Letter_[Company].pdf" "file:///Users/ajayavaghade/Job Apply AI/Ajay_Avaghade_Cover_Letter_[Company].html"
 ```
 
-Then open both for Ajay with:
+Then open the PDF so Ajay can see it:
 ```bash
 open "/Users/ajayavaghade/Job Apply AI/Ajay_Avaghade_Resume_[Company].pdf"
-open -a "Google Chrome" "/Users/ajayavaghade/Job Apply AI/Ajay_Avaghade_Resume_[Company].html"
 ```
 
-**Always provide the quick-edit tip with every resume delivery:**
-> **Quick edits:** In Chrome, press ⌘⌥I → Console → type `document.body.contentEditable='true'` → Enter. Click any text and edit directly. Then ⌘P to save as PDF with your edits. For file-level edits, right-click the `.html` file → Open With → TextEdit.
+**Phase 5 is NOT complete until:**
+1. The `.html` file exists at the correct path
+2. The `.pdf` file exists at the correct path (same name, `.pdf` extension)
+3. The PDF has been opened for Ajay to review
+
+**Quick-edit tip (always share this):**
+> **To edit the resume:** Open the `.html` file in Chrome → press ⌘⌥I → Console → type `document.body.contentEditable='true'` → Enter. Click any text and edit inline. Then re-run the Chrome headless command to regenerate the PDF.
 
 ---
 
@@ -747,6 +760,7 @@ These rules govern how this skill runs every time:
 | 2026-06 | Meesho | PM-2 Growth, Checkout & Returns Platform (Bangalore, India) | ReturnSense + Vaani-Cart + TrustBuy | Portfolio shipped | India job — NO relocation note. Palette: pink #F43397 (primary) / dark #353543 (secondary). ReturnSense = ML-driven returns mitigation at checkout (warnings, size matching, COD overlays with WhatsApp voice confirmation via Vaani), reducing returns by 40% and COD RTO by 25%. Vaani-Cart = voice-first checkout converting spoken address landmarks to coordinates, providing 14.2% lift. TrustBuy = supplier quality incentives linking SKU return rates to PRISM organic search visibility. All 3 prototypes built separately. Resume title: "Product Manager 2 — Growth, Checkout & Returns Platform". Skills: growth checkout, returns mitigation, RTO reduction, PRISM AI, Vaani voice assistant. |
 | 2026-06 | Almosafer | Product Manager — Growth, Conversion & Gamification (Dubai, UAE) | SmartLock + RouteIQ + Milestone Explorer | Portfolio shipped | UAE job — relocation note included. Palette: dark #07132B / orange #FF5A00 (SmartLock) / green #10B981 (RouteIQ) / gold #F5A623 (Milestone Explorer). SmartLock = dynamic price-freeze engine: locks flight/hotel rates for 48 hours for a micro-fee, using dynamic volatility hedging API to protect margins (+22% CVR lift). RouteIQ = dynamic cart bundling query-routing taxi (Careem) and attraction APIs with real-time discounts, featuring 30-min self-serve partner campaign tools (+35% AOV, +25% attach). Milestone Explorer = gamified regional travel trail mapping destination-based steps (inspired by Toss Korea), utilizing user-uploaded photos of completed trips inside node circles to form visual journals (+17% CLTV, 2.4x shares). All 3 prototypes built separately. Resume title: "Product Manager — Growth, Conversion & Gamification". |
 | 2026-06 | eyewa | PM, Engagement · Consumer Experience (Dubai, UAE) | ProLoop + RepeatIQ | Portfolio shipped | UAE job — relocation note included. Palette: ProLoop teal #00BFA5 / dark #0A1F1C; RepeatIQ indigo #6366F1 / dark #0F0E1A. Case studies pre-discussed with Ajay before build: 5 concepts brainstormed, user confirmed "Build A+B together (ProLoop) & C separately (RepeatIQ)". Both added to EXISTING rw-eyewa section (not a new company block — eyewa already had 3 ops case studies). eyewa app design research done before prototype build: light-mode app, white backgrounds, teal #00BFA5, minimal e-commerce aesthetic, bottom nav, category pills. ProLoop (6 screens): Home LensLoop alert (12-day countdown, red progress bar) → LensLoop supply detail (OD/OS wear grid, pre-filled address + card) → Confirm reorder → Order confirmed (confetti) → Pro dashboard (AED 847 hero, 8.5× ROI badge, savings breakdown BOGO/shipping/warranty) → Cancel-save flow (math argument: AED 847 / AED 99 = AED 748 net gain, Pause 30 days as primary CTA). RepeatIQ (5 screens): Before (generic home, no personalization, annotated with "what's missing") → With RepeatIQ (personalized "For You" tray: lens countdown + cross-category intro + Rx check reminder) → Complete Your Eyecare (68% Rx glasses users cohort, AED 29 trial, Rx on file, 78% convert within 14 days) → Win-Back (82-day lapse, saved cart, unused Pro BOGO, comeback offer) → Activated (confetti, Complete Eyecare milestone badge, next steps auto-queued, outcome stats). Key proof-point: same milestone-waiver psychology from PhonePe A/B (60% activation lift) applied to Pro cancel-save and renewal. Same ML propensity model from PhonePe (32% efficiency gain) applied to RepeatIQ cohort scoring. 8-digit hex alpha codes (e.g. #00BFA544) warn in pptxgenjs but decks still generate — border colors fall back to black, cosmetic only. Resume title: "Product Manager · Consumer Engagement & Behavioural Personalisation". Skills emphasise: repeat purchase engines, subscription retention, behavioural personalisation, cross-category LTV, win-back flows. |
+| 2026-07 | Nomupay | Senior PM, Merchant Experience (Dubai, UAE) | MerchantIQ + SupportIQ + BatchPayIQ | Portfolio shipped | UAE job — relocation note: "Planning active relocation to Dubai, UAE in Q3 2026 · Requires visa sponsorship". Palette: #060C1A dark / #0F1F3D hero / #2563EB accent / #F59E0B gold / #059669 green. Two separate case studies: A+B combined as MerchantIQ (unified multi-acquirer analytics portal + SupportIQ embedded AI assistant, 74% ticket deflection, 8-sec resolution) + C standalone as BatchPayIQ (batch payout with pre-submission IBAN validation, real-time per-row status, 97.8% success rate, auto-reconciliation). Both prototypes 5 screens, single centered phone layout, sourcing sections with 4 industry citation cards each (Zendesk, Intercom, McKinsey, PYMNTS for MerchantIQ; Bottomline, Kyriba, Gartner, SWIFT for BatchPayIQ). GLOBAL RULE ADDED: every projected metric in prototype + deck must cite a named industry source in a sourcing section — rule 5 in Global Agent Rules. Resume title: "Senior Product Manager · Payments Infrastructure, Merchant Experience & B2B Platforms". Skills: Merchant Portal PM, Self-Service Platform Design, Multi-Acquirer Intelligence, Batch Payout Processing, Conversational AI Products. Case studies in resume: MerchantIQ, BatchPayIQ, J.P. Morgan PayIQ, Tesco WalletBridge. |
 
 ### Improvements To-Do
 - [x] Build a reusable HTML resume base template — CSS baseline now locked in the "HTML Resume CSS baseline" section above
@@ -765,9 +779,9 @@ Phase 1 → Parse JD → Brainstorm 3–5 case studies → Get input → Confirm
 Phase 2 → Build HTML prototype (4 screens) → QA checklist
 Phase 3 → Build PptxGenJS deck (8 slides) → Extract text QA
 Phase 4 → Add portfolio block → git push → Update case studies table in this file
-Phase 5 → Generate HTML resume → Self-check → Print-to-PDF instructions
+Phase 5 → Write HTML resume → Run Chrome headless → PDF auto-generated → open PDF
 Phase 6 → Write LinkedIn note (≤300 chars) + email → QA
 ```
 
 **Estimated effort per run:** 45–90 minutes (prototype is the longest phase)
-**Deliverables:** 1 prototype HTML, 1 PPTX deck, 1 HTML resume, 1 LinkedIn note, 1 email — all in one session.
+**Deliverables:** 1 prototype HTML, 1 PPTX deck, 1 HTML resume, **1 PDF resume** (auto-generated), 1 outreach HTML — all in one session. Phase 5 is not complete without the PDF.
