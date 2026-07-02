@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nomupay — MerchantIQ · Unified Merchant Intelligence + SupportIQ · Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#060C1A;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:36px 20px 60px;font-family:'Inter',sans-serif;}
+.proto-hdr{font-size:11px;font-weight:600;color:rgba(255,255,255,0.38);letter-spacing:2px;text-transform:uppercase;margin-bottom:20px;text-align:center;}
+.phone-wrap{position:relative;}
+.phone{width:390px;height:844px;background:#F8FAFC;border-radius:48px;overflow:hidden;position:relative;box-shadow:0 40px 100px rgba(0,0,0,0.75),0 0 0 1px rgba(255,255,255,0.07),inset 0 0 0 2px rgba(0,0,0,0.15);}
+.ndot{position:absolute;top:0;left:50%;transform:translateX(-50%);width:126px;height:36px;background:#000;border-radius:0 0 24px 24px;z-index:200;}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;transform:translateX(100%);opacity:0;transition:none;overflow:hidden;}
+.screen.active{transform:translateX(0);opacity:1;}
+.sb{height:50px;background:#fff;display:flex;align-items:flex-end;justify-content:space-between;padding:0 24px 10px;flex-shrink:0;z-index:10;}
+.sb-dk{height:50px;background:#0F1F3D;display:flex;align-items:flex-end;justify-content:space-between;padding:0 24px 10px;flex-shrink:0;z-index:10;}
+.sb-time{font-size:14px;font-weight:600;color:#111;}
+.sb-time-w{font-size:14px;font-weight:600;color:#fff;}
+.sb-icons{display:flex;align-items:center;gap:5px;}
+.scroll{flex:1;overflow-y:auto;scrollbar-width:none;background:#F8FAFC;}
+.scroll::-webkit-scrollbar{display:none;}
+.bnav{height:72px;background:#fff;border-top:1px solid #E5E7EB;display:flex;justify-content:space-around;align-items:flex-start;padding-top:10px;flex-shrink:0;}
+.ni{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;}
+.ni span{font-size:10px;font-weight:500;color:#9CA3AF;}
+.ni.on span{color:#2563EB;}
+.nav-row{display:flex;align-items:center;gap:16px;margin-top:20px;}
+.arr{width:44px;height:44px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:50%;color:#fff;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s;font-family:sans-serif;}
+.arr:hover{background:rgba(255,255,255,0.14);}
+.dots{display:flex;gap:8px;}
+.dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.2);cursor:pointer;transition:all .25s;}
+.dot.on{background:#2563EB;width:22px;border-radius:4px;}
+.slabel{margin-top:12px;font-size:10px;font-weight:600;color:rgba(255,255,255,0.35);letter-spacing:2.5px;text-transform:uppercase;}
+.app-hdr{background:#fff;padding:12px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #F0F0F0;flex-shrink:0;}
+.back-hdr{background:#fff;padding:12px 18px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #F0F0F0;flex-shrink:0;}
+.nlogo{display:flex;align-items:center;gap:8px;}
+.nmark{width:28px;height:28px;background:#2563EB;border-radius:7px;display:flex;align-items:center;justify-content:center;}
+.nname{font-size:16px;font-weight:700;color:#111827;letter-spacing:-.3px;}
+@keyframes blink{0%,100%{opacity:.3;}50%{opacity:1;}}
+.typing span{display:inline-block;width:6px;height:6px;border-radius:50%;background:#9CA3AF;animation:blink 1.2s infinite;margin:0 2px;}
+.typing span:nth-child(2){animation-delay:.2s;}
+.typing span:nth-child(3){animation-delay:.4s;}
+</style>
+</head>
+<body>
+
+<div class="proto-hdr">Nomupay · MerchantIQ + SupportIQ · Merchant Intelligence Portal · Interactive Prototype</div>
+
+<div class="phone-wrap">
+<div class="phone">
+<div class="ndot"></div>
+
+<!-- ═══ SCREEN 1: DASHBOARD ═══ -->
+<div class="screen active" id="s1">
+  <div class="sb"><span class="sb-time">9:41</span><div class="sb-icons"><svg width="16" height="12" viewBox="0 0 17 12"><rect x="0" y="6" width="3" height="6" rx="1" fill="#111"/><rect x="4.5" y="4" width="3" height="8" rx="1" fill="#111"/><rect x="9" y="2" width="3" height="10" rx="1" fill="#111"/><rect x="13.5" y="0" width="3" height="12" rx="1" fill="#111"/></svg><svg width="25" height="12" viewBox="0 0 27 13"><rect x=".5" y=".5" width="22" height="12" rx="3.5" stroke="#111"/><path d="M23 4.5v4a2 2 0 000-4z" fill="#111"/><rect x="2" y="2" width="18" height="9" rx="2" fill="#111"/></svg></div></div>
+
+  <div class="app-hdr">
+    <div class="nlogo">
+      <div class="nmark"><span style="color:#fff;font-size:13px;font-weight:800;">N</span></div>
+      <span class="nname">nomupay</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:14px;">
+      <div style="position:relative;">
+        <svg width="22" height="22" fill="none" stroke="#374151" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+        <div style="position:absolute;top:-4px;right:-4px;width:14px;height:14px;background:#DC2626;border-radius:50%;border:2px solid #fff;display:flex;align-items:center;justify-content:center;"><span style="font-size:8px;font-weight:700;color:#fff;">2</span></div>
+      </div>
+      <div style="width:32px;height:32px;background:linear-gradient(135deg,#2563EB,#1D4ED8);border-radius:50%;display:flex;align-items:center;justify-content:center;"><span style="font-size:12px;font-weight:700;color:#fff;">TF</span></div>
+    </div>
+  </div>
+
+  <div class="scroll">
+    <div style="padding:14px 18px 10px;">
+      <div style="font-size:12px;color:#6B7280;font-weight:500;">Tuesday, 24 June 2025</div>
+      <div style="font-size:18px;font-weight:700;color:#111827;margin-top:1px;">TechFlow Europe Ltd</div>
+    </div>
+
+    <!-- Payment Health Hero -->
+    <div style="margin:0 16px 14px;background:linear-gradient(135deg,#1E3A5F,#2563EB);border-radius:20px;padding:20px;position:relative;overflow:hidden;">
+      <div style="position:absolute;top:-40px;right:-40px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,0.05);"></div>
+      <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.55);letter-spacing:1px;margin-bottom:8px;">PAYMENT AUTH RATE · LAST 24H</div>
+      <div style="display:flex;align-items:baseline;gap:4px;margin-bottom:4px;">
+        <span style="font-size:52px;font-weight:800;color:#fff;line-height:1;">96.2</span>
+        <span style="font-size:24px;font-weight:600;color:rgba(255,255,255,0.65);">%</span>
+        <div style="margin-left:10px;background:rgba(52,211,153,0.2);border:1px solid rgba(52,211,153,0.5);padding:4px 10px;border-radius:20px;">
+          <span style="font-size:12px;font-weight:700;color:#34D399;">↑ +0.4%</span>
+        </div>
+      </div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:16px;">Industry benchmark: 94.2% · You are outperforming</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+        <div style="background:rgba(255,255,255,0.1);border-radius:12px;padding:10px 12px;">
+          <div style="font-size:15px;font-weight:700;color:#fff;">£84.2K</div>
+          <div style="font-size:10px;color:rgba(255,255,255,0.5);margin-top:2px;">Settled today</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.1);border-radius:12px;padding:10px 12px;">
+          <div style="font-size:15px;font-weight:700;color:#fff;">£12.4K</div>
+          <div style="font-size:10px;color:rgba(255,255,255,0.5);margin-top:2px;">Processing</div>
+        </div>
+        <div style="background:rgba(251,191,36,0.15);border-radius:12px;padding:10px 12px;border:1px solid rgba(251,191,36,0.3);">
+          <div style="font-size:15px;font-weight:700;color:#FBBF24;">2</div>
+          <div style="font-size:10px;color:rgba(255,255,255,0.5);margin-top:2px;">Alerts</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alert -->
+    <div style="margin:0 16px 14px;background:#FEF3C7;border:1px solid #FDE68A;border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:10px;">
+      <span style="font-size:20px;flex-shrink:0;">⚠️</span>
+      <div>
+        <div style="font-size:12px;font-weight:700;color:#92400E;">Adyen auth rate dropped to 94.3%</div>
+        <div style="font-size:11px;color:#B45309;margin-top:1px;">Down 1.2% since 14:32 · Review routing or ask SupportIQ</div>
+      </div>
+    </div>
+
+    <!-- Acquirer Performance -->
+    <div style="padding:0 16px 14px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <span style="font-size:14px;font-weight:700;color:#111827;">Acquirer Performance</span>
+        <span style="font-size:11px;color:#2563EB;font-weight:600;cursor:pointer;" onclick="go(2)">Full analytics →</span>
+      </div>
+
+      <!-- Stripe -->
+      <div style="background:#fff;border-radius:14px;padding:14px;margin-bottom:8px;box-shadow:0 1px 6px rgba(0,0,0,0.07);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div style="width:28px;height:28px;background:#635BFF;border-radius:7px;display:flex;align-items:center;justify-content:center;"><span style="font-size:11px;font-weight:800;color:#fff;">S</span></div>
+            <span style="font-size:13px;font-weight:600;color:#111827;">Stripe</span>
+          </div>
+          <div style="text-align:right;">
+            <span style="font-size:16px;font-weight:700;color:#111827;">97.1%</span>
+            <span style="font-size:11px;color:#059669;font-weight:600;margin-left:5px;">↑ 0.3%</span>
+          </div>
+        </div>
+        <div style="background:#F3F4F6;border-radius:6px;height:6px;"><div style="height:100%;width:97%;background:linear-gradient(90deg,#2563EB,#60A5FA);border-radius:6px;"></div></div>
+        <div style="display:flex;justify-content:space-between;margin-top:6px;">
+          <span style="font-size:10px;color:#9CA3AF;">Vol: £186K · 1,204 txns</span>
+          <span style="background:#D1FAE5;color:#065F46;font-size:9px;font-weight:700;padding:2px 7px;border-radius:8px;">HEALTHY</span>
+        </div>
+      </div>
+
+      <!-- Adyen -->
+      <div style="background:#fff;border-radius:14px;padding:14px;margin-bottom:8px;box-shadow:0 1px 6px rgba(0,0,0,0.07);border:1px solid #FDE68A;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div style="width:28px;height:28px;background:#0ABF53;border-radius:7px;display:flex;align-items:center;justify-content:center;"><span style="font-size:11px;font-weight:800;color:#fff;">A</span></div>
+            <span style="font-size:13px;font-weight:600;color:#111827;">Adyen</span>
+          </div>
+          <div style="text-align:right;">
+            <span style="font-size:16px;font-weight:700;color:#111827;">94.3%</span>
+            <span style="font-size:11px;color:#DC2626;font-weight:600;margin-left:5px;">↓ 1.2%</span>
+          </div>
+        </div>
+        <div style="background:#F3F4F6;border-radius:6px;height:6px;"><div style="height:100%;width:94%;background:linear-gradient(90deg,#D97706,#FBBF24);border-radius:6px;"></div></div>
+        <div style="display:flex;justify-content:space-between;margin-top:6px;">
+          <span style="font-size:10px;color:#9CA3AF;">Vol: £112K · 768 txns</span>
+          <span style="background:#FEF3C7;color:#92400E;font-size:9px;font-weight:700;padding:2px 7px;border-radius:8px;">⚠ ALERT</span>
+        </div>
+      </div>
+
+      <!-- PayU -->
+      <div style="background:#fff;border-radius:14px;padding:14px;box-shadow:0 1px 6px rgba(0,0,0,0.07);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div style="width:28px;height:28px;background:#FF6B35;border-radius:7px;display:flex;align-items:center;justify-content:center;"><span style="font-size:11px;font-weight:800;color:#fff;">P</span></div>
+            <span style="font-size:13px;font-weight:600;color:#111827;">PayU</span>
+          </div>
+          <div style="text-align:right;">
+            <span style="font-size:16px;font-weight:700;color:#111827;">91.8%</span>
+            <span style="font-size:11px;color:#6B7280;font-weight:500;margin-left:5px;">—</span>
+          </div>
+        </div>
+        <div style="background:#F3F4F6;border-radius:6px;height:6px;"><div style="height:100%;width:92%;background:linear-gradient(90deg,#6366F1,#A78BFA);border-radius:6px;"></div></div>
+        <div style="display:flex;justify-content:space-between;margin-top:6px;">
+          <span style="font-size:10px;color:#9CA3AF;">Vol: £49K · 875 txns</span>
+          <span style="background:#E0E7FF;color:#3730A3;font-size:9px;font-weight:700;padding:2px 7px;border-radius:8px;">STABLE</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SupportIQ CTA -->
+    <div style="margin:0 16px 24px;background:linear-gradient(135deg,#EFF6FF,#DBEAFE);border:1px solid #BFDBFE;border-radius:18px;padding:16px;cursor:pointer;" onclick="go(3)">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+        <div style="width:38px;height:38px;background:#2563EB;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span style="font-size:18px;">✨</span></div>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:#1E40AF;">Ask SupportIQ</div>
+          <div style="font-size:11px;color:#3B82F6;">AI-powered · Connected to live data</div>
+        </div>
+        <div style="margin-left:auto;font-size:20px;color:#2563EB;">›</div>
+      </div>
+      <div style="background:#fff;border-radius:10px;padding:10px 14px;border:1px solid #BFDBFE;">
+        <span style="font-size:12px;color:#9CA3AF;">e.g. "Where's my Tuesday payout?"</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="bnav">
+    <div class="ni on"><svg width="22" height="22" viewBox="0 0 24 24" fill="#2563EB"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg><span>Home</span></div>
+    <div class="ni" onclick="go(2)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 16l4-4 4 4 4-4"/></svg><span>Analytics</span></div>
+    <div class="ni"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg><span>Payouts</span></div>
+    <div class="ni" onclick="go(3)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><span>Support</span></div>
+    <div class="ni"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg><span>Settings</span></div>
+  </div>
+</div>
+
+<!-- ═══ SCREEN 2: MULTI-ACQUIRER ANALYTICS ═══ -->
+<div class="screen" id="s2">
+  <div class="sb"><span class="sb-time">9:43</span><div class="sb-icons"><svg width="16" height="12" viewBox="0 0 17 12"><rect x="0" y="6" width="3" height="6" rx="1" fill="#111"/><rect x="4.5" y="4" width="3" height="8" rx="1" fill="#111"/><rect x="9" y="2" width="3" height="10" rx="1" fill="#111"/><rect x="13.5" y="0" width="3" height="12" rx="1" fill="#111"/></svg><svg width="25" height="12" viewBox="0 0 27 13"><rect x=".5" y=".5" width="22" height="12" rx="3.5" stroke="#111"/><path d="M23 4.5v4a2 2 0 000-4z" fill="#111"/><rect x="2" y="2" width="18" height="9" rx="2" fill="#111"/></svg></div></div>
+
+  <div class="back-hdr">
+    <button onclick="go(1)" style="background:none;border:none;cursor:pointer;display:flex;align-items:center;"><svg width="22" height="22" fill="none" stroke="#111" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>
+    <span style="font-size:16px;font-weight:700;color:#111827;">Analytics</span>
+    <div style="margin-left:auto;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:20px;padding:4px 12px;display:flex;align-items:center;gap:4px;">
+      <span style="font-size:11px;color:#2563EB;font-weight:600;">Last 30 days ▾</span>
+    </div>
+  </div>
+
+  <div class="scroll">
+    <!-- Summary Stats -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:14px 16px 0;">
+      <div style="background:#fff;border-radius:14px;padding:12px 10px;text-align:center;box-shadow:0 1px 6px rgba(0,0,0,0.07);">
+        <div style="font-size:17px;font-weight:800;color:#111827;">£347K</div>
+        <div style="font-size:10px;color:#6B7280;margin-top:2px;">Total Vol.</div>
+      </div>
+      <div style="background:#fff;border-radius:14px;padding:12px 10px;text-align:center;box-shadow:0 1px 6px rgba(0,0,0,0.07);">
+        <div style="font-size:17px;font-weight:800;color:#111827;">95.6%</div>
+        <div style="font-size:10px;color:#6B7280;margin-top:2px;">Auth Rate</div>
+      </div>
+      <div style="background:#fff;border-radius:14px;padding:12px 10px;text-align:center;box-shadow:0 1px 6px rgba(0,0,0,0.07);">
+        <div style="font-size:17px;font-weight:800;color:#111827;">2,847</div>
+        <div style="font-size:10px;color:#6B7280;margin-top:2px;">Transactions</div>
+      </div>
+    </div>
+
+    <!-- Auth Rate Chart -->
+    <div style="margin:14px 16px;background:#fff;border-radius:16px;padding:16px;box-shadow:0 1px 6px rgba(0,0,0,0.07);">
+      <div style="font-size:13px;font-weight:700;color:#111827;margin-bottom:14px;">Auth Rate Trend (7 days)</div>
+      <div style="display:flex;align-items:flex-end;gap:8px;height:80px;padding:0 4px;">
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+          <div style="flex:1;width:100%;background:linear-gradient(0deg,#2563EB,#60A5FA);border-radius:4px 4px 0 0;height:91%;"></div>
+          <span style="font-size:9px;color:#9CA3AF;">Mon</span>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+          <div style="flex:1;width:100%;background:linear-gradient(0deg,#2563EB,#60A5FA);border-radius:4px 4px 0 0;height:95%;"></div>
+          <span style="font-size:9px;color:#9CA3AF;">Tue</span>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+          <div style="flex:1;width:100%;background:linear-gradient(0deg,#2563EB,#60A5FA);border-radius:4px 4px 0 0;height:93%;"></div>
+          <span style="font-size:9px;color:#9CA3AF;">Wed</span>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+          <div style="flex:1;width:100%;background:linear-gradient(0deg,#D97706,#FBBF24);border-radius:4px 4px 0 0;height:88%;"></div>
+          <span style="font-size:9px;color:#D97706;font-weight:700;">Thu</span>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+          <div style="flex:1;width:100%;background:linear-gradient(0deg,#2563EB,#60A5FA);border-radius:4px 4px 0 0;height:96%;"></div>
+          <span style="font-size:9px;color:#9CA3AF;">Fri</span>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+          <div style="flex:1;width:100%;background:linear-gradient(0deg,#2563EB,#60A5FA);border-radius:4px 4px 0 0;height:97%;"></div>
+          <span style="font-size:9px;color:#9CA3AF;">Sat</span>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+          <div style="flex:1;width:100%;background:linear-gradient(0deg,#059669,#34D399);border-radius:4px 4px 0 0;height:97%;border:2px solid #059669;"></div>
+          <span style="font-size:9px;color:#059669;font-weight:700;">Sun</span>
+        </div>
+      </div>
+      <div style="font-size:10px;color:#9CA3AF;margin-top:6px;text-align:right;">⚠ Thu drop: Adyen outage 14:00–18:00</div>
+    </div>
+
+    <!-- Acquirer Comparison Table -->
+    <div style="margin:0 16px 14px;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,0.07);">
+      <div style="padding:14px 16px;border-bottom:1px solid #F3F4F6;">
+        <span style="font-size:13px;font-weight:700;color:#111827;">Acquirer Breakdown</span>
+      </div>
+      <div style="padding:0 14px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:0;padding:8px 0;border-bottom:1px solid #F9FAFB;">
+          <span style="font-size:10px;font-weight:700;color:#9CA3AF;text-transform:uppercase;">Acquirer</span>
+          <span style="font-size:10px;font-weight:700;color:#9CA3AF;text-align:right;text-transform:uppercase;">Auth%</span>
+          <span style="font-size:10px;font-weight:700;color:#9CA3AF;text-align:right;text-transform:uppercase;">Volume</span>
+          <span style="font-size:10px;font-weight:700;color:#9CA3AF;text-align:right;text-transform:uppercase;">Txns</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:0;padding:10px 0;border-bottom:1px solid #F9FAFB;align-items:center;">
+          <div style="display:flex;align-items:center;gap:5px;"><div style="width:18px;height:18px;background:#635BFF;border-radius:4px;display:flex;align-items:center;justify-content:center;"><span style="font-size:8px;font-weight:800;color:#fff;">S</span></div><span style="font-size:12px;font-weight:600;color:#111;">Stripe</span></div>
+          <span style="font-size:13px;font-weight:700;color:#059669;text-align:right;">97.1%</span>
+          <span style="font-size:12px;color:#374151;text-align:right;">£186K</span>
+          <span style="font-size:12px;color:#374151;text-align:right;">1,204</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:0;padding:10px 0;border-bottom:1px solid #F9FAFB;align-items:center;background:#FFFBEB;">
+          <div style="display:flex;align-items:center;gap:5px;"><div style="width:18px;height:18px;background:#0ABF53;border-radius:4px;display:flex;align-items:center;justify-content:center;"><span style="font-size:8px;font-weight:800;color:#fff;">A</span></div><span style="font-size:12px;font-weight:600;color:#111;">Adyen</span></div>
+          <span style="font-size:13px;font-weight:700;color:#D97706;text-align:right;">94.3%</span>
+          <span style="font-size:12px;color:#374151;text-align:right;">£112K</span>
+          <span style="font-size:12px;color:#374151;text-align:right;">768</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:0;padding:10px 0;align-items:center;">
+          <div style="display:flex;align-items:center;gap:5px;"><div style="width:18px;height:18px;background:#FF6B35;border-radius:4px;display:flex;align-items:center;justify-content:center;"><span style="font-size:8px;font-weight:800;color:#fff;">P</span></div><span style="font-size:12px;font-weight:600;color:#111;">PayU</span></div>
+          <span style="font-size:13px;font-weight:700;color:#6366F1;text-align:right;">91.8%</span>
+          <span style="font-size:12px;color:#374151;text-align:right;">£49K</span>
+          <span style="font-size:12px;color:#374151;text-align:right;">875</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- FX Exposure -->
+    <div style="margin:0 16px 14px;background:linear-gradient(135deg,#0F172A,#1E293B);border-radius:16px;padding:16px;">
+      <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.5);letter-spacing:1px;margin-bottom:8px;">FX EXPOSURE · THIS WEEK</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div>
+          <div style="font-size:13px;font-weight:700;color:#fff;">EUR / GBP</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.5);margin-top:2px;">Settlement exposure</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:18px;font-weight:800;color:#F87171;">−2.1%</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px;">−£3.2K vs forecast</div>
+        </div>
+      </div>
+      <div style="background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);border-radius:10px;padding:9px 12px;">
+        <span style="font-size:11px;color:#FCA5A5;">💡 Hedge opportunity: GBP strengthening — consider early settlement on EUR batch</span>
+      </div>
+    </div>
+
+    <!-- Decline Reasons -->
+    <div style="margin:0 16px 24px;background:#fff;border-radius:16px;padding:16px;box-shadow:0 1px 6px rgba(0,0,0,0.07);">
+      <div style="font-size:13px;font-weight:700;color:#111827;margin-bottom:12px;">Top Decline Reasons</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div><div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:12px;color:#374151;">Insufficient funds</span><span style="font-size:12px;font-weight:600;color:#374151;">34%</span></div><div style="background:#F3F4F6;border-radius:4px;height:6px;"><div style="height:100%;width:34%;background:#6366F1;border-radius:4px;"></div></div></div>
+        <div><div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:12px;color:#374151;">Card expired</span><span style="font-size:12px;font-weight:600;color:#374151;">22%</span></div><div style="background:#F3F4F6;border-radius:4px;height:6px;"><div style="height:100%;width:22%;background:#2563EB;border-radius:4px;"></div></div></div>
+        <div><div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:12px;color:#374151;">3DS failure</span><span style="font-size:12px;font-weight:600;color:#374151;">18%</span></div><div style="background:#F3F4F6;border-radius:4px;height:6px;"><div style="height:100%;width:18%;background:#D97706;border-radius:4px;"></div></div></div>
+        <div><div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:12px;color:#374151;">Issuer declined</span><span style="font-size:12px;font-weight:600;color:#374151;">16%</span></div><div style="background:#F3F4F6;border-radius:4px;height:6px;"><div style="height:100%;width:16%;background:#DC2626;border-radius:4px;"></div></div></div>
+        <div><div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:12px;color:#374151;">Other</span><span style="font-size:12px;font-weight:600;color:#374151;">10%</span></div><div style="background:#F3F4F6;border-radius:4px;height:6px;"><div style="height:100%;width:10%;background:#9CA3AF;border-radius:4px;"></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bnav">
+    <div class="ni" onclick="go(1)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Home</span></div>
+    <div class="ni on"><svg width="22" height="22" viewBox="0 0 24 24" fill="#2563EB"><path d="M3 3v18h18"/><path d="M7 16l4-4 4 4 4-4" stroke="#2563EB" stroke-width="2" fill="none"/></svg><span>Analytics</span></div>
+    <div class="ni"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg><span>Payouts</span></div>
+    <div class="ni" onclick="go(3)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><span>Support</span></div>
+    <div class="ni"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg><span>Settings</span></div>
+  </div>
+</div>
+
+<!-- ═══ SCREEN 3: SUPPORTIQ CHAT — MESSAGE SENT ═══ -->
+<div class="screen" id="s3">
+  <div class="sb"><span class="sb-time">9:47</span><div class="sb-icons"><svg width="16" height="12" viewBox="0 0 17 12"><rect x="0" y="6" width="3" height="6" rx="1" fill="#111"/><rect x="4.5" y="4" width="3" height="8" rx="1" fill="#111"/><rect x="9" y="2" width="3" height="10" rx="1" fill="#111"/><rect x="13.5" y="0" width="3" height="12" rx="1" fill="#111"/></svg><svg width="25" height="12" viewBox="0 0 27 13"><rect x=".5" y=".5" width="22" height="12" rx="3.5" stroke="#111"/><path d="M23 4.5v4a2 2 0 000-4z" fill="#111"/><rect x="2" y="2" width="18" height="9" rx="2" fill="#111"/></svg></div></div>
+
+  <!-- SupportIQ Header -->
+  <div style="background:#fff;padding:12px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #F0F0F0;flex-shrink:0;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button onclick="go(1)" style="background:none;border:none;cursor:pointer;display:flex;"><svg width="22" height="22" fill="none" stroke="#111" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>
+      <div style="width:36px;height:36px;background:linear-gradient(135deg,#2563EB,#3B82F6);border-radius:10px;display:flex;align-items:center;justify-content:center;"><span style="font-size:18px;">✨</span></div>
+      <div>
+        <div style="font-size:15px;font-weight:700;color:#111827;">SupportIQ</div>
+        <div style="font-size:11px;color:#059669;font-weight:600;">● Connected to live data</div>
+      </div>
+    </div>
+    <div style="background:#EFF6FF;border-radius:20px;padding:3px 10px;"><span style="font-size:10px;font-weight:700;color:#2563EB;">Nomupay AI</span></div>
+  </div>
+
+  <!-- Suggested Queries -->
+  <div style="background:#F8FAFC;padding:10px 16px;border-bottom:1px solid #F0F0F0;flex-shrink:0;">
+    <div style="display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;">
+      <div style="background:#fff;border:1px solid #E5E7EB;border-radius:20px;padding:6px 12px;white-space:nowrap;cursor:pointer;"><span style="font-size:11px;color:#374151;">Payout status?</span></div>
+      <div style="background:#fff;border:1px solid #E5E7EB;border-radius:20px;padding:6px 12px;white-space:nowrap;cursor:pointer;"><span style="font-size:11px;color:#374151;">Failed transaction?</span></div>
+      <div style="background:#fff;border:1px solid #E5E7EB;border-radius:20px;padding:6px 12px;white-space:nowrap;cursor:pointer;"><span style="font-size:11px;color:#374151;">FX rate today?</span></div>
+      <div style="background:#fff;border:1px solid #E5E7EB;border-radius:20px;padding:6px 12px;white-space:nowrap;cursor:pointer;"><span style="font-size:11px;color:#374151;">Settlement ETA?</span></div>
+    </div>
+  </div>
+
+  <!-- Chat Area -->
+  <div class="scroll" style="padding:16px;display:flex;flex-direction:column;gap:12px;">
+    <!-- System message -->
+    <div style="text-align:center;"><span style="font-size:11px;color:#9CA3AF;background:#F3F4F6;padding:4px 12px;border-radius:20px;">Today · 9:41 AM</span></div>
+
+    <div style="display:flex;gap:8px;align-items:flex-start;">
+      <div style="width:30px;height:30px;background:linear-gradient(135deg,#2563EB,#3B82F6);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span style="font-size:14px;">✨</span></div>
+      <div style="background:#fff;border-radius:4px 16px 16px 16px;padding:12px 14px;box-shadow:0 1px 6px rgba(0,0,0,0.07);max-width:270px;">
+        <p style="font-size:13px;color:#374151;line-height:1.5;">Hi! I have real-time access to your payment data. Ask me anything — payouts, transactions, FX, or settlement status.</p>
+      </div>
+    </div>
+
+    <!-- User message -->
+    <div style="display:flex;justify-content:flex-end;">
+      <div style="background:#2563EB;border-radius:16px 4px 16px 16px;padding:12px 14px;max-width:270px;">
+        <p style="font-size:13px;color:#fff;line-height:1.5;">Where is my Tuesday payout? Batch #BP-20240624</p>
+      </div>
+    </div>
+
+    <!-- AI typing -->
+    <div style="display:flex;gap:8px;align-items:flex-start;">
+      <div style="width:30px;height:30px;background:linear-gradient(135deg,#2563EB,#3B82F6);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span style="font-size:14px;">✨</span></div>
+      <div style="background:#fff;border-radius:4px 16px 16px 16px;padding:14px;box-shadow:0 1px 6px rgba(0,0,0,0.07);">
+        <div class="typing"><span></span><span></span><span></span></div>
+        <div style="font-size:10px;color:#9CA3AF;margin-top:6px;">Querying live data...</div>
+      </div>
+    </div>
+
+    <div style="padding-bottom:80px;"></div>
+  </div>
+
+  <!-- Input Bar -->
+  <div style="background:#fff;border-top:1px solid #E5E7EB;padding:12px 16px;flex-shrink:0;display:flex;gap:8px;align-items:center;">
+    <div style="flex:1;background:#F3F4F6;border-radius:24px;padding:10px 16px;">
+      <span style="font-size:13px;color:#9CA3AF;">Ask about your payments...</span>
+    </div>
+    <div style="width:40px;height:40px;background:#2563EB;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;" onclick="go(4)">
+      <svg width="18" height="18" fill="none" stroke="#fff" stroke-width="2.5" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SCREEN 4: SUPPORTIQ RESOLUTION ═══ -->
+<div class="screen" id="s4">
+  <div class="sb"><span class="sb-time">9:47</span><div class="sb-icons"><svg width="16" height="12" viewBox="0 0 17 12"><rect x="0" y="6" width="3" height="6" rx="1" fill="#111"/><rect x="4.5" y="4" width="3" height="8" rx="1" fill="#111"/><rect x="9" y="2" width="3" height="10" rx="1" fill="#111"/><rect x="13.5" y="0" width="3" height="12" rx="1" fill="#111"/></svg><svg width="25" height="12" viewBox="0 0 27 13"><rect x=".5" y=".5" width="22" height="12" rx="3.5" stroke="#111"/><path d="M23 4.5v4a2 2 0 000-4z" fill="#111"/><rect x="2" y="2" width="18" height="9" rx="2" fill="#111"/></svg></div></div>
+
+  <div style="background:#fff;padding:12px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #F0F0F0;flex-shrink:0;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button onclick="go(3)" style="background:none;border:none;cursor:pointer;display:flex;"><svg width="22" height="22" fill="none" stroke="#111" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>
+      <div style="width:36px;height:36px;background:linear-gradient(135deg,#2563EB,#3B82F6);border-radius:10px;display:flex;align-items:center;justify-content:center;"><span style="font-size:18px;">✨</span></div>
+      <div>
+        <div style="font-size:15px;font-weight:700;color:#111827;">SupportIQ</div>
+        <div style="font-size:11px;color:#059669;font-weight:600;">● Connected to live data</div>
+      </div>
+    </div>
+    <div style="background:#EFF6FF;border-radius:20px;padding:3px 10px;"><span style="font-size:10px;font-weight:700;color:#2563EB;">Nomupay AI</span></div>
+  </div>
+
+  <div class="scroll" style="padding:16px;display:flex;flex-direction:column;gap:12px;">
+    <div style="text-align:center;"><span style="font-size:11px;color:#9CA3AF;background:#F3F4F6;padding:4px 12px;border-radius:20px;">Today · 9:47 AM</span></div>
+
+    <!-- User message -->
+    <div style="display:flex;justify-content:flex-end;">
+      <div style="background:#2563EB;border-radius:16px 4px 16px 16px;padding:12px 14px;max-width:270px;">
+        <p style="font-size:13px;color:#fff;line-height:1.5;">Where is my Tuesday payout? Batch #BP-20240624</p>
+      </div>
+    </div>
+
+    <!-- AI full response -->
+    <div style="display:flex;gap:8px;align-items:flex-start;">
+      <div style="width:30px;height:30px;background:linear-gradient(135deg,#2563EB,#3B82F6);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span style="font-size:14px;">✨</span></div>
+      <div style="flex:1;max-width:300px;">
+        <div style="background:#fff;border-radius:4px 16px 16px 16px;padding:14px;box-shadow:0 1px 6px rgba(0,0,0,0.08);">
+          <p style="font-size:13px;color:#374151;line-height:1.5;margin-bottom:10px;">Found <strong style="color:#111;">Batch #BP-20240624</strong> ✓</p>
+
+          <!-- Data card inside AI message -->
+          <div style="background:#F8FAFC;border:1px solid #E5E7EB;border-radius:12px;padding:12px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid #E5E7EB;">
+              <span style="font-size:11px;color:#6B7280;font-weight:600;">TOTAL AMOUNT</span>
+              <span style="font-size:15px;font-weight:800;color:#111827;">£23,450</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              <div style="display:flex;justify-content:space-between;">
+                <span style="font-size:11px;color:#6B7280;">Transactions</span>
+                <span style="font-size:12px;font-weight:600;color:#374151;">847 total</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;">
+                <span style="font-size:11px;color:#6B7280;">Settled</span>
+                <span style="font-size:12px;font-weight:600;color:#059669;">842 ✓</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;">
+                <span style="font-size:11px;color:#6B7280;">Processing</span>
+                <span style="font-size:12px;font-weight:600;color:#2563EB;">5 · ~45 min</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;">
+                <span style="font-size:11px;color:#6B7280;">Settlement ETA</span>
+                <span style="font-size:12px;font-weight:700;color:#111827;">Today 17:30 UK</span>
+              </div>
+            </div>
+          </div>
+
+          <p style="font-size:12px;color:#6B7280;margin-top:10px;line-height:1.5;">No action needed. The 5 pending transactions are processing normally through Barclays clearing. You'll receive a settlement confirmation email at 17:35.</p>
+        </div>
+
+        <!-- Resolution badge -->
+        <div style="margin-top:8px;background:#D1FAE5;border:1px solid #A7F3D0;border-radius:12px;padding:10px 14px;display:flex;align-items:center;gap:8px;">
+          <span style="font-size:16px;">✅</span>
+          <div>
+            <div style="font-size:12px;font-weight:700;color:#065F46;">Resolved by SupportIQ · 8 seconds</div>
+            <div style="font-size:11px;color:#047857;">No support ticket raised</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick actions -->
+    <div style="display:flex;gap:8px;padding-left:38px;">
+      <button style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:20px;padding:8px 14px;cursor:pointer;"><span style="font-size:12px;font-weight:600;color:#2563EB;">View Payout Details</span></button>
+      <button style="background:#F9FAFB;border:1px solid #E5E7EB;border-radius:20px;padding:8px 14px;cursor:pointer;" onclick="go(5)"><span style="font-size:12px;color:#6B7280;">See Insights →</span></button>
+    </div>
+
+    <!-- Rating -->
+    <div style="text-align:center;padding:8px 0;">
+      <div style="font-size:12px;color:#9CA3AF;margin-bottom:6px;">Was this helpful?</div>
+      <div style="display:flex;justify-content:center;gap:4px;">
+        <span style="font-size:22px;cursor:pointer;">👍</span>
+        <span style="font-size:22px;cursor:pointer;">👎</span>
+      </div>
+    </div>
+    <div style="padding-bottom:80px;"></div>
+  </div>
+
+  <div style="background:#fff;border-top:1px solid #E5E7EB;padding:12px 16px;flex-shrink:0;display:flex;gap:8px;align-items:center;">
+    <div style="flex:1;background:#F3F4F6;border-radius:24px;padding:10px 16px;">
+      <span style="font-size:13px;color:#9CA3AF;">Ask a follow-up...</span>
+    </div>
+    <div style="width:40px;height:40px;background:#2563EB;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+      <svg width="18" height="18" fill="none" stroke="#fff" stroke-width="2.5" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SCREEN 5: SUPPORTIQ DEFLECTION INSIGHTS ═══ -->
+<div class="screen" id="s5">
+  <div class="sb"><span class="sb-time">9:50</span><div class="sb-icons"><svg width="16" height="12" viewBox="0 0 17 12"><rect x="0" y="6" width="3" height="6" rx="1" fill="#111"/><rect x="4.5" y="4" width="3" height="8" rx="1" fill="#111"/><rect x="9" y="2" width="3" height="10" rx="1" fill="#111"/><rect x="13.5" y="0" width="3" height="12" rx="1" fill="#111"/></svg><svg width="25" height="12" viewBox="0 0 27 13"><rect x=".5" y=".5" width="22" height="12" rx="3.5" stroke="#111"/><path d="M23 4.5v4a2 2 0 000-4z" fill="#111"/><rect x="2" y="2" width="18" height="9" rx="2" fill="#111"/></svg></div></div>
+
+  <div class="back-hdr">
+    <button onclick="go(4)" style="background:none;border:none;cursor:pointer;display:flex;"><svg width="22" height="22" fill="none" stroke="#111" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>
+    <span style="font-size:16px;font-weight:700;color:#111827;">SupportIQ Insights</span>
+    <div style="margin-left:auto;"><span style="font-size:11px;color:#6B7280;">June 2025</span></div>
+  </div>
+
+  <div class="scroll">
+    <!-- Hero Stats -->
+    <div style="margin:14px 16px;background:linear-gradient(135deg,#1E3A5F,#1D4ED8);border-radius:20px;padding:22px 20px;position:relative;overflow:hidden;">
+      <div style="position:absolute;top:-30px;right:-30px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,0.05);"></div>
+      <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.55);letter-spacing:1px;margin-bottom:12px;">THIS MONTH · SUPPORTIQ PERFORMANCE</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div>
+          <div style="font-size:38px;font-weight:800;color:#fff;line-height:1;">847</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.6);margin-top:3px;">Queries resolved by AI</div>
+        </div>
+        <div>
+          <div style="font-size:38px;font-weight:800;color:#34D399;line-height:1;">0</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.6);margin-top:3px;">Tickets raised for those</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KPI grid -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px 14px;">
+      <div style="background:#fff;border-radius:16px;padding:16px;box-shadow:0 1px 6px rgba(0,0,0,0.07);">
+        <div style="font-size:24px;font-weight:800;color:#059669;">74%</div>
+        <div style="font-size:11px;color:#6B7280;margin-top:3px;">Ticket deflection rate</div>
+        <div style="font-size:10px;color:#9CA3AF;margin-top:2px;">vs 0% before SupportIQ</div>
+      </div>
+      <div style="background:#fff;border-radius:16px;padding:16px;box-shadow:0 1px 6px rgba(0,0,0,0.07);">
+        <div style="font-size:24px;font-weight:800;color:#111827;">8s</div>
+        <div style="font-size:11px;color:#6B7280;margin-top:3px;">Avg resolution time</div>
+        <div style="font-size:10px;color:#9CA3AF;margin-top:2px;">vs 26h via support ticket</div>
+      </div>
+      <div style="background:#fff;border-radius:16px;padding:16px;box-shadow:0 1px 6px rgba(0,0,0,0.07);">
+        <div style="font-size:24px;font-weight:800;color:#2563EB;">£8.5K</div>
+        <div style="font-size:11px;color:#6B7280;margin-top:3px;">Support cost saved</div>
+        <div style="font-size:10px;color:#9CA3AF;margin-top:2px;">At £10/ticket est.</div>
+      </div>
+      <div style="background:#fff;border-radius:16px;padding:16px;box-shadow:0 1px 6px rgba(0,0,0,0.07);">
+        <div style="font-size:24px;font-weight:800;color:#F59E0B;">4.8/5</div>
+        <div style="font-size:11px;color:#6B7280;margin-top:3px;">Merchant satisfaction</div>
+        <div style="font-size:10px;color:#9CA3AF;margin-top:2px;">847 rated responses</div>
+      </div>
+    </div>
+
+    <!-- Query category breakdown -->
+    <div style="margin:0 16px 14px;background:#fff;border-radius:16px;padding:16px;box-shadow:0 1px 6px rgba(0,0,0,0.07);">
+      <div style="font-size:13px;font-weight:700;color:#111827;margin-bottom:12px;">Query Categories Resolved</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div><div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span style="font-size:12px;color:#374151;">Payout status &amp; ETA</span><span style="font-size:12px;font-weight:700;color:#374151;">38%</span></div><div style="background:#F3F4F6;border-radius:4px;height:8px;"><div style="height:100%;width:38%;background:#2563EB;border-radius:4px;"></div></div></div>
+        <div><div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span style="font-size:12px;color:#374151;">Failed transaction detail</span><span style="font-size:12px;font-weight:700;color:#374151;">24%</span></div><div style="background:#F3F4F6;border-radius:4px;height:8px;"><div style="height:100%;width:24%;background:#6366F1;border-radius:4px;"></div></div></div>
+        <div><div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span style="font-size:12px;color:#374151;">FX rates &amp; settlement</span><span style="font-size:12px;font-weight:700;color:#374151;">19%</span></div><div style="background:#F3F4F6;border-radius:4px;height:8px;"><div style="height:100%;width:19%;background:#059669;border-radius:4px;"></div></div></div>
+        <div><div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span style="font-size:12px;color:#374151;">Acquirer status queries</span><span style="font-size:12px;font-weight:700;color:#374151;">12%</span></div><div style="background:#F3F4F6;border-radius:4px;height:8px;"><div style="height:100%;width:12%;background:#D97706;border-radius:4px;"></div></div></div>
+        <div><div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span style="font-size:12px;color:#374151;">Other / escalated</span><span style="font-size:12px;font-weight:700;color:#374151;">7%</span></div><div style="background:#F3F4F6;border-radius:4px;height:8px;"><div style="height:100%;width:7%;background:#9CA3AF;border-radius:4px;"></div></div></div>
+      </div>
+    </div>
+
+    <!-- Expand CTA -->
+    <div style="margin:0 16px 24px;background:#F0FDF4;border:1px solid #A7F3D0;border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:10px;">
+      <span style="font-size:24px;">🚀</span>
+      <div>
+        <div style="font-size:13px;font-weight:700;color:#065F46;">Expand SupportIQ coverage</div>
+        <div style="font-size:11px;color:#047857;margin-top:2px;">Enable API query resolution + batch enquiries to hit 90%+ deflection</div>
+      </div>
+      <div style="margin-left:auto;color:#059669;font-size:20px;">›</div>
+    </div>
+  </div>
+
+  <div class="bnav">
+    <div class="ni" onclick="go(1)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Home</span></div>
+    <div class="ni" onclick="go(2)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 16l4-4 4 4 4-4"/></svg><span>Analytics</span></div>
+    <div class="ni"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg><span>Payouts</span></div>
+    <div class="ni on"><svg width="22" height="22" viewBox="0 0 24 24" fill="#2563EB"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><span>Support</span></div>
+    <div class="ni"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg><span>Settings</span></div>
+  </div>
+</div>
+
+</div><!-- /phone -->
+</div><!-- /phone-wrap -->
+
+<div class="nav-row">
+  <button class="arr" onclick="prev()">‹</button>
+  <div class="dots">
+    <div class="dot on" id="d1" onclick="go(1)"></div>
+    <div class="dot" id="d2" onclick="go(2)"></div>
+    <div class="dot" id="d3" onclick="go(3)"></div>
+    <div class="dot" id="d4" onclick="go(4)"></div>
+    <div class="dot" id="d5" onclick="go(5)"></div>
+  </div>
+  <button class="arr" onclick="next()">›</button>
+</div>
+<div class="slabel" id="slabel">01 — PAYMENT DASHBOARD</div>
+
+<!-- SOURCES SECTION -->
+<div style="max-width:700px;width:100%;margin-top:48px;padding:0 8px;">
+  <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.3);letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;text-align:center;">PROJECTED METRICS · RESEARCH SOURCES</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px 16px;">
+      <div style="font-size:10px;font-weight:700;color:#2563EB;letter-spacing:.5px;margin-bottom:5px;">74% TICKET DEFLECTION</div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.55);line-height:1.5;">AI resolves 57–74% of tier-1 support queries in fintech contexts. Source: <a href="https://www.zendesk.com/blog/cx-trends/" target="_blank" style="color:#60A5FA;">Zendesk CX Trends 2024</a>; <a href="https://www.salesforce.com/resources/research-reports/state-of-service/" target="_blank" style="color:#60A5FA;">Salesforce State of Service 2023</a></div>
+    </div>
+    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px 16px;">
+      <div style="font-size:10px;font-weight:700;color:#2563EB;letter-spacing:.5px;margin-bottom:5px;">8s RESOLUTION TIME</div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.55);line-height:1.5;">Live-data AI assistants resolve data-retrieval queries (status, ETA, balances) in 5–15s vs 24–72h for human agents. Source: <a href="https://www.intercom.com/resources/reports/customer-support-trends" target="_blank" style="color:#60A5FA;">Intercom Customer Support Benchmark 2023</a></div>
+    </div>
+    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px 16px;">
+      <div style="font-size:10px;font-weight:700;color:#2563EB;letter-spacing:.5px;margin-bottom:5px;">35% FASTER DECISIONS (ANALYTICS)</div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.55);line-height:1.5;">Merchants with consolidated multi-acquirer dashboards report 30–40% faster operational decisions vs siloed portals. Source: <a href="https://www.mckinsey.com/industries/financial-services" target="_blank" style="color:#60A5FA;">McKinsey Digital Banking Survey 2022</a></div>
+    </div>
+    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px 16px;">
+      <div style="font-size:10px;font-weight:700;color:#2563EB;letter-spacing:.5px;margin-bottom:5px;">FX EXPOSURE VISIBILITY</div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.55);line-height:1.5;">Payment failure &amp; FX drag cost merchants 2–3% of GMV annually; proactive routing reduces this 40–60%. Source: <a href="https://www.pymnts.com/payment-failure/" target="_blank" style="color:#60A5FA;">PYMNTS Payment Failure Index 2023</a></div>
+    </div>
+  </div>
+  <div style="margin-top:10px;font-size:10px;color:rgba(255,255,255,0.2);text-align:center;line-height:1.6;">Metrics represent projections based on industry benchmarks, not Nomupay's internal data. Built as a case study by Ajay Avaghade.</div>
+</div>
+
+<script>
+const LABELS={1:'01 — PAYMENT DASHBOARD',2:'02 — MULTI-ACQUIRER ANALYTICS',3:'03 — SUPPORTIQ · QUERY SENT',4:'04 — SUPPORTIQ · AI RESOLUTION',5:'05 — TICKET DEFLECTION INSIGHTS'};
+let cur=1;
+function go(n){
+  document.getElementById('s'+cur).classList.remove('active');
+  document.getElementById('d'+cur).classList.remove('on');
+  cur=n;
+  document.getElementById('s'+cur).classList.add('active');
+  document.getElementById('d'+cur).classList.add('on');
+  document.getElementById('slabel').textContent=LABELS[n];
+}
+function next(){if(cur<5)go(cur+1);}
+function prev(){if(cur>1)go(cur-1);}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')next();if(e.key==='ArrowLeft')prev();});
+</script>
+</body>
+</html>

@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nomupay — BatchPayIQ · Transparent Batch Payout Processing · Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#060C1A;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:36px 20px 60px;font-family:'Inter',sans-serif;}
+.proto-hdr{font-size:11px;font-weight:600;color:rgba(255,255,255,0.38);letter-spacing:2px;text-transform:uppercase;margin-bottom:20px;text-align:center;}
+.phone-wrap{position:relative;}
+.phone{width:390px;height:844px;background:#F8FAFC;border-radius:48px;overflow:hidden;position:relative;box-shadow:0 40px 100px rgba(0,0,0,0.75),0 0 0 1px rgba(255,255,255,0.07),inset 0 0 0 2px rgba(0,0,0,0.15);}
+.ndot{position:absolute;top:0;left:50%;transform:translateX(-50%);width:126px;height:36px;background:#000;border-radius:0 0 24px 24px;z-index:200;}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;transform:translateX(100%);opacity:0;transition:none;overflow:hidden;}
+.screen.active{transform:translateX(0);opacity:1;}
+.sb{height:50px;background:#fff;display:flex;align-items:flex-end;justify-content:space-between;padding:0 24px 10px;flex-shrink:0;z-index:10;}
+.sb-time{font-size:14px;font-weight:600;color:#111;}
+.sb-icons{display:flex;align-items:center;gap:5px;}
+.scroll{flex:1;overflow-y:auto;scrollbar-width:none;background:#F8FAFC;}
+.scroll::-webkit-scrollbar{display:none;}
+.nav-row{display:flex;align-items:center;gap:16px;margin-top:20px;}
+.arr{width:44px;height:44px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:50%;color:#fff;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s;font-family:sans-serif;}
+.arr:hover{background:rgba(255,255,255,0.14);}
+.dots{display:flex;gap:8px;}
+.dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.2);cursor:pointer;transition:all .25s;}
+.dot.on{background:#2563EB;width:22px;border-radius:4px;}
+.slabel{margin-top:12px;font-size:10px;font-weight:600;color:rgba(255,255,255,0.35);letter-spacing:2.5px;text-transform:uppercase;}
+.app-hdr{background:#fff;padding:12px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #F0F0F0;flex-shrink:0;}
+.back-hdr{background:#fff;padding:12px 18px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #F0F0F0;flex-shrink:0;}
+.nlogo{display:flex;align-items:center;gap:8px;}
+.nmark{width:28px;height:28px;background:#2563EB;border-radius:7px;display:flex;align-items:center;justify-content:center;}
+.nname{font-size:16px;font-weight:700;color:#111827;letter-spacing:-.3px;}
+.tag-g{background:#D1FAE5;color:#065F46;font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px;display:inline-block;}
+.tag-b{background:#DBEAFE;color:#1D4ED8;font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px;display:inline-block;}
+.tag-r{background:#FEE2E2;color:#991B1B;font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px;display:inline-block;}
+.tag-y{background:#FEF3C7;color:#92400E;font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px;display:inline-block;}
+.tag-gr{background:#F3F4F6;color:#6B7280;font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px;display:inline-block;}
+@keyframes fall{0%{transform:translateY(-10px) rotate(0deg);opacity:1;}100%{transform:translateY(900px) rotate(720deg);opacity:0;}}
+</style>
+</head>
+<body>
+
+<div class="proto-hdr">Nomupay · BatchPayIQ · Transparent Batch Payout Processing · Interactive Prototype</div>
+
+<div class="phone-wrap">
+<div class="phone">
+<div class="ndot"></div>
+
+<!-- ═══ SCREEN 1: BATCH UPLOAD + VALIDATION ═══ -->
+<div class="screen active" id="s1">
+  <div class="sb"><span class="sb-time">9:41</span><div class="sb-icons"><svg width="16" height="12" viewBox="0 0 17 12"><rect x="0" y="6" width="3" height="6" rx="1" fill="#111"/><rect x="4.5" y="4" width="3" height="8" rx="1" fill="#111"/><rect x="9" y="2" width="3" height="10" rx="1" fill="#111"/><rect x="13.5" y="0" width="3" height="12" rx="1" fill="#111"/></svg><svg width="25" height="12" viewBox="0 0 27 13"><rect x=".5" y=".5" width="22" height="12" rx="3.5" stroke="#111"/><path d="M23 4.5v4a2 2 0 000-4z" fill="#111"/><rect x="2" y="2" width="18" height="9" rx="2" fill="#111"/></svg></div></div>
+
+  <div class="app-hdr">
+    <div class="nlogo">
+      <div class="nmark"><span style="color:#fff;font-size:13px;font-weight:800;">N</span></div>
+      <span class="nname">nomupay</span>
+    </div>
+    <div style="width:32px;height:32px;background:linear-gradient(135deg,#2563EB,#1D4ED8);border-radius:50%;display:flex;align-items:center;justify-content:center;"><span style="font-size:12px;font-weight:700;color:#fff;">TF</span></div>
+  </div>
+
+  <!-- BatchPayIQ Title -->
+  <div style="background:#fff;padding:14px 18px 16px;border-bottom:1px solid #F0F0F0;flex-shrink:0;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+      <div style="width:32px;height:32px;background:linear-gradient(135deg,#1E3A5F,#2563EB);border-radius:9px;display:flex;align-items:center;justify-content:center;"><span style="font-size:16px;">⚡</span></div>
+      <div>
+        <div style="font-size:16px;font-weight:800;color:#111827;letter-spacing:-.3px;">BatchPayIQ</div>
+        <div style="font-size:11px;color:#6B7280;">Batch payout processing with real-time visibility</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scroll">
+    <!-- File Uploaded State -->
+    <div style="padding:16px 16px 12px;">
+      <div style="font-size:13px;font-weight:700;color:#111827;margin-bottom:12px;">New Batch Payout</div>
+
+      <!-- File card -->
+      <div style="background:#fff;border-radius:16px;padding:16px;box-shadow:0 1px 6px rgba(0,0,0,0.08);margin-bottom:12px;border:2px solid #2563EB;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+          <div style="width:42px;height:42px;background:#EFF6FF;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg width="22" height="22" fill="none" stroke="#2563EB" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          </div>
+          <div style="flex:1;">
+            <div style="font-size:13px;font-weight:700;color:#111827;">supplier-payouts-june.csv</div>
+            <div style="font-size:11px;color:#6B7280;margin-top:1px;">2.4 MB · Uploaded 09:38</div>
+          </div>
+          <div style="background:#D1FAE5;border-radius:20px;padding:3px 10px;"><span style="font-size:10px;font-weight:700;color:#065F46;">✓ Uploaded</span></div>
+        </div>
+
+        <div style="background:#F8FAFC;border-radius:12px;padding:12px;margin-bottom:12px;">
+          <div style="font-size:11px;font-weight:600;color:#6B7280;letter-spacing:.5px;margin-bottom:8px;">PRE-VALIDATION RESULTS</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center;">
+            <div>
+              <div style="font-size:22px;font-weight:800;color:#111827;">847</div>
+              <div style="font-size:10px;color:#6B7280;">Rows detected</div>
+            </div>
+            <div>
+              <div style="font-size:22px;font-weight:800;color:#059669;">842</div>
+              <div style="font-size:10px;color:#059669;">Valid</div>
+            </div>
+            <div>
+              <div style="font-size:22px;font-weight:800;color:#DC2626;">5</div>
+              <div style="font-size:10px;color:#DC2626;">Flagged</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Flagged issues -->
+        <div style="font-size:12px;font-weight:700;color:#92400E;background:#FEF3C7;border:1px solid #FDE68A;border-radius:10px;padding:10px 12px;margin-bottom:12px;">
+          ⚠️ 5 rows flagged — review before submitting
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <div style="display:flex;align-items:flex-start;gap:8px;padding:8px;background:#FFF7ED;border-radius:10px;border:1px solid #FED7AA;">
+            <span style="font-size:10px;font-weight:700;color:#EA580C;background:#FED7AA;padding:2px 6px;border-radius:6px;flex-shrink:0;">R23</span>
+            <span style="font-size:11px;color:#374151;">Invalid IBAN format — Acme Supplies Ltd (£4,250.00)</span>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:8px;padding:8px;background:#FFF7ED;border-radius:10px;border:1px solid #FED7AA;">
+            <span style="font-size:10px;font-weight:700;color:#EA580C;background:#FED7AA;padding:2px 6px;border-radius:6px;flex-shrink:0;">R156</span>
+            <span style="font-size:11px;color:#374151;">Amount exceeds daily limit — FastLogistics (£48,000)</span>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:8px;padding:8px;background:#FFF7ED;border-radius:10px;border:1px solid #FED7AA;">
+            <span style="font-size:10px;font-weight:700;color:#EA580C;background:#FED7AA;padding:2px 6px;border-radius:6px;flex-shrink:0;">R298</span>
+            <span style="font-size:11px;color:#374151;">Recipient name mismatch — Nordic Goods AS</span>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:8px;padding:8px;background:#FFF7ED;border-radius:10px;border:1px solid #FED7AA;">
+            <span style="font-size:10px;font-weight:700;color:#EA580C;background:#FED7AA;padding:2px 6px;border-radius:6px;flex-shrink:0;">R445</span>
+            <span style="font-size:11px;color:#374151;">Missing BIC/SWIFT code — TechParts GmbH</span>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:8px;padding:8px;background:#FFF7ED;border-radius:10px;border:1px solid #FED7AA;">
+            <span style="font-size:10px;font-weight:700;color:#EA580C;background:#FED7AA;padding:2px 6px;border-radius:6px;flex-shrink:0;">R712</span>
+            <span style="font-size:11px;color:#374151;">Currency not supported (EGP) — Cairo Partners</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action buttons -->
+      <button onclick="go(2)" style="width:100%;background:#2563EB;color:#fff;border:none;border-radius:14px;padding:16px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;margin-bottom:10px;">Submit 842 Valid Transactions →</button>
+      <button style="width:100%;background:#F3F4F6;color:#374151;border:none;border-radius:14px;padding:14px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;">Fix All 5 Flagged &amp; Re-upload</button>
+
+      <div style="margin-top:10px;text-align:center;font-size:11px;color:#9CA3AF;">Total value: £847,280 · Via Nomupay optimised routing</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SCREEN 2: PROCESSING STATUS GRID ═══ -->
+<div class="screen" id="s2">
+  <div class="sb"><span class="sb-time">9:42</span><div class="sb-icons"><svg width="16" height="12" viewBox="0 0 17 12"><rect x="0" y="6" width="3" height="6" rx="1" fill="#111"/><rect x="4.5" y="4" width="3" height="8" rx="1" fill="#111"/><rect x="9" y="2" width="3" height="10" rx="1" fill="#111"/><rect x="13.5" y="0" width="3" height="12" rx="1" fill="#111"/></svg><svg width="25" height="12" viewBox="0 0 27 13"><rect x=".5" y=".5" width="22" height="12" rx="3.5" stroke="#111"/><path d="M23 4.5v4a2 2 0 000-4z" fill="#111"/><rect x="2" y="2" width="18" height="9" rx="2" fill="#111"/></svg></div></div>
+
+  <div class="back-hdr">
+    <button onclick="go(1)" style="background:none;border:none;cursor:pointer;display:flex;"><svg width="22" height="22" fill="none" stroke="#111" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>
+    <span style="font-size:16px;font-weight:700;color:#111827;">Batch Processing</span>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:4px;">
+      <div style="width:6px;height:6px;border-radius:50%;background:#2563EB;animation:pulse 1.5s infinite;"></div>
+      <span style="font-size:11px;color:#2563EB;font-weight:600;">Live</span>
+    </div>
+  </div>
+
+  <div class="scroll">
+    <!-- Batch summary card -->
+    <div style="margin:14px 16px 12px;background:linear-gradient(135deg,#1E3A5F,#2563EB);border-radius:18px;padding:18px 20px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
+        <div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.55);letter-spacing:1px;font-weight:600;">BATCH #BP-20240624</div>
+          <div style="font-size:20px;font-weight:800;color:#fff;margin-top:3px;">£847,280</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.55);margin-top:2px;">842 transactions · Submitted 09:42</div>
+        </div>
+        <div style="background:rgba(37,99,235,0.4);border:1px solid rgba(96,165,250,0.4);border-radius:10px;padding:8px 12px;text-align:center;">
+          <div style="font-size:20px;font-weight:800;color:#fff;">73%</div>
+          <div style="font-size:10px;color:rgba(255,255,255,0.6);margin-top:1px;">Complete</div>
+        </div>
+      </div>
+      <!-- Progress bar -->
+      <div style="background:rgba(255,255,255,0.15);border-radius:8px;height:10px;margin-bottom:10px;overflow:hidden;">
+        <div style="height:100%;width:73%;background:linear-gradient(90deg,#34D399,#10B981);border-radius:8px;"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;">
+        <div style="text-align:center;"><div style="font-size:16px;font-weight:700;color:#34D399;">614</div><div style="font-size:9px;color:rgba(255,255,255,0.5);">Settled</div></div>
+        <div style="text-align:center;"><div style="font-size:16px;font-weight:700;color:#93C5FD;">198</div><div style="font-size:9px;color:rgba(255,255,255,0.5);">Processing</div></div>
+        <div style="text-align:center;"><div style="font-size:16px;font-weight:700;color:#FCA5A5;">30</div><div style="font-size:9px;color:rgba(255,255,255,0.5);">Failed</div></div>
+        <div style="text-align:center;"><div style="font-size:16px;font-weight:700;color:rgba(255,255,255,0.4);">0</div><div style="font-size:9px;color:rgba(255,255,255,0.5);">Pending</div></div>
+      </div>
+    </div>
+
+    <!-- Filter chips -->
+    <div style="padding:0 16px 10px;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;">
+      <div style="background:#111827;border-radius:20px;padding:6px 14px;white-space:nowrap;cursor:pointer;"><span style="font-size:12px;font-weight:600;color:#fff;">All (842)</span></div>
+      <div style="background:#D1FAE5;border-radius:20px;padding:6px 14px;white-space:nowrap;cursor:pointer;"><span style="font-size:12px;font-weight:600;color:#065F46;">Settled (614)</span></div>
+      <div style="background:#DBEAFE;border-radius:20px;padding:6px 14px;white-space:nowrap;cursor:pointer;"><span style="font-size:12px;font-weight:600;color:#1D4ED8;">Processing (198)</span></div>
+      <div style="background:#FEE2E2;border-radius:20px;padding:6px 14px;white-space:nowrap;cursor:pointer;"><span style="font-size:12px;font-weight:600;color:#991B1B;">Failed (30)</span></div>
+    </div>
+
+    <!-- Auto-refresh badge -->
+    <div style="padding:0 16px 10px;">
+      <div style="display:flex;align-items:center;gap:5px;"><div style="width:6px;height:6px;border-radius:50%;background:#2563EB;"></div><span style="font-size:11px;color:#6B7280;">Auto-refreshing every 10s · Last updated 09:43:12</span></div>
+    </div>
+
+    <!-- Transaction rows -->
+    <div style="padding:0 16px;display:flex;flex-direction:column;gap:6px;">
+      <div style="background:#fff;border-radius:12px;padding:12px 14px;box-shadow:0 1px 4px rgba(0,0,0,0.06);display:grid;grid-template-columns:28px 1fr auto;gap:10px;align-items:center;">
+        <span style="font-size:10px;color:#9CA3AF;font-weight:600;">#001</span>
+        <div><div style="font-size:12px;font-weight:600;color:#111827;">Acme Supplies Ltd</div><div style="font-size:10px;color:#9CA3AF;">£4,250.00 · GB · Stripe</div></div>
+        <span class="tag-g">SETTLED</span>
+      </div>
+      <div style="background:#fff;border-radius:12px;padding:12px 14px;box-shadow:0 1px 4px rgba(0,0,0,0.06);display:grid;grid-template-columns:28px 1fr auto;gap:10px;align-items:center;">
+        <span style="font-size:10px;color:#9CA3AF;font-weight:600;">#002</span>
+        <div><div style="font-size:12px;font-weight:600;color:#111827;">Global Parts Inc.</div><div style="font-size:10px;color:#9CA3AF;">£12,800.00 · US · Adyen</div></div>
+        <span class="tag-g">SETTLED</span>
+      </div>
+      <div style="background:#fff;border-radius:12px;padding:12px 14px;box-shadow:0 1px 4px rgba(0,0,0,0.06);display:grid;grid-template-columns:28px 1fr auto;gap:10px;align-items:center;">
+        <span style="font-size:10px;color:#9CA3AF;font-weight:600;">#003</span>
+        <div><div style="font-size:12px;font-weight:600;color:#111827;">Nordic Goods AS</div><div style="font-size:10px;color:#9CA3AF;">£3,100.00 · NO · PayU</div></div>
+        <span class="tag-b">PROCESSING</span>
+      </div>
+      <div style="background:#fff;border-radius:12px;padding:12px 14px;box-shadow:0 1px 4px rgba(0,0,0,0.06);display:grid;grid-template-columns:28px 1fr auto;gap:10px;align-items:center;">
+        <span style="font-size:10px;color:#9CA3AF;font-weight:600;">#004</span>
+        <div><div style="font-size:12px;font-weight:600;color:#111827;">TechParts GmbH</div><div style="font-size:10px;color:#9CA3AF;">£7,650.00 · DE · Stripe</div></div>
+        <span class="tag-g">SETTLED</span>
+      </div>
+      <div style="background:#FFF7ED;border-radius:12px;padding:12px 14px;box-shadow:0 1px 4px rgba(0,0,0,0.06);display:grid;grid-template-columns:28px 1fr auto;gap:10px;align-items:center;border:1px solid #FED7AA;cursor:pointer;" onclick="go(3)">
+        <span style="font-size:10px;color:#EA580C;font-weight:600;">#023</span>
+        <div><div style="font-size:12px;font-weight:600;color:#111827;">Acme Supplies Ltd</div><div style="font-size:10px;color:#EA580C;">£4,250.00 · Invalid IBAN → tap to fix</div></div>
+        <span class="tag-r">FAILED</span>
+      </div>
+      <div style="background:#fff;border-radius:12px;padding:12px 14px;box-shadow:0 1px 4px rgba(0,0,0,0.06);display:grid;grid-template-columns:28px 1fr auto;gap:10px;align-items:center;">
+        <span style="font-size:10px;color:#9CA3AF;font-weight:600;">#024</span>
+        <div><div style="font-size:12px;font-weight:600;color:#111827;">EuroDist BV</div><div style="font-size:10px;color:#9CA3AF;">£9,200.00 · NL · Adyen</div></div>
+        <span class="tag-b">PROCESSING</span>
+      </div>
+      <div style="background:#fff;border-radius:12px;padding:12px 14px;box-shadow:0 1px 4px rgba(0,0,0,0.06);display:grid;grid-template-columns:28px 1fr auto;gap:10px;align-items:center;">
+        <span style="font-size:10px;color:#9CA3AF;font-weight:600;">#025</span>
+        <div><div style="font-size:12px;font-weight:600;color:#111827;">FastLogistics GmbH</div><div style="font-size:10px;color:#9CA3AF;">£1,850.00 · DE · Stripe</div></div>
+        <span class="tag-g">SETTLED</span>
+      </div>
+    </div>
+
+    <div style="text-align:center;padding:16px 0 24px;"><span style="font-size:12px;color:#2563EB;font-weight:600;cursor:pointer;">View all 842 transactions →</span></div>
+  </div>
+</div>
+
+<!-- ═══ SCREEN 3: FAILED ROW DETAIL + RETRY ═══ -->
+<div class="screen" id="s3">
+  <div class="sb"><span class="sb-time">9:43</span><div class="sb-icons"><svg width="16" height="12" viewBox="0 0 17 12"><rect x="0" y="6" width="3" height="6" rx="1" fill="#111"/><rect x="4.5" y="4" width="3" height="8" rx="1" fill="#111"/><rect x="9" y="2" width="3" height="10" rx="1" fill="#111"/><rect x="13.5" y="0" width="3" height="12" rx="1" fill="#111"/></svg><svg width="25" height="12" viewBox="0 0 27 13"><rect x=".5" y=".5" width="22" height="12" rx="3.5" stroke="#111"/><path d="M23 4.5v4a2 2 0 000-4z" fill="#111"/><rect x="2" y="2" width="18" height="9" rx="2" fill="#111"/></svg></div></div>
+
+  <div class="back-hdr">
+    <button onclick="go(2)" style="background:none;border:none;cursor:pointer;display:flex;"><svg width="22" height="22" fill="none" stroke="#111" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>
+    <span style="font-size:16px;font-weight:700;color:#111827;">Failed Transaction</span>
+    <span class="tag-r" style="margin-left:auto;">Row 23 of 842</span>
+  </div>
+
+  <div class="scroll">
+    <!-- Error banner -->
+    <div style="background:#FEE2E2;border-bottom:1px solid #FECACA;padding:12px 18px;flex-shrink:0;display:flex;align-items:center;gap:8px;">
+      <span style="font-size:18px;">❌</span>
+      <div>
+        <div style="font-size:12px;font-weight:700;color:#991B1B;">INVALID_IBAN_FORMAT</div>
+        <div style="font-size:11px;color:#B91C1C;margin-top:1px;">The IBAN provided does not match the expected format for UK accounts</div>
+      </div>
+    </div>
+
+    <div style="padding:16px;">
+      <!-- Transaction detail -->
+      <div style="background:#fff;border-radius:16px;padding:16px;box-shadow:0 1px 6px rgba(0,0,0,0.07);margin-bottom:14px;">
+        <div style="font-size:12px;font-weight:700;color:#6B7280;margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px;">Transaction Detail</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;justify-content:space-between;padding-bottom:8px;border-bottom:1px solid #F3F4F6;">
+            <span style="font-size:12px;color:#6B7280;">Recipient</span>
+            <span style="font-size:12px;font-weight:600;color:#111827;">Acme Supplies Ltd</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding-bottom:8px;border-bottom:1px solid #F3F4F6;">
+            <span style="font-size:12px;color:#6B7280;">Amount</span>
+            <span style="font-size:14px;font-weight:700;color:#111827;">£4,250.00</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding-bottom:8px;border-bottom:1px solid #F3F4F6;">
+            <span style="font-size:12px;color:#6B7280;">Reference</span>
+            <span style="font-size:11px;font-weight:600;color:#374151;">SUPP-2024-0623-023</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding-bottom:8px;border-bottom:1px solid #F3F4F6;">
+            <span style="font-size:12px;color:#6B7280;">Acquirer</span>
+            <div style="display:flex;align-items:center;gap:5px;"><div style="width:16px;height:16px;background:#635BFF;border-radius:4px;display:flex;align-items:center;justify-content:center;"><span style="font-size:7px;font-weight:800;color:#fff;">S</span></div><span style="font-size:12px;font-weight:600;color:#374151;">Stripe UK</span></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;">
+            <span style="font-size:12px;color:#6B7280;">Submitted</span>
+            <span style="font-size:12px;color:#374151;">09:42:18 today</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- IBAN fix -->
+      <div style="background:#FFF7ED;border:1px solid #FED7AA;border-radius:16px;padding:16px;margin-bottom:14px;">
+        <div style="font-size:12px;font-weight:700;color:#92400E;margin-bottom:10px;">⚠️ IBAN Issue</div>
+        <div style="margin-bottom:6px;">
+          <div style="font-size:11px;color:#6B7280;margin-bottom:4px;">Submitted IBAN (invalid):</div>
+          <div style="background:#FEE2E2;border-radius:8px;padding:8px 12px;font-size:12px;font-family:monospace;color:#991B1B;letter-spacing:.5px;">GB29 NWK2 6010 1242 1241 78</div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:#059669;margin-bottom:4px;">✨ BatchPayIQ suggestion (corrected):</div>
+          <div style="background:#D1FAE5;border-radius:8px;padding:8px 12px;font-size:12px;font-family:monospace;color:#065F46;letter-spacing:.5px;">GB29 NWBK 6010 1242 1241 78</div>
+        </div>
+        <div style="font-size:11px;color:#6B7280;margin-top:8px;">Sort code format NWBK is the standard UK Nationwide format — NWK2 is invalid.</div>
+      </div>
+
+      <!-- Editable IBAN field -->
+      <div style="background:#fff;border-radius:16px;padding:16px;box-shadow:0 1px 6px rgba(0,0,0,0.07);margin-bottom:14px;">
+        <div style="font-size:12px;font-weight:700;color:#111827;margin-bottom:10px;">Correct &amp; Retry</div>
+        <div style="font-size:11px;color:#6B7280;margin-bottom:6px;">IBAN</div>
+        <div style="background:#EFF6FF;border:2px solid #2563EB;border-radius:10px;padding:12px 14px;margin-bottom:10px;font-size:13px;font-family:monospace;color:#1D4ED8;font-weight:600;letter-spacing:.5px;">GB29 NWBK 6010 1242 1241 78</div>
+        <div style="display:flex;align-items:center;gap:6px;"><svg width="14" height="14" fill="none" stroke="#059669" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span style="font-size:11px;color:#059669;font-weight:600;">IBAN validated — matches Nationwide UK format</span></div>
+      </div>
+
+      <!-- Timeline -->
+      <div style="background:#fff;border-radius:16px;padding:14px 16px;box-shadow:0 1px 6px rgba(0,0,0,0.07);margin-bottom:16px;">
+        <div style="font-size:12px;font-weight:700;color:#111827;margin-bottom:10px;">Timeline</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;align-items:center;gap:10px;"><div style="width:8px;height:8px;border-radius:50%;background:#059669;flex-shrink:0;"></div><span style="font-size:11px;color:#374151;">09:42:18 · Submitted with batch</span></div>
+          <div style="display:flex;align-items:center;gap:10px;"><div style="width:8px;height:8px;border-radius:50%;background:#DC2626;flex-shrink:0;"></div><span style="font-size:11px;color:#374151;">09:42:19 · Validation failed (INVALID_IBAN)</span></div>
+          <div style="display:flex;align-items:center;gap:10px;"><div style="width:8px;height:8px;border-radius:50%;background:#D97706;flex-shrink:0;"></div><span style="font-size:11px;color:#374151;">09:43:01 · Awaiting correction</span></div>
+          <div style="display:flex;align-items:center;gap:10px;"><div style="width:8px;height:8px;border-radius:50%;background:#D1D5DB;border:2px solid #9CA3AF;flex-shrink:0;"></div><span style="font-size:11px;color:#9CA3AF;">Pending · Retry &amp; settlement</span></div>
+        </div>
+      </div>
+
+      <button onclick="go(4)" style="width:100%;background:#059669;color:#fff;border:none;border-radius:14px;padding:16px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;margin-bottom:10px;">✓ Confirm &amp; Retry Transaction</button>
+      <button style="width:100%;background:#F3F4F6;color:#6B7280;border:none;border-radius:14px;padding:14px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;">Mark as Void</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SCREEN 4: COMPLETION + EXPORT ═══ -->
+<div class="screen" id="s4">
+  <div class="sb"><span class="sb-time">10:14</span><div class="sb-icons"><svg width="16" height="12" viewBox="0 0 17 12"><rect x="0" y="6" width="3" height="6" rx="1" fill="#111"/><rect x="4.5" y="4" width="3" height="8" rx="1" fill="#111"/><rect x="9" y="2" width="3" height="10" rx="1" fill="#111"/><rect x="13.5" y="0" width="3" height="12" rx="1" fill="#111"/></svg><svg width="25" height="12" viewBox="0 0 27 13"><rect x=".5" y=".5" width="22" height="12" rx="3.5" stroke="#111"/><path d="M23 4.5v4a2 2 0 000-4z" fill="#111"/><rect x="2" y="2" width="18" height="9" rx="2" fill="#111"/></svg></div></div>
+
+  <div class="app-hdr">
+    <div class="nlogo">
+      <div class="nmark"><span style="color:#fff;font-size:13px;font-weight:800;">N</span></div>
+      <span class="nname">nomupay</span>
+    </div>
+    <div style="background:#D1FAE5;border-radius:20px;padding:3px 10px;"><span style="font-size:10px;font-weight:700;color:#065F46;">⚡ BatchPayIQ</span></div>
+  </div>
+
+  <!-- Confetti canvas -->
+  <div id="conf4" style="position:absolute;inset:0;pointer-events:none;z-index:100;overflow:hidden;"></div>
+
+  <div class="scroll">
+    <!-- Success hero -->
+    <div style="padding:24px 16px 16px;text-align:center;">
+      <div style="width:80px;height:80px;background:linear-gradient(135deg,#D1FAE5,#A7F3D0);border-radius:50%;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 32px rgba(5,150,105,0.3);">
+        <svg width="40" height="40" fill="none" stroke="#059669" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div style="font-size:26px;font-weight:800;color:#111827;letter-spacing:-.5px;margin-bottom:6px;">Batch Complete</div>
+      <div style="font-size:14px;color:#6B7280;">Batch #BP-20240624 · Settlement confirmed</div>
+    </div>
+
+    <!-- Big stats -->
+    <div style="margin:0 16px 16px;background:linear-gradient(135deg,#059669,#047857);border-radius:20px;padding:20px;text-align:center;">
+      <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.6);letter-spacing:1px;margin-bottom:8px;">TOTAL SETTLED</div>
+      <div style="font-size:44px;font-weight:800;color:#fff;line-height:1;margin-bottom:4px;">£847,280</div>
+      <div style="font-size:13px;color:rgba(255,255,255,0.7);">842 transactions · 712 recipients · 3 acquirers</div>
+    </div>
+
+    <!-- Breakdown -->
+    <div style="margin:0 16px 14px;background:#fff;border-radius:16px;padding:16px;box-shadow:0 1px 6px rgba(0,0,0,0.07);">
+      <div style="font-size:13px;font-weight:700;color:#111827;margin-bottom:12px;">Settlement Breakdown</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:8px;border-bottom:1px solid #F3F4F6;">
+          <div style="display:flex;align-items:center;gap:8px;"><div style="width:8px;height:8px;border-radius:50%;background:#059669;"></div><span style="font-size:12px;color:#374151;">Settled on first pass</span></div>
+          <span style="font-size:13px;font-weight:700;color:#059669;">837 txns</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:8px;border-bottom:1px solid #F3F4F6;">
+          <div style="display:flex;align-items:center;gap:8px;"><div style="width:8px;height:8px;border-radius:50%;background:#2563EB;"></div><span style="font-size:12px;color:#374151;">Retried &amp; settled</span></div>
+          <span style="font-size:13px;font-weight:700;color:#2563EB;">5 txns</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div style="display:flex;align-items:center;gap:8px;"><div style="width:8px;height:8px;border-radius:50%;background:#9CA3AF;"></div><span style="font-size:12px;color:#374151;">Final failures</span></div>
+          <span style="font-size:13px;font-weight:700;color:#059669;">0 txns ✓</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Acquirer breakdown -->
+    <div style="margin:0 16px 14px;background:#fff;border-radius:16px;padding:16px;box-shadow:0 1px 6px rgba(0,0,0,0.07);">
+      <div style="font-size:13px;font-weight:700;color:#111827;margin-bottom:12px;">Routed Via</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;"><div style="display:flex;align-items:center;gap:6px;"><div style="width:20px;height:20px;background:#635BFF;border-radius:5px;display:flex;align-items:center;justify-content:center;"><span style="font-size:8px;font-weight:800;color:#fff;">S</span></div><span style="font-size:12px;color:#374151;">Stripe</span></div><span style="font-size:12px;font-weight:600;color:#374151;">£468K · 502 txns</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;"><div style="display:flex;align-items:center;gap:6px;"><div style="width:20px;height:20px;background:#0ABF53;border-radius:5px;display:flex;align-items:center;justify-content:center;"><span style="font-size:8px;font-weight:800;color:#fff;">A</span></div><span style="font-size:12px;color:#374151;">Adyen</span></div><span style="font-size:12px;font-weight:600;color:#374151;">£284K · 248 txns</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;"><div style="display:flex;align-items:center;gap:6px;"><div style="width:20px;height:20px;background:#FF6B35;border-radius:5px;display:flex;align-items:center;justify-content:center;"><span style="font-size:8px;font-weight:800;color:#fff;">P</span></div><span style="font-size:12px;color:#374151;">PayU</span></div><span style="font-size:12px;font-weight:600;color:#374151;">£95K · 92 txns</span></div>
+      </div>
+    </div>
+
+    <!-- Export buttons -->
+    <div style="padding:0 16px 24px;display:flex;flex-direction:column;gap:10px;">
+      <button style="width:100%;background:#2563EB;color:#fff;border:none;border-radius:14px;padding:16px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;">
+        <svg width="18" height="18" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download Reconciliation CSV
+      </button>
+      <button style="width:100%;background:#F9FAFB;color:#374151;border:1px solid #E5E7EB;border-radius:14px;padding:14px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;">
+        <svg width="16" height="16" fill="none" stroke="#374151" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Bank Statement PDF
+      </button>
+      <button onclick="go(5)" style="width:100%;background:#F9FAFB;color:#2563EB;border:1px solid #BFDBFE;border-radius:14px;padding:14px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;">
+        View Batch Analytics →
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SCREEN 5: BATCH ANALYTICS ═══ -->
+<div class="screen" id="s5">
+  <div class="sb"><span class="sb-time">10:15</span><div class="sb-icons"><svg width="16" height="12" viewBox="0 0 17 12"><rect x="0" y="6" width="3" height="6" rx="1" fill="#111"/><rect x="4.5" y="4" width="3" height="8" rx="1" fill="#111"/><rect x="9" y="2" width="3" height="10" rx="1" fill="#111"/><rect x="13.5" y="0" width="3" height="12" rx="1" fill="#111"/></svg><svg width="25" height="12" viewBox="0 0 27 13"><rect x=".5" y=".5" width="22" height="12" rx="3.5" stroke="#111"/><path d="M23 4.5v4a2 2 0 000-4z" fill="#111"/><rect x="2" y="2" width="18" height="9" rx="2" fill="#111"/></svg></div></div>
+
+  <div class="back-hdr">
+    <button onclick="go(4)" style="background:none;border:none;cursor:pointer;display:flex;"><svg width="22" height="22" fill="none" stroke="#111" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>
+    <span style="font-size:16px;font-weight:700;color:#111827;">Batch Analytics</span>
+    <div style="margin-left:auto;"><span style="font-size:11px;color:#6B7280;">June 2025</span></div>
+  </div>
+
+  <div class="scroll">
+    <!-- Summary stats -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px 16px 0;">
+      <div style="background:#fff;border-radius:16px;padding:16px;box-shadow:0 1px 6px rgba(0,0,0,0.07);">
+        <div style="font-size:24px;font-weight:800;color:#111827;">12</div>
+        <div style="font-size:11px;color:#6B7280;margin-top:3px;">Batches this month</div>
+      </div>
+      <div style="background:#fff;border-radius:16px;padding:16px;box-shadow:0 1px 6px rgba(0,0,0,0.07);">
+        <div style="font-size:24px;font-weight:800;color:#111827;">£2.3M</div>
+        <div style="font-size:11px;color:#6B7280;margin-top:3px;">Total batch volume</div>
+      </div>
+      <div style="background:#fff;border-radius:16px;padding:16px;box-shadow:0 1px 6px rgba(0,0,0,0.07);">
+        <div style="font-size:24px;font-weight:800;color:#059669;">97.8%</div>
+        <div style="font-size:11px;color:#6B7280;margin-top:3px;">Avg success rate</div>
+        <div style="font-size:10px;color:#059669;margin-top:2px;">↑ 2.3% vs last month</div>
+      </div>
+      <div style="background:#fff;border-radius:16px;padding:16px;box-shadow:0 1px 6px rgba(0,0,0,0.07);">
+        <div style="font-size:24px;font-weight:800;color:#2563EB;">8,847</div>
+        <div style="font-size:11px;color:#6B7280;margin-top:3px;">Total transactions</div>
+      </div>
+    </div>
+
+    <!-- Success rate chart -->
+    <div style="margin:14px 16px;background:#fff;border-radius:16px;padding:16px;box-shadow:0 1px 6px rgba(0,0,0,0.07);">
+      <div style="font-size:13px;font-weight:700;color:#111827;margin-bottom:14px;">Success Rate by Batch (Last 8)</div>
+      <div style="display:flex;align-items:flex-end;gap:8px;height:80px;">
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="flex:1;width:100%;background:linear-gradient(0deg,#2563EB,#60A5FA);border-radius:4px 4px 0 0;" style="height:93%;"></div><span style="font-size:8px;color:#9CA3AF;">B1</span></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="width:100%;background:linear-gradient(0deg,#D97706,#FBBF24);border-radius:4px 4px 0 0;height:82%;"></div><span style="font-size:8px;color:#D97706;">B2</span></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="width:100%;background:linear-gradient(0deg,#2563EB,#60A5FA);border-radius:4px 4px 0 0;height:96%;"></div><span style="font-size:8px;color:#9CA3AF;">B3</span></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="width:100%;background:linear-gradient(0deg,#2563EB,#60A5FA);border-radius:4px 4px 0 0;height:95%;"></div><span style="font-size:8px;color:#9CA3AF;">B4</span></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="width:100%;background:linear-gradient(0deg,#2563EB,#60A5FA);border-radius:4px 4px 0 0;height:97%;"></div><span style="font-size:8px;color:#9CA3AF;">B5</span></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="width:100%;background:linear-gradient(0deg,#2563EB,#60A5FA);border-radius:4px 4px 0 0;height:94%;"></div><span style="font-size:8px;color:#9CA3AF;">B6</span></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="width:100%;background:linear-gradient(0deg,#2563EB,#60A5FA);border-radius:4px 4px 0 0;height:98%;"></div><span style="font-size:8px;color:#9CA3AF;">B7</span></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="width:100%;background:linear-gradient(0deg,#059669,#34D399);border-radius:4px 4px 0 0;height:100%;border:2px solid #059669;"></div><span style="font-size:8px;color:#059669;font-weight:700;">B8</span></div>
+      </div>
+      <div style="font-size:10px;color:#9CA3AF;margin-top:6px;">B2 dip: Adyen connectivity issue 14 June · Resolved same day</div>
+    </div>
+
+    <!-- Failure analysis -->
+    <div style="margin:0 16px 14px;background:#fff;border-radius:16px;padding:16px;box-shadow:0 1px 6px rgba(0,0,0,0.07);">
+      <div style="font-size:13px;font-weight:700;color:#111827;margin-bottom:12px;">Failure Analysis — June 2025</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div><div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:12px;color:#374151;">Invalid IBAN format</span><span style="font-size:12px;font-weight:700;color:#374151;">38%</span></div><div style="background:#F3F4F6;border-radius:4px;height:7px;"><div style="height:100%;width:38%;background:#DC2626;border-radius:4px;"></div></div></div>
+        <div><div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:12px;color:#374151;">Insufficient balance</span><span style="font-size:12px;font-weight:700;color:#374151;">22%</span></div><div style="background:#F3F4F6;border-radius:4px;height:7px;"><div style="height:100%;width:22%;background:#D97706;border-radius:4px;"></div></div></div>
+        <div><div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:12px;color:#374151;">Currency not supported</span><span style="font-size:12px;font-weight:700;color:#374151;">18%</span></div><div style="background:#F3F4F6;border-radius:4px;height:7px;"><div style="height:100%;width:18%;background:#6366F1;border-radius:4px;"></div></div></div>
+        <div><div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:12px;color:#374151;">Name mismatch</span><span style="font-size:12px;font-weight:700;color:#374151;">12%</span></div><div style="background:#F3F4F6;border-radius:4px;height:7px;"><div style="height:100%;width:12%;background:#2563EB;border-radius:4px;"></div></div></div>
+        <div><div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:12px;color:#374151;">Other</span><span style="font-size:12px;font-weight:700;color:#374151;">10%</span></div><div style="background:#F3F4F6;border-radius:4px;height:7px;"><div style="height:100%;width:10%;background:#9CA3AF;border-radius:4px;"></div></div></div>
+      </div>
+      <div style="margin-top:12px;background:#EFF6FF;border-radius:10px;padding:10px 12px;">
+        <span style="font-size:11px;color:#1D4ED8;line-height:1.5;">💡 38% of failures are IBAN-format errors — enabling pre-submission IBAN validation API would eliminate these entirely</span>
+      </div>
+    </div>
+
+    <!-- Processing time -->
+    <div style="margin:0 16px 14px;background:#fff;border-radius:16px;padding:16px;box-shadow:0 1px 6px rgba(0,0,0,0.07);">
+      <div style="font-size:13px;font-weight:700;color:#111827;margin-bottom:12px;">Avg Processing Time</div>
+      <div style="display:flex;justify-content:space-around;text-align:center;">
+        <div><div style="font-size:22px;font-weight:800;color:#111827;">23 min</div><div style="font-size:11px;color:#6B7280;margin-top:3px;">First settlement</div></div>
+        <div style="width:1px;background:#F3F4F6;"></div>
+        <div><div style="font-size:22px;font-weight:800;color:#059669;">97 min</div><div style="font-size:11px;color:#6B7280;margin-top:3px;">Full batch settled</div></div>
+        <div style="width:1px;background:#F3F4F6;"></div>
+        <div><div style="font-size:22px;font-weight:800;color:#2563EB;">3 min</div><div style="font-size:11px;color:#6B7280;margin-top:3px;">Recon export</div></div>
+      </div>
+    </div>
+
+    <!-- Auto-reconciliation CTA -->
+    <div style="margin:0 16px 24px;background:linear-gradient(135deg,#EFF6FF,#DBEAFE);border:1px solid #BFDBFE;border-radius:16px;padding:14px 16px;display:flex;align-items:center;gap:10px;">
+      <span style="font-size:24px;">⚡</span>
+      <div>
+        <div style="font-size:13px;font-weight:700;color:#1E40AF;">Set up auto-reconciliation</div>
+        <div style="font-size:11px;color:#3B82F6;margin-top:2px;">Auto-export to your ERP on batch completion — zero manual effort</div>
+      </div>
+      <div style="margin-left:auto;font-size:20px;color:#2563EB;">›</div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /phone -->
+</div><!-- /phone-wrap -->
+
+<div class="nav-row">
+  <button class="arr" onclick="prev()">‹</button>
+  <div class="dots">
+    <div class="dot on" id="d1" onclick="go(1)"></div>
+    <div class="dot" id="d2" onclick="go(2)"></div>
+    <div class="dot" id="d3" onclick="go(3)"></div>
+    <div class="dot" id="d4" onclick="go(4)"></div>
+    <div class="dot" id="d5" onclick="go(5)"></div>
+  </div>
+  <button class="arr" onclick="next()">›</button>
+</div>
+<div class="slabel" id="slabel">01 — BATCH UPLOAD + VALIDATION</div>
+
+<!-- SOURCES -->
+<div style="max-width:700px;width:100%;margin-top:48px;padding:0 8px;">
+  <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.3);letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;text-align:center;">PROJECTED METRICS · RESEARCH SOURCES</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px 16px;">
+      <div style="font-size:10px;font-weight:700;color:#2563EB;letter-spacing:.5px;margin-bottom:5px;">97.8% FIRST-PASS SUCCESS RATE</div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.55);line-height:1.5;">Best-in-class batch payment platforms achieve 96–99% first-pass settlement rates. Source: <a href="https://www.bottomline.com/resources/reports" target="_blank" style="color:#60A5FA;">Bottomline Technologies B2B Payments Benchmark 2023</a></div>
+    </div>
+    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px 16px;">
+      <div style="font-size:10px;font-weight:700;color:#2563EB;letter-spacing:.5px;margin-bottom:5px;">40% FEWER PAYOUT TICKETS</div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.55);line-height:1.5;">35–45% of payment ops support tickets are status queries resolvable via real-time visibility. Source: <a href="https://kyriba.com/resources" target="_blank" style="color:#60A5FA;">Kyriba Treasury Management Survey 2022</a></div>
+    </div>
+    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px 16px;">
+      <div style="font-size:10px;font-weight:700;color:#2563EB;letter-spacing:.5px;margin-bottom:5px;">60–75% FASTER RECONCILIATION</div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.55);line-height:1.5;">Automated reconciliation exports reduce manual reconciliation time 60–75% vs manual processes. Source: <a href="https://www.gartner.com/en/finance" target="_blank" style="color:#60A5FA;">Gartner Finance Automation 2023</a></div>
+    </div>
+    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px 16px;">
+      <div style="font-size:10px;font-weight:700;color:#2563EB;letter-spacing:.5px;margin-bottom:5px;">PRE-VALIDATION ELIMINATES 38% FAILURES</div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.55);line-height:1.5;">IBAN format errors are the top cause of batch payment failures across EU B2B platforms. Source: <a href="https://www.swift.com/our-solutions/compliance-and-shared-services/business-intelligence/payments" target="_blank" style="color:#60A5FA;">SWIFT Payment Failure Analysis 2022</a></div>
+    </div>
+  </div>
+  <div style="margin-top:10px;font-size:10px;color:rgba(255,255,255,0.2);text-align:center;line-height:1.6;">Metrics represent projections based on industry benchmarks, not Nomupay's internal data. Built as a case study by Ajay Avaghade.</div>
+</div>
+
+<script>
+const LABELS={1:'01 — BATCH UPLOAD + VALIDATION',2:'02 — PROCESSING STATUS GRID',3:'03 — FAILED ROW DETAIL + RETRY',4:'04 — BATCH COMPLETE + EXPORT',5:'05 — BATCH ANALYTICS'};
+let cur=1;
+function go(n){
+  document.getElementById('s'+cur).classList.remove('active');
+  document.getElementById('d'+cur).classList.remove('on');
+  cur=n;
+  document.getElementById('s'+cur).classList.add('active');
+  document.getElementById('d'+cur).classList.add('on');
+  document.getElementById('slabel').textContent=LABELS[n];
+  if(n===4) startConfetti();
+}
+function next(){if(cur<5)go(cur+1);}
+function prev(){if(cur>1)go(cur-1);}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')next();if(e.key==='ArrowLeft')prev();});
+
+function startConfetti(){
+  const c=document.getElementById('conf4');
+  c.innerHTML='';
+  const colors=['#2563EB','#059669','#F59E0B','#6366F1','#10B981','#FBBF24'];
+  for(let i=0;i<40;i++){
+    const p=document.createElement('div');
+    const col=colors[Math.floor(Math.random()*colors.length)];
+    const size=Math.random()*8+4;
+    p.style.cssText=`position:absolute;width:${size}px;height:${size}px;background:${col};border-radius:${Math.random()>0.5?'50%':'2px'};left:${Math.random()*100}%;top:-20px;animation:fall ${1.5+Math.random()*2}s linear ${Math.random()*0.8}s forwards;`;
+    c.appendChild(p);
+  }
+  setTimeout(()=>{c.innerHTML='';},4000);
+}
+</script>
+</body>
+</html>
