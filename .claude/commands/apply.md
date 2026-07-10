@@ -11,7 +11,8 @@
 2. **PRDs should always be 1-pager** and almost completely filled.
 3. **Only consult for case studies** with Ajay. For everything else, take initiative.
 4. **Resume MUST be generated as both HTML AND PDF — always.** After writing the HTML, immediately run the headless Chrome command to produce the PDF. Do NOT declare Phase 5 complete until the `.pdf` file exists on disk. Never ask Ajay to print it himself.
-5. **Always cite sources for projected/industry metrics.** Every prototype and CEO deck must include a sources section that maps each projected metric to a named industry benchmark (e.g. Zendesk CX Trends 2024, McKinsey Digital Banking Survey 2022, PYMNTS Payment Failure Index 2023). Sources go in a 2-column grid below the phone frame in prototypes, and inline as "(Source: X)" on impact slides in decks. Never present a projected metric without a benchmark source. Research and cite real publications — do not fabricate sources.
+5. **Resume tagline is always "Product Manager" — never "Senior Product Manager", "Sr PM", or any seniority prefix.** This applies regardless of what the JD calls the role. The tagline format is always: `Product Manager · [Domain Focus]`.
+6. **Always cite sources for projected/industry metrics.** Every prototype and CEO deck must include a sources section that maps each projected metric to a named industry benchmark (e.g. Zendesk CX Trends 2024, McKinsey Digital Banking Survey 2022, PYMNTS Payment Failure Index 2023). Sources go in a 2-column grid below the phone frame in prototypes, and inline as "(Source: X)" on impact slides in decks. Never present a projected metric without a benchmark source. Research and cite real publications — do not fabricate sources.
 
 ---
 
@@ -33,6 +34,7 @@ Always use this as the single source of truth. Never fabricate metrics or experi
 - Inherited a fragmented offers stack across 350M+ MAU with low redemption and high checkout drop-off. Redesigned end-to-end offers placement, eligibility surfacing, and redemption UX → **22% checkout conversion lift**
 - ₹1000+ Cr/yr marketing budget spent on static, rule-based targeting. Led deployment of Propensity-to-Transact ML models replacing manual cohorts with real-time user-level scoring → **32% marketing burn reduction**, sustained GMV growth
 - Pincode (quick commerce): 60%+ cart abandonment, flat AOV. Built dynamic cart incentivization engine with context-aware triggers (cart value × user intent × time signals) → **35% AOV uplift, 60% cart abandonment reduction, 20% improvement in 30-day retention**
+- **New-user retention lifecycle (cohort-derived):** Identified a 7-day activation cliff — new users who did not complete bank-link + first transaction within 7 days showed sharply lower D30 retention. Also identified a 3-category breadth threshold: users transacting across 3+ categories retained ~70% better than single-category users. Built a three-layer retention system: (1) directed, incentivized onboarding — cashback anchored to bank-link + first transaction within day 7; (2) negotiated a 7-day masthead ad moratorium with the ads team (backed by CLTV vs. week-one ad revenue model), replacing ads with a journey-progress bar for new users; (3) defined the behavioral feature set for user understanding (category mix, transaction frequency, time-of-day patterns, recency, breadth progression), set the ML target to category breadth (not raw transaction count), and designed the segment-to-channel intervention logic (which user state → CRM message vs. merchandising change vs. offer) plus milestone construct to engineer the path to 3 categories → **D30 retention +15%**, 3-category attainment uplift across new-user cohort.
 
 **Associate Product Manager** — PhonePe · Third-Party Rewards & Merchant Growth *(Apr 2022 – Apr 2023)*
 - ₹100 Cr/yr rewards portfolio run on static non-personalised rules. Rebuilt into ML-driven marketplace ecosystem with audience segmentation and brand self-serve tooling → **500+ brand partners onboarded, 11% YoY revenue growth, 26% user engagement increase**
@@ -127,6 +129,10 @@ Always use this as the single source of truth. Never fabricate metrics or experi
 | eyewa | eyewa RepeatIQ | eyewa-repeatiq-prototype.html | assets/eyewa-repeatiq-deck.pptx | #real-world/eyewa |
 | Nomupay | MerchantIQ + SupportIQ | nomupay-merchantiq-prototype.html | assets/nomupay-merchantiq-deck.pptx | #real-world/nomupay |
 | Nomupay | BatchPayIQ | nomupay-batchpayiq-prototype.html | assets/nomupay-batchpayiq-deck.pptx | #real-world/nomupay |
+| Dreampass | DreamActivate | dreampass-activate-prototype.html | assets/dreampass-activate-deck.pptx | #real-world/dreampass |
+| Dreampass | DreamLoop | dreampass-loop-prototype.html | assets/dreampass-loop-deck.pptx | #real-world/dreampass |
+| Dreampass | DreamSave | dreampass-save-prototype.html | assets/dreampass-save-deck.pptx | #real-world/dreampass |
+| Dreampass | DreamTier | dreampass-tier-prototype.html | assets/dreampass-tier-deck.pptx | #real-world/dreampass |
 
 ---
 
@@ -652,9 +658,30 @@ open "/Users/ajayavaghade/Job Apply AI/Ajay_Avaghade_Resume_[Company].pdf"
 
 ---
 
-## PHASE 6 — OUTREACH (LinkedIn + Email)
+## PHASE 6 — COVER LETTER + OUTREACH
 
-**File Format**: ALWAYS write outreach messages into a plain text file (`/Users/ajayavaghade/Job Apply AI/[Company]_Outreach.txt`). Do NOT use markdown syntax (like `**bold**` or `[link](url)`) as it requires manual sorting.
+**Phase 6 always produces 5 deliverables — all are mandatory:**
+1. Cover letter HTML → `/Users/ajayavaghade/Job Apply AI/Ajay_Avaghade_CoverLetter_[Company].html`
+2. Cover letter PDF → same path, `.pdf` extension (headless Chrome, same command as resume)
+3. LinkedIn connection note (≤300 chars)
+4. Hiring manager email
+5. Recruiter email + 1-week follow-up template
+
+**All outreach goes into a single HTML file** (`Ajay_Avaghade_[Company]_HiringMessage.html`) with clearly labelled sections — not a plain text file.
+
+### Cover Letter Rules
+
+- **1 page maximum.** Use `@page { margin: .36in .46in; }`, `font-size: 9.6pt`, `line-height: 1.50`, `p { margin-bottom: 10px; }`. White space below the signature is acceptable — letters don't need to fill the page like resumes do.
+- **Structure: 4 paragraphs only**
+  - Para 1: Hook — name the case studies, state the role, what they demonstrate
+  - Para 2: Strongest single proof point (the most direct PhonePe → role parallel)
+  - Para 3: Intelligence / ML / data layer proof + AI side projects if relevant
+  - Para 4: Why this company, why now, relocation intent (UAE jobs), clear ask
+- **No generic openers.** Never start with "I am excited to apply" or "I am writing to express my interest." Open with the case study or the problem.
+- **UAE jobs:** always end with the relocation note in the `reloc-note` styled div.
+- **Generate PDF immediately** after writing the HTML — Phase 6 is not complete until both files exist on disk.
+
+**File Format**: ALWAYS write outreach messages into a single HTML file (`/Users/ajayavaghade/Job Apply AI/Ajay_Avaghade_[Company]_HiringMessage.html`). Do NOT use plain text files.
 
 ### A. LinkedIn Connection Note (300 chars max)
 
@@ -760,6 +787,7 @@ These rules govern how this skill runs every time:
 | 2026-06 | Meesho | PM-2 Growth, Checkout & Returns Platform (Bangalore, India) | ReturnSense + Vaani-Cart + TrustBuy | Portfolio shipped | India job — NO relocation note. Palette: pink #F43397 (primary) / dark #353543 (secondary). ReturnSense = ML-driven returns mitigation at checkout (warnings, size matching, COD overlays with WhatsApp voice confirmation via Vaani), reducing returns by 40% and COD RTO by 25%. Vaani-Cart = voice-first checkout converting spoken address landmarks to coordinates, providing 14.2% lift. TrustBuy = supplier quality incentives linking SKU return rates to PRISM organic search visibility. All 3 prototypes built separately. Resume title: "Product Manager 2 — Growth, Checkout & Returns Platform". Skills: growth checkout, returns mitigation, RTO reduction, PRISM AI, Vaani voice assistant. |
 | 2026-06 | Almosafer | Product Manager — Growth, Conversion & Gamification (Dubai, UAE) | SmartLock + RouteIQ + Milestone Explorer | Portfolio shipped | UAE job — relocation note included. Palette: dark #07132B / orange #FF5A00 (SmartLock) / green #10B981 (RouteIQ) / gold #F5A623 (Milestone Explorer). SmartLock = dynamic price-freeze engine: locks flight/hotel rates for 48 hours for a micro-fee, using dynamic volatility hedging API to protect margins (+22% CVR lift). RouteIQ = dynamic cart bundling query-routing taxi (Careem) and attraction APIs with real-time discounts, featuring 30-min self-serve partner campaign tools (+35% AOV, +25% attach). Milestone Explorer = gamified regional travel trail mapping destination-based steps (inspired by Toss Korea), utilizing user-uploaded photos of completed trips inside node circles to form visual journals (+17% CLTV, 2.4x shares). All 3 prototypes built separately. Resume title: "Product Manager — Growth, Conversion & Gamification". |
 | 2026-06 | eyewa | PM, Engagement · Consumer Experience (Dubai, UAE) | ProLoop + RepeatIQ | Portfolio shipped | UAE job — relocation note included. Palette: ProLoop teal #00BFA5 / dark #0A1F1C; RepeatIQ indigo #6366F1 / dark #0F0E1A. Case studies pre-discussed with Ajay before build: 5 concepts brainstormed, user confirmed "Build A+B together (ProLoop) & C separately (RepeatIQ)". Both added to EXISTING rw-eyewa section (not a new company block — eyewa already had 3 ops case studies). eyewa app design research done before prototype build: light-mode app, white backgrounds, teal #00BFA5, minimal e-commerce aesthetic, bottom nav, category pills. ProLoop (6 screens): Home LensLoop alert (12-day countdown, red progress bar) → LensLoop supply detail (OD/OS wear grid, pre-filled address + card) → Confirm reorder → Order confirmed (confetti) → Pro dashboard (AED 847 hero, 8.5× ROI badge, savings breakdown BOGO/shipping/warranty) → Cancel-save flow (math argument: AED 847 / AED 99 = AED 748 net gain, Pause 30 days as primary CTA). RepeatIQ (5 screens): Before (generic home, no personalization, annotated with "what's missing") → With RepeatIQ (personalized "For You" tray: lens countdown + cross-category intro + Rx check reminder) → Complete Your Eyecare (68% Rx glasses users cohort, AED 29 trial, Rx on file, 78% convert within 14 days) → Win-Back (82-day lapse, saved cart, unused Pro BOGO, comeback offer) → Activated (confetti, Complete Eyecare milestone badge, next steps auto-queued, outcome stats). Key proof-point: same milestone-waiver psychology from PhonePe A/B (60% activation lift) applied to Pro cancel-save and renewal. Same ML propensity model from PhonePe (32% efficiency gain) applied to RepeatIQ cohort scoring. 8-digit hex alpha codes (e.g. #00BFA544) warn in pptxgenjs but decks still generate — border colors fall back to black, cosmetic only. Resume title: "Product Manager · Consumer Engagement & Behavioural Personalisation". Skills emphasise: repeat purchase engines, subscription retention, behavioural personalisation, cross-category LTV, win-back flows. |
+| 2026-07 | Dreampass (Trevolution) | PM — Travel Membership & Loyalty (Dubai, UAE) | DreamActivate + DreamLoop + DreamSave + DreamTier | Portfolio shipped | UAE job — relocation note included. Palette: activate #0891B2 (cyan) / loop #059669 (emerald) / save #7C3AED (purple) / tier #D97706 (amber). 4 separate case studies built: A=DreamActivate (first-benefit activation engine, 14-day cliff detection, D0–D90 trigger ladder, milestone bar, 2.8× renewal lift), B=DreamLoop (referral engine at post-booking peak, dual-sided coins 500+300, ongoing 50/trip, −40% CAC), C=DreamSave (churn prevention 4-rung ladder D-45→D-7, pause/discount/downgrade save options, 65% save acceptance, −30% churn), D=DreamTier (freemium-to-paid paywall at booking confirmation, value-at-stake framing AED 499/AED 1320, 14% CVR, 2.8× ARPU lift). All 5 screens each, single centered phone layout, sources grids. Retention experience from eyewa interview (7-day activation cliff, 3-category breadth threshold, D30 +15%, masthead moratorium, segment-to-channel logic) added to apply.md WHO IS AJAY PhonePe PM bullet and used as the primary proof point for all 4 DreamSave/DreamActivate decks. Resume title: "Product Manager · Travel Membership, Loyalty Lifecycle & Subscription Growth". Case studies section: all 4 Dreampass case studies. Cover letter + outreach (4 channel variants) generated and PDFd. |
 | 2026-07 | Nomupay | Senior PM, Merchant Experience (Dubai, UAE) | MerchantIQ + SupportIQ + BatchPayIQ | Portfolio shipped | UAE job — relocation note: "Planning active relocation to Dubai, UAE in Q3 2026 · Requires visa sponsorship". Palette: #060C1A dark / #0F1F3D hero / #2563EB accent / #F59E0B gold / #059669 green. Two separate case studies: A+B combined as MerchantIQ (unified multi-acquirer analytics portal + SupportIQ embedded AI assistant, 74% ticket deflection, 8-sec resolution) + C standalone as BatchPayIQ (batch payout with pre-submission IBAN validation, real-time per-row status, 97.8% success rate, auto-reconciliation). Both prototypes 5 screens, single centered phone layout, sourcing sections with 4 industry citation cards each (Zendesk, Intercom, McKinsey, PYMNTS for MerchantIQ; Bottomline, Kyriba, Gartner, SWIFT for BatchPayIQ). GLOBAL RULE ADDED: every projected metric in prototype + deck must cite a named industry source in a sourcing section — rule 5 in Global Agent Rules. Resume title: "Senior Product Manager · Payments Infrastructure, Merchant Experience & B2B Platforms". Skills: Merchant Portal PM, Self-Service Platform Design, Multi-Acquirer Intelligence, Batch Payout Processing, Conversational AI Products. Case studies in resume: MerchantIQ, BatchPayIQ, J.P. Morgan PayIQ, Tesco WalletBridge. |
 
 ### Improvements To-Do
@@ -780,8 +808,8 @@ Phase 2 → Build HTML prototype (4 screens) → QA checklist
 Phase 3 → Build PptxGenJS deck (8 slides) → Extract text QA
 Phase 4 → Add portfolio block → git push → Update case studies table in this file
 Phase 5 → Write HTML resume → Run Chrome headless → PDF auto-generated → open PDF
-Phase 6 → Write LinkedIn note (≤300 chars) + email → QA
+Phase 6 → Write cover letter HTML → PDF → LinkedIn note + HM email + recruiter email → all in HiringMessage HTML
 ```
 
 **Estimated effort per run:** 45–90 minutes (prototype is the longest phase)
-**Deliverables:** 1 prototype HTML, 1 PPTX deck, 1 HTML resume, **1 PDF resume** (auto-generated), 1 outreach HTML — all in one session. Phase 5 is not complete without the PDF.
+**Deliverables:** 1 prototype HTML, 1 PPTX deck, 1 HTML resume, **1 PDF resume**, 1 cover letter HTML, **1 PDF cover letter**, 1 HiringMessage HTML — all in one session. Neither Phase 5 nor Phase 6 is complete without the PDFs.

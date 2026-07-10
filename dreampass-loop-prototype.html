@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Dreampass — DreamLoop · Referral Engine · Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#071A10; font-family:'Inter',sans-serif; display:flex; flex-direction:column; align-items:center; min-height:100vh; padding:36px 20px 50px; }
+.proto-header { color:#94A3B8; font-size:11px; letter-spacing:.12em; text-transform:uppercase; margin-bottom:20px; text-align:center; }
+.proto-header span { color:#4ADE80; }
+.phone-wrap { position:relative; }
+.phone { width:390px; height:844px; background:#F8FAFF; border-radius:50px; overflow:hidden; position:relative; box-shadow:0 40px 100px rgba(0,0,0,.6),0 0 0 2px rgba(255,255,255,.06); }
+.sb { display:flex; justify-content:space-between; align-items:center; padding:14px 22px 0; }
+.sb-time { font-size:15px; font-weight:700; color:#0F172A; }
+.sb-time.wh { color:#fff; }
+.sb-icons svg { width:16px; height:16px; fill:#0F172A; }
+.screen { position:absolute; top:0; left:0; width:100%; height:100%; background:#F8FAFF; display:none; flex-direction:column; }
+.screen.active { display:flex; }
+.scroll-body { flex:1; overflow-y:auto; scrollbar-width:none; padding-bottom:80px; }
+.scroll-body::-webkit-scrollbar { display:none; }
+.nav-bar { display:flex; justify-content:space-around; align-items:center; padding:8px 0 18px; background:#fff; border-top:1px solid #E2E8F0; position:absolute; bottom:0; left:0; width:100%; }
+.nav-item { display:flex; flex-direction:column; align-items:center; gap:3px; font-size:9px; color:#94A3B8; font-weight:500; }
+.nav-item.active { color:#059669; }
+.nav-item svg { width:22px; height:22px; }
+
+/* S1 — Referral Home */
+#s1 .hero { background:linear-gradient(135deg,#071A10 0%,#0A2E17 60%,#059669 100%); padding:52px 22px 24px; }
+#s1 .hero-tag { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:#4ADE80; background:rgba(74,222,128,.15); border-radius:20px; padding:3px 10px; display:inline-block; margin-bottom:10px; }
+#s1 .hero-title { font-size:22px; font-weight:800; color:#fff; margin-bottom:4px; }
+#s1 .hero-sub { font-size:12px; color:#86EFAC; line-height:1.5; }
+
+#s1 .earn-card { margin:16px; background:#fff; border:1px solid #E2E8F0; border-radius:18px; padding:16px; }
+#s1 .earn-title { font-size:13px; font-weight:700; color:#0F172A; margin-bottom:12px; }
+#s1 .earn-row { display:flex; gap:10px; }
+#s1 .earn-box { flex:1; background:#F0FDF4; border:1px solid #BBF7D0; border-radius:12px; padding:12px; text-align:center; }
+#s1 .earn-icon { font-size:22px; margin-bottom:4px; }
+#s1 .earn-amount { font-size:18px; font-weight:800; color:#059669; }
+#s1 .earn-who { font-size:9px; color:#16A34A; font-weight:600; text-transform:uppercase; letter-spacing:.06em; }
+#s1 .earn-desc { font-size:10px; color:#64748B; margin-top:3px; }
+
+#s1 .share-btn { width:calc(100% - 32px); margin:0 16px; padding:15px; background:linear-gradient(90deg,#059669,#047857); color:#fff; border:none; border-radius:14px; font-size:15px; font-weight:700; font-family:'Inter',sans-serif; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; }
+
+#s1 .circle-card { margin:16px 16px 0; background:#F0FDF4; border:1px solid #BBF7D0; border-radius:16px; padding:14px; }
+#s1 .circle-title { font-size:12px; font-weight:700; color:#065F46; margin-bottom:10px; }
+#s1 .circle-empty { text-align:center; padding:16px 0; }
+#s1 .circle-empty-icon { font-size:32px; margin-bottom:6px; }
+#s1 .circle-empty-text { font-size:12px; color:#64748B; }
+#s1 .circle-hint { font-size:10px; color:#059669; margin-top:4px; }
+
+#s1 .stats-row { display:flex; gap:10px; padding:16px; }
+#s1 .stat-box { flex:1; background:#fff; border:1px solid #E2E8F0; border-radius:14px; padding:12px; text-align:center; }
+#s1 .stat-val { font-size:22px; font-weight:800; color:#059669; }
+#s1 .stat-lbl { font-size:9px; color:#64748B; text-transform:uppercase; letter-spacing:.06em; margin-top:2px; }
+
+/* S2 — Share Moment */
+#s2 { background:#fff; }
+#s2 .top-bar { background:#071A10; padding:52px 16px 20px; }
+#s2 .trip-card { background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12); border-radius:16px; padding:14px; }
+#s2 .trip-dest { font-size:20px; font-weight:800; color:#fff; margin-bottom:4px; }
+#s2 .trip-dates { font-size:11px; color:#86EFAC; }
+#s2 .trip-coins { font-size:12px; color:#4ADE80; margin-top:8px; font-weight:600; }
+
+#s2 .share-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:#94A3B8; padding:16px 16px 8px; }
+#s2 .share-preview { margin:0 16px; background:linear-gradient(135deg,#071A10,#0A2E17); border-radius:20px; padding:20px; text-align:center; }
+#s2 .sp-from { font-size:11px; color:#86EFAC; margin-bottom:6px; }
+#s2 .sp-main { font-size:16px; font-weight:700; color:#fff; margin-bottom:4px; }
+#s2 .sp-dest { font-size:22px; font-weight:800; color:#4ADE80; margin-bottom:12px; }
+#s2 .sp-offer { background:rgba(74,222,128,.15); border:1px solid rgba(74,222,128,.3); border-radius:12px; padding:10px 14px; }
+#s2 .sp-offer-title { font-size:12px; font-weight:700; color:#4ADE80; }
+#s2 .sp-offer-body { font-size:10.5px; color:#86EFAC; margin-top:2px; }
+#s2 .sp-logo { font-size:10px; color:#64748B; margin-top:12px; }
+
+#s2 .channel-row { display:flex; gap:10px; padding:16px; justify-content:center; }
+#s2 .channel-btn { flex:1; padding:12px 8px; border-radius:14px; border:1px solid #E2E8F0; background:#fff; display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer; }
+#s2 .channel-btn:active { background:#F0FDF4; }
+#s2 .ch-icon { font-size:22px; }
+#s2 .ch-name { font-size:9px; color:#64748B; font-weight:600; }
+
+#s2 .copy-link { margin:0 16px; background:#F0FDF4; border:1px solid #BBF7D0; border-radius:12px; padding:12px 14px; display:flex; justify-content:space-between; align-items:center; }
+#s2 .link-text { font-size:10.5px; color:#059669; font-weight:500; }
+#s2 .copy-btn { background:#059669; color:#fff; border:none; border-radius:8px; padding:6px 12px; font-size:11px; font-weight:700; font-family:'Inter',sans-serif; cursor:pointer; }
+
+#s2 .send-btn { margin:12px 16px 0; width:calc(100% - 32px); padding:14px; background:linear-gradient(90deg,#059669,#047857); color:#fff; border:none; border-radius:14px; font-size:14px; font-weight:700; font-family:'Inter',sans-serif; cursor:pointer; }
+
+/* S3 — Friend Landing */
+#s3 { background:#fff; }
+#s3 .hero { background:linear-gradient(135deg,#071A10,#0A2E17); padding:52px 22px 24px; text-align:center; }
+#s3 .ref-from { font-size:12px; color:#86EFAC; margin-bottom:8px; }
+#s3 .ref-avatar { width:56px; height:56px; border-radius:50%; background:linear-gradient(135deg,#059669,#047857); display:flex; align-items:center; justify-content:center; font-size:24px; margin:0 auto 8px; border:2px solid rgba(74,222,128,.4); }
+#s3 .ref-name { font-size:16px; font-weight:700; color:#fff; margin-bottom:4px; }
+#s3 .ref-message { font-size:12px; color:#86EFAC; line-height:1.5; }
+
+#s3 .welcome-box { margin:16px; background:#F0FDF4; border:1.5px solid #BBF7D0; border-radius:18px; padding:16px; text-align:center; }
+#s3 .wb-icon { font-size:36px; margin-bottom:8px; }
+#s3 .wb-title { font-size:18px; font-weight:800; color:#065F46; margin-bottom:4px; }
+#s3 .wb-sub { font-size:12px; color:#16A34A; line-height:1.5; }
+#s3 .wb-coins { font-size:28px; font-weight:800; color:#059669; margin:8px 0 4px; }
+#s3 .wb-coin-lbl { font-size:10px; color:#64748B; }
+
+#s3 .dual-row { display:flex; gap:10px; margin:0 16px 16px; }
+#s3 .dual-box { flex:1; background:#fff; border:1px solid #E2E8F0; border-radius:14px; padding:12px; text-align:center; }
+#s3 .db-icon { font-size:20px; margin-bottom:4px; }
+#s3 .db-val { font-size:16px; font-weight:800; color:#059669; }
+#s3 .db-lbl { font-size:9px; color:#64748B; }
+#s3 .db-who { font-size:9px; font-weight:600; color:#16A34A; margin-top:2px; text-transform:uppercase; }
+
+#s3 .join-btn { margin:0 16px; width:calc(100% - 32px); padding:15px; background:linear-gradient(90deg,#059669,#047857); color:#fff; border:none; border-radius:14px; font-size:15px; font-weight:700; font-family:'Inter',sans-serif; cursor:pointer; }
+#s3 .login-hint { text-align:center; padding:12px; font-size:11px; color:#94A3B8; }
+
+/* S4 — Friend First Booking */
+#s4 { background:#fff; }
+#s4 .booking-header { background:#071A10; padding:52px 16px 20px; }
+#s4 .bh-back { color:#86EFAC; font-size:20px; cursor:pointer; }
+#s4 .bh-title { color:#fff; font-size:16px; font-weight:700; margin-top:6px; }
+#s4 .bh-sub { color:#86EFAC; font-size:11px; margin-top:2px; }
+
+#s4 .flight-card { margin:16px; background:#fff; border:1.5px solid #E2E8F0; border-radius:18px; padding:16px; }
+#s4 .fc-route { display:flex; align-items:center; gap:8px; margin-bottom:12px; }
+#s4 .fc-city { font-size:22px; font-weight:800; color:#0F172A; }
+#s4 .fc-arrow { font-size:18px; color:#059669; flex:1; text-align:center; }
+#s4 .fc-detail { display:flex; justify-content:space-between; font-size:11px; color:#64748B; }
+#s4 .fc-airline { font-size:12px; font-weight:600; color:#475569; margin-bottom:4px; }
+#s4 .fc-price { font-size:24px; font-weight:800; color:#0F172A; margin-top:8px; }
+#s4 .fc-per { font-size:11px; color:#64748B; }
+
+#s4 .coin-earn-banner { margin:0 16px 12px; background:linear-gradient(90deg,#F0FDF4,#DCFCE7); border:1px solid #BBF7D0; border-radius:14px; padding:12px 14px; display:flex; align-items:center; gap:10px; }
+#s4 .ceb-icon { font-size:22px; }
+#s4 .ceb-text { flex:1; }
+#s4 .ceb-title { font-size:12px; font-weight:700; color:#065F46; }
+#s4 .ceb-sub { font-size:10.5px; color:#16A34A; }
+#s4 .ceb-coins { font-size:16px; font-weight:800; color:#059669; }
+
+#s4 .ref-bonus { margin:0 16px 16px; background:#F0FDF4; border:1px solid #BBF7D0; border-radius:14px; padding:12px 14px; }
+#s4 .rb-title { font-size:11px; font-weight:700; color:#065F46; margin-bottom:6px; }
+#s4 .rb-row { display:flex; justify-content:space-between; font-size:11px; margin-bottom:4px; }
+#s4 .rb-lbl { color:#64748B; }
+#s4 .rb-val { font-weight:700; color:#059669; }
+
+#s4 .book-btn { margin:0 16px; width:calc(100% - 32px); padding:15px; background:linear-gradient(90deg,#059669,#047857); color:#fff; border:none; border-radius:14px; font-size:15px; font-weight:700; font-family:'Inter',sans-serif; cursor:pointer; }
+
+/* S5 — Referrer Success */
+#s5 { background:#F8FAFF; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; }
+#s5 #conf { position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:0; }
+#s5 .success-hero { background:linear-gradient(135deg,#071A10,#0A2E17); width:100%; padding:52px 24px 28px; text-align:center; position:relative; z-index:1; }
+#s5 .suc-circle { width:80px; height:80px; border-radius:50%; background:linear-gradient(135deg,#059669,#047857); display:flex; align-items:center; justify-content:center; font-size:36px; margin:0 auto 12px; box-shadow:0 10px 30px rgba(5,150,105,.4); }
+#s5 .suc-title { font-size:22px; font-weight:800; color:#fff; margin-bottom:4px; }
+#s5 .suc-sub { font-size:12px; color:#86EFAC; line-height:1.5; }
+
+#s5 .coins-earned { background:#fff; border:1.5px solid #BBF7D0; border-radius:18px; margin:16px; padding:16px; position:relative; z-index:1; text-align:center; }
+#s5 .ce-label { font-size:10px; text-transform:uppercase; letter-spacing:.1em; color:#94A3B8; margin-bottom:6px; }
+#s5 .ce-amount { font-size:40px; font-weight:800; color:#059669; }
+#s5 .ce-unit { font-size:13px; color:#16A34A; }
+#s5 .ce-breakdown { display:flex; gap:8px; margin-top:12px; }
+#s5 .ce-item { flex:1; background:#F0FDF4; border-radius:10px; padding:8px; text-align:center; }
+#s5 .ce-item-val { font-size:14px; font-weight:700; color:#059669; }
+#s5 .ce-item-lbl { font-size:9px; color:#64748B; }
+
+#s5 .circle-updated { background:#fff; border:1px solid #E2E8F0; border-radius:18px; margin:0 16px 16px; padding:14px; position:relative; z-index:1; }
+#s5 .cu-title { font-size:12px; font-weight:700; color:#065F46; margin-bottom:10px; }
+#s5 .member-row { display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid #E2E8F0; }
+#s5 .member-row:last-child { border-bottom:none; }
+#s5 .member-avatar { width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg,#059669,#047857); display:flex; align-items:center; justify-content:center; font-size:16px; }
+#s5 .member-info { flex:1; }
+#s5 .member-name { font-size:12px; font-weight:700; color:#0F172A; }
+#s5 .member-status { font-size:10px; color:#16A34A; }
+#s5 .member-coins { font-size:12px; font-weight:700; color:#059669; }
+
+#s5 .home-btn { margin:0 16px; width:calc(100% - 32px); padding:14px; background:#0F172A; color:#fff; border:none; border-radius:14px; font-size:14px; font-weight:700; font-family:'Inter',sans-serif; cursor:pointer; position:relative; z-index:1; }
+
+/* Sources & Nav */
+.sources-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:28px; width:390px; }
+.source-card { background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); border-radius:12px; padding:12px; }
+.source-metric { font-size:12px; font-weight:700; color:#4ADE80; margin-bottom:3px; }
+.source-text { font-size:10px; color:#94A3B8; line-height:1.4; }
+.source-cite { font-size:9px; color:#475569; margin-top:4px; font-style:italic; }
+.sources-title { color:#64748B; font-size:10px; text-transform:uppercase; letter-spacing:.1em; margin-top:28px; margin-bottom:10px; text-align:center; }
+.nav-row { display:flex; align-items:center; gap:16px; margin-top:20px; }
+.nav-arr { background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12); border-radius:50%; width:36px; height:36px; color:#fff; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.nav-arr:hover { background:rgba(255,255,255,.15); }
+.dots { display:flex; gap:7px; }
+.dot { width:7px; height:7px; border-radius:50%; background:rgba(255,255,255,.2); cursor:pointer; transition:background .2s,transform .2s; }
+.dot.on { background:#4ADE80; transform:scale(1.25); }
+.screen-label { color:#64748B; font-size:10px; letter-spacing:.1em; text-transform:uppercase; margin-top:10px; }
+@keyframes fall { to { transform:translateY(900px) rotate(360deg); opacity:0; } }
+</style>
+</head>
+<body>
+
+<div class="proto-header">Dreampass — <span>DreamLoop</span> · Referral & Viral Acquisition Engine · Interactive Prototype</div>
+
+<div class="phone-wrap"><div class="phone">
+
+<!-- S1: Referral Home -->
+<div class="screen active" id="s1">
+  <div class="sb" style="background:transparent;position:absolute;top:0;left:0;width:100%;z-index:20;padding:14px 22px 0;">
+    <span class="sb-time wh">9:41</span>
+    <div class="sb-icons"><svg viewBox="0 0 24 24" style="fill:#fff;"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg><svg viewBox="0 0 24 24" style="fill:#fff;"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg></div>
+  </div>
+  <div class="scroll-body">
+    <div class="hero">
+      <div class="hero-tag">✈️ DreamLoop — Referral</div>
+      <div class="hero-title">Grow your travel circle</div>
+      <div class="hero-sub">Invite friends who love to travel. You both earn Dreamcoins on every booking they make — forever.</div>
+    </div>
+    <div class="earn-card">
+      <div class="earn-title">How DreamLoop works</div>
+      <div class="earn-row">
+        <div class="earn-box">
+          <div class="earn-icon">🎁</div>
+          <div class="earn-amount">500</div>
+          <div class="earn-who">You earn</div>
+          <div class="earn-desc">Per friend's first booking</div>
+        </div>
+        <div class="earn-box">
+          <div class="earn-icon">👤</div>
+          <div class="earn-amount">300</div>
+          <div class="earn-who">They earn</div>
+          <div class="earn-desc">Welcome bonus on join</div>
+        </div>
+      </div>
+      <div style="margin-top:10px;background:#F0FDF4;border-radius:10px;padding:8px 12px;font-size:10.5px;color:#065F46;line-height:1.4;">
+        🔄 <strong>Ongoing:</strong> Earn 50 coins every time your referral books a trip — no expiry.
+      </div>
+    </div>
+    <button class="share-btn" onclick="go(2)">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+      Share with a Travel Friend
+    </button>
+    <div class="circle-card">
+      <div class="circle-title">🌍 Your Travel Circle</div>
+      <div class="circle-empty">
+        <div class="circle-empty-icon">🤝</div>
+        <div class="circle-empty-text">No referrals yet</div>
+        <div class="circle-hint">Invite your first travel friend to start earning</div>
+      </div>
+    </div>
+    <div class="stats-row">
+      <div class="stat-box"><div class="stat-val">0</div><div class="stat-lbl">Circle members</div></div>
+      <div class="stat-box"><div class="stat-val">0</div><div class="stat-lbl">Coins earned</div></div>
+      <div class="stat-box"><div class="stat-val">500</div><div class="stat-lbl">Per referral</div></div>
+    </div>
+  </div>
+  <div class="nav-bar">
+    <div class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg><span>Home</span></div>
+    <div class="nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg><span>DreamLoop</span></div>
+    <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg><span>Trips</span></div>
+    <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span>Account</span></div>
+  </div>
+</div>
+
+<!-- S2: Share Moment -->
+<div class="screen" id="s2">
+  <div class="sb" style="background:transparent;position:absolute;top:0;left:0;width:100%;z-index:20;padding:14px 22px 0;">
+    <span class="sb-time wh">9:41</span>
+    <div class="sb-icons"><svg viewBox="0 0 24 24" style="fill:#fff;"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg><svg viewBox="0 0 24 24" style="fill:#fff;"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg></div>
+  </div>
+  <div class="booking-header" style="background:#071A10;padding:52px 16px 20px;">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+      <span style="color:#4ADE80;font-size:20px;cursor:pointer;" onclick="go(1)">‹</span>
+      <div style="color:#fff;font-size:16px;font-weight:700;">Share Your Trip Moment</div>
+    </div>
+    <div class="trip-card">
+      <div class="trip-dest">✈️ Dubai, UAE</div>
+      <div class="trip-dates">Aug 14 – Aug 21 · 2 adults · Economy</div>
+      <div class="trip-coins">+840 Dreamcoins earned on this booking</div>
+    </div>
+  </div>
+  <div class="scroll-body" style="background:#F8FAFF;">
+    <div class="share-label">YOUR REFERRAL CARD</div>
+    <div class="share-preview">
+      <div class="sp-from">Marcus Chen just booked</div>
+      <div class="sp-main">✈️ Heading to</div>
+      <div class="sp-dest">Dubai, UAE</div>
+      <div class="sp-offer">
+        <div class="sp-offer-title">🎁 Join Dreampass — Get 300 welcome coins</div>
+        <div class="sp-offer-body">Marcus is inviting you to travel smarter. Earn coins on every booking, access lounges, eSIM, hotel deals & more.</div>
+      </div>
+      <div class="sp-logo">Dreampass · by Trevolution</div>
+    </div>
+
+    <div class="share-label" style="margin-top:4px;">SHARE VIA</div>
+    <div class="channel-row">
+      <div class="channel-btn" onclick="go(3)"><div class="ch-icon">💬</div><div class="ch-name">WhatsApp</div></div>
+      <div class="channel-btn" onclick="go(3)"><div class="ch-icon">✈️</div><div class="ch-name">Telegram</div></div>
+      <div class="channel-btn" onclick="go(3)"><div class="ch-icon">📧</div><div class="ch-name">Email</div></div>
+      <div class="channel-btn" onclick="go(3)"><div class="ch-icon">🔗</div><div class="ch-name">Copy Link</div></div>
+    </div>
+
+    <div class="copy-link">
+      <div class="link-text">dreampass.com/join/MARC-2841</div>
+      <button class="copy-btn">Copy</button>
+    </div>
+
+    <button class="send-btn" onclick="go(3)">Send to a Friend →</button>
+
+    <div style="margin:12px 16px;background:#fff;border:1px solid #E2E8F0;border-radius:12px;padding:12px;font-size:10.5px;color:#64748B;line-height:1.5;">
+      💡 <strong>Best time to share:</strong> Right after booking, when travel excitement is highest. Friends invited post-booking convert at 2.4× the rate of cold invites.
+    </div>
+  </div>
+</div>
+
+<!-- S3: Friend Landing -->
+<div class="screen" id="s3">
+  <div class="sb" style="background:transparent;position:absolute;top:0;left:0;width:100%;z-index:20;padding:14px 22px 0;">
+    <span class="sb-time wh">9:41</span>
+    <div class="sb-icons"><svg viewBox="0 0 24 24" style="fill:#fff;"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg><svg viewBox="0 0 24 24" style="fill:#fff;"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg></div>
+  </div>
+  <div class="scroll-body">
+    <div class="hero" style="background:linear-gradient(135deg,#071A10,#0A2E17);padding:52px 22px 24px;text-align:center;">
+      <div class="ref-from">Marcus Chen invited you to</div>
+      <div class="ref-avatar">✈️</div>
+      <div class="ref-name">Dreampass</div>
+      <div class="ref-message">Travel benefits, Dreamcoins on every booking, and access to lounges, eSIM, hotels & insurance — all in one place.</div>
+    </div>
+    <div class="welcome-box">
+      <div class="wb-icon">🎁</div>
+      <div class="wb-title">Your Welcome Gift</div>
+      <div class="wb-coins">300</div>
+      <div class="wb-coin-lbl">Dreamcoins · credited on your first booking</div>
+      <div class="wb-sub" style="margin-top:8px;">Use toward eSIM, lounge access, hotel cashback, or travel insurance. No minimum spend.</div>
+    </div>
+    <div class="dual-row">
+      <div class="dual-box">
+        <div class="db-icon">👤</div>
+        <div class="db-val">300</div>
+        <div class="db-lbl">coins for you</div>
+        <div class="db-who">Welcome bonus</div>
+      </div>
+      <div class="dual-box">
+        <div class="db-icon">🤝</div>
+        <div class="db-val">500</div>
+        <div class="db-lbl">coins for Marcus</div>
+        <div class="db-who">Referral bonus</div>
+      </div>
+    </div>
+    <button class="join-btn" onclick="go(4)">Join Dreampass Free →</button>
+    <div class="login-hint">Already a member? <span style="color:#059669;font-weight:600;">Sign in</span></div>
+  </div>
+</div>
+
+<!-- S4: Friend First Booking -->
+<div class="screen" id="s4">
+  <div class="sb"><span class="sb-time">9:41</span><div class="sb-icons"><svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg><svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg></div></div>
+  <div style="background:#071A10;padding:8px 16px 20px;">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><span style="color:#4ADE80;font-size:20px;cursor:pointer;" onclick="go(3)">‹</span><div style="color:#fff;font-size:14px;font-weight:700;">Your first trip — Sarah Kim</div></div>
+    <div style="font-size:10px;color:#86EFAC;">Book to unlock your 300 welcome Dreamcoins</div>
+  </div>
+  <div class="scroll-body">
+    <div class="flight-card">
+      <div class="fc-airline">Emirates · EK 521</div>
+      <div class="fc-route">
+        <div class="fc-city">DXB</div>
+        <div class="fc-arrow">✈ ────</div>
+        <div class="fc-city">LHR</div>
+      </div>
+      <div class="fc-detail">
+        <span>Sep 10 · 08:35</span>
+        <span>Direct · 7h 20m</span>
+        <span>Sep 10 · 13:55</span>
+      </div>
+      <div class="fc-price">$642 <span class="fc-per">/ adult</span></div>
+    </div>
+    <div class="coin-earn-banner">
+      <div class="ceb-icon">🪙</div>
+      <div class="ceb-text">
+        <div class="ceb-title">You'll earn Dreamcoins</div>
+        <div class="ceb-sub">On this $642 booking</div>
+      </div>
+      <div class="ceb-coins">+642</div>
+    </div>
+    <div class="ref-bonus">
+      <div class="rb-title">🎁 Referral Bonus Applied</div>
+      <div class="rb-row"><div class="rb-lbl">Booking coins</div><div class="rb-val">+642</div></div>
+      <div class="rb-row"><div class="rb-lbl">Welcome referral bonus</div><div class="rb-val">+300</div></div>
+      <div style="border-top:1px solid #BBF7D0;margin-top:6px;padding-top:6px;" class="rb-row"><div class="rb-lbl" style="font-weight:700;color:#065F46;">Total coins after booking</div><div class="rb-val" style="font-size:14px;">942 coins</div></div>
+      <div style="margin-top:8px;font-size:10px;color:#16A34A;">Marcus Chen will receive 500 coins when you complete this booking.</div>
+    </div>
+    <button class="book-btn" onclick="go(5)">Book & Unlock Dreamcoins</button>
+  </div>
+</div>
+
+<!-- S5: Referrer Success -->
+<div class="screen" id="s5">
+  <div class="sb" style="background:transparent;position:absolute;top:0;left:0;width:100%;z-index:20;padding:14px 22px 0;">
+    <span class="sb-time wh">9:41</span>
+    <div class="sb-icons"><svg viewBox="0 0 24 24" style="fill:#fff;"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg><svg viewBox="0 0 24 24" style="fill:#fff;"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg></div>
+  </div>
+  <div id="conf"></div>
+  <div class="success-hero">
+    <div class="suc-circle">✈️</div>
+    <div class="suc-title">Sarah joined!</div>
+    <div class="suc-sub">Sarah Kim booked her first trip on Dreampass. Your referral bonus is credited.</div>
+  </div>
+  <div class="scroll-body" style="padding-bottom:20px;">
+    <div class="coins-earned">
+      <div class="ce-label">Referral Coins Credited</div>
+      <div class="ce-amount">500</div>
+      <div class="ce-unit">Dreamcoins · total balance now 2,040</div>
+      <div class="ce-breakdown">
+        <div class="ce-item"><div class="ce-item-val">500</div><div class="ce-item-lbl">Referral bonus</div></div>
+        <div class="ce-item"><div class="ce-item-val">50/trip</div><div class="ce-item-lbl">Ongoing earn</div></div>
+        <div class="ce-item"><div class="ce-item-val">∞</div><div class="ce-item-lbl">No expiry</div></div>
+      </div>
+    </div>
+    <div class="circle-updated">
+      <div class="cu-title">🌍 Your Travel Circle — 1 member</div>
+      <div class="member-row">
+        <div class="member-avatar">👩</div>
+        <div class="member-info">
+          <div class="member-name">Sarah Kim</div>
+          <div class="member-status">✅ First booking complete · London trip</div>
+        </div>
+        <div class="member-coins">+500</div>
+      </div>
+    </div>
+    <div style="margin:0 16px 12px;background:#F0FDF4;border:1px solid #BBF7D0;border-radius:14px;padding:12px 14px;font-size:10.5px;color:#065F46;line-height:1.5;">
+      💡 <strong>Keep growing:</strong> Invite 2 more friends and unlock a Gold circle badge — plus a 100-coin loyalty bonus on your next renewal.
+    </div>
+    <button class="home-btn" onclick="go(1)">Back to DreamLoop →</button>
+  </div>
+</div>
+
+</div></div>
+
+<div class="nav-row">
+  <button class="nav-arr" onclick="go(cur-1)">‹</button>
+  <div class="dots" id="dots"></div>
+  <button class="nav-arr" onclick="go(cur+1)">›</button>
+</div>
+<div class="screen-label" id="slabel">01 — REFERRAL HOME</div>
+
+<div class="sources-title">BENCHMARK SOURCES</div>
+<div class="sources-grid">
+  <div class="source-card"><div class="source-metric">2.4× Post-Booking Referral CVR</div><div class="source-text">Referrals sent immediately after a purchase convert at 2–3× the rate of cold or time-delayed invites due to peak excitement effect.</div><div class="source-cite">Nielsen Consumer Trust Report 2023; ReferralCandy Referral Benchmark 2024</div></div>
+  <div class="source-card"><div class="source-metric">−40% CAC vs Paid Acquisition</div><div class="source-text">Referred customers cost 40–60% less to acquire than paid-channel customers across travel and subscription categories.</div><div class="source-cite">Extole Referral Marketing Benchmark 2024; Skift Travel Research 2023</div></div>
+  <div class="source-card"><div class="source-metric">Dual-Sided Incentive Lift</div><div class="source-text">Dual-sided referral programs (both referrer and referee rewarded) show 34% higher completion rates than single-sided programs.</div><div class="source-cite">Friendbuy Referral Marketing State Report 2023</div></div>
+  <div class="source-card"><div class="source-metric">Ongoing Earn = Long-Term LTV</div><div class="source-text">Referral programs with ongoing per-booking earn (not just first-booking bonus) generate 2.1× higher 12-month referrer LTV.</div><div class="source-cite">Loyalty360 Benchmark Report 2023; Antavo Global Customer Loyalty Report 2024</div></div>
+</div>
+
+<script>
+let cur=1; const total=5;
+const LABELS={1:'01 — REFERRAL HOME',2:'02 — SHARE TRIP MOMENT',3:'03 — FRIEND LANDING',4:'04 — FRIEND\'S FIRST BOOKING',5:'05 — REFERRER SUCCESS'};
+function go(n){
+  if(n<1||n>total)return;
+  const prev=document.getElementById('s'+cur),next=document.getElementById('s'+n),dir=n>cur?1:-1;
+  prev.style.transition='transform .35s ease,opacity .3s';prev.style.transform=`translateX(${-dir*100}%)`;prev.style.opacity='0';
+  setTimeout(()=>{prev.style.display='none';prev.style.transform='';prev.style.opacity='';prev.style.transition='';},360);
+  next.style.display='flex';next.style.transform=`translateX(${dir*100}%)`;next.style.opacity='0';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{next.style.transition='transform .35s ease,opacity .3s';next.style.transform='';next.style.opacity='1';setTimeout(()=>{next.style.transition='';},380);}));
+  document.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('on',i===n-1));
+  document.getElementById('slabel').textContent=LABELS[n];cur=n;
+  if(n===5)startConfetti();
+}
+function startConfetti(){
+  const c=document.getElementById('conf');if(!c||c.children.length)return;
+  const cols=['#059669','#4ADE80','#F97316','#22C55E','#FFD700','#34D399'];
+  for(let i=0;i<50;i++){const p=document.createElement('div');const sz=4+Math.random()*8;p.style.cssText=`position:absolute;left:${Math.random()*100}%;top:${-10+Math.random()*20}%;width:${sz}px;height:${sz}px;background:${cols[i%cols.length]};border-radius:${Math.random()>.5?'50%':'3px'};animation:fall ${1.5+Math.random()*2}s ${Math.random()*1.2}s ease-in forwards;`;c.appendChild(p);}
+}
+const dotsEl=document.getElementById('dots');
+for(let i=1;i<=total;i++){const d=document.createElement('div');d.className='dot'+(i===1?' on':'');d.onclick=()=>go(i);dotsEl.appendChild(d);}
+</script>
+</body>
+</html>

@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Dreampass — DreamTier · Freemium Upgrade Engine · Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#130E01; font-family:'Inter',sans-serif; display:flex; flex-direction:column; align-items:center; min-height:100vh; padding:36px 20px 50px; }
+.proto-header { color:#94A3B8; font-size:11px; letter-spacing:.12em; text-transform:uppercase; margin-bottom:20px; text-align:center; }
+.proto-header span { color:#FCD34D; }
+.phone-wrap { position:relative; }
+.phone { width:390px; height:844px; background:#F8FAFF; border-radius:50px; overflow:hidden; position:relative; box-shadow:0 40px 100px rgba(0,0,0,.6),0 0 0 2px rgba(255,255,255,.06); }
+.sb { display:flex; justify-content:space-between; align-items:center; padding:14px 22px 0; }
+.sb-time { font-size:15px; font-weight:700; color:#0F172A; }
+.sb-time.wh { color:#fff; }
+.sb-icons svg { width:16px; height:16px; fill:#0F172A; }
+.screen { position:absolute; top:0; left:0; width:100%; height:100%; background:#F8FAFF; display:none; flex-direction:column; }
+.screen.active { display:flex; }
+.scroll-body { flex:1; overflow-y:auto; scrollbar-width:none; padding-bottom:80px; }
+.scroll-body::-webkit-scrollbar { display:none; }
+.nav-bar { display:flex; justify-content:space-around; align-items:center; padding:8px 0 18px; background:#fff; border-top:1px solid #E2E8F0; position:absolute; bottom:0; left:0; width:100%; }
+.nav-item { display:flex; flex-direction:column; align-items:center; gap:3px; font-size:9px; color:#94A3B8; font-weight:500; }
+.nav-item.active { color:#D97706; }
+.nav-item svg { width:22px; height:22px; }
+
+/* Lock icon */
+.lock-badge { display:inline-flex; align-items:center; gap:4px; background:rgba(217,119,6,.12); border:1px solid rgba(217,119,6,.3); border-radius:20px; padding:2px 8px; font-size:9px; font-weight:700; color:#D97706; }
+
+/* S1: Freemium Home */
+#s1 .hero { background:linear-gradient(135deg,#130E01 0%,#291A04 60%,#92400E 100%); padding:52px 22px 20px; }
+#s1 .tier-badge { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:#FCD34D; background:rgba(252,211,77,.12); border:1px solid rgba(252,211,77,.25); border-radius:20px; padding:3px 10px; display:inline-block; margin-bottom:8px; }
+#s1 .hero-title { font-size:20px; font-weight:800; color:#fff; margin-bottom:2px; }
+#s1 .hero-sub { font-size:11px; color:#FCD34D; opacity:.8; }
+#s1 .coins-row { display:flex; align-items:center; gap:8px; margin-top:10px; }
+#s1 .coin-val { font-size:28px; font-weight:800; color:#FCD34D; }
+#s1 .coin-lbl { font-size:10px; color:#92400E; }
+
+#s1 .benefits-grid { padding:14px; display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+#s1 .benefit-card { background:#fff; border:1px solid #E2E8F0; border-radius:14px; padding:12px; }
+#s1 .benefit-card.locked { background:#FFFBEB; border-color:#FCD34D44; opacity:.8; }
+#s1 .bc-icon { font-size:22px; margin-bottom:6px; }
+#s1 .bc-title { font-size:11px; font-weight:700; color:#0F172A; margin-bottom:2px; }
+#s1 .bc-status { font-size:9px; color:#16A34A; font-weight:600; }
+#s1 .bc-status.locked { color:#D97706; }
+#s1 .bc-hint { font-size:9px; color:#94A3B8; margin-top:3px; }
+
+#s1 .upgrade-banner { margin:0 14px 14px; background:linear-gradient(90deg,#FEF3C7,#FDE68A); border:1.5px solid #FCD34D; border-radius:14px; padding:12px 14px; display:flex; align-items:center; gap:10px; cursor:pointer; }
+#s1 .ub-icon { font-size:24px; }
+#s1 .ub-text { flex:1; }
+#s1 .ub-title { font-size:12px; font-weight:700; color:#92400E; }
+#s1 .ub-sub { font-size:10px; color:#B45309; }
+#s1 .ub-arrow { font-size:18px; color:#D97706; font-weight:700; }
+
+/* S2: Booking Paywall Moment */
+#s2 { background:#fff; }
+#s2 .moment-header { background:linear-gradient(135deg,#130E01,#291A04); padding:52px 16px 20px; }
+#s2 .mh-back { color:#FCD34D; font-size:20px; cursor:pointer; }
+#s2 .mh-title { color:#fff; font-size:16px; font-weight:700; margin-top:6px; }
+#s2 .mh-sub { color:#FCD34D; font-size:11px; opacity:.8; }
+
+#s2 .flight-result { margin:14px; background:#fff; border:1.5px solid #E2E8F0; border-radius:16px; padding:14px; }
+#s2 .fr-route { display:flex; align-items:center; gap:6px; margin-bottom:8px; }
+#s2 .fr-city { font-size:20px; font-weight:800; color:#0F172A; }
+#s2 .fr-sep { font-size:14px; color:#D97706; flex:1; text-align:center; }
+#s2 .fr-detail { font-size:10px; color:#64748B; margin-bottom:8px; }
+#s2 .fr-price { font-size:22px; font-weight:800; color:#0F172A; }
+
+#s2 .lounge-tease { margin:0 14px 12px; background:linear-gradient(90deg,#FFFBEB,#FEF3C7); border:1.5px solid #FCD34D; border-radius:14px; padding:12px 14px; }
+#s2 .lt-head { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+#s2 .lt-icon { font-size:20px; }
+#s2 .lt-title { font-size:13px; font-weight:700; color:#92400E; }
+#s2 .lt-badge { margin-left:auto; }
+#s2 .lt-body { font-size:11px; color:#B45309; line-height:1.5; margin-bottom:8px; }
+#s2 .lt-features { display:flex; gap:6px; }
+#s2 .lt-feat { background:#fff; border:1px solid #FCD34D; border-radius:8px; padding:4px 8px; font-size:9px; color:#92400E; font-weight:600; }
+#s2 .lt-unlock-btn { margin-top:10px; width:100%; padding:11px; background:linear-gradient(90deg,#D97706,#B45309); color:#fff; border:none; border-radius:10px; font-size:12px; font-weight:700; font-family:'Inter',sans-serif; cursor:pointer; }
+
+#s2 .esim-tease { margin:0 14px 14px; background:#F5F3FF; border:1px solid #DDD6FE; border-radius:14px; padding:12px 14px; opacity:.7; }
+#s2 .et-row { display:flex; align-items:center; gap:8px; }
+#s2 .et-icon { font-size:18px; }
+#s2 .et-title { font-size:12px; font-weight:700; color:#5B21B6; }
+#s2 .et-sub { font-size:10px; color:#64748B; margin-top:2px; }
+
+#s2 .book-btn { margin:0 14px; width:calc(100% - 28px); padding:14px; background:#0F172A; color:#fff; border:none; border-radius:12px; font-size:14px; font-weight:700; font-family:'Inter',sans-serif; cursor:pointer; }
+#s2 .book-note { text-align:center; padding:10px; font-size:10px; color:#94A3B8; }
+
+/* S3: Paywall Comparison */
+#s3 { background:#fff; }
+#s3 .pw-header { background:linear-gradient(135deg,#130E01,#291A04); padding:52px 22px 24px; text-align:center; }
+#s3 .pw-icon { font-size:48px; margin-bottom:8px; }
+#s3 .pw-title { font-size:20px; font-weight:800; color:#fff; margin-bottom:4px; }
+#s3 .pw-sub { font-size:12px; color:#FCD34D; opacity:.8; }
+#s3 .pw-save-pill { margin-top:10px; display:inline-block; background:rgba(252,211,77,.2); border:1px solid rgba(252,211,77,.4); border-radius:20px; padding:4px 14px; font-size:10px; font-weight:700; color:#FCD34D; }
+
+#s3 .compare-table { margin:14px; background:#fff; border:1px solid #E2E8F0; border-radius:16px; overflow:hidden; }
+#s3 .ct-header { display:grid; grid-template-columns:1fr 1fr 1fr; background:#F8FAFC; border-bottom:1px solid #E2E8F0; }
+#s3 .ct-h-cell { padding:10px 8px; text-align:center; font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:#64748B; }
+#s3 .ct-h-cell.gold { background:linear-gradient(135deg,#FEF3C7,#FDE68A); color:#92400E; }
+#s3 .ct-row { display:grid; grid-template-columns:1fr 1fr 1fr; border-bottom:1px solid #F1F5F9; }
+#s3 .ct-row:last-child { border-bottom:none; }
+#s3 .ct-cell { padding:9px 8px; text-align:center; font-size:10px; color:#475569; display:flex; align-items:center; justify-content:center; }
+#s3 .ct-cell.feature { text-align:left; justify-content:flex-start; font-weight:600; color:#0F172A; font-size:10px; }
+#s3 .ct-cell.yes { color:#16A34A; font-weight:700; font-size:13px; }
+#s3 .ct-cell.no { color:#94A3B8; font-size:13px; }
+#s3 .ct-cell.gold-yes { color:#D97706; font-weight:700; font-size:13px; background:rgba(252,211,77,.05); }
+
+#s3 .price-row { display:flex; gap:10px; margin:0 14px 14px; }
+#s3 .price-box { flex:1; border-radius:14px; padding:12px; text-align:center; border:1px solid #E2E8F0; }
+#s3 .price-box.gold { border-color:#FCD34D; background:linear-gradient(135deg,#FFFBEB,#FEF3C7); }
+#s3 .pb-plan { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:#64748B; margin-bottom:4px; }
+#s3 .pb-plan.gold { color:#92400E; }
+#s3 .pb-price { font-size:24px; font-weight:800; color:#0F172A; }
+#s3 .pb-price.gold { color:#D97706; }
+#s3 .pb-per { font-size:9px; color:#94A3B8; }
+#s3 .pb-strike { font-size:10px; color:#94A3B8; text-decoration:line-through; }
+
+#s3 .upgrade-cta { margin:0 14px; width:calc(100% - 28px); padding:15px; background:linear-gradient(90deg,#D97706,#B45309); color:#fff; border:none; border-radius:14px; font-size:15px; font-weight:700; font-family:'Inter',sans-serif; cursor:pointer; }
+#s3 .skip-link { text-align:center; padding:12px; font-size:11px; color:#94A3B8; cursor:pointer; }
+
+/* S4: Upgrade Confirmation */
+#s4 { background:#fff; }
+#s4 .ug-header { background:linear-gradient(135deg,#130E01,#291A04); padding:52px 22px 24px; text-align:center; }
+#s4 .ug-icon { font-size:52px; margin-bottom:10px; }
+#s4 .ug-title { font-size:22px; font-weight:800; color:#fff; margin-bottom:4px; }
+#s4 .ug-sub { font-size:12px; color:#FCD34D; }
+
+#s4 .unlock-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:14px; }
+#s4 .unlock-card { background:#FFFBEB; border:1.5px solid #FCD34D; border-radius:14px; padding:12px; text-align:center; }
+#s4 .uc-icon { font-size:24px; margin-bottom:6px; }
+#s4 .uc-title { font-size:11px; font-weight:700; color:#92400E; margin-bottom:2px; }
+#s4 .uc-val { font-size:16px; font-weight:800; color:#D97706; }
+#s4 .uc-sub { font-size:9px; color:#B45309; }
+
+#s4 .billing-box { margin:0 14px 14px; background:#fff; border:1px solid #E2E8F0; border-radius:14px; padding:14px; }
+#s4 .bb-title { font-size:11px; font-weight:700; color:#0F172A; margin-bottom:10px; }
+#s4 .bb-row { display:flex; justify-content:space-between; font-size:11px; padding:5px 0; border-bottom:1px solid #F1F5F9; }
+#s4 .bb-row:last-child { border-bottom:none; }
+#s4 .bb-lbl { color:#64748B; }
+#s4 .bb-val { font-weight:700; color:#0F172A; }
+
+#s4 .home-btn { margin:0 14px; width:calc(100% - 28px); padding:14px; background:#0F172A; color:#fff; border:none; border-radius:12px; font-size:14px; font-weight:700; font-family:'Inter',sans-serif; cursor:pointer; }
+
+#s4 #conf { position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:0; }
+@keyframes fall { to { transform:translateY(900px) rotate(360deg); opacity:0; } }
+
+/* S5: PM Upgrade Intelligence */
+#s5 { background:#130E01; overflow:hidden; }
+#s5 .pm-header { padding:52px 20px 16px; }
+#s5 .pm-tag { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:#FCD34D; margin-bottom:6px; }
+#s5 .pm-title { font-size:18px; font-weight:800; color:#fff; margin-bottom:4px; }
+#s5 .pm-sub { font-size:11px; color:#6B7280; }
+#s5 .pm-body { padding:0 16px; overflow-y:auto; padding-bottom:90px; max-height:610px; }
+#s5 .pm-section { margin-bottom:12px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); border-radius:14px; padding:14px; }
+#s5 .ps-title { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:#FCD34D; margin-bottom:10px; }
+#s5 .trigger-row { display:flex; gap:8px; align-items:flex-start; padding:6px 0; border-bottom:1px solid rgba(255,255,255,.06); }
+#s5 .trigger-row:last-child { border-bottom:none; }
+#s5 .tr-icon { font-size:16px; flex-shrink:0; margin-top:1px; }
+#s5 .tr-text { font-size:10.5px; color:#94A3B8; flex:1; line-height:1.4; }
+#s5 .tr-tag { font-size:9px; font-weight:700; background:rgba(217,119,6,.15); color:#FCD34D; border-radius:20px; padding:2px 7px; flex-shrink:0; }
+#s5 .metric-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+#s5 .metric-box { background:rgba(255,255,255,.04); border-radius:10px; padding:10px; }
+#s5 .mb-val { font-size:18px; font-weight:800; color:#FCD34D; }
+#s5 .mb-lbl { font-size:9px; color:#6B7280; margin-top:2px; }
+#s5 .funnel-row { display:flex; align-items:center; gap:6px; padding:5px 0; }
+#s5 .fn-stage { font-size:10px; color:#94A3B8; flex:1; }
+#s5 .fn-pct { font-size:12px; font-weight:700; color:#FCD34D; }
+#s5 .fn-bar { height:4px; background:rgba(217,119,6,.15); border-radius:2px; flex:2; }
+#s5 .fn-fill { height:4px; background:#D97706; border-radius:2px; }
+
+/* Sources & Nav */
+.sources-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:28px; width:390px; }
+.source-card { background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); border-radius:12px; padding:12px; }
+.source-metric { font-size:12px; font-weight:700; color:#FCD34D; margin-bottom:3px; }
+.source-text { font-size:10px; color:#94A3B8; line-height:1.4; }
+.source-cite { font-size:9px; color:#475569; margin-top:4px; font-style:italic; }
+.sources-title { color:#64748B; font-size:10px; text-transform:uppercase; letter-spacing:.1em; margin-top:28px; margin-bottom:10px; text-align:center; }
+.nav-row { display:flex; align-items:center; gap:16px; margin-top:20px; }
+.nav-arr { background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12); border-radius:50%; width:36px; height:36px; color:#fff; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.nav-arr:hover { background:rgba(255,255,255,.15); }
+.dots { display:flex; gap:7px; }
+.dot { width:7px; height:7px; border-radius:50%; background:rgba(255,255,255,.2); cursor:pointer; transition:background .2s,transform .2s; }
+.dot.on { background:#FCD34D; transform:scale(1.25); }
+.screen-label { color:#64748B; font-size:10px; letter-spacing:.1em; text-transform:uppercase; margin-top:10px; }
+</style>
+</head>
+<body>
+
+<div class="proto-header">Dreampass — <span>DreamTier</span> · Freemium-to-Paid Upgrade Engine · Interactive Prototype</div>
+
+<div class="phone-wrap"><div class="phone">
+
+<!-- S1: Freemium Home -->
+<div class="screen active" id="s1">
+  <div class="sb" style="background:transparent;position:absolute;top:0;left:0;width:100%;z-index:20;padding:14px 22px 0;">
+    <span class="sb-time wh">9:41</span>
+    <div class="sb-icons"><svg viewBox="0 0 24 24" style="fill:#fff;"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg><svg viewBox="0 0 24 24" style="fill:#fff;"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg></div>
+  </div>
+  <div class="scroll-body">
+    <div class="hero">
+      <div class="tier-badge">✈️ Dreampass Free</div>
+      <div class="hero-title">Hi, Sarah 👋</div>
+      <div class="hero-sub">You're on the free tier · 2 trips booked</div>
+      <div class="coins-row">
+        <div class="coin-val">420</div>
+        <div class="coin-lbl">Dreamcoins earned<br>on your bookings</div>
+      </div>
+    </div>
+    <div style="padding:14px 14px 4px;font-size:11px;font-weight:700;color:#0F172A;">Your travel benefits</div>
+    <div class="benefits-grid">
+      <div class="benefit-card">
+        <div class="bc-icon">🪙</div>
+        <div class="bc-title">Coin Earn</div>
+        <div class="bc-status">Active · 1 coin/AED</div>
+        <div class="bc-hint">On every booking</div>
+      </div>
+      <div class="benefit-card">
+        <div class="bc-icon">🔖</div>
+        <div class="bc-title">Exclusive Deals</div>
+        <div class="bc-status">Active · 2 offers</div>
+        <div class="bc-hint">Flash sales access</div>
+      </div>
+      <div class="benefit-card locked">
+        <div class="bc-icon">🛋️</div>
+        <div class="bc-title">Lounge Access</div>
+        <div class="bc-status locked">🔒 Paid only</div>
+        <div class="bc-hint">6 visits/yr — AED 100/visit saved</div>
+      </div>
+      <div class="benefit-card locked">
+        <div class="bc-icon">📶</div>
+        <div class="bc-title">Global eSIM</div>
+        <div class="bc-status locked">🔒 Paid only</div>
+        <div class="bc-hint">5GB global data/yr</div>
+      </div>
+      <div class="benefit-card locked">
+        <div class="bc-icon">🏨</div>
+        <div class="bc-title">Hotel Cashback</div>
+        <div class="bc-status locked">🔒 Paid only</div>
+        <div class="bc-hint">AED 600/yr credit</div>
+      </div>
+      <div class="benefit-card locked">
+        <div class="bc-icon">🛡️</div>
+        <div class="bc-title">Travel Insurance</div>
+        <div class="bc-status locked">🔒 Paid only</div>
+        <div class="bc-hint">All trips covered</div>
+      </div>
+    </div>
+    <div class="upgrade-banner" onclick="go(2)">
+      <div class="ub-icon">⭐</div>
+      <div class="ub-text">
+        <div class="ub-title">Unlock everything — AED 499/yr</div>
+        <div class="ub-sub">Lounge, eSIM, hotel cashback, insurance & 2× coins</div>
+      </div>
+      <div class="ub-arrow">›</div>
+    </div>
+  </div>
+  <div class="nav-bar">
+    <div class="nav-item active"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg><span>Home</span></div>
+    <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg><span>Benefits</span></div>
+    <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span>Trips</span></div>
+    <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span>Account</span></div>
+  </div>
+</div>
+
+<!-- S2: Booking Moment Paywall -->
+<div class="screen" id="s2">
+  <div class="sb"><span class="sb-time">9:41</span><div class="sb-icons"><svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg><svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg></div></div>
+  <div class="scroll-body">
+    <div class="moment-header">
+      <span class="mh-back" onclick="go(1)">‹</span>
+      <div class="mh-title">Dubai International → Heathrow</div>
+      <div class="mh-sub">Aug 14 · Emirates · 7h 20m</div>
+    </div>
+    <div class="flight-result">
+      <div class="fr-route">
+        <div class="fr-city">DXB</div>
+        <div class="fr-sep">✈ ────</div>
+        <div class="fr-city">LHR</div>
+      </div>
+      <div class="fr-detail">Aug 14 · 08:35 → 13:55 · Direct · Economy</div>
+      <div class="fr-price">$598 <span style="font-size:11px;color:#64748B;">/ adult</span></div>
+    </div>
+
+    <div class="lounge-tease">
+      <div class="lt-head">
+        <div class="lt-icon">🛋️</div>
+        <div class="lt-title">DXB Airport Lounge — 8 hours before your flight</div>
+        <div class="lt-badge"><span class="lock-badge">🔒 Paid</span></div>
+      </div>
+      <div class="lt-body">Free shower, premium dining, and fast Wi-Fi at Terminal 3. Dreampass paid members get free lounge access on every departure — you'd save AED 120 on this trip alone.</div>
+      <div class="lt-features">
+        <div class="lt-feat">🚿 Showers</div>
+        <div class="lt-feat">🍽️ Dining</div>
+        <div class="lt-feat">📶 Wi-Fi</div>
+        <div class="lt-feat">🛏️ Rest</div>
+      </div>
+      <button class="lt-unlock-btn" onclick="go(3)">Unlock lounge access — Upgrade to Paid ›</button>
+    </div>
+
+    <div class="esim-tease">
+      <div class="et-row">
+        <div class="et-icon">📶</div>
+        <div>
+          <div class="et-title">📵 UK eSIM · 5GB data <span class="lock-badge" style="font-size:8px;">🔒 Paid</span></div>
+          <div class="et-sub">Paid members get a free eSIM for every destination. No roaming charges.</div>
+        </div>
+      </div>
+    </div>
+
+    <button class="book-btn" onclick="go(3)">Book flight — $598</button>
+    <div class="book-note">💡 Paid members earn 2× coins on this booking (+598 bonus coins)</div>
+  </div>
+</div>
+
+<!-- S3: Paywall / Tier Comparison -->
+<div class="screen" id="s3">
+  <div class="sb" style="background:transparent;position:absolute;top:0;left:0;width:100%;z-index:20;padding:14px 22px 0;">
+    <span class="sb-time wh">9:41</span>
+    <div class="sb-icons"><svg viewBox="0 0 24 24" style="fill:#fff;"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg><svg viewBox="0 0 24 24" style="fill:#fff;"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg></div>
+  </div>
+  <div class="scroll-body">
+    <div class="pw-header">
+      <div class="pw-icon">⭐</div>
+      <div class="pw-title">Upgrade to Dreampass</div>
+      <div class="pw-sub">Everything in Free, plus lounge, eSIM, hotel & insurance</div>
+      <div class="pw-save-pill">✓ Pay AED 499 · Get back AED 1,320+ in value</div>
+    </div>
+    <div class="compare-table">
+      <div class="ct-header">
+        <div class="ct-h-cell">Benefit</div>
+        <div class="ct-h-cell">Free</div>
+        <div class="ct-h-cell gold">⭐ Paid</div>
+      </div>
+      <div class="ct-row"><div class="ct-cell feature">Coin earn rate</div><div class="ct-cell">1×</div><div class="ct-cell gold-yes">2×</div></div>
+      <div class="ct-row"><div class="ct-cell feature">Exclusive deals</div><div class="ct-cell yes">✓</div><div class="ct-cell gold-yes">✓ Priority</div></div>
+      <div class="ct-row"><div class="ct-cell feature">Lounge access</div><div class="ct-cell no">—</div><div class="ct-cell gold-yes">6 visits/yr</div></div>
+      <div class="ct-row"><div class="ct-cell feature">Global eSIM</div><div class="ct-cell no">—</div><div class="ct-cell gold-yes">5GB/yr</div></div>
+      <div class="ct-row"><div class="ct-cell feature">Hotel cashback</div><div class="ct-cell no">—</div><div class="ct-cell gold-yes">AED 600/yr</div></div>
+      <div class="ct-row"><div class="ct-cell feature">Travel insurance</div><div class="ct-cell no">—</div><div class="ct-cell gold-yes">All trips</div></div>
+      <div class="ct-row"><div class="ct-cell feature">Priority support</div><div class="ct-cell no">—</div><div class="ct-cell gold-yes">24/7</div></div>
+    </div>
+    <div class="price-row">
+      <div class="price-box">
+        <div class="pb-plan">Free</div>
+        <div class="pb-price">AED 0</div>
+        <div class="pb-per">/ year · current plan</div>
+      </div>
+      <div class="price-box gold">
+        <div class="pb-plan gold">⭐ Paid</div>
+        <div class="pb-price gold">AED 499</div>
+        <div class="pb-per">/ year</div>
+        <div class="pb-strike">AED 699 normal price</div>
+      </div>
+    </div>
+    <button class="upgrade-cta" onclick="go(4)">Upgrade now — AED 499/yr ›</button>
+    <div class="skip-link" onclick="go(2)">Continue with free tier</div>
+  </div>
+</div>
+
+<!-- S4: Welcome to Paid -->
+<div class="screen" id="s4">
+  <div id="conf"></div>
+  <div class="sb" style="background:transparent;position:absolute;top:0;left:0;width:100%;z-index:20;padding:14px 22px 0;">
+    <span class="sb-time wh">9:41</span>
+    <div class="sb-icons"><svg viewBox="0 0 24 24" style="fill:#fff;"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg><svg viewBox="0 0 24 24" style="fill:#fff;"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg></div>
+  </div>
+  <div class="scroll-body" style="position:relative;z-index:1;">
+    <div class="ug-header">
+      <div class="ug-icon">🌟</div>
+      <div class="ug-title">Welcome to Dreampass!</div>
+      <div class="ug-sub">All benefits unlocked instantly, Sarah</div>
+    </div>
+    <div class="unlock-grid">
+      <div class="unlock-card">
+        <div class="uc-icon">🛋️</div>
+        <div class="uc-title">Lounge Access</div>
+        <div class="uc-val">6 visits</div>
+        <div class="uc-sub">Use on any departure</div>
+      </div>
+      <div class="unlock-card">
+        <div class="uc-icon">📶</div>
+        <div class="uc-title">Global eSIM</div>
+        <div class="uc-val">5GB</div>
+        <div class="uc-sub">Data · any destination</div>
+      </div>
+      <div class="unlock-card">
+        <div class="uc-icon">🏨</div>
+        <div class="uc-title">Hotel Cashback</div>
+        <div class="uc-val">AED 600</div>
+        <div class="uc-sub">Annual credit</div>
+      </div>
+      <div class="unlock-card">
+        <div class="uc-icon">🛡️</div>
+        <div class="uc-title">Travel Insurance</div>
+        <div class="uc-val">All trips</div>
+        <div class="uc-sub">Auto-applied on book</div>
+      </div>
+    </div>
+    <div class="billing-box">
+      <div class="bb-title">Your upgrade summary</div>
+      <div class="bb-row"><div class="bb-lbl">Plan</div><div class="bb-val">Dreampass Paid</div></div>
+      <div class="bb-row"><div class="bb-lbl">Annual price</div><div class="bb-val">AED 499</div></div>
+      <div class="bb-row"><div class="bb-lbl">Coins transferred</div><div class="bb-val">420 (kept from free)</div></div>
+      <div class="bb-row"><div class="bb-lbl">2× coins on Aug 14 booking</div><div class="bb-val" style="color:#D97706;">+598 bonus</div></div>
+      <div class="bb-row"><div class="bb-lbl">Next renewal</div><div class="bb-val">Jul 10, 2027</div></div>
+    </div>
+    <button class="home-btn" onclick="go(1)">Start exploring your benefits ✈️</button>
+  </div>
+</div>
+
+<!-- S5: PM Upgrade Intelligence -->
+<div class="screen" id="s5">
+  <div class="sb" style="background:transparent;position:absolute;top:0;left:0;width:100%;z-index:20;padding:14px 22px 0;">
+    <span class="sb-time wh">9:41</span>
+    <div class="sb-icons"><svg viewBox="0 0 24 24" style="fill:#fff;"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg><svg viewBox="0 0 24 24" style="fill:#fff;"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg></div>
+  </div>
+  <div class="pm-header">
+    <div class="pm-tag">🧠 PM View — DreamTier Upgrade Intelligence</div>
+    <div class="pm-title">Freemium Conversion Triggers & Funnel</div>
+    <div class="pm-sub">How DreamTier identifies upgrade moments and converts free users to paid</div>
+  </div>
+  <div class="pm-body">
+    <div class="pm-section">
+      <div class="ps-title">Upgrade Trigger Logic (Behavioural)</div>
+      <div class="trigger-row"><div class="tr-icon">✈️</div><div class="tr-text">User books a trip → show locked lounge tease on trip confirmation screen (highest intent moment)</div><div class="tr-tag">Trip moment</div></div>
+      <div class="trigger-row"><div class="tr-icon">🔄</div><div class="tr-text">User opens app 3+ times in 7 days without booking → show "Your next trip is closer than you think" upgrade prompt</div><div class="tr-tag">Browse signal</div></div>
+      <div class="trigger-row"><div class="tr-icon">🪙</div><div class="tr-text">User hits 500 coins → "You're earning at half the rate. Upgrade to 2× and watch your balance grow" in-app nudge</div><div class="tr-tag">Coin threshold</div></div>
+      <div class="trigger-row"><div class="tr-icon">📅</div><div class="tr-text">Seasonal trigger: D-30 before summer/winter peak → "Your lounge is waiting for peak season" push</div><div class="tr-tag">Seasonal</div></div>
+    </div>
+    <div class="pm-section">
+      <div class="ps-title">Conversion Funnel (Benchmark)</div>
+      <div class="funnel-row"><div class="fn-stage">Free users · Total</div><div class="fn-bar"><div class="fn-fill" style="width:100%;"></div></div><div class="fn-pct">100%</div></div>
+      <div class="funnel-row"><div class="fn-stage">See paywall at booking</div><div class="fn-bar"><div class="fn-fill" style="width:65%;"></div></div><div class="fn-pct">65%</div></div>
+      <div class="funnel-row"><div class="fn-stage">View tier comparison</div><div class="fn-bar"><div class="fn-fill" style="width:38%;"></div></div><div class="fn-pct">38%</div></div>
+      <div class="funnel-row"><div class="fn-stage">Click upgrade CTA</div><div class="fn-bar"><div class="fn-fill" style="width:18%;"></div></div><div class="fn-pct">18%</div></div>
+      <div class="funnel-row"><div class="fn-stage">Complete upgrade</div><div class="fn-bar"><div class="fn-fill" style="width:14%;"></div></div><div class="fn-pct">14%</div></div>
+    </div>
+    <div class="pm-section">
+      <div class="ps-title">Expected Impact Metrics</div>
+      <div class="metric-grid">
+        <div class="metric-box"><div class="mb-val">14%</div><div class="mb-lbl">Free-to-paid CVR at trip booking moment</div></div>
+        <div class="metric-box"><div class="mb-val">2.8×</div><div class="mb-lbl">ARPU lift: paid vs free member</div></div>
+        <div class="metric-box"><div class="mb-val">+22%</div><div class="mb-lbl">Trip frequency post-upgrade (in-destination value reinforcement)</div></div>
+        <div class="metric-box"><div class="mb-val">AED 499</div><div class="mb-lbl">Annual subscription · vs AED 1,320 value delivered</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div></div>
+
+<div class="nav-row">
+  <button class="nav-arr" onclick="go(cur-1)">‹</button>
+  <div class="dots" id="dots"></div>
+  <button class="nav-arr" onclick="go(cur+1)">›</button>
+</div>
+<div class="screen-label" id="slabel">01 — FREEMIUM MEMBER HOME</div>
+
+<div class="sources-title">BENCHMARK SOURCES</div>
+<div class="sources-grid">
+  <div class="source-card"><div class="source-metric">14% Freemium → Paid CVR</div><div class="source-text">Contextual paywalls shown at high-intent moments (booking, checkout) convert at 12–18% vs 3–5% for generic upgrade banners. Timing of the ask is the largest single conversion lever.</div><div class="source-cite">Recurly Subscription Benchmarks 2024; Product-Led Growth Collective 2023</div></div>
+  <div class="source-card"><div class="source-metric">2.8× ARPU Lift (Paid vs Free)</div><div class="source-text">Paid subscription members generate 2.5–3.2× the annual revenue of free-tier members across travel loyalty programs — driven by trip frequency, ancillary redemption, and renewal rates.</div><div class="source-cite">Skift Loyalty Benchmark Report 2023; Antavo Global Customer Loyalty 2024</div></div>
+  <div class="source-card"><div class="source-metric">Value-at-Stake Paywall Design</div><div class="source-text">Paywalls that show a concrete "value delivered" figure (AED 1,320 in benefits vs AED 499 price) outperform feature-list paywalls by 31% on conversion. ROI framing reduces price anchoring resistance.</div><div class="source-cite">Hotjar Paywall UX Study 2023; CXL Institute Subscription Conversion 2023</div></div>
+  <div class="source-card"><div class="source-metric">In-Destination Value Reinforcement</div><div class="source-text">Paid travel members who use a benefit in their first trip post-upgrade renew at 76% vs 38% for those who don't use a benefit in the first trip. Lounge access is the highest-engagement first benefit.</div><div class="source-cite">Comarch Loyalty Programme Benchmarks 2023; Bond Brand Loyalty Report 2023</div></div>
+</div>
+
+<script>
+let cur=1; const total=5;
+const LABELS={1:'01 — FREEMIUM MEMBER HOME',2:'02 — BOOKING MOMENT PAYWALL',3:'03 — TIER COMPARISON',4:'04 — UPGRADE CONFIRMED',5:'05 — PM UPGRADE INTELLIGENCE'};
+function go(n){
+  if(n<1||n>total)return;
+  const prev=document.getElementById('s'+cur),next=document.getElementById('s'+n),dir=n>cur?1:-1;
+  prev.style.transition='transform .35s ease,opacity .3s';prev.style.transform=`translateX(${-dir*100}%)`;prev.style.opacity='0';
+  setTimeout(()=>{prev.style.display='none';prev.style.transform='';prev.style.opacity='';prev.style.transition='';},360);
+  next.style.display='flex';next.style.transform=`translateX(${dir*100}%)`;next.style.opacity='0';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{next.style.transition='transform .35s ease,opacity .3s';next.style.transform='';next.style.opacity='1';setTimeout(()=>{next.style.transition='';},380);}));
+  document.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('on',i===n-1));
+  document.getElementById('slabel').textContent=LABELS[n];cur=n;
+  if(n===4)startConfetti();
+}
+function startConfetti(){
+  const c=document.getElementById('conf');if(!c||c.children.length)return;
+  const cols=['#D97706','#FCD34D','#F97316','#FBBF24','#FEF3C7','#B45309'];
+  for(let i=0;i<50;i++){const p=document.createElement('div');const sz=4+Math.random()*8;p.style.cssText=`position:absolute;left:${Math.random()*100}%;top:${-10+Math.random()*20}%;width:${sz}px;height:${sz}px;background:${cols[i%cols.length]};border-radius:${Math.random()>.5?'50%':'3px'};animation:fall ${1.5+Math.random()*2}s ${Math.random()*1.2}s ease-in forwards;z-index:2;`;c.appendChild(p);}
+}
+const dotsEl=document.getElementById('dots');
+for(let i=1;i<=total;i++){const d=document.createElement('div');d.className='dot'+(i===1?' on':'');d.onclick=()=>go(i);dotsEl.appendChild(d);}
+</script>
+</body>
+</html>
