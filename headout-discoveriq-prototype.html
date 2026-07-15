@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Headout DiscoverIQ — Semantic Intent Search Engine</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --dark: #0A0718;
+  --hero: #120C28;
+  --card: #1A1035;
+  --lift: #221444;
+  --purple: #8B5CF6;
+  --coral: #FF385C;
+  --gold: #F59E0B;
+  --green: #22C55E;
+  --muted: #8B8B9A;
+  --border: rgba(139,92,246,0.15);
+  --white: #FFFFFF;
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-font-smoothing:antialiased; }
+body { background:var(--dark); font-family:'Inter',sans-serif; color:var(--white); min-height:100vh; display:flex; flex-direction:column; align-items:center; padding:40px 20px 60px; }
+.page-eyebrow { font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--purple); margin-bottom:6px; text-align:center; }
+.page-headline { font-family:'Outfit',sans-serif; font-size:30px; font-weight:900; color:var(--white); text-align:center; margin-bottom:6px; line-height:1.1; }
+.page-sub { font-size:13px; color:var(--muted); text-align:center; margin-bottom:32px; max-width:480px; line-height:1.6; }
+
+.phone-wrap { position:relative; width:390px; height:844px; }
+.phone { width:390px; height:844px; background:var(--dark); border-radius:44px; border:2px solid rgba(139,92,246,0.2); overflow:hidden; position:relative; box-shadow:0 32px 80px rgba(0,0,0,0.8),0 0 60px rgba(139,92,246,0.1); }
+.notch { position:absolute; top:0; left:50%; transform:translateX(-50%); width:120px; height:34px; background:var(--dark); border-radius:0 0 20px 20px; z-index:20; }
+.status-bar { height:44px; display:flex; align-items:center; justify-content:space-between; padding:12px 22px 0; font-size:12px; font-weight:600; color:var(--white); position:relative; z-index:10; flex-shrink:0; }
+.status-time { font-size:15px; font-weight:700; }
+.status-icons { display:flex; align-items:center; gap:5px; font-size:11px; }
+
+.screen { position:absolute; top:0; left:0; right:0; bottom:0; display:none; flex-direction:column; overflow:hidden; background:var(--dark); }
+.screen.active { display:flex; }
+
+.app-header { padding:48px 20px 10px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+.app-logo { font-family:'Outfit',sans-serif; font-size:22px; font-weight:900; color:var(--coral); }
+.hdr-actions { display:flex; gap:10px; align-items:center; }
+.hdr-icon { width:34px; height:34px; background:rgba(255,255,255,0.06); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; }
+.avatar { width:34px; height:34px; background:var(--purple); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; }
+
+.scroll-area { flex:1; overflow-y:auto; padding:0 20px 80px; }
+.scroll-area::-webkit-scrollbar { display:none; }
+
+/* Search bar */
+.search-bar { background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.1); border-radius:14px; padding:12px 16px; display:flex; align-items:center; gap:10px; margin-bottom:14px; flex-shrink:0; }
+.search-bar.active-bar { border-color:rgba(139,92,246,0.5); background:rgba(139,92,246,0.08); }
+.search-icon { font-size:16px; flex-shrink:0; }
+.search-text { font-size:14px; color:var(--white); font-weight:500; flex:1; }
+.search-clear { font-size:16px; color:var(--muted); }
+
+/* Result count */
+.result-bar { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+.result-count { font-size:12px; color:var(--muted); }
+.sort-pill { background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:5px 10px; font-size:11px; font-weight:600; display:flex; align-items:center; gap:4px; }
+
+/* Generic result card (problem state) */
+.generic-card { background:var(--hero); border-radius:14px; padding:14px; margin-bottom:10px; border:1px solid rgba(255,255,255,0.07); opacity:.9; }
+.gc-top { display:flex; gap:12px; margin-bottom:8px; }
+.gc-img { width:70px; height:60px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:24px; flex-shrink:0; }
+.gc-title { font-size:13px; font-weight:600; line-height:1.3; margin-bottom:4px; }
+.gc-meta { display:flex; align-items:center; gap:8px; font-size:11px; }
+.gc-price { color:var(--coral); font-weight:700; }
+.gc-rating { color:var(--muted); display:flex; align-items:center; gap:3px; }
+
+/* Problem annotation */
+.problem-flag { background:rgba(255,56,92,0.1); border:1px solid rgba(255,56,92,0.3); border-radius:10px; padding:10px 12px; margin-bottom:14px; display:flex; align-items:flex-start; gap:8px; }
+.pf-icon { font-size:16px; flex-shrink:0; margin-top:1px; }
+.pf-text { font-size:11px; color:rgba(255,255,255,0.7); line-height:1.5; }
+
+/* S2 — Intent Parsing */
+.intent-screen { background:linear-gradient(180deg,#0A0718,#120C28) !important; }
+.intent-center { display:flex; flex-direction:column; align-items:center; justify-content:center; flex:1; padding:20px; text-align:center; }
+.intent-spinner { width:80px; height:80px; border-radius:50%; border:3px solid rgba(139,92,246,0.15); border-top-color:var(--purple); margin:0 auto 20px; animation:spin 1s linear infinite; display:flex; align-items:center; justify-content:center; font-size:32px; }
+@keyframes spin { to { transform:rotate(360deg); } }
+.intent-title { font-family:'Outfit',sans-serif; font-size:22px; font-weight:800; margin-bottom:6px; }
+.intent-sub { font-size:13px; color:var(--muted); margin-bottom:24px; }
+.intent-signals { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-bottom:24px; }
+.signal-chip { border-radius:20px; padding:7px 14px; font-size:12px; font-weight:600; display:flex; align-items:center; gap:6px; }
+.signal-chip.found { background:rgba(34,197,94,0.15); border:1px solid rgba(34,197,94,0.4); color:var(--green); }
+.signal-chip.finding { background:rgba(139,92,246,0.12); border:1px solid rgba(139,92,246,0.3); color:var(--purple); }
+.progress-bar-wrap { width:100%; background:rgba(255,255,255,0.08); border-radius:4px; overflow:hidden; margin-bottom:10px; }
+.progress-bar-fill { height:4px; background:linear-gradient(90deg,var(--purple),#A78BFA); border-radius:4px; width:70%; animation:grow .8s ease forwards; }
+@keyframes grow { from { width:0; } to { width:70%; } }
+.progress-label { font-size:11px; color:var(--muted); }
+
+/* S3 — Ranked Results */
+.ranked-header { padding:48px 20px 8px; flex-shrink:0; }
+.back-row { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+.back-btn { width:32px; height:32px; background:rgba(255,255,255,0.07); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; }
+.screen-title { font-family:'Outfit',sans-serif; font-size:20px; font-weight:800; }
+.match-banner { background:rgba(139,92,246,0.12); border:1px solid rgba(139,92,246,0.3); border-radius:12px; padding:10px 14px; margin:0 20px 14px; display:flex; align-items:center; justify-content:space-between; }
+.mb-count { font-size:13px; font-weight:700; color:var(--white); }
+.mb-sub { font-size:11px; color:var(--muted); }
+.mb-badge { background:var(--purple); color:var(--white); border-radius:8px; padding:3px 10px; font-size:11px; font-weight:700; white-space:nowrap; }
+
+.ranked-card { background:var(--hero); border-radius:16px; padding:14px; margin-bottom:12px; border:1px solid rgba(139,92,246,0.2); position:relative; }
+.ranked-card.best-match { border-color:rgba(139,92,246,0.5); }
+.match-score { position:absolute; top:12px; right:12px; background:var(--purple); color:var(--white); border-radius:8px; padding:3px 8px; font-size:10px; font-weight:700; }
+.rc-img { width:100%; height:90px; border-radius:10px; margin-bottom:10px; display:flex; align-items:center; justify-content:center; font-size:36px; }
+.rc-title { font-size:14px; font-weight:700; margin-bottom:5px; line-height:1.3; }
+.rc-meta { display:flex; align-items:center; gap:12px; margin-bottom:8px; }
+.rc-rating { display:flex; align-items:center; gap:3px; font-size:12px; }
+.star { color:var(--gold); }
+.rv { color:var(--muted); font-size:11px; }
+.rc-price { font-size:14px; font-weight:700; color:var(--coral); }
+.intent-tags { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:8px; }
+.intent-tag { background:rgba(34,197,94,0.1); border:1px solid rgba(34,197,94,0.3); color:var(--green); border-radius:6px; padding:3px 8px; font-size:10px; font-weight:600; }
+.intent-reason { background:rgba(139,92,246,0.1); border-left:2px solid var(--purple); border-radius:0 8px 8px 0; padding:7px 10px; font-size:11px; color:rgba(255,255,255,0.75); margin-bottom:10px; }
+.book-btn { width:100%; background:var(--purple); color:var(--white); border:none; border-radius:10px; padding:11px; font-size:13px; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; }
+.outline-btn { width:100%; background:rgba(255,255,255,0.05); color:var(--white); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:11px; font-size:13px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; }
+
+/* S4 — Experience Detail */
+.detail-screen { background:var(--dark) !important; }
+.detail-img { width:100%; height:200px; background:linear-gradient(135deg,#1A0828,#2C1044); display:flex; align-items:center; justify-content:center; font-size:60px; position:relative; flex-shrink:0; }
+.detail-back { position:absolute; top:56px; left:16px; width:32px; height:32px; background:rgba(0,0,0,0.5); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; }
+.detail-body { flex:1; overflow-y:auto; padding:16px 20px 80px; }
+.detail-body::-webkit-scrollbar { display:none; }
+.detail-title { font-family:'Outfit',sans-serif; font-size:20px; font-weight:800; margin-bottom:8px; line-height:1.2; }
+.detail-meta-row { display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+.detail-rating { display:flex; align-items:center; gap:4px; font-size:14px; font-weight:700; }
+.detail-price { font-size:18px; font-weight:800; color:var(--purple); }
+.detail-chips { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; }
+.detail-chip { background:rgba(255,255,255,0.07); border-radius:8px; padding:5px 10px; font-size:11px; color:var(--muted); }
+.why-box { background:rgba(139,92,246,0.1); border:1px solid rgba(139,92,246,0.3); border-radius:14px; padding:14px; margin-bottom:14px; }
+.why-title { font-size:12px; font-weight:700; color:var(--purple); margin-bottom:10px; display:flex; align-items:center; gap:6px; }
+.why-row { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+.why-row:last-child { margin-bottom:0; }
+.why-icon { width:28px; height:28px; background:rgba(139,92,246,0.2); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:13px; flex-shrink:0; }
+.why-text { font-size:12px; color:rgba(255,255,255,0.8); line-height:1.4; }
+.add-trip-btn { position:absolute; bottom:0; left:0; right:0; margin:0 20px 20px; background:var(--purple); color:var(--white); border:none; border-radius:14px; padding:15px; font-size:15px; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; }
+
+/* S5 — Trip Builder */
+.trip-screen { align-items:center; background:var(--dark) !important; }
+.trip-check { width:72px; height:72px; background:rgba(139,92,246,0.15); border:2px solid var(--purple); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:32px; margin:70px auto 14px; box-shadow:0 0 40px rgba(139,92,246,0.3); }
+.trip-title { font-family:'Outfit',sans-serif; font-size:22px; font-weight:900; text-align:center; margin-bottom:4px; }
+.trip-sub { font-size:13px; color:var(--muted); text-align:center; margin-bottom:20px; }
+.trip-builder { background:var(--hero); border:1px solid rgba(139,92,246,0.25); border-radius:16px; padding:16px; width:calc(100%-40px); margin:0 20px 14px; }
+.tb-title { font-size:12px; font-weight:700; color:var(--purple); margin-bottom:12px; display:flex; align-items:center; gap:6px; }
+.tb-item { display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.06); }
+.tb-item:last-child { border-bottom:none; }
+.tb-num { width:24px; height:24px; background:var(--purple); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; flex-shrink:0; }
+.tb-text .tbt-title { font-size:13px; font-weight:600; }
+.tb-text .tbt-meta { font-size:11px; color:var(--muted); }
+.tb-price { font-size:13px; font-weight:700; color:var(--purple); margin-left:auto; white-space:nowrap; }
+.trip-total { display:flex; justify-content:space-between; align-items:center; padding:10px 20px; }
+.tt-label { font-size:13px; color:var(--muted); }
+.tt-val { font-size:16px; font-weight:800; color:var(--white); }
+.trip-btns { display:flex; flex-direction:column; gap:10px; width:calc(100%-40px); margin:0 20px; }
+.btn-purple { background:var(--purple); color:var(--white); border:none; border-radius:13px; padding:14px; font-size:14px; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; }
+.btn-ghost { background:transparent; color:var(--white); border:1px solid rgba(255,255,255,0.15); border-radius:13px; padding:14px; font-size:14px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; }
+
+/* Bottom nav */
+.bottom-nav { position:absolute; bottom:0; left:0; right:0; height:76px; background:#080514; border-top:1px solid rgba(139,92,246,0.15); display:flex; align-items:center; justify-content:space-around; padding:0 10px 16px; }
+.nav-item { display:flex; flex-direction:column; align-items:center; gap:3px; font-size:10px; font-weight:500; color:var(--muted); padding:4px 10px; }
+.nav-item.active { color:var(--purple); }
+.nav-icon { font-size:20px; }
+
+/* Controls */
+.nav-controls { display:flex; align-items:center; justify-content:center; gap:16px; margin-top:28px; }
+.ctrl-btn { width:44px; height:44px; border-radius:50%; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.04); color:var(--white); font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .2s; }
+.ctrl-btn:hover { background:rgba(139,92,246,0.2); border-color:var(--purple); }
+.ctrl-btn:disabled { opacity:.3; cursor:default; }
+.dots { display:flex; gap:8px; align-items:center; }
+.dot { width:8px; height:8px; border-radius:4px; background:rgba(255,255,255,0.2); transition:all .3s; cursor:pointer; }
+.dot.active { width:24px; background:var(--purple); }
+.screen-label-wrap { text-align:center; margin-top:12px; }
+.screen-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); }
+
+/* Sources */
+.sources-section { margin-top:40px; width:100%; max-width:720px; }
+.sources-title { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--muted); text-align:center; margin-bottom:12px; }
+.sources-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.source-card { background:rgba(255,255,255,0.03); border:1px solid rgba(139,92,246,0.12); border-radius:10px; padding:12px 14px; }
+.sc-pub { font-size:10px; font-weight:700; color:var(--purple); margin-bottom:3px; }
+.sc-metric { font-size:12px; font-weight:700; color:var(--white); margin-bottom:2px; }
+.sc-detail { font-size:10px; color:var(--muted); line-height:1.5; }
+
+/* Confetti canvas */
+#confetti-canvas { position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:100; }
+</style>
+</head>
+<body>
+
+<div class="page-eyebrow">Headout · Case Study 02 · DiscoverIQ</div>
+<div class="page-headline">Semantic Intent Search<br>for 50K Experiences</div>
+<div class="page-sub">ML-powered intent engine that parses occasion × budget × time × style — and returns 4 perfect matches from 50,000, not 847 unsorted results.</div>
+
+<div class="phone-wrap">
+<div class="phone">
+<div class="notch"></div>
+
+<!-- S1: Problem State — Unranked Results -->
+<div class="screen active" id="s1">
+  <div class="status-bar">
+    <span class="status-time">2:14</span>
+    <div class="status-icons"><span>4G</span><span>🔋62%</span></div>
+  </div>
+  <div class="app-header">
+    <div class="app-logo">headout</div>
+    <div class="hdr-actions">
+      <div class="hdr-icon">🔔</div>
+      <div class="avatar">S</div>
+    </div>
+  </div>
+  <div style="padding:0 20px;flex-shrink:0;">
+    <div class="search-bar active-bar">
+      <span class="search-icon">🔍</span>
+      <span class="search-text">romantic dinner Rome</span>
+      <span class="search-clear">✕</span>
+    </div>
+    <div class="result-bar">
+      <span class="result-count">847 results found</span>
+      <div class="sort-pill">↕ Price: Low to High</div>
+    </div>
+  </div>
+  <div class="scroll-area" style="padding-top:0;">
+    <div class="problem-flag">
+      <span class="pf-icon">⚠️</span>
+      <span class="pf-text">847 results, sorted by price — no intent ranking, no occasion filter, no curation. The right experience is buried on page 12.</span>
+    </div>
+    <div class="generic-card">
+      <div class="gc-top">
+        <div class="gc-img" style="background:#1A1A2A;">🍝</div>
+        <div>
+          <div class="gc-title">Rome Pasta Making Class with Wine</div>
+          <div class="gc-meta"><span class="gc-price">€28</span><div class="gc-rating"><span>⭐</span> 4.6 · 1.2K</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="generic-card" style="opacity:.8;">
+      <div class="gc-top">
+        <div class="gc-img" style="background:#1A1A20;">🚌</div>
+        <div>
+          <div class="gc-title">Hop-on Hop-off Rome Bus Tour (24h)</div>
+          <div class="gc-meta"><span class="gc-price">€29</span><div class="gc-rating"><span>⭐</span> 4.1 · 3.4K</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="generic-card" style="opacity:.6;">
+      <div class="gc-top">
+        <div class="gc-img" style="background:#1A181A;">🎭</div>
+        <div>
+          <div class="gc-title">Rome Underground Catacombs Tour</div>
+          <div class="gc-meta"><span class="gc-price">€30</span><div class="gc-rating"><span>⭐</span> 4.7 · 891</div></div>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center;padding:14px 0;font-size:12px;color:var(--muted);">Showing 1–3 of 847 · Load more ↓</div>
+    <div style="background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.3);border-radius:12px;padding:12px 14px;text-align:center;">
+      <div style="font-size:12px;color:var(--purple);font-weight:700;margin-bottom:4px;">✨ Try DiscoverIQ</div>
+      <div style="font-size:11px;color:var(--muted);">Let intent-ranking find your perfect match from 847 results</div>
+    </div>
+  </div>
+  <div class="bottom-nav">
+    <div class="nav-item"><div class="nav-icon">🏠</div>Home</div>
+    <div class="nav-item active"><div class="nav-icon">🔍</div>Discover</div>
+    <div class="nav-item"><div class="nav-icon">🎟️</div>Trips</div>
+    <div class="nav-item"><div class="nav-icon">👤</div>Profile</div>
+  </div>
+</div>
+
+<!-- S2: Intent Parsing -->
+<div class="screen intent-screen" id="s2">
+  <div class="status-bar">
+    <span class="status-time">2:14</span>
+    <div class="status-icons"><span>4G</span><span>🔋62%</span></div>
+  </div>
+  <div style="padding:48px 20px 0;flex-shrink:0;">
+    <div class="search-bar active-bar">
+      <span class="search-icon">✨</span>
+      <span class="search-text">romantic dinner Rome</span>
+      <span style="color:var(--purple);font-size:11px;font-weight:700;white-space:nowrap;">DiscoverIQ</span>
+    </div>
+  </div>
+  <div class="intent-center">
+    <div class="intent-spinner">🤖</div>
+    <div class="intent-title">Understanding your intent</div>
+    <div class="intent-sub">Parsing 12 signals across 847 experiences<br>to find your perfect match</div>
+    <div class="intent-signals">
+      <div class="signal-chip found">✓ Occasion: Romantic</div>
+      <div class="signal-chip found">✓ Time: Evening preferred</div>
+      <div class="signal-chip found">✓ Style: Intimate, private</div>
+      <div class="signal-chip finding">◌ Budget: Detecting<span style="display:inline-flex;gap:2px;margin-left:4px;"><span style="width:3px;height:3px;border-radius:50%;background:var(--purple);display:inline-block;animation:dotbounce 1s .0s infinite;"></span><span style="width:3px;height:3px;border-radius:50%;background:var(--purple);display:inline-block;animation:dotbounce 1s .2s infinite;"></span><span style="width:3px;height:3px;border-radius:50%;background:var(--purple);display:inline-block;animation:dotbounce 1s .4s infinite;"></span></span></div>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill"></div>
+    </div>
+    <div class="progress-label">Analyzing 847 experiences across intent signals<span style="display:inline-flex;gap:2px;margin-left:4px;"><span style="width:3px;height:3px;border-radius:50%;background:var(--muted);display:inline-block;animation:dotbounce 1s .0s infinite;"></span><span style="width:3px;height:3px;border-radius:50%;background:var(--muted);display:inline-block;animation:dotbounce 1s .2s infinite;"></span></span></div>
+  </div>
+</div>
+
+<!-- S3: Ranked Results -->
+<div class="screen" id="s3">
+  <div class="status-bar">
+    <span class="status-time">2:15</span>
+    <div class="status-icons"><span>4G</span><span>🔋62%</span></div>
+  </div>
+  <div class="ranked-header">
+    <div class="back-row">
+      <div class="back-btn">←</div>
+      <div class="screen-title">DiscoverIQ Results</div>
+    </div>
+  </div>
+  <div class="match-banner">
+    <div>
+      <div class="mb-count">4 Perfect Matches</div>
+      <div class="mb-sub">843 filtered out · ranked by intent</div>
+    </div>
+    <div class="mb-badge">✨ DiscoverIQ</div>
+  </div>
+  <div class="scroll-area" style="padding-top:4px;">
+    <div class="ranked-card best-match">
+      <div class="match-score">97% match</div>
+      <div class="rc-img" style="background:linear-gradient(135deg,#1A0828,#2C1044);">🌃</div>
+      <div class="rc-title">Rooftop Dinner · Colosseum View at Sunset</div>
+      <div class="rc-meta">
+        <div class="rc-rating"><span class="star">⭐</span> 4.9 <span class="rv">· 2.1K</span></div>
+        <div class="rc-price">€89 /person</div>
+      </div>
+      <div class="intent-tags">
+        <div class="intent-tag">✓ Romantic</div>
+        <div class="intent-tag">✓ Evening</div>
+        <div class="intent-tag">✓ Private</div>
+        <div class="intent-tag">✓ Iconic view</div>
+      </div>
+      <div class="intent-reason">🤖 Highest-rated romantic dinner experience in Rome. Private seating, Colosseum view, wine included — all 4 of your intent signals matched.</div>
+      <button class="book-btn">Book Now · From €89</button>
+    </div>
+
+    <div class="ranked-card">
+      <div class="match-score">89% match</div>
+      <div class="rc-img" style="background:linear-gradient(135deg,#0A1018,#101828);">🍷</div>
+      <div class="rc-title">Private Roman Food Journey · Chef-led</div>
+      <div class="rc-meta">
+        <div class="rc-rating"><span class="star">⭐</span> 4.8 <span class="rv">· 3.6K</span></div>
+        <div class="rc-price">€75 /person</div>
+      </div>
+      <div class="intent-tags">
+        <div class="intent-tag">✓ Romantic</div>
+        <div class="intent-tag">✓ Private</div>
+        <div class="intent-tag">✓ Evening</div>
+      </div>
+      <div class="intent-reason">🤖 Private group of 2–6, chef-led, pairs well with your evening preference</div>
+      <button class="outline-btn">View Details</button>
+    </div>
+
+    <div class="ranked-card">
+      <div class="match-score">84% match</div>
+      <div class="rc-img" style="background:linear-gradient(135deg,#10180A,#182810);">🧀</div>
+      <div class="rc-title">Sunset Wine & Cheese Terrace Experience</div>
+      <div class="rc-meta">
+        <div class="rc-rating"><span class="star">⭐</span> 4.7 <span class="rv">· 1.8K</span></div>
+        <div class="rc-price">€55 /person</div>
+      </div>
+      <div class="intent-tags">
+        <div class="intent-tag">✓ Romantic</div>
+        <div class="intent-tag">✓ Sunset</div>
+      </div>
+      <button class="outline-btn">View Details</button>
+    </div>
+  </div>
+  <div class="bottom-nav">
+    <div class="nav-item"><div class="nav-icon">🏠</div>Home</div>
+    <div class="nav-item active"><div class="nav-icon">🔍</div>Discover</div>
+    <div class="nav-item"><div class="nav-icon">🎟️</div>Trips</div>
+    <div class="nav-item"><div class="nav-icon">👤</div>Profile</div>
+  </div>
+</div>
+
+<!-- S4: Experience Detail -->
+<div class="screen detail-screen" id="s4">
+  <div class="detail-img">
+    🌃
+    <div class="detail-back">←</div>
+    <div style="position:absolute;bottom:12px;right:12px;background:rgba(139,92,246,0.9);color:#fff;border-radius:8px;padding:4px 10px;font-size:11px;font-weight:700;">97% match</div>
+  </div>
+  <div class="status-bar" style="position:absolute;top:0;left:0;right:0;z-index:5;"></div>
+  <div class="detail-body">
+    <div class="detail-title">Rooftop Dinner with Colosseum View at Sunset</div>
+    <div class="detail-meta-row">
+      <div class="detail-rating"><span class="star">⭐</span> 4.9 <span style="font-size:12px;color:var(--muted);font-weight:400;margin-left:3px;">· 2.1K reviews</span></div>
+      <div class="detail-price">From €89</div>
+    </div>
+    <div class="detail-chips">
+      <div class="detail-chip">⏱ 3 hours</div>
+      <div class="detail-chip">👥 Max 8 guests</div>
+      <div class="detail-chip">🍷 Wine included</div>
+      <div class="detail-chip">🌆 Sunset view</div>
+    </div>
+    <div class="why-box">
+      <div class="why-title">🤖 Why DiscoverIQ chose this for you</div>
+      <div class="why-row">
+        <div class="why-icon">💑</div>
+        <div class="why-text"><strong>Romantic signal:</strong> 91% of 2-person bookings rate this 5★ for romantic occasions</div>
+      </div>
+      <div class="why-row">
+        <div class="why-icon">🌇</div>
+        <div class="why-text"><strong>Evening match:</strong> Seats start at 7pm · golden hour through sunset</div>
+      </div>
+      <div class="why-row">
+        <div class="why-icon">🔒</div>
+        <div class="why-text"><strong>Private seating:</strong> Dedicated table, not shared — matches your "intimate" intent signal</div>
+      </div>
+      <div class="why-row">
+        <div class="why-icon">🏛️</div>
+        <div class="why-text"><strong>Iconic view:</strong> Directly overlooks Colosseum from 5th floor terrace</div>
+      </div>
+    </div>
+    <div style="font-size:12px;color:var(--muted);line-height:1.6;">A curated 3-course dinner on Rome's most sought-after rooftop terrace, overlooking the Colosseum at sunset. Antipasti, pasta, and dessert paired with premium local wines. Private table seating ensures an intimate experience for two.</div>
+  </div>
+  <button class="add-trip-btn">+ Add to Rome Trip · €89</button>
+</div>
+
+<!-- S5: Trip Builder Confirmed -->
+<div class="screen trip-screen" id="s5">
+  <canvas id="confetti-canvas"></canvas>
+  <div class="status-bar" style="width:100%;flex-shrink:0;">
+    <span class="status-time">2:16</span>
+    <div class="status-icons"><span>4G</span><span>🔋62%</span></div>
+  </div>
+  <div class="trip-check">✓</div>
+  <div class="trip-title">Added to Rome Trip 🎉</div>
+  <div class="trip-sub">DiscoverIQ built your 3-experience itinerary</div>
+  <div class="trip-builder" style="width:calc(100% - 40px);">
+    <div class="tb-title">🗺️ Rome Trip Builder · 2 days</div>
+    <div class="tb-item">
+      <div class="tb-num">1</div>
+      <div class="tb-text"><div class="tbt-title">Colosseum Priority Access</div><div class="tbt-meta">Tomorrow 9:00 AM · 2.5h</div></div>
+      <div class="tb-price">€39</div>
+    </div>
+    <div class="tb-item">
+      <div class="tb-num">2</div>
+      <div class="tb-text"><div class="tbt-title">Vatican Museums & Sistine Chapel</div><div class="tbt-meta">Tomorrow 1:00 PM · 3h</div></div>
+      <div class="tb-price">€49</div>
+    </div>
+    <div class="tb-item">
+      <div class="tb-num" style="background:var(--purple);">3</div>
+      <div class="tb-text"><div class="tbt-title">Rooftop Dinner · Colosseum View</div><div class="tbt-meta" style="color:var(--purple);">Day 2 · 7:00 PM · 3h</div></div>
+      <div class="tb-price">€89</div>
+    </div>
+  </div>
+  <div class="trip-total" style="width:calc(100% - 40px);">
+    <span class="tt-label">Trip total</span>
+    <span class="tt-val">€177 · 2 people</span>
+  </div>
+  <div class="trip-btns" style="width:calc(100% - 40px);">
+    <button class="btn-purple">Book All 3 · €177</button>
+    <button class="btn-ghost">Save for Later</button>
+  </div>
+</div>
+
+</div><!-- /phone -->
+</div><!-- /phone-wrap -->
+
+<div class="nav-controls">
+  <button class="ctrl-btn" id="prev-btn" onclick="go(cur-1)" disabled>←</button>
+  <div class="dots">
+    <div class="dot active" id="d1" onclick="go(1)"></div>
+    <div class="dot" id="d2" onclick="go(2)"></div>
+    <div class="dot" id="d3" onclick="go(3)"></div>
+    <div class="dot" id="d4" onclick="go(4)"></div>
+    <div class="dot" id="d5" onclick="go(5)"></div>
+  </div>
+  <button class="ctrl-btn" id="next-btn" onclick="go(cur+1)">→</button>
+</div>
+<div class="screen-label-wrap">
+  <div class="screen-label" id="screen-label">01 — THE DISCOVERY PROBLEM</div>
+</div>
+
+<div class="sources-section">
+  <div class="sources-title">Projected Metrics — Benchmark Sources</div>
+  <div class="sources-grid">
+    <div class="source-card">
+      <div class="sc-pub">Think with Google — Travel Micro-Moments 2023</div>
+      <div class="sc-metric">+34% Search-to-Booking CVR</div>
+      <div class="sc-detail">Travelers with high intent who receive personalized, intent-matched recommendations convert significantly faster; ranked results eliminate browse friction</div>
+    </div>
+    <div class="source-card">
+      <div class="sc-pub">McKinsey & Company — The State of AI in Travel 2024</div>
+      <div class="sc-metric">−52% Time to First Click from Search</div>
+      <div class="sc-detail">Personalized ranking versus generic sorting reduces decision fatigue significantly; effect amplified when occasion/intent signals are incorporated at ranking stage</div>
+    </div>
+    <div class="source-card">
+      <div class="sc-pub">PhonePe — ML Propensity Engine (Ajay Avaghade, 2024)</div>
+      <div class="sc-metric">32% Efficiency Gain (shipped)</div>
+      <div class="sc-detail">Replaced ₹1,000Cr/yr static rule-based targeting with real-time ML scoring; direct architectural proof point for intent-aware ranking at scale</div>
+    </div>
+    <div class="source-card">
+      <div class="sc-pub">Phocuswright — Digital Discovery in Travel Experiences 2023</div>
+      <div class="sc-metric">+41% Multi-Experience Booking Rate</div>
+      <div class="sc-detail">Travelers who discover via intent-matched search book 2+ experiences per trip at significantly higher rates than browse-based discovery sessions</div>
+    </div>
+  </div>
+</div>
+
+<style>
+@keyframes dotbounce { 0%,60%,100% { transform:translateY(0); opacity:.4; } 30% { transform:translateY(-3px); opacity:1; } }
+</style>
+
+<script>
+let cur = 1;
+const LABELS = {
+  1:'01 — THE DISCOVERY PROBLEM',
+  2:'02 — DISCOVERIQ INTENT PARSING',
+  3:'03 — RANKED RESULTS (4 OF 847)',
+  4:'04 — EXPERIENCE DETAIL + WHY',
+  5:'05 — TRIP BUILDER CONFIRMED'
+};
+
+function go(n) {
+  if (n < 1 || n > 5) return;
+  document.getElementById('s'+cur).classList.remove('active');
+  document.getElementById('d'+cur).classList.remove('active');
+  cur = n;
+  document.getElementById('s'+cur).classList.add('active');
+  document.getElementById('d'+cur).classList.add('active');
+  document.getElementById('screen-label').textContent = LABELS[cur];
+  document.getElementById('prev-btn').disabled = cur === 1;
+  document.getElementById('next-btn').disabled = cur === 5;
+  if (cur === 5) startConfetti();
+}
+
+function startConfetti() {
+  const canvas = document.getElementById('confetti-canvas');
+  if (!canvas) return;
+  canvas.width = canvas.offsetWidth;
+  canvas.height = canvas.offsetHeight;
+  const ctx = canvas.getContext('2d');
+  const colors = ['#8B5CF6','#F59E0B','#22C55E','#FF385C','#A78BFA','#FFFFFF'];
+  const particles = Array.from({length:80}, () => ({
+    x: Math.random() * canvas.width,
+    y: -10 - Math.random() * 80,
+    vx: (Math.random()-.5)*3,
+    vy: 2 + Math.random()*3,
+    color: colors[Math.floor(Math.random()*colors.length)],
+    w: 6 + Math.random()*6, h: 6 + Math.random()*6,
+    r: Math.random()*Math.PI*2, vr: (Math.random()-.5)*.2
+  }));
+  let frame = 0;
+  (function animate() {
+    if (frame > 120) { ctx.clearRect(0,0,canvas.width,canvas.height); return; }
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    particles.forEach(p => {
+      p.x+=p.vx; p.y+=p.vy; p.r+=p.vr;
+      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.r);
+      ctx.fillStyle=p.color; ctx.globalAlpha=Math.max(0,1-frame/100);
+      ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h); ctx.restore();
+    });
+    frame++; requestAnimationFrame(animate);
+  })();
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight') go(cur+1);
+  if (e.key === 'ArrowLeft') go(cur-1);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Headout BetweenTrips — Between-Trip Engagement Engine</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --dark: #0D0D0D;
+  --hero: #1A1200;
+  --card: #231900;
+  --lift: #2C2100;
+  --amber: #F59E0B;
+  --coral: #FF385C;
+  --green: #22C55E;
+  --purple: #8B5CF6;
+  --muted: #888880;
+  --border: rgba(245,158,11,0.15);
+  --white: #FFFFFF;
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-font-smoothing:antialiased; }
+body { background:var(--dark); font-family:'Inter',sans-serif; color:var(--white); min-height:100vh; display:flex; flex-direction:column; align-items:center; padding:40px 20px 60px; }
+.page-eyebrow { font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--amber); margin-bottom:6px; text-align:center; }
+.page-headline { font-family:'Outfit',sans-serif; font-size:30px; font-weight:900; color:var(--white); text-align:center; margin-bottom:6px; line-height:1.1; }
+.page-sub { font-size:13px; color:var(--muted); text-align:center; margin-bottom:32px; max-width:480px; line-height:1.6; }
+
+.phone-wrap { position:relative; width:390px; height:844px; }
+.phone { width:390px; height:844px; background:#0F0F0F; border-radius:44px; border:2px solid rgba(245,158,11,0.15); overflow:hidden; position:relative; box-shadow:0 32px 80px rgba(0,0,0,0.7),0 0 40px rgba(245,158,11,0.06); }
+.notch { position:absolute; top:0; left:50%; transform:translateX(-50%); width:120px; height:34px; background:#0F0F0F; border-radius:0 0 20px 20px; z-index:20; }
+.status-bar { height:44px; display:flex; align-items:center; justify-content:space-between; padding:12px 22px 0; font-size:12px; font-weight:600; color:var(--white); position:relative; z-index:10; flex-shrink:0; }
+.status-time { font-size:15px; font-weight:700; }
+.status-icons { display:flex; align-items:center; gap:5px; font-size:11px; }
+
+.screen { position:absolute; top:0; left:0; right:0; bottom:0; display:none; flex-direction:column; overflow:hidden; background:#0F0F0F; }
+.screen.active { display:flex; }
+
+.app-header { padding:48px 20px 10px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+.app-logo { font-family:'Outfit',sans-serif; font-size:22px; font-weight:900; color:var(--coral); }
+.hdr-actions { display:flex; gap:10px; align-items:center; }
+.hdr-icon { width:34px; height:34px; background:rgba(255,255,255,0.06); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; }
+.avatar { width:34px; height:34px; background:var(--amber); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; color:#000; }
+
+.scroll-area { flex:1; overflow-y:auto; padding:0 20px 80px; }
+.scroll-area::-webkit-scrollbar { display:none; }
+
+.greeting { font-family:'Outfit',sans-serif; font-size:22px; font-weight:800; padding:4px 20px 12px; flex-shrink:0; }
+
+/* Problem state cards */
+.past-trip-card { background:#1A1A1A; border:1px solid rgba(255,255,255,0.08); border-radius:16px; padding:14px 16px; margin-bottom:10px; display:flex; align-items:center; gap:12px; }
+.ptc-icon { width:44px; height:44px; background:#222; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; }
+.ptc-title { font-size:14px; font-weight:700; }
+.ptc-sub { font-size:11px; color:var(--muted); margin-top:2px; }
+.ptc-badge { background:rgba(255,255,255,0.07); color:var(--muted); border-radius:8px; padding:3px 8px; font-size:10px; margin-left:auto; white-space:nowrap; }
+
+.empty-state { background:#141414; border:1px dashed rgba(255,255,255,0.12); border-radius:16px; padding:30px 20px; text-align:center; margin-bottom:14px; }
+.es-icon { font-size:36px; margin-bottom:10px; opacity:.4; }
+.es-title { font-size:14px; font-weight:700; color:rgba(255,255,255,0.5); margin-bottom:4px; }
+.es-sub { font-size:12px; color:var(--muted); line-height:1.5; }
+
+.problem-flag { background:rgba(255,56,92,0.08); border:1px solid rgba(255,56,92,0.25); border-radius:10px; padding:10px 12px; margin-bottom:14px; display:flex; align-items:flex-start; gap:8px; }
+.pf-icon { font-size:15px; flex-shrink:0; }
+.pf-text { font-size:11px; color:rgba(255,255,255,0.65); line-height:1.5; }
+
+/* S2 BetweenTrips Home */
+.bt-banner { background:linear-gradient(135deg,rgba(245,158,11,0.2),rgba(245,158,11,0.06)); border:1px solid rgba(245,158,11,0.3); border-radius:16px; padding:14px 16px; margin-bottom:14px; display:flex; align-items:center; gap:12px; flex-shrink:0; }
+.bt-banner-icon { width:42px; height:42px; background:rgba(245,158,11,0.2); border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; }
+.bt-banner-text .bbt-title { font-size:14px; font-weight:700; color:var(--amber); }
+.bt-banner-text .bbt-sub { font-size:11px; color:rgba(255,255,255,0.6); margin-top:2px; }
+
+.memory-card { background:linear-gradient(135deg,#231900,#1A1200); border:1px solid rgba(245,158,11,0.25); border-radius:16px; padding:16px; margin-bottom:12px; position:relative; overflow:hidden; }
+.mc-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--amber); margin-bottom:8px; }
+.mc-h { font-family:'Outfit',sans-serif; font-size:18px; font-weight:800; margin-bottom:4px; }
+.mc-sub { font-size:12px; color:var(--muted); margin-bottom:12px; }
+.mc-photos { display:flex; gap:8px; margin-bottom:12px; }
+.mc-photo { flex:1; height:60px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:24px; }
+.mc-exps { display:flex; gap:6px; flex-wrap:wrap; }
+.mc-exp-chip { background:rgba(245,158,11,0.12); border:1px solid rgba(245,158,11,0.3); border-radius:8px; padding:4px 10px; font-size:11px; color:rgba(255,255,255,0.8); }
+
+.feed-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); margin-bottom:8px; }
+.feed-item { display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.06); }
+.feed-item:last-child { border-bottom:none; }
+.feed-avatar { width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700; flex-shrink:0; }
+.feed-text .ft-title { font-size:12px; font-weight:600; }
+.feed-text .ft-sub { font-size:11px; color:var(--muted); }
+.feed-time { font-size:10px; color:var(--muted); margin-left:auto; white-space:nowrap; }
+
+/* S3 Memory Journal */
+.journal-header { padding:48px 20px 8px; flex-shrink:0; }
+.back-row { display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+.back-btn { width:32px; height:32px; background:rgba(255,255,255,0.07); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; }
+.journal-title { font-family:'Outfit',sans-serif; font-size:20px; font-weight:800; }
+.journal-sub { font-size:12px; color:var(--muted); }
+.journal-hero { width:100%; height:130px; background:linear-gradient(135deg,#231900,#402800); border-radius:16px; display:flex; flex-direction:column; align-items:center; justify-content:center; margin-bottom:14px; position:relative; overflow:hidden; }
+.jh-city { font-size:40px; margin-bottom:4px; }
+.jh-name { font-family:'Outfit',sans-serif; font-size:18px; font-weight:800; }
+.jh-sub { font-size:11px; color:rgba(255,255,255,0.6); }
+.jh-badge { position:absolute; top:12px; right:12px; background:var(--amber); color:#000; border-radius:8px; padding:3px 8px; font-size:10px; font-weight:700; }
+.photo-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; margin-bottom:14px; }
+.photo-cell { height:80px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:28px; }
+.exp-done-list { margin-bottom:14px; }
+.exp-done-title { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); margin-bottom:8px; }
+.exp-done-item { display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.06); }
+.exp-done-item:last-child { border-bottom:none; }
+.edi-icon { font-size:18px; flex-shrink:0; }
+.edi-title { font-size:13px; font-weight:600; }
+.edi-sub { font-size:11px; color:var(--muted); }
+.edi-check { font-size:16px; color:var(--green); margin-left:auto; }
+.journal-actions { display:flex; gap:10px; }
+.journal-btn { flex:1; border-radius:12px; padding:12px; font-size:13px; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; border:none; }
+.journal-btn.primary { background:var(--amber); color:#000; }
+.journal-btn.secondary { background:rgba(255,255,255,0.07); color:var(--white); }
+
+/* S4 Planning Dubai */
+.dubai-screen { background:linear-gradient(180deg,#0D0808,#0D0D0D) !important; }
+.intent-banner { background:linear-gradient(135deg,rgba(245,158,11,0.15),rgba(245,158,11,0.05)); border:1px solid rgba(245,158,11,0.35); border-radius:16px; padding:14px 16px; margin:0 20px 14px; flex-shrink:0; }
+.ib-tag { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--amber); margin-bottom:6px; }
+.ib-title { font-family:'Outfit',sans-serif; font-size:18px; font-weight:800; margin-bottom:3px; }
+.ib-sub { font-size:11px; color:rgba(255,255,255,0.6); }
+.ib-signals { display:flex; gap:6px; flex-wrap:wrap; margin-top:10px; }
+.signal { background:rgba(255,255,255,0.08); border-radius:6px; padding:4px 8px; font-size:10px; color:var(--muted); }
+.signal.active { background:rgba(245,158,11,0.12); border:1px solid rgba(245,158,11,0.3); color:var(--amber); }
+
+.dubai-exp { background:#1A1A1A; border-radius:14px; padding:12px 14px; margin:0 20px 10px; display:flex; align-items:center; gap:12px; border:1px solid rgba(255,255,255,0.08); }
+.de-icon { width:44px; height:44px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; }
+.de-title { font-size:13px; font-weight:700; margin-bottom:2px; }
+.de-meta { font-size:11px; color:var(--muted); }
+.de-price { font-size:13px; font-weight:700; color:var(--amber); margin-left:auto; white-space:nowrap; }
+.wishlist-tag { background:rgba(245,158,11,0.12); color:var(--amber); border-radius:6px; padding:2px 6px; font-size:10px; font-weight:600; margin-top:3px; display:inline-block; }
+
+.dubai-cta { margin:0 20px; display:flex; gap:10px; }
+.cta-primary { flex:3; background:var(--amber); color:#000; border:none; border-radius:12px; padding:13px; font-size:14px; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; }
+.cta-secondary { flex:2; background:rgba(255,255,255,0.06); color:var(--white); border:1px solid rgba(255,255,255,0.12); border-radius:12px; padding:13px; font-size:13px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; }
+
+/* S5 Booking from wishlist */
+.wishlist-header { padding:48px 20px 8px; flex-shrink:0; }
+.wl-title { font-family:'Outfit',sans-serif; font-size:20px; font-weight:800; margin-bottom:2px; }
+.wl-sub { font-size:12px; color:var(--muted); }
+.wishlist-card { background:#1A1A1A; border-radius:16px; padding:14px; margin-bottom:10px; border:1px solid rgba(255,255,255,0.08); position:relative; }
+.wishlist-card.highlight { border-color:rgba(245,158,11,0.4); background:rgba(245,158,11,0.04); }
+.wc-top { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+.wc-img { width:56px; height:50px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:24px; flex-shrink:0; }
+.wc-title { font-size:14px; font-weight:700; margin-bottom:3px; }
+.wc-meta { display:flex; align-items:center; gap:8px; font-size:11px; }
+.wc-rating { color:var(--muted); display:flex; align-items:center; gap:3px; }
+.star { color:var(--gold,#F59E0B); }
+.wc-price { color:var(--amber); font-weight:700; font-size:13px; }
+.avail-bar { display:flex; align-items:center; justify-content:space-between; }
+.avail-pill { background:rgba(34,197,94,0.1); border:1px solid rgba(34,197,94,0.3); color:var(--green); border-radius:6px; padding:3px 8px; font-size:10px; font-weight:600; }
+.book-now { background:var(--amber); color:#000; border:none; border-radius:8px; padding:6px 14px; font-size:12px; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; }
+.book-now.ghost { background:rgba(255,255,255,0.07); color:var(--white); }
+.wishlist-footer { background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.25); border-radius:14px; padding:14px 16px; margin-bottom:14px; }
+.wf-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+.wf-label { font-size:12px; color:var(--muted); }
+.wf-val { font-size:13px; font-weight:700; }
+.wf-total { font-size:14px; font-weight:800; color:var(--amber); }
+.confirm-btn { width:100%; background:var(--amber); color:#000; border:none; border-radius:13px; padding:14px; font-size:15px; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; }
+
+/* Bottom nav */
+.bottom-nav { position:absolute; bottom:0; left:0; right:0; height:76px; background:#0A0A0A; border-top:1px solid rgba(255,255,255,0.07); display:flex; align-items:center; justify-content:space-around; padding:0 10px 16px; }
+.nav-item { display:flex; flex-direction:column; align-items:center; gap:3px; font-size:10px; font-weight:500; color:var(--muted); padding:4px 10px; }
+.nav-item.active { color:var(--amber); }
+.nav-icon { font-size:20px; }
+
+/* Controls */
+.nav-controls { display:flex; align-items:center; justify-content:center; gap:16px; margin-top:28px; }
+.ctrl-btn { width:44px; height:44px; border-radius:50%; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.04); color:var(--white); font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .2s; }
+.ctrl-btn:hover { background:rgba(245,158,11,0.2); border-color:var(--amber); }
+.ctrl-btn:disabled { opacity:.3; cursor:default; }
+.dots { display:flex; gap:8px; align-items:center; }
+.dot { width:8px; height:8px; border-radius:4px; background:rgba(255,255,255,0.2); transition:all .3s; cursor:pointer; }
+.dot.active { width:24px; background:var(--amber); }
+.screen-label-wrap { text-align:center; margin-top:12px; }
+.screen-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); }
+
+/* Sources */
+.sources-section { margin-top:40px; width:100%; max-width:720px; }
+.sources-title { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--muted); text-align:center; margin-bottom:12px; }
+.sources-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.source-card { background:rgba(255,255,255,0.03); border:1px solid rgba(245,158,11,0.1); border-radius:10px; padding:12px 14px; }
+.sc-pub { font-size:10px; font-weight:700; color:var(--amber); margin-bottom:3px; }
+.sc-metric { font-size:12px; font-weight:700; color:var(--white); margin-bottom:2px; }
+.sc-detail { font-size:10px; color:var(--muted); line-height:1.5; }
+
+#confetti-canvas { position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:100; }
+</style>
+</head>
+<body>
+
+<div class="page-eyebrow">Headout · Case Study 03 · BetweenTrips</div>
+<div class="page-headline">The Between-Trip<br>Engagement Layer</div>
+<div class="page-sub">Turns the 47-week gap between trips into an active engagement surface — travel journals, peer discovery, and intent-triggered "Planning [City]?" cards that convert dormant users into bookers.</div>
+
+<div class="phone-wrap">
+<div class="phone">
+<div class="notch"></div>
+
+<!-- S1: Problem State — Empty App -->
+<div class="screen active" id="s1">
+  <div class="status-bar">
+    <span class="status-time">11:22</span>
+    <div class="status-icons"><span>5G</span><span>🔋54%</span></div>
+  </div>
+  <div class="app-header">
+    <div class="app-logo">headout</div>
+    <div class="hdr-actions">
+      <div class="hdr-icon">🔔</div>
+      <div class="avatar">A</div>
+    </div>
+  </div>
+  <div class="greeting">Good morning, Ajay 👋</div>
+  <div class="scroll-area">
+    <div class="past-trip-card">
+      <div class="ptc-icon">🏛️</div>
+      <div>
+        <div class="ptc-title">Rome 2024</div>
+        <div class="ptc-sub">2 experiences · Ended 3 weeks ago</div>
+      </div>
+      <div class="ptc-badge">Past</div>
+    </div>
+
+    <div class="empty-state">
+      <div class="es-icon">✈️</div>
+      <div class="es-title">No upcoming trips</div>
+      <div class="es-sub">Plan your next adventure and your experiences will appear here</div>
+    </div>
+
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:8px;">Featured Experiences</div>
+    <div style="background:#1A1A1A;border-radius:14px;padding:14px;border:1px solid rgba(255,255,255,0.07);opacity:.6;margin-bottom:10px;">
+      <div style="font-size:14px;font-weight:700;margin-bottom:4px;">London Eye + Thames River Cruise</div>
+      <div style="font-size:12px;color:var(--muted);">From £29 · ⭐ 4.8 · London</div>
+    </div>
+    <div style="background:#1A1A1A;border-radius:14px;padding:14px;border:1px solid rgba(255,255,255,0.07);opacity:.4;margin-bottom:14px;">
+      <div style="font-size:14px;font-weight:700;margin-bottom:4px;">Eiffel Tower Summit with Skip-the-Line</div>
+      <div style="font-size:12px;color:var(--muted);">From €26 · ⭐ 4.9 · Paris</div>
+    </div>
+
+    <div class="problem-flag">
+      <span class="pf-icon">⚠️</span>
+      <span class="pf-text">App opened 0.8×/month between trips. Generic feed has no connection to past travel or future intent — zero engagement hook for the 47-week gap between bookings.</span>
+    </div>
+  </div>
+  <div class="bottom-nav">
+    <div class="nav-item active"><div class="nav-icon">🏠</div>Home</div>
+    <div class="nav-item"><div class="nav-icon">🔍</div>Explore</div>
+    <div class="nav-item"><div class="nav-icon">🎟️</div>Trips</div>
+    <div class="nav-item"><div class="nav-icon">👤</div>Profile</div>
+  </div>
+</div>
+
+<!-- S2: BetweenTrips Home (New Feature) -->
+<div class="screen" id="s2">
+  <div class="status-bar">
+    <span class="status-time">11:22</span>
+    <div class="status-icons"><span>5G</span><span>🔋54%</span></div>
+  </div>
+  <div class="app-header">
+    <div class="app-logo">headout</div>
+    <div class="hdr-actions">
+      <div class="hdr-icon">🔔</div>
+      <div class="avatar">A</div>
+    </div>
+  </div>
+  <div class="scroll-area" style="padding-top:0;">
+    <div class="bt-banner">
+      <div class="bt-banner-icon">✈️</div>
+      <div class="bt-banner-text">
+        <div class="bbt-title">BetweenTrips · New</div>
+        <div class="bbt-sub">Your travel story doesn't end when you land</div>
+      </div>
+    </div>
+
+    <div class="memory-card">
+      <div class="mc-label">📸 Your Rome 2024 Journey</div>
+      <div class="mc-h">Rome Explorer 🏛️</div>
+      <div class="mc-sub">3 weeks ago · 2 experiences · 4 memories</div>
+      <div class="mc-photos">
+        <div class="mc-photo" style="background:linear-gradient(135deg,#231500,#3C2800);">🏛️</div>
+        <div class="mc-photo" style="background:linear-gradient(135deg,#0A1820,#102030);">⛲</div>
+        <div class="mc-photo" style="background:linear-gradient(135deg,#1A0A08,#2C1010);">🍕</div>
+      </div>
+      <div class="mc-exps">
+        <div class="mc-exp-chip">✓ Colosseum</div>
+        <div class="mc-exp-chip">✓ Vatican</div>
+        <div class="mc-exp-chip">+ Relive memories →</div>
+      </div>
+    </div>
+
+    <div class="feed-label">Friends Are Exploring</div>
+    <div class="feed-item">
+      <div class="feed-avatar" style="background:#7C3AED;">M</div>
+      <div class="feed-text">
+        <div class="ft-title">Maya booked Bali Monkey Forest</div>
+        <div class="ft-sub">Indonesia · ⭐ 4.8 · "Incredible experience!"</div>
+      </div>
+      <div class="feed-time">2h ago</div>
+    </div>
+    <div class="feed-item">
+      <div class="feed-avatar" style="background:#0891B2;">R</div>
+      <div class="feed-text">
+        <div class="ft-title">Raj completed Dubai Frame</div>
+        <div class="ft-sub">Dubai · ⭐ 4.9 · "Worth every dirham"</div>
+      </div>
+      <div class="feed-time">Yesterday</div>
+    </div>
+    <div class="feed-item">
+      <div class="feed-avatar" style="background:#16A34A;">P</div>
+      <div class="feed-text">
+        <div class="ft-title">Priya added Desert Safari to wishlist</div>
+        <div class="ft-sub">Dubai · From AED 149 · 4h experience</div>
+      </div>
+      <div class="feed-time">3d ago</div>
+    </div>
+
+    <div style="margin-top:14px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:14px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-size:12px;font-weight:700;color:var(--amber);margin-bottom:3px;">🎯 Planning Dubai?</div>
+        <div style="font-size:11px;color:var(--muted);">You searched Dubai 3 times this week</div>
+      </div>
+      <button style="background:var(--amber);color:#000;border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;">See picks →</button>
+    </div>
+  </div>
+  <div class="bottom-nav">
+    <div class="nav-item active"><div class="nav-icon">🏠</div>Home</div>
+    <div class="nav-item"><div class="nav-icon">🔍</div>Explore</div>
+    <div class="nav-item"><div class="nav-icon">🎟️</div>Trips</div>
+    <div class="nav-item"><div class="nav-icon">👤</div>Profile</div>
+  </div>
+</div>
+
+<!-- S3: Rome Memory Journal -->
+<div class="screen" id="s3">
+  <div class="status-bar">
+    <span class="status-time">11:23</span>
+    <div class="status-icons"><span>5G</span><span>🔋54%</span></div>
+  </div>
+  <div class="journal-header">
+    <div class="back-row">
+      <div class="back-btn">←</div>
+      <div class="journal-title">Rome 2024 Journal</div>
+    </div>
+    <div class="journal-sub">May 2–4, 2024 · 2 experiences · Rome Explorer badge</div>
+  </div>
+  <div class="scroll-area" style="padding-top:10px;">
+    <div class="journal-hero">
+      <div class="jh-city">🏛️</div>
+      <div class="jh-name">Roma</div>
+      <div class="jh-sub">The Eternal City · 3 days</div>
+      <div class="jh-badge">🏅 Explorer</div>
+    </div>
+
+    <div class="photo-grid">
+      <div class="photo-cell" style="background:linear-gradient(135deg,#231500,#3C2800);">🏛️</div>
+      <div class="photo-cell" style="background:linear-gradient(135deg,#1A0A08,#2C1010);">⛪</div>
+      <div class="photo-cell" style="background:linear-gradient(135deg,#0A1820,#102030);">⛲</div>
+      <div class="photo-cell" style="background:linear-gradient(135deg,#0A100A,#102010);">🍕</div>
+      <div class="photo-cell" style="background:linear-gradient(135deg,#18080A,#28101A);">🌆</div>
+      <div class="photo-cell" style="background:rgba(255,255,255,0.04);border:1px dashed rgba(255,255,255,0.12);">+ 8 more</div>
+    </div>
+
+    <div class="exp-done-list">
+      <div class="exp-done-title">Experiences Completed</div>
+      <div class="exp-done-item">
+        <span class="edi-icon">🏛️</span>
+        <div><div class="edi-title">Colosseum Priority Access</div><div class="edi-sub">May 2 · Skip-the-line · ⭐ 5.0 (you rated)</div></div>
+        <span class="edi-check">✓</span>
+      </div>
+      <div class="exp-done-item">
+        <span class="edi-icon">⛪</span>
+        <div><div class="edi-title">Vatican Museums & Sistine Chapel</div><div class="edi-sub">May 3 · 3h tour · ⭐ 5.0 (you rated)</div></div>
+        <span class="edi-check">✓</span>
+      </div>
+      <div class="exp-done-item" style="opacity:.5;">
+        <span class="edi-icon">⛲</span>
+        <div><div class="edi-title">Trevi Fountain Night Walk</div><div class="edi-sub" style="color:var(--amber);">Saved · Not yet booked</div></div>
+        <div style="font-size:10px;font-weight:700;color:var(--amber);margin-left:auto;white-space:nowrap;">Book →</div>
+      </div>
+    </div>
+
+    <div class="journal-actions">
+      <button class="journal-btn primary">Share Rome Story 🔗</button>
+      <button class="journal-btn secondary">Plan Next Trip</button>
+    </div>
+  </div>
+  <div class="bottom-nav">
+    <div class="nav-item active"><div class="nav-icon">🏠</div>Home</div>
+    <div class="nav-item"><div class="nav-icon">🔍</div>Explore</div>
+    <div class="nav-item"><div class="nav-icon">🎟️</div>Trips</div>
+    <div class="nav-item"><div class="nav-icon">👤</div>Profile</div>
+  </div>
+</div>
+
+<!-- S4: Planning Dubai Proactive Card -->
+<div class="screen dubai-screen" id="s4">
+  <div class="status-bar">
+    <span class="status-time">11:26</span>
+    <div class="status-icons"><span>5G</span><span>🔋54%</span></div>
+  </div>
+  <div style="padding:48px 0 0;flex-shrink:0;">
+    <div style="padding:0 20px;display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+      <div class="back-btn">←</div>
+      <div style="font-family:'Outfit',sans-serif;font-size:20px;font-weight:800;">Planning Dubai?</div>
+    </div>
+    <div class="intent-banner">
+      <div class="ib-tag">🎯 Intent Detected · BetweenTrips</div>
+      <div class="ib-title">You've been thinking about Dubai</div>
+      <div class="ib-sub">3 searches this week · 2 friends recently visited</div>
+      <div class="ib-signals">
+        <div class="signal active">Searched "Dubai activities"</div>
+        <div class="signal active">Viewed Desert Safari</div>
+        <div class="signal">Raj visited Dubai</div>
+        <div class="signal active">Priya wishlisted here</div>
+      </div>
+    </div>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding-bottom:100px;">
+    <div style="padding:0 0 8px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-left:20px;">Top Picks for Your Dubai Trip</div>
+
+    <div class="dubai-exp">
+      <div class="de-icon" style="background:rgba(245,158,11,0.12);">🏜️</div>
+      <div style="flex:1;min-width:0;">
+        <div class="de-title">Desert Safari with BBQ Dinner</div>
+        <div class="de-meta">⭐ 4.9 · 12.4K reviews · 4h</div>
+        <div class="wishlist-tag">💛 Priya saved this</div>
+      </div>
+      <div class="de-price">AED 149</div>
+    </div>
+
+    <div class="dubai-exp">
+      <div class="de-icon" style="background:rgba(14,165,233,0.1);">🏙️</div>
+      <div style="flex:1;min-width:0;">
+        <div class="de-title">Burj Khalifa At the Top (SKY)</div>
+        <div class="de-meta">⭐ 4.8 · 8.6K reviews · 2h</div>
+        <div class="wishlist-tag">🔥 Raj recommends</div>
+      </div>
+      <div class="de-price">AED 179</div>
+    </div>
+
+    <div class="dubai-exp">
+      <div class="de-icon" style="background:rgba(34,197,94,0.1);">🖼️</div>
+      <div style="flex:1;min-width:0;">
+        <div class="de-title">Dubai Frame — Sky Bridge Walk</div>
+        <div class="de-meta">⭐ 4.7 · 5.1K reviews · 1.5h</div>
+      </div>
+      <div class="de-price">AED 89</div>
+    </div>
+
+    <div style="padding:10px 20px 0;">
+      <div class="dubai-cta">
+        <button class="cta-primary">Plan my Dubai Trip →</button>
+        <button class="cta-secondary">Save all 3</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S5: Wishlist Booking Confirmed -->
+<div class="screen" id="s5">
+  <canvas id="confetti-canvas"></canvas>
+  <div class="status-bar" style="flex-shrink:0;">
+    <span class="status-time">11:27</span>
+    <div class="status-icons"><span>5G</span><span>🔋54%</span></div>
+  </div>
+  <div class="wishlist-header">
+    <div class="wl-title">Dubai Wishlist → Booked 🎉</div>
+    <div class="wl-sub">3 experiences saved · 1 booked now</div>
+  </div>
+  <div class="scroll-area" style="padding-top:10px;">
+    <div class="wishlist-card highlight">
+      <div class="wc-top">
+        <div class="wc-img" style="background:rgba(245,158,11,0.12);">🏜️</div>
+        <div>
+          <div class="wc-title">Desert Safari with BBQ Dinner</div>
+          <div class="wc-meta">
+            <div class="wc-rating"><span class="star">⭐</span> 4.9</div>
+            <div class="wc-price">AED 149</div>
+          </div>
+        </div>
+      </div>
+      <div class="avail-bar">
+        <div class="avail-pill">✓ Confirmed · Aug 14, 7:00 PM</div>
+        <div style="font-size:11px;color:var(--green);font-weight:700;">Booked</div>
+      </div>
+    </div>
+
+    <div class="wishlist-card">
+      <div class="wc-top">
+        <div class="wc-img" style="background:rgba(14,165,233,0.1);">🏙️</div>
+        <div>
+          <div class="wc-title">Burj Khalifa At the Top (SKY)</div>
+          <div class="wc-meta">
+            <div class="wc-rating"><span class="star">⭐</span> 4.8</div>
+            <div class="wc-price">AED 179</div>
+          </div>
+        </div>
+      </div>
+      <div class="avail-bar">
+        <div class="avail-pill" style="background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.3);color:var(--amber);">🔔 3 slots left tomorrow</div>
+        <button class="book-now">Book →</button>
+      </div>
+    </div>
+
+    <div class="wishlist-card">
+      <div class="wc-top">
+        <div class="wc-img" style="background:rgba(34,197,94,0.1);">🖼️</div>
+        <div>
+          <div class="wc-title">Dubai Frame — Sky Bridge Walk</div>
+          <div class="wc-meta">
+            <div class="wc-rating"><span class="star">⭐</span> 4.7</div>
+            <div class="wc-price">AED 89</div>
+          </div>
+        </div>
+      </div>
+      <div class="avail-bar">
+        <div class="avail-pill" style="background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.12);color:var(--muted);">Flexible dates</div>
+        <button class="book-now ghost">Book →</button>
+      </div>
+    </div>
+
+    <div class="wishlist-footer">
+      <div class="wf-row"><span class="wf-label">Booked today</span><span class="wf-val">Desert Safari · AED 149</span></div>
+      <div class="wf-row"><span class="wf-label">Still in wishlist</span><span class="wf-val">2 experiences · AED 268</span></div>
+      <div class="wf-row" style="margin-bottom:0;"><span class="wf-label">Trip total (if all booked)</span><span class="wf-total">AED 417</span></div>
+    </div>
+
+    <button class="confirm-btn">🎟️ View Desert Safari Ticket</button>
+  </div>
+</div>
+
+</div><!-- /phone -->
+</div><!-- /phone-wrap -->
+
+<div class="nav-controls">
+  <button class="ctrl-btn" id="prev-btn" onclick="go(cur-1)" disabled>←</button>
+  <div class="dots">
+    <div class="dot active" id="d1" onclick="go(1)"></div>
+    <div class="dot" id="d2" onclick="go(2)"></div>
+    <div class="dot" id="d3" onclick="go(3)"></div>
+    <div class="dot" id="d4" onclick="go(4)"></div>
+    <div class="dot" id="d5" onclick="go(5)"></div>
+  </div>
+  <button class="ctrl-btn" id="next-btn" onclick="go(cur+1)">→</button>
+</div>
+<div class="screen-label-wrap">
+  <div class="screen-label" id="screen-label">01 — THE BETWEEN-TRIP VOID</div>
+</div>
+
+<div class="sources-section">
+  <div class="sources-title">Projected Metrics — Benchmark Sources</div>
+  <div class="sources-grid">
+    <div class="source-card">
+      <div class="sc-pub">App Annie / data.ai — State of Mobile 2024</div>
+      <div class="sc-metric">+3.2× App Opens/Month</div>
+      <div class="sc-detail">Travel apps average 0.8 monthly sessions between bookings vs 8.4 for rideshare; BetweenTrips journal + peer feed targets parity with social/lifestyle apps that provide between-event value</div>
+    </div>
+    <div class="source-card">
+      <div class="sc-pub">Skift Research — Experiences Platform Engagement 2024</div>
+      <div class="sc-metric">+19% Cross-City Booking Rate</div>
+      <div class="sc-detail">Travelers who engage with post-trip content (journals, sharing) are significantly more likely to book in a second city within 6 months; social proof from peers accelerates this</div>
+    </div>
+    <div class="source-card">
+      <div class="sc-pub">PhonePe — Cart Incentivisation (Ajay Avaghade, 2024)</div>
+      <div class="sc-metric">60% Abandonment Reduction (shipped)</div>
+      <div class="sc-detail">Context-aware trigger (intent × time) deployed at PhonePe; BetweenTrips "Planning Dubai?" card applies same mechanic — intent detected from search behavior, proactive card at right moment</div>
+    </div>
+    <div class="source-card">
+      <div class="sc-pub">Contentsquare — Digital Experience Benchmark 2024</div>
+      <div class="sc-metric">+44% Wishlist-to-Book Conversion</div>
+      <div class="sc-detail">In-app wishlist combined with real-time availability nudge ("3 slots left tomorrow") drives significantly higher conversion vs uncontextualized save-for-later states</div>
+    </div>
+  </div>
+</div>
+
+<script>
+let cur = 1;
+const LABELS = {
+  1:'01 — THE BETWEEN-TRIP VOID',
+  2:'02 — BETWEENTRIPS HOME (NEW)',
+  3:'03 — ROME MEMORY JOURNAL',
+  4:'04 — PLANNING DUBAI · INTENT CARD',
+  5:'05 — WISHLIST → BOOKED'
+};
+
+function go(n) {
+  if (n < 1 || n > 5) return;
+  document.getElementById('s'+cur).classList.remove('active');
+  document.getElementById('d'+cur).classList.remove('active');
+  cur = n;
+  document.getElementById('s'+cur).classList.add('active');
+  document.getElementById('d'+cur).classList.add('active');
+  document.getElementById('screen-label').textContent = LABELS[cur];
+  document.getElementById('prev-btn').disabled = cur === 1;
+  document.getElementById('next-btn').disabled = cur === 5;
+  if (cur === 5) startConfetti();
+}
+
+function startConfetti() {
+  const canvas = document.getElementById('confetti-canvas');
+  if (!canvas) return;
+  canvas.width = canvas.offsetWidth;
+  canvas.height = canvas.offsetHeight;
+  const ctx = canvas.getContext('2d');
+  const colors = ['#F59E0B','#FF385C','#22C55E','#8B5CF6','#FFFFFF','#FCD34D'];
+  const particles = Array.from({length:80}, () => ({
+    x: Math.random() * canvas.width,
+    y: -10 - Math.random() * 80,
+    vx: (Math.random()-.5)*3,
+    vy: 2 + Math.random()*3,
+    color: colors[Math.floor(Math.random()*colors.length)],
+    w: 6 + Math.random()*6, h: 6 + Math.random()*6,
+    r: Math.random()*Math.PI*2, vr: (Math.random()-.5)*.2
+  }));
+  let frame = 0;
+  (function animate() {
+    if (frame > 120) { ctx.clearRect(0,0,canvas.width,canvas.height); return; }
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    particles.forEach(p => {
+      p.x+=p.vx; p.y+=p.vy; p.r+=p.vr;
+      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.r);
+      ctx.fillStyle=p.color; ctx.globalAlpha=Math.max(0,1-frame/100);
+      ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h); ctx.restore();
+    });
+    frame++; requestAnimationFrame(animate);
+  })();
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight') go(cur+1);
+  if (e.key === 'ArrowLeft') go(cur-1);
+});
+</script>
+</body>
+</html>

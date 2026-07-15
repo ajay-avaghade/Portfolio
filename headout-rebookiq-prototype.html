@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Headout RebookIQ — Post-Experience Rebooking Engine</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --dark: #0D0D0D;
+  --hero: #1A1A1A;
+  --card: #222222;
+  --lift: #2A2A2A;
+  --coral: #FF385C;
+  --gold: #F59E0B;
+  --green: #22C55E;
+  --purple: #8B5CF6;
+  --muted: #888888;
+  --border: rgba(255,255,255,0.10);
+  --white: #FFFFFF;
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-font-smoothing:antialiased; }
+body { background:var(--dark); font-family:'Inter',sans-serif; color:var(--white); min-height:100vh; display:flex; flex-direction:column; align-items:center; padding:40px 20px 60px; }
+.page-eyebrow { font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--coral); margin-bottom:6px; text-align:center; }
+.page-headline { font-family:'Outfit',sans-serif; font-size:30px; font-weight:900; color:var(--white); text-align:center; margin-bottom:6px; line-height:1.1; }
+.page-sub { font-size:13px; color:var(--muted); text-align:center; margin-bottom:32px; max-width:480px; line-height:1.6; }
+
+.phone-wrap { position:relative; width:390px; height:844px; }
+.phone { width:390px; height:844px; background:#111; border-radius:44px; border:2px solid rgba(255,255,255,0.12); overflow:hidden; position:relative; box-shadow:0 32px 80px rgba(0,0,0,0.7),0 0 0 1px rgba(255,255,255,0.06); }
+.notch { position:absolute; top:0; left:50%; transform:translateX(-50%); width:120px; height:34px; background:#111; border-radius:0 0 20px 20px; z-index:20; }
+.status-bar { height:44px; display:flex; align-items:center; justify-content:space-between; padding:12px 22px 0; font-size:12px; font-weight:600; color:var(--white); position:relative; z-index:10; flex-shrink:0; }
+.status-time { font-size:15px; font-weight:700; }
+.status-icons { display:flex; align-items:center; gap:5px; font-size:11px; }
+
+.screen { position:absolute; top:0; left:0; right:0; bottom:0; display:none; flex-direction:column; overflow:hidden; background:#111; }
+.screen.active { display:flex; }
+
+.app-header { padding:48px 20px 10px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+.app-logo { font-family:'Outfit',sans-serif; font-size:22px; font-weight:900; color:var(--coral); }
+.hdr-actions { display:flex; gap:10px; align-items:center; }
+.hdr-icon { width:34px; height:34px; background:rgba(255,255,255,0.07); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; }
+.avatar { width:34px; height:34px; background:var(--coral); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; }
+
+.scroll-area { flex:1; overflow-y:auto; padding:0 20px 80px; }
+.scroll-area::-webkit-scrollbar { display:none; }
+
+.sec-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); margin-bottom:8px; margin-top:14px; }
+
+.trigger-card { background:linear-gradient(135deg,#FF385C,#FF6B6B); border-radius:20px; padding:20px; margin-bottom:14px; position:relative; overflow:hidden; }
+.trigger-card::after { content:''; position:absolute; top:-20px; right:-20px; width:100px; height:100px; background:rgba(255,255,255,0.1); border-radius:50%; }
+.trigger-badge { display:inline-flex; align-items:center; gap:5px; background:rgba(255,255,255,0.2); border-radius:20px; padding:3px 10px; font-size:11px; font-weight:600; margin-bottom:10px; }
+.trigger-title { font-family:'Outfit',sans-serif; font-size:20px; font-weight:800; color:var(--white); line-height:1.2; margin-bottom:4px; }
+.trigger-sub { font-size:12px; color:rgba(255,255,255,0.8); margin-bottom:14px; }
+.rating-row { display:flex; align-items:center; gap:10px; background:rgba(255,255,255,0.15); border-radius:12px; padding:10px 14px; }
+.rating-label { font-size:12px; color:rgba(255,255,255,0.9); font-weight:500; }
+.stars { font-size:18px; }
+
+.rebookiq-card { background:var(--hero); border:1px solid rgba(255,56,92,0.3); border-radius:16px; padding:16px; margin-bottom:14px; display:flex; align-items:center; gap:12px; }
+.rebookiq-icon { width:44px; height:44px; background:rgba(255,56,92,0.15); border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; }
+.rebookiq-text .rt-title { font-size:13px; font-weight:700; }
+.rebookiq-text .rt-sub { font-size:11px; color:var(--muted); margin-top:2px; }
+.loading-dots { display:inline-flex; gap:3px; margin-left:4px; }
+.loading-dots span { width:4px; height:4px; border-radius:50%; background:var(--coral); animation:dotbounce 1.2s ease-in-out infinite; }
+.loading-dots span:nth-child(2) { animation-delay:.2s; }
+.loading-dots span:nth-child(3) { animation-delay:.4s; }
+@keyframes dotbounce { 0%,60%,100% { transform:translateY(0); opacity:.4; } 30% { transform:translateY(-4px); opacity:1; } }
+
+.streak-card { background:var(--hero); border-radius:16px; padding:14px 16px; margin-bottom:14px; border:1px solid var(--border); }
+.streak-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+.streak-title { font-size:13px; font-weight:700; }
+.streak-badge { background:rgba(255,56,92,0.15); color:var(--coral); border-radius:8px; padding:3px 8px; font-size:10px; font-weight:700; text-transform:uppercase; }
+.streak-track { height:6px; background:rgba(255,255,255,0.08); border-radius:3px; margin-bottom:10px; overflow:hidden; }
+.streak-fill { height:100%; background:linear-gradient(90deg,var(--coral),#FF6B6B); border-radius:3px; width:33%; }
+.streak-steps { display:flex; justify-content:space-between; }
+.streak-step { text-align:center; }
+.ss-dot { width:28px; height:28px; border-radius:50%; border:2px solid rgba(255,255,255,0.15); display:flex; align-items:center; justify-content:center; margin:0 auto 4px; font-size:12px; }
+.ss-dot.done { border-color:var(--coral); background:rgba(255,56,92,0.15); color:var(--coral); }
+.ss-label { font-size:10px; color:var(--muted); }
+
+.exp-card { background:var(--hero); border-radius:16px; padding:14px; margin-bottom:12px; border:1px solid var(--border); position:relative; }
+.exp-card.top-pick { border-color:rgba(255,56,92,0.4); }
+.top-pick-badge { position:absolute; top:12px; right:12px; background:var(--coral); color:var(--white); border-radius:8px; padding:3px 8px; font-size:10px; font-weight:700; }
+.exp-img { width:100%; height:90px; border-radius:10px; margin-bottom:10px; display:flex; align-items:center; justify-content:center; font-size:36px; }
+.exp-title { font-size:14px; font-weight:700; margin-bottom:5px; line-height:1.3; }
+.exp-meta { display:flex; align-items:center; gap:12px; margin-bottom:6px; }
+.exp-rating { display:flex; align-items:center; gap:3px; font-size:12px; }
+.star { color:var(--gold); }
+.rv { color:var(--muted); font-size:11px; }
+.exp-price { font-size:14px; font-weight:700; color:var(--coral); }
+.exp-tags { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:8px; }
+.exp-tag { background:rgba(255,255,255,0.07); border-radius:6px; padding:3px 8px; font-size:10px; color:var(--muted); }
+.exp-tag.urgent { background:rgba(245,158,11,0.12); color:var(--gold); }
+.ai-reason { background:rgba(255,56,92,0.08); border-left:2px solid var(--coral); border-radius:0 8px 8px 0; padding:7px 10px; font-size:11px; color:rgba(255,255,255,0.7); margin-bottom:10px; }
+.book-btn { width:100%; background:var(--coral); color:var(--white); border:none; border-radius:10px; padding:11px; font-size:13px; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; }
+.outline-btn { width:100%; background:rgba(255,255,255,0.06); color:var(--white); border:1px solid var(--border); border-radius:10px; padding:11px; font-size:13px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; }
+.coral-btn { width:100%; background:var(--coral); color:var(--white); border:none; border-radius:14px; padding:15px; font-size:15px; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; }
+
+.bottom-nav { position:absolute; bottom:0; left:0; right:0; height:76px; background:#0F0F0F; border-top:1px solid var(--border); display:flex; align-items:center; justify-content:space-around; padding:0 10px 16px; }
+.nav-item { display:flex; flex-direction:column; align-items:center; gap:3px; font-size:10px; font-weight:500; color:var(--muted); padding:4px 10px; }
+.nav-item.active { color:var(--coral); }
+.nav-icon { font-size:20px; }
+
+/* S2 Badge */
+.badge-screen { background:linear-gradient(180deg,#1A0808,#111) !important; }
+.badge-header { padding:48px 20px 16px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+.back-btn { width:32px; height:32px; background:rgba(255,255,255,0.08); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; cursor:pointer; }
+.badge-center { text-align:center; padding:0 20px; }
+.badge-h { font-family:'Outfit',sans-serif; font-size:28px; font-weight:900; margin-bottom:6px; }
+.badge-sub { font-size:13px; color:var(--muted); margin-bottom:16px; }
+.city-badge { width:130px; height:130px; border-radius:50%; background:linear-gradient(135deg,rgba(255,56,92,0.2),rgba(255,56,92,0.05)); border:3px solid var(--coral); display:flex; flex-direction:column; align-items:center; justify-content:center; margin:0 auto 16px; box-shadow:0 0 40px rgba(255,56,92,0.3); font-size:48px; }
+.explorer-chip { display:inline-flex; align-items:center; gap:6px; background:rgba(255,56,92,0.15); border:1px solid rgba(255,56,92,0.4); color:var(--coral); border-radius:20px; padding:5px 14px; font-size:12px; font-weight:700; margin-bottom:20px; }
+.stats-row { display:flex; gap:10px; margin:0 20px 16px; }
+.stat-pill { flex:1; background:var(--hero); border-radius:12px; padding:12px 8px; text-align:center; border:1px solid var(--border); }
+.sp-val { font-size:16px; font-weight:800; }
+.sp-lbl { font-size:10px; color:var(--muted); margin-top:2px; }
+.picks-section { padding:0 20px; }
+.picks-label { font-size:12px; font-weight:700; color:var(--coral); margin-bottom:10px; }
+.pick-chips { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
+.pick-chip { background:rgba(255,255,255,0.07); border:1px solid var(--border); border-radius:20px; padding:7px 14px; font-size:12px; font-weight:500; }
+
+/* S4 Score */
+.score-header { padding:48px 20px 8px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+.score-title { font-family:'Outfit',sans-serif; font-size:20px; font-weight:800; }
+.score-area { display:flex; flex-direction:column; align-items:center; padding:16px 20px; }
+.score-ring { width:140px; height:140px; border-radius:50%; border:8px solid rgba(255,56,92,0.15); display:flex; flex-direction:column; align-items:center; justify-content:center; margin-bottom:12px; box-shadow:0 0 30px rgba(255,56,92,0.2); position:relative; }
+.score-ring::before { content:''; position:absolute; inset:-8px; border-radius:50%; border:8px solid transparent; border-top-color:var(--coral); border-right-color:var(--coral); transform:rotate(-30deg); }
+.score-num { font-family:'Outfit',sans-serif; font-size:44px; font-weight:900; line-height:1; }
+.score-lbl { font-size:11px; color:var(--muted); }
+.level-badge { background:rgba(255,56,92,0.15); border:1px solid rgba(255,56,92,0.4); color:var(--coral); border-radius:20px; padding:5px 16px; font-size:12px; font-weight:700; }
+.cities-row { display:flex; gap:10px; padding:12px 20px; overflow-x:auto; }
+.cities-row::-webkit-scrollbar { display:none; }
+.city-pill { flex-shrink:0; background:var(--hero); border-radius:12px; padding:10px 12px; text-align:center; border:1px solid var(--border); min-width:68px; }
+.city-pill.unlocked { border-color:rgba(255,56,92,0.4); background:rgba(255,56,92,0.08); }
+.cp-icon { font-size:20px; margin-bottom:3px; }
+.cp-name { font-size:10px; color:var(--muted); }
+.city-pill.unlocked .cp-name { color:var(--coral); }
+.milestone-card { background:var(--hero); border:1px solid rgba(255,56,92,0.3); border-radius:14px; padding:14px; margin:0 20px 14px; }
+.mc-head { display:flex; justify-content:space-between; margin-bottom:8px; }
+.mc-title { font-size:12px; font-weight:700; }
+.mc-pts { font-size:12px; color:var(--coral); font-weight:700; }
+.mc-track { height:6px; background:rgba(255,255,255,0.08); border-radius:3px; overflow:hidden; margin-bottom:8px; }
+.mc-fill { height:100%; background:var(--coral); border-radius:3px; width:80%; }
+.mc-sub { font-size:11px; color:var(--muted); }
+.activity-list { padding:0 20px; }
+.activity-item { display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid var(--border); }
+.activity-item:last-child { border-bottom:none; }
+.act-icon { width:36px; height:36px; background:rgba(255,56,92,0.12); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; }
+.at-title { font-size:12px; font-weight:600; }
+.at-sub { font-size:11px; color:var(--muted); }
+.act-pts { font-size:13px; font-weight:700; color:var(--green); margin-left:auto; white-space:nowrap; }
+
+/* S5 Confirm */
+.confirm-screen { align-items:center; padding:44px 24px 80px; text-align:center; }
+.confirm-check { width:80px; height:80px; background:rgba(255,56,92,0.15); border:2px solid var(--coral); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:36px; margin:20px auto 16px; box-shadow:0 0 40px rgba(255,56,92,0.3); }
+.confirm-title { font-family:'Outfit',sans-serif; font-size:24px; font-weight:900; margin-bottom:4px; }
+.confirm-sub { font-size:13px; color:var(--muted); margin-bottom:18px; }
+.booking-details { background:var(--hero); border-radius:16px; padding:16px; width:100%; margin-bottom:12px; border:1px solid var(--border); text-align:left; }
+.bd-row { display:flex; justify-content:space-between; align-items:center; padding:7px 0; border-bottom:1px solid var(--border); }
+.bd-row:last-child { border-bottom:none; }
+.bd-label { font-size:12px; color:var(--muted); }
+.bd-val { font-size:12px; font-weight:600; }
+.score-upgrade { background:rgba(255,56,92,0.1); border:1px solid rgba(255,56,92,0.3); border-radius:14px; padding:14px 16px; width:100%; margin-bottom:12px; text-align:left; }
+.su-head { font-size:11px; color:var(--coral); font-weight:700; margin-bottom:5px; }
+.su-score { font-size:18px; font-weight:800; }
+.su-sub { font-size:11px; color:var(--muted); margin-top:2px; }
+.confirm-btns { display:flex; flex-direction:column; gap:10px; width:100%; }
+.btn-coral { background:var(--coral); color:var(--white); border:none; border-radius:13px; padding:14px; font-size:14px; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; }
+.btn-ghost { background:transparent; color:var(--white); border:1px solid rgba(255,255,255,0.2); border-radius:13px; padding:14px; font-size:14px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; }
+
+/* Controls */
+.nav-controls { display:flex; align-items:center; justify-content:center; gap:16px; margin-top:28px; }
+.ctrl-btn { width:44px; height:44px; border-radius:50%; border:1px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.05); color:var(--white); font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .2s; }
+.ctrl-btn:hover { background:rgba(255,56,92,0.2); border-color:var(--coral); }
+.ctrl-btn:disabled { opacity:.3; cursor:default; }
+.dots { display:flex; gap:8px; align-items:center; }
+.dot { width:8px; height:8px; border-radius:4px; background:rgba(255,255,255,0.2); transition:all .3s; cursor:pointer; }
+.dot.active { width:24px; background:var(--coral); }
+.screen-label-wrap { text-align:center; margin-top:12px; }
+.screen-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); }
+
+/* Sources */
+.sources-section { margin-top:40px; width:100%; max-width:720px; }
+.sources-title { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--muted); text-align:center; margin-bottom:12px; }
+.sources-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.source-card { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:10px; padding:12px 14px; }
+.sc-pub { font-size:10px; font-weight:700; color:var(--coral); margin-bottom:3px; }
+.sc-metric { font-size:12px; font-weight:700; color:var(--white); margin-bottom:2px; }
+.sc-detail { font-size:10px; color:var(--muted); line-height:1.5; }
+</style>
+</head>
+<body>
+
+<div class="page-eyebrow">Headout · Case Study 01 · RebookIQ</div>
+<div class="page-headline">The Post-Experience<br>Rebooking Engine</div>
+<div class="page-sub">Fires the moment your experience ends — city badge unlock → Explorer Score → 3 personalized next picks. Turns one-time visitors into multi-experience explorers.</div>
+
+<div class="phone-wrap">
+<div class="phone">
+<div class="notch"></div>
+
+<!-- S1: Post-Experience Trigger -->
+<div class="screen active" id="s1">
+  <div class="status-bar">
+    <span class="status-time">9:41</span>
+    <div class="status-icons"><span>5G</span><span>🔋78%</span></div>
+  </div>
+  <div class="app-header">
+    <div class="app-logo">headout</div>
+    <div class="hdr-actions">
+      <div class="hdr-icon">🔔</div>
+      <div class="avatar">A</div>
+    </div>
+  </div>
+  <div class="scroll-area">
+    <div class="trigger-card">
+      <div class="trigger-badge">✓ COMPLETED · 30 MIN AGO</div>
+      <div class="trigger-title">Colosseum Priority Access</div>
+      <div class="trigger-sub">Rome, Italy · Skip-the-line · 2h 30m · Today, 7:00 AM</div>
+      <div class="rating-row">
+        <span class="rating-label">How was it?</span>
+        <span class="stars">⭐⭐⭐⭐⭐</span>
+      </div>
+    </div>
+
+    <div class="rebookiq-card">
+      <div class="rebookiq-icon">🤖</div>
+      <div class="rebookiq-text">
+        <div class="rt-title">RebookIQ is finding your next pick<span class="loading-dots"><span></span><span></span><span></span></span></div>
+        <div class="rt-sub">Based on Colosseum visit · Rome Explorer path</div>
+      </div>
+    </div>
+
+    <div class="streak-card">
+      <div class="streak-header">
+        <span class="streak-title">🏆 Explorer Progress</span>
+        <span class="streak-badge">Level 1</span>
+      </div>
+      <div class="streak-track"><div class="streak-fill"></div></div>
+      <div class="streak-steps">
+        <div class="streak-step"><div class="ss-dot done">✓</div><div class="ss-label">1st exp</div></div>
+        <div class="streak-step"><div class="ss-dot">2</div><div class="ss-label">2nd exp</div></div>
+        <div class="streak-step"><div class="ss-dot">🏅</div><div class="ss-label">Rome Explorer</div></div>
+      </div>
+    </div>
+
+    <div class="sec-label">RebookIQ Pick</div>
+    <div class="exp-card top-pick" style="opacity:.6;">
+      <div class="top-pick-badge">RebookIQ</div>
+      <div class="exp-img" style="background:linear-gradient(135deg,#1A0A08,#2C1010);">🏛️</div>
+      <div class="exp-title">Vatican Museums & Sistine Chapel</div>
+      <div class="exp-meta">
+        <div class="exp-rating"><span class="star">⭐</span> 4.9 <span class="rv">· 8.2K reviews</span></div>
+        <div class="exp-price">From €39</div>
+      </div>
+      <div style="font-size:12px;color:var(--muted);">Loading your pick<span class="loading-dots"><span></span><span></span><span></span></span></div>
+    </div>
+  </div>
+  <div class="bottom-nav">
+    <div class="nav-item active"><div class="nav-icon">🏠</div>Home</div>
+    <div class="nav-item"><div class="nav-icon">🗺️</div>Explore</div>
+    <div class="nav-item"><div class="nav-icon">🎟️</div>Trips</div>
+    <div class="nav-item"><div class="nav-icon">👤</div>Profile</div>
+  </div>
+</div>
+
+<!-- S2: Rome Unlocked Badge -->
+<div class="screen badge-screen" id="s2">
+  <div class="status-bar">
+    <span class="status-time">9:43</span>
+    <div class="status-icons"><span>5G</span><span>🔋78%</span></div>
+  </div>
+  <div class="badge-header">
+    <div class="back-btn">←</div>
+    <div style="font-size:13px;color:var(--muted);">Explorer Badge</div>
+    <div class="hdr-icon">🔗</div>
+  </div>
+  <div class="badge-center">
+    <div class="badge-h">🏛️ Rome Unlocked!</div>
+    <div class="badge-sub">You've earned the Rome Explorer badge</div>
+    <div class="city-badge">🏛️</div>
+    <div class="explorer-chip">⚡ Rome Explorer · Level 2 Unlocked</div>
+  </div>
+  <div class="stats-row">
+    <div class="stat-pill"><div class="sp-val">1</div><div class="sp-lbl">Experience</div></div>
+    <div class="stat-pill"><div class="sp-val">€39</div><div class="sp-lbl">Saved w/ HD</div></div>
+    <div class="stat-pill"><div class="sp-val">#847</div><div class="sp-lbl">Rome Rank</div></div>
+  </div>
+  <div class="picks-section">
+    <div class="picks-label">🤖 RebookIQ's top picks for Rome →</div>
+    <div class="pick-chips">
+      <div class="pick-chip">🏛️ Vatican Museums</div>
+      <div class="pick-chip">🍕 Rome Food Tour</div>
+      <div class="pick-chip">⛲ Trevi Night Walk</div>
+    </div>
+    <button class="coral-btn">See All Rome Picks →</button>
+  </div>
+</div>
+
+<!-- S3: Personalized Picks -->
+<div class="screen" id="s3">
+  <div class="status-bar">
+    <span class="status-time">9:44</span>
+    <div class="status-icons"><span>5G</span><span>🔋78%</span></div>
+  </div>
+  <div style="padding:48px 20px 8px;flex-shrink:0;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+      <div class="back-btn">←</div>
+      <div style="font-family:'Outfit',sans-serif;font-size:20px;font-weight:800;">What's Next in Rome</div>
+    </div>
+    <div style="display:inline-flex;align-items:center;gap:5px;background:rgba(255,56,92,0.12);color:var(--coral);border-radius:20px;padding:4px 10px;font-size:11px;font-weight:600;">🤖 Personalized · After Colosseum</div>
+  </div>
+  <div class="scroll-area" style="padding-top:12px;">
+    <div class="exp-card top-pick">
+      <div class="top-pick-badge">TOP PICK</div>
+      <div class="exp-img" style="background:linear-gradient(135deg,#1A0A08,#2C1010);">🏛️</div>
+      <div class="exp-title">Vatican Museums & Sistine Chapel</div>
+      <div class="exp-meta">
+        <div class="exp-rating"><span class="star">⭐</span> 4.9 <span class="rv">· 8.2K</span></div>
+        <div class="exp-price">From €39</div>
+      </div>
+      <div class="exp-tags">
+        <div class="exp-tag">⏰ Tomorrow 10:00 AM</div>
+        <div class="exp-tag urgent">🔥 6 slots left</div>
+        <div class="exp-tag">📍 2.1km away</div>
+      </div>
+      <div class="ai-reason">🤖 94% of Colosseum visitors book this next</div>
+      <button class="book-btn">Book Now · From €39</button>
+    </div>
+
+    <div class="exp-card">
+      <div class="exp-img" style="background:linear-gradient(135deg,#0A100A,#102010);">🍕</div>
+      <div class="exp-title">Rome Food Tour at Sunset</div>
+      <div class="exp-meta">
+        <div class="exp-rating"><span class="star">⭐</span> 4.8 <span class="rv">· 3.1K</span></div>
+        <div class="exp-price">From €65</div>
+      </div>
+      <div class="exp-tags">
+        <div class="exp-tag">⏰ Tonight 6:30 PM</div>
+        <div class="exp-tag urgent">🔥 4 spots</div>
+      </div>
+      <div class="ai-reason">🤖 Best for solo explorers · Evening energy</div>
+      <button class="outline-btn">View Details</button>
+    </div>
+
+    <div class="exp-card">
+      <div class="exp-img" style="background:linear-gradient(135deg,#080A1A,#101428);">⛲</div>
+      <div class="exp-title">Trevi Fountain Night Walk</div>
+      <div class="exp-meta">
+        <div class="exp-rating"><span class="star">⭐</span> 4.7 <span class="rv">· 5.6K</span></div>
+        <div class="exp-price">From €19</div>
+      </div>
+      <div class="exp-tags">
+        <div class="exp-tag">⏰ Tonight 9:00 PM</div>
+        <div class="exp-tag">📍 Central Rome</div>
+      </div>
+      <div class="ai-reason">🤖 Completes Classic Rome Explorer badge</div>
+      <button class="outline-btn">View Details</button>
+    </div>
+  </div>
+  <div class="bottom-nav">
+    <div class="nav-item active"><div class="nav-icon">🏠</div>Home</div>
+    <div class="nav-item"><div class="nav-icon">🗺️</div>Explore</div>
+    <div class="nav-item"><div class="nav-icon">🎟️</div>Trips</div>
+    <div class="nav-item"><div class="nav-icon">👤</div>Profile</div>
+  </div>
+</div>
+
+<!-- S4: Explorer Score -->
+<div class="screen" id="s4">
+  <div class="status-bar">
+    <span class="status-time">9:46</span>
+    <div class="status-icons"><span>5G</span><span>🔋78%</span></div>
+  </div>
+  <div class="score-header">
+    <div class="score-title">Explorer Score</div>
+    <div class="hdr-icon">⚙️</div>
+  </div>
+  <div style="overflow-y:auto;flex:1;padding-bottom:20px;">
+    <div class="score-area">
+      <div class="score-ring">
+        <div class="score-num">240</div>
+        <div class="score-lbl">pts</div>
+      </div>
+      <div class="level-badge">⚡ Rome Explorer · Level 2</div>
+    </div>
+    <div class="cities-row">
+      <div class="city-pill unlocked"><div class="cp-icon">🏛️</div><div class="cp-name">Rome ✓</div></div>
+      <div class="city-pill"><div class="cp-icon">🗼</div><div class="cp-name">Paris 🔒</div></div>
+      <div class="city-pill"><div class="cp-icon">🕌</div><div class="cp-name">Dubai 🔒</div></div>
+      <div class="city-pill"><div class="cp-icon">🏰</div><div class="cp-name">Barcelona 🔒</div></div>
+    </div>
+    <div class="milestone-card">
+      <div class="mc-head">
+        <span class="mc-title">🏆 Next: Paris Explorer</span>
+        <span class="mc-pts">240 / 300 pts</span>
+      </div>
+      <div class="mc-track"><div class="mc-fill"></div></div>
+      <div class="mc-sub">Book 1 experience in Paris to unlock the Paris Explorer badge + insider collection</div>
+    </div>
+    <div class="sec-label" style="padding:0 20px;margin-bottom:6px;">Recent Activity</div>
+    <div class="activity-list">
+      <div class="activity-item">
+        <div class="act-icon">🏛️</div>
+        <div class="act-text"><div class="at-title">Colosseum Priority Access</div><div class="at-sub">Rome · Today 9:41 AM</div></div>
+        <div class="act-pts">+40 pts</div>
+      </div>
+      <div class="activity-item">
+        <div class="act-icon">🎖️</div>
+        <div class="act-text"><div class="at-title">First Rome Experience</div><div class="at-sub">Rome Explorer badge unlocked</div></div>
+        <div class="act-pts">+80 pts</div>
+      </div>
+      <div class="activity-item">
+        <div class="act-icon">🚀</div>
+        <div class="act-text"><div class="at-title">Headout Member</div><div class="at-sub">Signup bonus</div></div>
+        <div class="act-pts">+120 pts</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S5: Booking Confirmed -->
+<div class="screen confirm-screen" id="s5">
+  <canvas id="confetti-canvas" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:100;"></canvas>
+  <div class="status-bar" style="width:100%;flex-shrink:0;">
+    <span class="status-time">9:47</span>
+    <div class="status-icons"><span>5G</span><span>🔋78%</span></div>
+  </div>
+  <div class="confirm-check">✓</div>
+  <div class="confirm-title">Booked! See you there 🎉</div>
+  <div class="confirm-sub">Vatican Museums & Sistine Chapel</div>
+  <div class="booking-details">
+    <div class="bd-row"><span class="bd-label">Date & Time</span><span class="bd-val">Tomorrow · 10:00 AM</span></div>
+    <div class="bd-row"><span class="bd-label">Tickets</span><span class="bd-val">2 adults</span></div>
+    <div class="bd-row"><span class="bd-label">Location</span><span class="bd-val">Vatican City, Rome</span></div>
+    <div class="bd-row"><span class="bd-label">Total Paid</span><span class="bd-val" style="color:var(--coral);">€78.00</span></div>
+  </div>
+  <div class="score-upgrade">
+    <div class="su-head">⚡ Explorer Score Upgraded</div>
+    <div class="su-score">240 → 280 pts (+40)</div>
+    <div class="su-sub">20 pts away from Paris Explorer 🗼</div>
+  </div>
+  <div class="confirm-btns">
+    <button class="btn-coral">📅 Add to Calendar</button>
+    <button class="btn-ghost">🎟️ View Tickets</button>
+  </div>
+</div>
+
+</div><!-- /phone -->
+</div><!-- /phone-wrap -->
+
+<div class="nav-controls">
+  <button class="ctrl-btn" id="prev-btn" onclick="go(cur-1)" disabled>←</button>
+  <div class="dots">
+    <div class="dot active" id="d1" onclick="go(1)"></div>
+    <div class="dot" id="d2" onclick="go(2)"></div>
+    <div class="dot" id="d3" onclick="go(3)"></div>
+    <div class="dot" id="d4" onclick="go(4)"></div>
+    <div class="dot" id="d5" onclick="go(5)"></div>
+  </div>
+  <button class="ctrl-btn" id="next-btn" onclick="go(cur+1)">→</button>
+</div>
+<div class="screen-label-wrap">
+  <div class="screen-label" id="screen-label">01 — POST-EXPERIENCE TRIGGER</div>
+</div>
+
+<div class="sources-section">
+  <div class="sources-title">Projected Metrics — Benchmark Sources</div>
+  <div class="sources-grid">
+    <div class="source-card">
+      <div class="sc-pub">Phocuswright — U.S. Tours, Activities & Attractions 2023</div>
+      <div class="sc-metric">+28% D30 Rebooking Rate</div>
+      <div class="sc-detail">Post-purchase trigger benchmark for experience platforms; Headout projection using PhonePe D30 +15% as conservative baseline for analogous trigger mechanic</div>
+    </div>
+    <div class="source-card">
+      <div class="sc-pub">Bain & Company — Customer Loyalty in Travel 2023</div>
+      <div class="sc-metric">2.4× CLTV Uplift (1→3 experiences)</div>
+      <div class="sc-detail">Repeat travel customers spend significantly more per transaction; milestone-badge mechanics accelerate attainment of loyal-user threshold</div>
+    </div>
+    <div class="source-card">
+      <div class="sc-pub">PhonePe — D30 Retention Lifecycle (Ajay Avaghade, 2024)</div>
+      <div class="sc-metric">+15% D30 Retention (shipped)</div>
+      <div class="sc-detail">3-category breadth threshold + milestone reward system at PhonePe 350M MAU; direct proof point for Explorer Score mechanic applied to travel breadth</div>
+    </div>
+    <div class="source-card">
+      <div class="sc-pub">Skift Research — Experiences Platform Engagement 2024</div>
+      <div class="sc-metric">−35% Time to Second Booking</div>
+      <div class="sc-detail">In-moment trigger (within 30 min of completion) vs next-day push; recency of the post-experience window is the key driver of rebooking velocity</div>
+    </div>
+  </div>
+</div>
+
+<script>
+let cur = 1;
+const LABELS = {
+  1:'01 — POST-EXPERIENCE TRIGGER',
+  2:'02 — ROME EXPLORER BADGE',
+  3:'03 — REBOOKIQ PICKS',
+  4:'04 — EXPLORER SCORE',
+  5:'05 — BOOKING CONFIRMED'
+};
+
+function go(n) {
+  if (n < 1 || n > 5) return;
+  document.getElementById('s'+cur).classList.remove('active');
+  document.getElementById('d'+cur).classList.remove('active');
+  cur = n;
+  document.getElementById('s'+cur).classList.add('active');
+  document.getElementById('d'+cur).classList.add('active');
+  document.getElementById('screen-label').textContent = LABELS[cur];
+  document.getElementById('prev-btn').disabled = cur === 1;
+  document.getElementById('next-btn').disabled = cur === 5;
+  if (cur === 5) startConfetti();
+}
+
+function startConfetti() {
+  const canvas = document.getElementById('confetti-canvas');
+  if (!canvas) return;
+  canvas.width = canvas.offsetWidth;
+  canvas.height = canvas.offsetHeight;
+  const ctx = canvas.getContext('2d');
+  const colors = ['#FF385C','#F59E0B','#22C55E','#8B5CF6','#FFFFFF'];
+  const particles = Array.from({length:90}, () => ({
+    x: Math.random() * canvas.width,
+    y: -10 - Math.random() * 80,
+    vx: (Math.random()-.5)*3,
+    vy: 2 + Math.random()*3,
+    color: colors[Math.floor(Math.random()*colors.length)],
+    w: 6 + Math.random()*6,
+    h: 6 + Math.random()*6,
+    r: Math.random()*Math.PI*2,
+    vr: (Math.random()-.5)*.2
+  }));
+  let frame = 0;
+  (function animate() {
+    if (frame > 130) { ctx.clearRect(0,0,canvas.width,canvas.height); return; }
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    particles.forEach(p => {
+      p.x += p.vx; p.y += p.vy; p.r += p.vr;
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.r);
+      ctx.fillStyle = p.color;
+      ctx.globalAlpha = Math.max(0, 1 - frame/110);
+      ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+      ctx.restore();
+    });
+    frame++;
+    requestAnimationFrame(animate);
+  })();
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight') go(cur+1);
+  if (e.key === 'ArrowLeft') go(cur-1);
+});
+</script>
+</body>
+</html>
